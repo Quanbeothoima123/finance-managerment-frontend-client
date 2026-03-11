@@ -7,6 +7,7 @@ import {
   Store,
   Tag,
   Trash2,
+  ListFilter,
 } from "lucide-react";
 import { Card } from "../components/Card";
 import { Button } from "../components/Button";
@@ -152,6 +153,14 @@ export default function MerchantDetail() {
                 <span className="hidden md:inline">Chỉnh sửa</span>
               </Button>
 
+              <Button
+                variant="secondary"
+                onClick={() => nav.goTransactionsByMerchant(merchant.id)}
+              >
+                <ListFilter className="w-4 h-4" />
+                <span className="hidden md:inline">Xem giao dịch</span>
+              </Button>
+
               <Button variant="danger" onClick={() => setDeleteModalOpen(true)}>
                 <Trash2 className="w-4 h-4" />
                 <span className="hidden md:inline">Xoá</span>
@@ -220,12 +229,17 @@ export default function MerchantDetail() {
                     Danh mục mặc định
                   </p>
                   {merchant.defaultCategoryInfo ? (
-                    <div className="flex items-center gap-2">
-                      <Tag className="w-4 h-4 text-[var(--primary)]" />
-                      <p className="font-medium text-[var(--text-primary)]">
-                        {merchant.defaultCategoryInfo.name}
-                      </p>
-                    </div>
+                    <button
+                      onClick={() =>
+                        nav.goTransactionsByCategory(
+                          merchant.defaultCategoryInfo!.id,
+                        )
+                      }
+                      className="inline-flex items-center gap-2 font-medium text-[var(--primary)] hover:underline"
+                    >
+                      <Tag className="w-4 h-4" />
+                      {merchant.defaultCategoryInfo.name}
+                    </button>
                   ) : (
                     <p className="text-sm text-[var(--text-tertiary)] italic">
                       Chưa đặt danh mục mặc định
@@ -257,9 +271,18 @@ export default function MerchantDetail() {
           </div>
 
           <Card>
-            <h3 className="font-semibold text-[var(--text-primary)] mb-4">
-              Giao dịch gần đây
-            </h3>
+            <div className="flex items-center justify-between gap-3 mb-4">
+              <h3 className="font-semibold text-[var(--text-primary)]">
+                Giao dịch gần đây
+              </h3>
+
+              <button
+                onClick={() => nav.goTransactionsByMerchant(merchant.id)}
+                className="text-sm font-medium text-[var(--primary)] hover:underline"
+              >
+                Xem tất cả
+              </button>
+            </div>
 
             <div className="space-y-3">
               {data.recentTransactions.length === 0 ? (

@@ -12,6 +12,8 @@ import {
   TrendingDown,
   TrendingUp,
   Wallet,
+  Store,
+  Tag,
 } from "lucide-react";
 import {
   Area,
@@ -27,6 +29,7 @@ import { Card } from "../components/Card";
 import { ProgressBar } from "../components/ProgressBar";
 import { TagChip } from "../components/TagChip";
 import { useHomeOverview } from "../hooks/useHomeOverview";
+import { useAppNavigation } from "../hooks/useAppNavigation";
 import type {
   HomeBudgetPreview,
   HomeInsightCard,
@@ -330,6 +333,7 @@ function UpcomingRecurringCard({ item }: { item: HomeRecurringPreview }) {
 
 export default function Home() {
   const navigate = useNavigate();
+  const nav = useAppNavigation();
   const { data, loading, error, month, setMonth } = useHomeOverview();
 
   const chartData = useMemo(() => {
@@ -712,14 +716,40 @@ export default function Home() {
                             <p className="text-sm font-medium text-[var(--text-primary)]">
                               {transaction.description || "Giao dịch"}
                             </p>
-                            {transaction.tags.length > 0 && (
+
+                            {(transaction.merchant ||
+                              transaction.tags.length > 0) && (
                               <div className="flex flex-wrap gap-1.5 mt-2">
+                                {transaction.merchant?.id && (
+                                  <button
+                                    onClick={(event) => {
+                                      event.stopPropagation();
+                                      nav.goTransactionsByMerchant(
+                                        transaction.merchant!.id,
+                                      );
+                                    }}
+                                    className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium bg-[var(--info-light)] text-[var(--info)] border border-[var(--info)]/20 hover:opacity-90"
+                                  >
+                                    <Store className="w-3 h-3" />
+                                    {transaction.merchant.name}
+                                  </button>
+                                )}
+
                                 {transaction.tags.slice(0, 2).map((tag) => (
-                                  <TagChip
+                                  <button
                                     key={tag.id}
-                                    name={tag.name}
-                                    color={tag.colorHex || "#64748b"}
-                                  />
+                                    onClick={(event) => {
+                                      event.stopPropagation();
+                                      nav.goTransactionsByTag(tag.id);
+                                    }}
+                                    className="rounded-[var(--radius-md)]"
+                                  >
+                                    <TagChip
+                                      name={tag.name}
+                                      color={tag.colorHex || "#64748b"}
+                                      className="hover:scale-[1.02] transition-transform"
+                                    />
+                                  </button>
                                 ))}
                               </div>
                             )}
@@ -787,18 +817,41 @@ export default function Home() {
                       </span>
                     </div>
 
-                    {transaction.tags.length > 0 && (
+                    {(transaction.merchant || transaction.tags.length > 0) && (
                       <div className="flex flex-wrap gap-1.5 mb-2">
+                        {transaction.merchant?.id && (
+                          <button
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              nav.goTransactionsByMerchant(
+                                transaction.merchant!.id,
+                              );
+                            }}
+                            className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium bg-[var(--info-light)] text-[var(--info)] border border-[var(--info)]/20 hover:opacity-90"
+                          >
+                            <Store className="w-3 h-3" />
+                            {transaction.merchant.name}
+                          </button>
+                        )}
+
                         {transaction.tags.slice(0, 2).map((tag) => (
-                          <TagChip
+                          <button
                             key={tag.id}
-                            name={tag.name}
-                            color={tag.colorHex || "#64748b"}
-                          />
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              nav.goTransactionsByTag(tag.id);
+                            }}
+                            className="rounded-[var(--radius-md)]"
+                          >
+                            <TagChip
+                              name={tag.name}
+                              color={tag.colorHex || "#64748b"}
+                              className="hover:scale-[1.02] transition-transform"
+                            />
+                          </button>
                         ))}
                       </div>
                     )}
-
                     <p className="text-xs text-[var(--text-tertiary)]">
                       {formatShortDate(transaction.occurredAt)}
                     </p>
