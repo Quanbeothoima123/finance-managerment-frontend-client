@@ -1,468 +1,465 @@
-import React, { useState, useMemo } from 'react';
-import { useSearchParams } from 'react-router';
-import { ChevronLeft, ArrowDown, Wallet, Building2, CreditCard, Banknote, AlertCircle } from 'lucide-react';
-import { useDemoData } from '../contexts/DemoDataContext';
-import { useToast } from '../contexts/ToastContext';
-import { useAppNavigation } from '../hooks/useAppNavigation';
-import { Button } from '../components/Button';
-import { AmountInput, stripToDigits, formatWithDots } from '../components/AmountInput';
-import { maskAccountNumber } from '../utils/accountHelpers';
+import React, { useEffect, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router";
+import {
+  ArrowDown,
+  ArrowLeft,
+  ArrowLeftRight,
+  Building2,
+  CreditCard,
+  Save,
+  Wallet,
+} from "lucide-react";
+import { AmountInput } from "../components/AmountInput";
+import { Button } from "../components/Button";
+import { Card } from "../components/Card";
+import { Input } from "../components/Input";
+import { useToast } from "../contexts/ToastContext";
+import { useTransactionDetail } from "../hooks/useTransactionDetail";
+import { useTransactionsMeta } from "../hooks/useTransactionsMeta";
+import { transactionsService } from "../services/transactionsService";
+import {
+  getAccountTypeLabel,
+  maskAccountNumber,
+  normalizeFrontendAccountType,
+} from "../utils/accountHelpers";
 
-const ACCOUNT_ICONS: Record<string, React.ComponentType<any>> = {
-  building: Building2,
-  wallet: Wallet,
-  'credit-card': CreditCard,
-  banknote: Banknote,
-};
+function todayString() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function formatMoney(value?: string | number | null) {
+  return new Intl.NumberFormat("vi-VN").format(Number(value || 0));
+}
+
+function getAccountIcon(type: string) {
+  const normalized = normalizeFrontendAccountType(type);
+  if (normalized === "bank") return Building2;
+  if (normalized === "credit") return CreditCard;
+  return Wallet;
+}
 
 export default function AddTransfer() {
-  const [searchParams] = useSearchParams();
-  const { accounts, addTransaction, updateTransaction, categories, hideAccountNumbers, selectedCurrency } = useDemoData();
+  const navigate = useNavigate();
   const toast = useToast();
-  const { goBack } = useAppNavigation();
+  const [searchParams] = useSearchParams();
 
-  // Pre-fill from account from query params
-  const prefilledFromAccountId = searchParams.get('fromAccountId');
+  const editId = searchParams.get("editId") || undefined;
+  const duplicateFrom = searchParams.get("duplicateFrom") || undefined;
+  const prefilledFromAccountId = searchParams.get("fromAccountId") || undefined;
+  const sourceTransactionId = editId || duplicateFrom;
+  const isEditMode = Boolean(editId);
+  const isDuplicateMode = !editId && Boolean(duplicateFrom);
 
-  const [formData, setFormData] = useState({
-    amount: '',
-    fromAccountId: prefilledFromAccountId || '',
-    toAccountId: '',
-    serviceFee: '',
-    description: '',
-    date: new Date().toISOString().split('T')[0],
-    notes: '',
-  });
+  const {
+    data: metaData,
+    loading: metaLoading,
+    error: metaError,
+  } = useTransactionsMeta();
+  const {
+    data: sourceTransaction,
+    loading: sourceLoading,
+    error: sourceError,
+  } = useTransactionDetail(sourceTransactionId);
 
+  const [amount, setAmount] = useState("");
+  const [fromAccountId, setFromAccountId] = useState(
+    prefilledFromAccountId || "",
+  );
+  const [toAccountId, setToAccountId] = useState("");
+  const [serviceFee, setServiceFee] = useState("");
+  const [description, setDescription] = useState("");
+  const [date, setDate] = useState(todayString());
+  const [notes, setNotes] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [submitting, setSubmitting] = useState(false);
+  const [initialized, setInitialized] = useState(false);
 
-  const currencySymbol = selectedCurrency === 'VND' ? '₫' : selectedCurrency;
+  useEffect(() => {
+    if (!metaData || initialized) return;
+    if (sourceTransactionId && !sourceTransaction) return;
 
-  // Parsed numeric values
-  const numericAmount = useMemo(() => {
-    const n = parseInt(stripToDigits(formData.amount), 10);
-    return isNaN(n) ? 0 : n;
-  }, [formData.amount]);
+    if (sourceTransaction) {
+      if (sourceTransaction.txnType !== "transfer") return;
 
-  const numericFee = useMemo(() => {
-    const n = parseInt(stripToDigits(formData.serviceFee), 10);
-    return isNaN(n) ? 0 : n;
-  }, [formData.serviceFee]);
-
-  const totalDeduction = numericAmount + numericFee;
-
-  const fromAccount = accounts.find(a => a.id === formData.fromAccountId);
-  const toAccount = accounts.find(a => a.id === formData.toAccountId);
-
-  // Balance validation
-  const insufficientBalance = fromAccount && numericAmount > 0 && totalDeduction > fromAccount.balance;
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    // Validation
-    const newErrors: Record<string, string> = {};
-    
-    if (!formData.amount || numericAmount <= 0) {
-      newErrors.amount = 'Vui lòng nhập số tiền hợp lệ';
-    }
-    
-    if (!formData.fromAccountId) {
-      newErrors.fromAccountId = 'Vui lòng chọn tài khoản nguồn';
-    }
-    
-    if (!formData.toAccountId) {
-      newErrors.toAccountId = 'Vui lòng chọn tài khoản đích';
-    }
-    
-    if (formData.fromAccountId === formData.toAccountId) {
-      newErrors.toAccountId = 'Tài khoản đích phải khác tài khoản nguồn';
-    }
-    
-    if (!formData.description.trim()) {
-      newErrors.description = 'Vui lòng nhập mô tả';
-    }
-    
-    if (!formData.date) {
-      newErrors.date = 'Vui lòng chọn ngày';
-    }
-
-    if (insufficientBalance) {
-      newErrors.balance = 'Số tiền đang có không đủ thực hiện giao dịch (bao gồm phí).';
-    }
-
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
+      setAmount(String(Number(sourceTransaction.totalAmountMinor || 0)));
+      setFromAccountId(
+        sourceTransaction.account?.id ||
+          prefilledFromAccountId ||
+          metaData.defaults.defaultAccountId ||
+          "",
+      );
+      setToAccountId(sourceTransaction.toAccount?.id || "");
+      setServiceFee(
+        String(Number(sourceTransaction.serviceFeeMinor || 0) || ""),
+      );
+      setDescription(sourceTransaction.description || "");
+      setDate(
+        isDuplicateMode
+          ? todayString()
+          : sourceTransaction.date || todayString(),
+      );
+      setNotes(sourceTransaction.note || "");
+      setInitialized(true);
       return;
     }
 
-    if (!fromAccount || !toAccount) {
-      toast.error('Không tìm thấy tài khoản');
-      return;
+    setFromAccountId(
+      prefilledFromAccountId || metaData.defaults.defaultAccountId || "",
+    );
+    setInitialized(true);
+  }, [
+    metaData,
+    sourceTransaction,
+    sourceTransactionId,
+    initialized,
+    prefilledFromAccountId,
+    isDuplicateMode,
+  ]);
+
+  const accounts = metaData?.accounts || [];
+  const fromAccount =
+    accounts.find((item) => item.id === fromAccountId) || null;
+  const totalDeduction = Number(amount || 0) + Number(serviceFee || 0);
+
+  const validate = () => {
+    const nextErrors: Record<string, string> = {};
+
+    if (!amount || Number(amount || 0) <= 0)
+      nextErrors.amount = "Vui lòng nhập số tiền hợp lệ";
+    if (!fromAccountId)
+      nextErrors.fromAccountId = "Vui lòng chọn tài khoản nguồn";
+    if (!toAccountId) nextErrors.toAccountId = "Vui lòng chọn tài khoản đích";
+    if (fromAccountId && toAccountId && fromAccountId === toAccountId) {
+      nextErrors.toAccountId = "Tài khoản đích phải khác tài khoản nguồn";
     }
+    if (!description.trim()) nextErrors.description = "Vui lòng nhập mô tả";
+    if (!date) nextErrors.date = "Vui lòng chọn ngày";
 
-    // Find "Phí giao dịch" category for fee expense
-    const feeCategory = categories.find(c => c.name === 'Phí giao dịch' && c.type === 'expense');
-
-    // Step 1: Create transfer transaction
-    const transferTx = addTransaction({
-      type: 'transfer',
-      amount: numericAmount,
-      category: 'Chuyển tiền',
-      categoryId: '0',
-      account: fromAccount.name,
-      accountId: formData.fromAccountId,
-      toAccount: toAccount.name,
-      toAccountId: formData.toAccountId,
-      serviceFee: numericFee > 0 ? numericFee : undefined,
-      description: formData.description,
-      date: formData.date,
-      tags: [],
-      notes: formData.notes,
-    });
-
-    // Step 2: If fee > 0, create linked expense transaction
-    if (numericFee > 0) {
-      const feeTx = addTransaction({
-        type: 'expense',
-        amount: -numericFee,
-        category: feeCategory?.name || 'Phí giao dịch',
-        categoryId: feeCategory?.id || 'cat-13',
-        account: fromAccount.name,
-        accountId: formData.fromAccountId,
-        linkedTransactionId: transferTx.id,
-        description: `Phí dịch vụ chuyển tiền đến ${toAccount.name}`,
-        date: formData.date,
-        tags: [],
-        notes: `Tự động ghi nhận phí cho giao dịch chuyển khoản`,
-      });
-
-      // Step 3: Link back from transfer → fee
-      updateTransaction(transferTx.id, { linkedTransactionId: feeTx.id });
-
-      toast.success('Đã chuyển khoản & ghi nhận phí dịch vụ.');
-    } else {
-      toast.success('Chuyển tiền thành công');
-    }
-
-    goBack();
+    setErrors(nextErrors);
+    return Object.keys(nextErrors).length === 0;
   };
 
-  const handleChange = (field: string, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-    // Clear error when user starts typing
-    if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: '' }));
-    }
-    // Clear balance error when amount or fee changes
-    if (field === 'amount' || field === 'serviceFee' || field === 'fromAccountId') {
-      setErrors(prev => ({ ...prev, balance: '' }));
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!validate()) return;
+
+    try {
+      setSubmitting(true);
+      const payload = {
+        type: "transfer" as const,
+        amount: Number(amount || 0),
+        fromAccountId,
+        toAccountId,
+        serviceFee: Number(serviceFee || 0) || undefined,
+        description: description.trim(),
+        date,
+        notes: notes.trim() || undefined,
+      };
+
+      const result =
+        isEditMode && editId
+          ? await transactionsService.updateTransaction(editId, payload)
+          : await transactionsService.createTransaction(payload);
+
+      toast.success(
+        isEditMode ? "Đã cập nhật chuyển tiền" : "Đã tạo giao dịch chuyển tiền",
+      );
+      navigate(`/transactions/${result.id}`);
+    } catch (err) {
+      toast.error(
+        err instanceof Error
+          ? err.message
+          : "Không thể lưu giao dịch chuyển tiền",
+      );
+    } finally {
+      setSubmitting(false);
     }
   };
 
-  // Account picker card
+  if (metaLoading || (sourceTransactionId && sourceLoading && !initialized)) {
+    return (
+      <div className="min-h-screen bg-[var(--background)] p-4 md:p-6">
+        <Card>
+          <p className="text-sm text-[var(--text-secondary)]">
+            Đang tải dữ liệu chuyển tiền...
+          </p>
+        </Card>
+      </div>
+    );
+  }
+
+  if (metaError || (sourceTransactionId && sourceError && !initialized)) {
+    return (
+      <div className="min-h-screen bg-[var(--background)] p-4 md:p-6">
+        <Card>
+          <p className="text-sm text-[var(--danger)]">
+            {metaError || sourceError || "Không thể tải dữ liệu chuyển tiền"}
+          </p>
+        </Card>
+      </div>
+    );
+  }
+
+  if (sourceTransaction && sourceTransaction.txnType !== "transfer") {
+    return (
+      <div className="min-h-screen bg-[var(--background)] p-4 md:p-6">
+        <Card>
+          <p className="text-sm text-[var(--danger)]">
+            Giao dịch nguồn không phải là transfer, không thể mở bằng màn hình
+            chuyển tiền.
+          </p>
+          <div className="mt-4">
+            <Button variant="secondary" onClick={() => navigate(-1)}>
+              <ArrowLeft className="w-4 h-4" />
+              Quay lại
+            </Button>
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
   const AccountCard = ({
-    acc,
-    isSelected,
-    onSelect,
+    account,
+    selected,
+    onClick,
   }: {
-    acc: typeof accounts[0];
-    isSelected: boolean;
-    onSelect: () => void;
+    account: (typeof accounts)[number];
+    selected: boolean;
+    onClick: () => void;
   }) => {
-    const IconComp = ACCOUNT_ICONS[acc.icon] || Wallet;
+    const Icon = getAccountIcon(account.accountType);
     return (
       <button
         type="button"
-        onClick={onSelect}
+        onClick={onClick}
         className={`w-full flex items-center gap-3 px-4 py-3 rounded-[var(--radius-lg)] border transition-all text-left ${
-          isSelected
-            ? 'border-[var(--primary)] bg-[var(--primary-light)] shadow-sm ring-2 ring-[var(--primary)]/20'
-            : 'border-[var(--border)] bg-[var(--input-background)] hover:border-[var(--text-tertiary)] hover:shadow-sm'
+          selected
+            ? "border-[var(--primary)] bg-[var(--primary-light)] ring-2 ring-[var(--primary)]/20"
+            : "border-[var(--border)] bg-[var(--input-background)] hover:border-[var(--text-tertiary)]"
         }`}
       >
         <div
           className="w-10 h-10 rounded-[var(--radius-md)] flex items-center justify-center flex-shrink-0"
-          style={{ backgroundColor: `${acc.color}20` }}
+          style={{ backgroundColor: `${account.colorHex || "#2563eb"}20` }}
         >
-          <IconComp className="w-5 h-5" style={{ color: acc.color }} />
+          <Icon
+            className="w-5 h-5"
+            style={{ color: account.colorHex || "#2563eb" }}
+          />
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium text-[var(--text-primary)] truncate">
-            {acc.name}
+            {account.name}
           </p>
-          <p className="text-xs text-[var(--text-tertiary)] truncate">
-            {acc.accountNumber
-              ? (hideAccountNumbers
-                ? '••••••••'
-                : maskAccountNumber(acc.accountNumber, acc.type))
-              : acc.type === 'cash' ? 'Tiền mặt' : ''}
-            {acc.accountOwnerName ? ` — ${acc.accountOwnerName}` : ''}
+          <p className="text-xs text-[var(--text-tertiary)] truncate mt-1">
+            {account.providerName || getAccountTypeLabel(account.accountType)}
+            {account.accountNumber
+              ? ` • ${maskAccountNumber(account.accountNumber, account.accountType)}`
+              : ""}
           </p>
         </div>
         <div className="text-right flex-shrink-0">
-          <p className="text-sm font-semibold tabular-nums" style={{ color: acc.color }}>
-            {new Intl.NumberFormat('vi-VN').format(acc.balance)} {currencySymbol}
+          <p className="text-sm font-semibold text-[var(--text-primary)] tabular-nums">
+            {formatMoney(account.currentBalanceMinor)} ₫
           </p>
         </div>
       </button>
     );
   };
 
-  const isSubmitDisabled = insufficientBalance || numericAmount <= 0;
-
   return (
     <div className="min-h-screen bg-[var(--background)]">
-      {/* Header */}
-      <div className="sticky top-0 z-10 bg-[var(--card)] border-b border-[var(--border)]">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center gap-4">
-            <button
-              onClick={goBack}
-              className="p-2 -ml-2 rounded-[var(--radius-lg)] hover:bg-[var(--surface)] transition-colors"
-            >
-              <ChevronLeft className="w-6 h-6 text-[var(--text-primary)]" />
-            </button>
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="mb-6 flex items-center gap-3">
+          <button
+            onClick={() => navigate(-1)}
+            className="p-2 rounded-[var(--radius-lg)] hover:bg-[var(--surface)] transition-colors"
+          >
+            <ArrowLeft className="w-5 h-5 text-[var(--text-primary)]" />
+          </button>
+          <div>
             <h1 className="text-2xl font-semibold text-[var(--text-primary)]">
-              Chuyển tiền
+              {isEditMode
+                ? "Chỉnh sửa chuyển tiền"
+                : isDuplicateMode
+                  ? "Nhân bản chuyển tiền"
+                  : "Chuyển tiền"}
             </h1>
+            <p className="text-sm text-[var(--text-secondary)] mt-1">
+              Tạo transfer giữa 2 tài khoản, có thể kèm phí dịch vụ.
+            </p>
           </div>
         </div>
-      </div>
 
-      {/* Form */}
-      <form onSubmit={handleSubmit} className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="bg-[var(--card)] rounded-[var(--radius-xl)] border border-[var(--border)] p-6 space-y-6">
-          {/* Amount */}
-          <div>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <Card>
             <AmountInput
-              id="amount"
-              value={formData.amount}
-              onChange={(value) => handleChange('amount', value)}
+              value={amount}
+              onChange={setAmount}
               error={errors.amount}
             />
-          </div>
+          </Card>
 
-          {/* ── Vertical Transfer Flow ──────────────────── */}
-          <div className="relative">
-            {/* From Account */}
+          <Card>
             <div>
-              <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
+              <label className="block text-sm font-medium text-[var(--text-primary)] mb-3">
                 Từ tài khoản <span className="text-[var(--danger)]">*</span>
               </label>
               <div className="space-y-2">
-                {accounts.map(acc => (
+                {accounts.map((account) => (
                   <AccountCard
-                    key={acc.id}
-                    acc={acc}
-                    isSelected={formData.fromAccountId === acc.id}
-                    onSelect={() => {
-                      handleChange('fromAccountId', acc.id);
-                      // Auto-swap if same as toAccount
-                      if (formData.toAccountId === acc.id) {
-                        handleChange('toAccountId', '');
-                      }
+                    key={account.id}
+                    account={account}
+                    selected={fromAccountId === account.id}
+                    onClick={() => {
+                      setFromAccountId(account.id);
+                      if (toAccountId === account.id) setToAccountId("");
+                      setErrors((prev) => ({
+                        ...prev,
+                        fromAccountId: "",
+                        toAccountId: "",
+                      }));
                     }}
                   />
                 ))}
               </div>
               {errors.fromAccountId && (
-                <p className="mt-1 text-sm text-[var(--danger)]">{errors.fromAccountId}</p>
-              )}
-              {/* Insufficient balance error */}
-              {insufficientBalance && (
-                <div className="mt-2 flex items-start gap-2 p-3 bg-[var(--danger-light)] border border-[var(--danger)]/30 rounded-[var(--radius-lg)]">
-                  <AlertCircle className="w-4 h-4 text-[var(--danger)] flex-shrink-0 mt-0.5" />
-                  <div>
-                    <p className="text-sm text-[var(--danger)] font-medium">
-                      Số tiền đang có không đủ thực hiện giao dịch (bao gồm phí).
-                    </p>
-                    <p className="text-xs text-[var(--text-secondary)] mt-0.5">
-                      Cần: {new Intl.NumberFormat('vi-VN').format(totalDeduction)} {currencySymbol} — 
-                      Có: {new Intl.NumberFormat('vi-VN').format(fromAccount?.balance || 0)} {currencySymbol}
-                    </p>
-                  </div>
-                </div>
+                <p className="mt-1 text-sm text-[var(--danger)]">
+                  {errors.fromAccountId}
+                </p>
               )}
             </div>
 
-            {/* ── Connector: Down Arrow ──────────────────── */}
-            <div className="flex justify-center py-3">
-              <div className="relative">
-                {/* Vertical line above */}
-                <div className="absolute left-1/2 -translate-x-1/2 -top-3 w-px h-3 bg-[var(--border)]" />
-                {/* Circle with arrow */}
-                <div className="w-10 h-10 rounded-full bg-[var(--info-light)] border-2 border-[var(--info)]/30 flex items-center justify-center shadow-sm">
-                  <ArrowDown className="w-5 h-5 text-[var(--info)]" />
-                </div>
-                {/* Vertical line below */}
-                <div className="absolute left-1/2 -translate-x-1/2 -bottom-3 w-px h-3 bg-[var(--border)]" />
+            <div className="flex justify-center py-4">
+              <div className="w-10 h-10 rounded-full bg-[var(--info-light)] border border-[var(--info)]/30 flex items-center justify-center">
+                <ArrowDown className="w-5 h-5 text-[var(--info)]" />
               </div>
             </div>
 
-            {/* To Account */}
             <div>
-              <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
+              <label className="block text-sm font-medium text-[var(--text-primary)] mb-3">
                 Đến tài khoản <span className="text-[var(--danger)]">*</span>
               </label>
               <div className="space-y-2">
                 {accounts
-                  .filter(acc => acc.id !== formData.fromAccountId)
-                  .map(acc => (
+                  .filter((account) => account.id !== fromAccountId)
+                  .map((account) => (
                     <AccountCard
-                      key={acc.id}
-                      acc={acc}
-                      isSelected={formData.toAccountId === acc.id}
-                      onSelect={() => handleChange('toAccountId', acc.id)}
+                      key={account.id}
+                      account={account}
+                      selected={toAccountId === account.id}
+                      onClick={() => {
+                        setToAccountId(account.id);
+                        setErrors((prev) => ({ ...prev, toAccountId: "" }));
+                      }}
                     />
                   ))}
               </div>
               {errors.toAccountId && (
-                <p className="mt-1 text-sm text-[var(--danger)]">{errors.toAccountId}</p>
+                <p className="mt-1 text-sm text-[var(--danger)]">
+                  {errors.toAccountId}
+                </p>
               )}
             </div>
-          </div>
+          </Card>
 
-          {/* ── Service Fee ──────────────────────────────── */}
-          <div>
-            <label htmlFor="serviceFee" className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-              Phí dịch vụ
-            </label>
-            <div className="relative">
-              <input
-                type="text"
-                inputMode="numeric"
-                id="serviceFee"
-                value={formData.serviceFee ? formatWithDots(formData.serviceFee) : ''}
-                onChange={(e) => {
-                  const digits = stripToDigits(e.target.value);
-                  if (digits.length > 12) return;
-                  const cleaned = digits.replace(/^0+/, '') || (digits.length > 0 ? '0' : '');
-                  handleChange('serviceFee', cleaned === '0' && digits === '' ? '' : cleaned);
-                }}
-                placeholder="Nhập phí (nếu có)"
-                autoComplete="off"
-                className="w-full px-4 py-3 pr-16 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-lg)] text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-[var(--focus-ring)] tabular-nums"
-              />
-              <div className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-[var(--text-secondary)] pointer-events-none select-none">
-                {currencySymbol}
+          <Card>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
+                  Phí dịch vụ
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  value={serviceFee}
+                  onChange={(event) => setServiceFee(event.target.value)}
+                  placeholder="0"
+                  className="w-full px-4 py-2.5 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-lg)]"
+                />
               </div>
-            </div>
-            {numericFee > 0 && (
-              <p className="mt-1 text-xs text-[var(--text-tertiary)]">
-                Phí sẽ trừ thêm từ tài khoản nguồn. Tổng trừ: {new Intl.NumberFormat('vi-VN').format(totalDeduction)} {currencySymbol}
-              </p>
-            )}
-          </div>
 
-          {/* Description */}
-          <div>
-            <label htmlFor="description" className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-              Mô tả <span className="text-[var(--danger)]">*</span>
-            </label>
-            <input
-              type="text"
-              id="description"
-              value={formData.description}
-              onChange={(e) => handleChange('description', e.target.value)}
-              placeholder="Nhập mô tả chuyển tiền"
-              className={`w-full px-4 py-3 bg-[var(--input-background)] border rounded-[var(--radius-lg)] text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-[var(--focus-ring)] ${
-                errors.description ? 'border-[var(--danger)]' : 'border-[var(--border)]'
-              }`}
-            />
-            {errors.description && (
-              <p className="mt-1 text-sm text-[var(--danger)]">{errors.description}</p>
-            )}
-          </div>
-
-          {/* Date */}
-          <div>
-            <label htmlFor="date" className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-              Ngày <span className="text-[var(--danger)]">*</span>
-            </label>
-            <input
-              type="date"
-              id="date"
-              value={formData.date}
-              onChange={(e) => handleChange('date', e.target.value)}
-              className={`w-full px-4 py-3 bg-[var(--input-background)] border rounded-[var(--radius-lg)] text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--focus-ring)] ${
-                errors.date ? 'border-[var(--danger)]' : 'border-[var(--border)]'
-              }`}
-            />
-            {errors.date && (
-              <p className="mt-1 text-sm text-[var(--danger)]">{errors.date}</p>
-            )}
-          </div>
-
-          {/* Notes */}
-          <div>
-            <label htmlFor="notes" className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-              Ghi chú
-            </label>
-            <textarea
-              id="notes"
-              value={formData.notes}
-              onChange={(e) => handleChange('notes', e.target.value)}
-              placeholder="Thêm ghi chú (tùy chọn)"
-              rows={3}
-              className="w-full px-4 py-3 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-lg)] text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-[var(--focus-ring)] resize-none"
-            />
-          </div>
-
-          {/* Preview */}
-          {numericAmount > 0 && fromAccount && toAccount && (
-            <div className="p-4 bg-[var(--info-light)] rounded-[var(--radius-lg)] space-y-2">
-              <div className="text-sm text-[var(--text-secondary)] mb-1">Xem trước</div>
-              <div className="text-[var(--text-primary)]">
-                Chuyển <span className="font-semibold">
-                  {new Intl.NumberFormat('vi-VN').format(numericAmount)} {currencySymbol}
-                </span>
-                {' '}từ <span className="font-semibold">{fromAccount.name}</span> sang <span className="font-semibold">{toAccount.name}</span>
-              </div>
-              {numericFee > 0 && (
-                <div className="text-sm text-[var(--text-secondary)]">
-                  Phí dịch vụ: <span className="font-semibold text-[var(--warning)]">
-                    {new Intl.NumberFormat('vi-VN').format(numericFee)} {currencySymbol}
-                  </span>
-                  <span className="text-xs italic ml-1">(ghi nhận riêng dưới dạng Chi tiêu &quot;Phí giao dịch&quot;)</span>
-                </div>
-              )}
-              <div className="pt-2 border-t border-[var(--border)] mt-2">
-                <div className="flex justify-between text-xs text-[var(--text-secondary)]">
-                  <span>{fromAccount.name} giảm:</span>
-                  <span className="font-semibold text-[var(--danger)]">
-                    -{new Intl.NumberFormat('vi-VN').format(totalDeduction)} {currencySymbol}
-                  </span>
-                </div>
-                <div className="flex justify-between text-xs text-[var(--text-secondary)] mt-1">
-                  <span>{toAccount.name} tăng:</span>
-                  <span className="font-semibold text-[var(--success)]">
-                    +{new Intl.NumberFormat('vi-VN').format(numericAmount)} {currencySymbol}
-                  </span>
-                </div>
-                {numericFee > 0 && (
-                  <div className="flex justify-between text-xs text-[var(--text-tertiary)] mt-1 italic">
-                    <span>Phí (ghi nhận Chi tiêu):</span>
-                    <span>
-                      -{new Intl.NumberFormat('vi-VN').format(numericFee)} {currencySymbol}
-                    </span>
-                  </div>
+              <div>
+                <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
+                  Ngày giao dịch <span className="text-[var(--danger)]">*</span>
+                </label>
+                <input
+                  type="date"
+                  value={date}
+                  onChange={(event) => {
+                    setDate(event.target.value);
+                    setErrors((prev) => ({ ...prev, date: "" }));
+                  }}
+                  className="w-full px-4 py-2.5 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-lg)]"
+                />
+                {errors.date && (
+                  <p className="mt-1 text-sm text-[var(--danger)]">
+                    {errors.date}
+                  </p>
                 )}
               </div>
             </div>
-          )}
-        </div>
 
-        {/* Action Buttons */}
-        <div className="mt-6 grid grid-cols-2 gap-3">
-          <Button type="button" variant="secondary" onClick={goBack}>
-            Hủy
-          </Button>
-          <Button type="submit" variant="primary" disabled={isSubmitDisabled}>
-            Chuyển tiền
-          </Button>
-        </div>
-      </form>
+            <div className="mt-4">
+              <Input
+                label="Mô tả"
+                value={description}
+                onChange={(event) => {
+                  setDescription(event.target.value);
+                  setErrors((prev) => ({ ...prev, description: "" }));
+                }}
+                placeholder="Ví dụ: Chuyển sang tài khoản tiết kiệm"
+                error={errors.description}
+              />
+            </div>
+
+            <div className="mt-4">
+              <Input
+                label="Ghi chú"
+                value={notes}
+                onChange={(event) => setNotes(event.target.value)}
+                placeholder="Tuỳ chọn"
+              />
+            </div>
+
+            {fromAccount && (
+              <div className="mt-4 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface)] p-4 text-sm text-[var(--text-secondary)]">
+                Khấu trừ dự kiến từ{" "}
+                <span className="font-medium text-[var(--text-primary)]">
+                  {fromAccount.name}
+                </span>
+                :{" "}
+                <span className="font-semibold text-[var(--danger)]">
+                  {formatMoney(totalDeduction)} ₫
+                </span>
+              </div>
+            )}
+          </Card>
+
+          <div className="flex flex-col-reverse sm:flex-row gap-3 justify-end">
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => navigate(-1)}
+            >
+              Huỷ
+            </Button>
+            <Button type="submit" disabled={submitting}>
+              {isEditMode ? (
+                <Save className="w-4 h-4" />
+              ) : (
+                <ArrowLeftRight className="w-4 h-4" />
+              )}
+              {submitting
+                ? "Đang lưu..."
+                : isEditMode
+                  ? "Lưu thay đổi"
+                  : "Tạo chuyển tiền"}
+            </Button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }
