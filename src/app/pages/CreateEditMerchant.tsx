@@ -1,213 +1,298 @@
-import React, { useState, useMemo } from 'react';
-import {
-  ArrowLeft,
-  Save,
-  Store,
-} from 'lucide-react';
-import { Card } from '../components/Card';
-import { Input } from '../components/Input';
-import { useAppNavigation } from '../hooks/useAppNavigation';
-import { useToast } from '../contexts/ToastContext';
-import { useDemoData } from '../contexts/DemoDataContext';
+import React, { useEffect, useMemo, useState } from "react";
+import { ArrowLeft, Save, Store } from "lucide-react";
+import { useParams } from "react-router";
+import { Card } from "../components/Card";
+import { Input } from "../components/Input";
+import { Button } from "../components/Button";
+import { useAppNavigation } from "../hooks/useAppNavigation";
+import { useToast } from "../contexts/ToastContext";
+import { useMerchantsMeta } from "../hooks/useMerchantsMeta";
+import { useMerchantDetail } from "../hooks/useMerchantDetail";
+import { merchantsService } from "../services/merchantsService";
 
 interface CreateEditMerchantProps {
-  mode?: 'create' | 'edit';
-  initialData?: {
-    id?: string;
-    name: string;
-    defaultCategory: string;
-  };
+  mode?: "create" | "edit";
 }
 
 export default function CreateEditMerchant({
-  mode = 'create',
-  initialData,
+  mode = "create",
 }: CreateEditMerchantProps) {
+  const { id } = useParams<{ id: string }>();
   const nav = useAppNavigation();
   const toast = useToast();
-  const { categories, addMerchant, updateMerchant } = useDemoData();
 
-  // Build category options from DemoDataContext
-  const categoryOptions = useMemo(() => {
-    const options = [{ value: '', label: 'Kh\u00f4ng \u0111\u1eb7t m\u1eb7c \u0111\u1ecbnh' }];
-    const rootCats = categories.filter(c => !c.parentId);
-    rootCats.forEach(cat => {
-      options.push({ value: cat.id, label: cat.name });
-      const children = categories.filter(c => c.parentId === cat.id);
-      children.forEach(child => {
-        options.push({ value: child.id, label: `  \u2192 ${child.name}` });
-      });
-    });
-    return options;
-  }, [categories]);
+  const isEditMode = mode === "edit";
+  const {
+    data: metaData,
+    loading: metaLoading,
+    error: metaError,
+  } = useMerchantsMeta();
+  const {
+    data: detailData,
+    loading: detailLoading,
+    error: detailError,
+  } = useMerchantDetail(isEditMode ? id : undefined);
 
   const [formData, setFormData] = useState({
-    name: initialData?.name || '',
-    defaultCategory: initialData?.defaultCategory || '',
+    name: "",
+    defaultCategoryId: "",
+    note: "",
+    isHidden: false,
   });
-
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleInputChange = (field: string, value: any) => {
+  const categoryOptions = useMemo(() => {
+    const options = [{ value: "", label: "Không đặt mặc định" }];
+
+    (metaData?.categories || []).forEach((category) => {
+      options.push({
+        value: category.id,
+        label: category.name,
+      });
+    });
+
+    return options;
+  }, [metaData?.categories]);
+
+  useEffect(() => {
+    if (!detailData?.merchant || !isEditMode) return;
+
+    setFormData({
+      name: detailData.merchant.name,
+      defaultCategoryId: detailData.merchant.defaultCategoryId || "",
+      note: detailData.merchant.note || "",
+      isHidden: detailData.merchant.isHidden,
+    });
+  }, [detailData, isEditMode]);
+
+  const handleInputChange = (
+    field: "name" | "defaultCategoryId" | "note" | "isHidden",
+    value: string | boolean,
+  ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) {
-      setErrors((prev) => ({ ...prev, [field]: '' }));
+      setErrors((prev) => ({ ...prev, [field]: "" }));
     }
   };
 
-  const validateForm = () => {
-    const newErrors: Record<string, string> = {};
+  const validate = () => {
+    const nextErrors: Record<string, string> = {};
 
     if (!formData.name.trim()) {
-      newErrors.name = 'Vui l\u00f2ng nh\u1eadp t\u00ean nh\u00e0 cung c\u1ea5p';
+      nextErrors.name = "Vui lòng nhập tên merchant";
     }
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    setErrors(nextErrors);
+    return Object.keys(nextErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!validate()) return;
 
-    if (validateForm()) {
-      const selectedCat = categories.find(c => c.id === formData.defaultCategory);
+    try {
+      setSubmitting(true);
 
-      if (mode === 'create') {
-        addMerchant({
-          name: formData.name,
-          defaultCategory: formData.defaultCategory || undefined,
-          categoryName: selectedCat?.name,
-          totalSpent: 0,
-          transactionCount: 0,
-          lastTransaction: new Date().toISOString(),
-        });
-        toast.success('\u0110\u00e3 t\u1ea1o nh\u00e0 cung c\u1ea5p m\u1edbi');
+      const payload = {
+        name: formData.name.trim(),
+        defaultCategoryId: formData.defaultCategoryId || null,
+        note: formData.note.trim() || null,
+        isHidden: formData.isHidden,
+      };
+
+      if (isEditMode && id) {
+        await merchantsService.updateMerchant(id, payload);
+        toast.success("Đã cập nhật merchant");
       } else {
-        if (initialData?.id) {
-          updateMerchant(initialData.id, {
-            name: formData.name,
-            defaultCategory: formData.defaultCategory || undefined,
-            categoryName: selectedCat?.name,
-          });
-          toast.success('\u0110\u00e3 c\u1eadp nh\u1eadt nh\u00e0 cung c\u1ea5p');
-        }
+        await merchantsService.createMerchant(payload);
+        toast.success("Đã tạo merchant mới");
       }
+
       nav.goMerchants();
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : "Không thể lưu merchant",
+      );
+    } finally {
+      setSubmitting(false);
     }
   };
 
-  const handleCancel = () => {
-    nav.goBack();
-  };
+  if (metaLoading || (isEditMode && detailLoading)) {
+    return (
+      <div className="min-h-screen bg-[var(--background)] p-4 md:p-6">
+        <Card>
+          <p className="text-sm text-[var(--text-secondary)]">
+            Đang tải dữ liệu merchant...
+          </p>
+        </Card>
+      </div>
+    );
+  }
+
+  if (metaError || (isEditMode && detailError)) {
+    return (
+      <div className="min-h-screen bg-[var(--background)] p-4 md:p-6">
+        <Card>
+          <p className="text-sm text-[var(--danger)]">
+            {metaError || detailError || "Không thể tải dữ liệu merchant"}
+          </p>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[var(--background)]">
       <div className="max-w-4xl mx-auto p-4 md:p-6 pb-20 md:pb-6">
-        {/* Header */}
         <div className="mb-6">
           <button
-            onClick={handleCancel}
+            onClick={nav.goBack}
             className="flex items-center gap-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] mb-4 transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
-            <span className="font-medium">Quay l\u1ea1i</span>
+            <span className="font-medium">Quay lại</span>
           </button>
+
           <h1 className="text-2xl font-semibold text-[var(--text-primary)]">
-            {mode === 'create' ? 'Th\u00eam nh\u00e0 cung c\u1ea5p' : 'Ch\u1ec9nh s\u1eeda nh\u00e0 cung c\u1ea5p'}
+            {isEditMode ? "Chỉnh sửa merchant" : "Thêm merchant"}
           </h1>
+
           <p className="text-sm text-[var(--text-secondary)] mt-1">
-            {mode === 'create'
-              ? 'Th\u00eam nh\u00e0 cung c\u1ea5p m\u1edbi \u0111\u1ec3 t\u1ef1 \u0111\u1ed9ng ph\u00e2n lo\u1ea1i giao d\u1ecbch'
-              : 'C\u1eadp nh\u1eadt th\u00f4ng tin nh\u00e0 cung c\u1ea5p'}
+            {isEditMode
+              ? "Cập nhật thông tin merchant"
+              : "Thêm merchant mới để gợi ý category và dùng lại trong form giao dịch"}
           </p>
         </div>
 
         <form onSubmit={handleSubmit}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Left Column - Form */}
             <div className="space-y-6">
               <Card>
                 <h3 className="font-semibold text-[var(--text-primary)] mb-4">
-                  Th\u00f4ng tin
+                  Thông tin
                 </h3>
-                <div className="space-y-4">
-                  {/* Name */}
-                  <div>
-                    <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-                      T\u00ean nh\u00e0 cung c\u1ea5p <span className="text-[var(--danger)]">*</span>
-                    </label>
-                    <Input
-                      type="text"
-                      placeholder="VD: Highlands Coffee"
-                      value={formData.name}
-                      onChange={(e) => handleInputChange('name', e.target.value)}
-                      error={errors.name}
-                    />
-                    <p className="text-xs text-[var(--text-tertiary)] mt-1">
-                      T\u00ean s\u1ebd \u0111\u01b0\u1ee3c d\u00f9ng \u0111\u1ec3 t\u1ef1 \u0111\u1ed9ng ph\u00e1t hi\u1ec7n trong giao d\u1ecbch
-                    </p>
-                  </div>
 
-                  {/* Default Category */}
+                <div className="space-y-4">
+                  <Input
+                    label="Tên merchant"
+                    placeholder="VD: Highlands Coffee"
+                    value={formData.name}
+                    onChange={(event) =>
+                      handleInputChange("name", event.target.value)
+                    }
+                    error={errors.name}
+                  />
+
                   <div>
                     <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-                      Danh m\u1ee5c m\u1eb7c \u0111\u1ecbnh
+                      Danh mục mặc định
                     </label>
                     <select
-                      value={formData.defaultCategory}
-                      onChange={(e) => handleInputChange('defaultCategory', e.target.value)}
-                      className="w-full px-4 py-2.5 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-lg)] text-[var(--text-primary)] transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--focus-ring)]"
+                      value={formData.defaultCategoryId}
+                      onChange={(event) =>
+                        handleInputChange(
+                          "defaultCategoryId",
+                          event.target.value,
+                        )
+                      }
+                      className="w-full px-4 py-2.5 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-lg)]"
                     >
-                      {categoryOptions.map((cat) => (
-                        <option key={cat.value} value={cat.value}>
-                          {cat.label}
+                      {categoryOptions.map((category) => (
+                        <option key={category.value} value={category.value}>
+                          {category.label}
                         </option>
                       ))}
                     </select>
                     <p className="text-xs text-[var(--text-tertiary)] mt-1">
-                      Giao d\u1ecbch t\u1eeb nh\u00e0 cung c\u1ea5p n\u00e0y s\u1ebd t\u1ef1 \u0111\u1ed9ng d\u00f9ng danh m\u1ee5c n\u00e0y
+                      Dùng để gợi ý category khi chọn merchant này trong form
+                      giao dịch.
                     </p>
                   </div>
+
+                  <Input
+                    label="Ghi chú"
+                    placeholder="Ví dụ: Chuỗi cà phê hay dùng"
+                    value={formData.note}
+                    onChange={(event) =>
+                      handleInputChange("note", event.target.value)
+                    }
+                  />
+
+                  <label className="flex items-center justify-between gap-4 cursor-pointer">
+                    <div>
+                      <p className="font-medium text-[var(--text-primary)]">
+                        Ẩn merchant
+                      </p>
+                      <p className="text-sm text-[var(--text-secondary)]">
+                        Merchant vẫn tồn tại nhưng không hiện mặc định trong
+                        danh sách.
+                      </p>
+                    </div>
+
+                    <input
+                      type="checkbox"
+                      checked={formData.isHidden}
+                      onChange={(event) =>
+                        handleInputChange("isHidden", event.target.checked)
+                      }
+                      className="w-5 h-5"
+                    />
+                  </label>
                 </div>
               </Card>
             </div>
 
-            {/* Right Column - Preview */}
             <div className="space-y-6">
               <Card>
                 <h3 className="font-semibold text-[var(--text-primary)] mb-4">
-                  Xem tr\u01b0\u1edbc
+                  Xem trước
                 </h3>
+
                 <div className="flex items-center gap-4 p-4 rounded-[var(--radius-lg)] bg-[var(--surface)]">
                   <div className="w-12 h-12 bg-[var(--background)] rounded-[var(--radius-lg)] flex items-center justify-center">
                     <Store className="w-6 h-6 text-[var(--text-secondary)]" />
                   </div>
+
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium text-[var(--text-primary)] truncate">
-                      {formData.name || 'T\u00ean nh\u00e0 cung c\u1ea5p'}
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <p className="font-medium text-[var(--text-primary)] truncate">
+                        {formData.name || "Tên merchant"}
+                      </p>
+                      {formData.isHidden && (
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-[var(--surface-elevated)] border border-[var(--border)] text-[var(--text-tertiary)]">
+                          Đã ẩn
+                        </span>
+                      )}
+                    </div>
+
+                    <p className="text-xs text-[var(--text-secondary)] mt-1">
+                      {categoryOptions.find(
+                        (item) => item.value === formData.defaultCategoryId,
+                      )?.label || "Không đặt mặc định"}
                     </p>
-                    <p className="text-xs text-[var(--text-secondary)]">
-                      {formData.defaultCategory
-                        ? categoryOptions.find(c => c.value === formData.defaultCategory)?.label || 'Danh m\u1ee5c m\u1eb7c \u0111\u1ecbnh'
-                        : 'Ch\u01b0a \u0111\u1eb7t danh m\u1ee5c m\u1eb7c \u0111\u1ecbnh'}
-                    </p>
+
+                    {formData.note && (
+                      <p className="text-xs text-[var(--text-tertiary)] mt-1 line-clamp-2">
+                        {formData.note}
+                      </p>
+                    )}
                   </div>
                 </div>
-                <p className="text-xs text-[var(--text-tertiary)] text-center mt-3">
-                  Nh\u00e0 cung c\u1ea5p s\u1ebd hi\u1ec3n th\u1ecb nh\u01b0 tr\u00ean
-                </p>
               </Card>
 
-              {mode === 'edit' && (
+              {isEditMode && (
                 <Card className="bg-[var(--info-light)] border-[var(--info)]">
                   <div className="flex items-start gap-3">
                     <Store className="w-5 h-5 text-[var(--info)] flex-shrink-0 mt-0.5" />
                     <div>
                       <h4 className="font-medium text-[var(--text-primary)] mb-1">
-                        L\u01b0u \u00fd khi ch\u1ec9nh s\u1eeda
+                        Lưu ý
                       </h4>
                       <p className="text-sm text-[var(--text-secondary)]">
-                        Thay \u0111\u1ed5i t\u00ean nh\u00e0 cung c\u1ea5p s\u1ebd kh\u00f4ng \u1ea3nh h\u01b0\u1edfng \u0111\u1ebfn c\u00e1c giao d\u1ecbch hi\u1ec7n c\u00f3. Thay \u0111\u1ed5i danh m\u1ee5c m\u1eb7c \u0111\u1ecbnh ch\u1ec9 \u00e1p d\u1ee5ng cho giao d\u1ecbch m\u1edbi.
+                        Thay đổi danh mục mặc định chỉ ảnh hưởng đến những giao
+                        dịch tạo mới sau này.
                       </p>
                     </div>
                   </div>
@@ -216,22 +301,18 @@ export default function CreateEditMerchant({
             </div>
           </div>
 
-          {/* Action Buttons */}
           <div className="flex flex-col-reverse md:flex-row gap-3 mt-6">
-            <button
-              type="button"
-              onClick={handleCancel}
-              className="flex-1 md:flex-none px-6 py-2.5 border border-[var(--border)] text-[var(--text-primary)] rounded-[var(--radius-lg)] font-medium hover:bg-[var(--surface)] transition-colors"
-            >
-              Hu\u1ef7
-            </button>
-            <button
-              type="submit"
-              className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white rounded-[var(--radius-lg)] font-medium transition-colors shadow-[var(--shadow-sm)]"
-            >
-              <Save className="w-5 h-5" />
-              <span>{mode === 'create' ? 'T\u1ea1o nh\u00e0 cung c\u1ea5p' : 'L\u01b0u thay \u0111\u1ed5i'}</span>
-            </button>
+            <Button type="button" variant="secondary" onClick={nav.goBack}>
+              Huỷ
+            </Button>
+            <Button type="submit" disabled={submitting}>
+              <Save className="w-4 h-4" />
+              {submitting
+                ? "Đang lưu..."
+                : isEditMode
+                  ? "Lưu thay đổi"
+                  : "Tạo merchant"}
+            </Button>
           </div>
         </form>
       </div>

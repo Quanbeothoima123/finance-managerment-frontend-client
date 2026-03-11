@@ -1,571 +1,355 @@
-import React, { useState, useMemo } from 'react';
-import { Search, X, Edit2, GitMerge, Store, ChevronRight, Plus, ArrowUpDown, Trash2, CheckSquare, Square, XCircle } from 'lucide-react';
-import { Card } from '../components/Card';
-import { useAppNavigation } from '../hooks/useAppNavigation';
-import { useToast } from '../contexts/ToastContext';
-import { useDemoData } from '../contexts/DemoDataContext';
-import { ConfirmationModal } from '../components/ConfirmationModals';
-import { SwipeableRow } from '../components/SwipeableRow';
+import React, { useMemo, useState } from "react";
+import { ChevronRight, Edit2, Plus, Search, Store, Trash2 } from "lucide-react";
+import { Card } from "../components/Card";
+import { Button } from "../components/Button";
+import { ConfirmationModal } from "../components/ConfirmationModals";
+import { useAppNavigation } from "../hooks/useAppNavigation";
+import { useToast } from "../contexts/ToastContext";
+import { useMerchantsList } from "../hooks/useMerchantsList";
+import { useMerchantsMeta } from "../hooks/useMerchantsMeta";
+import { merchantsService } from "../services/merchantsService";
+import type { MerchantItem } from "../types/merchants";
 
-interface DisplayMerchant {
-  id: string;
-  name: string;
-  defaultCategory: string | null;
-  categoryName: string | null;
-  usageCount: number;
-  lastUsed: string;
-  lastUsedRaw: string;
+function formatMoney(value?: string | number | null) {
+  return new Intl.NumberFormat("vi-VN").format(Number(value || 0));
 }
 
-interface MerchantRowProps {
-  merchant: DisplayMerchant;
-  onEdit: () => void;
-  onMerge: () => void;
-  onSetDefault: () => void;
+function formatDate(value?: string | null) {
+  if (!value) return "Chưa có";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return new Intl.DateTimeFormat("vi-VN", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  }).format(date);
+}
+
+function MerchantCard({
+  merchant,
+  onView,
+  onEdit,
+  onDelete,
+}: {
+  merchant: MerchantItem;
   onView: () => void;
+  onEdit: () => void;
   onDelete: () => void;
-}
-
-// Desktop table row component
-function MerchantTableRow({ merchant, onEdit, onMerge, onSetDefault, onView, onDelete }: MerchantRowProps) {
+}) {
   return (
-    <tr className="border-b border-[var(--divider)] hover:bg-[var(--surface)] transition-colors cursor-pointer group">
-      <td className="px-6 py-4" onClick={onView}>
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-[var(--surface)] rounded-[var(--radius-md)] flex items-center justify-center">
+    <Card
+      className="cursor-pointer hover:shadow-[var(--shadow-lg)] transition-shadow"
+      onClick={onView}
+    >
+      <div className="flex items-start justify-between gap-3 mb-3">
+        <div className="flex items-center gap-3 min-w-0 flex-1">
+          <div className="w-11 h-11 rounded-[var(--radius-lg)] bg-[var(--surface)] flex items-center justify-center flex-shrink-0">
             <Store className="w-5 h-5 text-[var(--text-secondary)]" />
           </div>
-          <div>
-            <p className="font-medium text-[var(--text-primary)]">{merchant.name}</p>
-            <p className="text-xs text-[var(--text-tertiary)]">
-              Sử dụng lần cuối: {merchant.lastUsed}
-            </p>
-          </div>
-        </div>
-      </td>
-      <td className="px-6 py-4" onClick={onView}>
-        {merchant.categoryName ? (
-          <span className="text-sm text-[var(--text-primary)]">
-            {merchant.categoryName}
-          </span>
-        ) : (
-          <span className="text-sm text-[var(--text-tertiary)] italic">
-            Chưa đặt
-          </span>
-        )}
-      </td>
-      <td className="px-6 py-4 text-center" onClick={onView}>
-        <span className="text-sm text-[var(--text-primary)] tabular-nums">
-          {merchant.usageCount}
-        </span>
-      </td>
-      <td className="px-6 py-4">
-        <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-          {!merchant.defaultCategory && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onSetDefault();
-              }}
-              className="px-3 py-1.5 text-xs font-medium bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white rounded-[var(--radius-md)] transition-colors"
-            >
-              Đặt mặc định
-            </button>
-          )}
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onEdit();
-            }}
-            className="p-2 rounded-[var(--radius-md)] hover:bg-[var(--border)] transition-colors"
-            title="Chỉnh sửa"
-          >
-            <Edit2 className="w-4 h-4 text-[var(--text-secondary)]" />
-          </button>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onMerge();
-            }}
-            className="p-2 rounded-[var(--radius-md)] hover:bg-[var(--border)] transition-colors"
-            title="Gộp"
-          >
-            <GitMerge className="w-4 h-4 text-[var(--text-secondary)]" />
-          </button>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onDelete();
-            }}
-            className="p-2 rounded-[var(--radius-md)] hover:bg-[var(--danger-light)] transition-colors"
-            title="Xoá"
-          >
-            <Trash2 className="w-4 h-4 text-[var(--text-secondary)]" />
-          </button>
-        </div>
-      </td>
-    </tr>
-  );
-}
 
-// Mobile card component
-function MerchantCard({ merchant, onView }: MerchantRowProps) {
-  return (
-    <Card onClick={onView}>
-      <div className="flex items-start justify-between mb-3">
-        <div className="flex items-center gap-3 flex-1">
-          <div className="w-10 h-10 bg-[var(--surface)] rounded-[var(--radius-md)] flex items-center justify-center flex-shrink-0">
-            <Store className="w-5 h-5 text-[var(--text-secondary)]" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="font-medium text-[var(--text-primary)] truncate">
-              {merchant.name}
-            </p>
-            <p className="text-xs text-[var(--text-secondary)]">
-              {merchant.categoryName || (
-                <span className="italic text-[var(--text-tertiary)]">Chưa đặt danh mục</span>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2 flex-wrap">
+              <p className="font-medium text-[var(--text-primary)] truncate">
+                {merchant.name}
+              </p>
+              {merchant.isHidden && (
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-[var(--surface)] border border-[var(--border)] text-[var(--text-tertiary)]">
+                  Đã ẩn
+                </span>
               )}
+            </div>
+            <p className="text-xs text-[var(--text-secondary)] mt-1 truncate">
+              {merchant.categoryName || "Chưa đặt danh mục mặc định"}
             </p>
           </div>
         </div>
+
         <ChevronRight className="w-5 h-5 text-[var(--text-tertiary)] flex-shrink-0" />
       </div>
-      <div className="flex items-center justify-between text-xs">
-        <span className="text-[var(--text-tertiary)]">
-          Sử dụng lần cuối: {merchant.lastUsed}
-        </span>
-        <span className="text-[var(--text-secondary)] font-medium tabular-nums">
-          {merchant.usageCount} lần
-        </span>
+
+      <div className="grid grid-cols-3 gap-3 text-center mb-3">
+        <div>
+          <p className="text-xs text-[var(--text-tertiary)]">Sử dụng</p>
+          <p className="text-sm font-semibold text-[var(--text-primary)] tabular-nums mt-1">
+            {merchant.transactionCount}
+          </p>
+        </div>
+        <div>
+          <p className="text-xs text-[var(--text-tertiary)]">Tổng chi</p>
+          <p className="text-sm font-semibold text-[var(--text-primary)] tabular-nums mt-1">
+            {formatMoney(merchant.totalSpentMinor)}₫
+          </p>
+        </div>
+        <div>
+          <p className="text-xs text-[var(--text-tertiary)]">Gần nhất</p>
+          <p className="text-sm font-semibold text-[var(--text-primary)] mt-1">
+            {formatDate(merchant.lastTransactionAt)}
+          </p>
+        </div>
+      </div>
+
+      <div className="flex items-center justify-end gap-2">
+        <button
+          onClick={(event) => {
+            event.stopPropagation();
+            onEdit();
+          }}
+          className="p-2 rounded-[var(--radius-md)] hover:bg-[var(--surface)] transition-colors"
+        >
+          <Edit2 className="w-4 h-4 text-[var(--text-secondary)]" />
+        </button>
+        <button
+          onClick={(event) => {
+            event.stopPropagation();
+            onDelete();
+          }}
+          className="p-2 rounded-[var(--radius-md)] hover:bg-[var(--danger-light)] transition-colors"
+        >
+          <Trash2 className="w-4 h-4 text-[var(--danger)]" />
+        </button>
       </div>
     </Card>
   );
 }
 
 export default function MerchantsList() {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [filterCategory, setFilterCategory] = useState<string>('all');
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [merchantToDelete, setMerchantToDelete] = useState<DisplayMerchant | null>(null);
-  const [mergeModalOpen, setMergeModalOpen] = useState(false);
-  const [merchantToMerge, setMerchantToMerge] = useState<DisplayMerchant | null>(null);
-  const [mergeTargetId, setMergeTargetId] = useState<string>('');
-  const [sortBy, setSortBy] = useState<'name' | 'usage' | 'lastUsed'>('usage');
-  const [selectedMerchants, setSelectedMerchants] = useState<Set<string>>(new Set());
-  const [bulkDeleteModalOpen, setBulkDeleteModalOpen] = useState(false);
-
-  const { merchants, categories, deleteMerchant, transactions, updateTransaction } = useDemoData();
   const nav = useAppNavigation();
   const toast = useToast();
 
-  // Build category options for filter dropdown
-  const categoryOptions = useMemo(() => {
-    const expenseCats = categories.filter(c => c.type === 'expense' && !c.parentId);
-    return expenseCats.map(c => ({ value: c.id, label: c.name }));
-  }, [categories]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [categoryId, setCategoryId] = useState("");
+  const [hiddenFilter, setHiddenFilter] = useState<
+    "all" | "visible" | "hidden"
+  >("visible");
+  const [sortBy, setSortBy] = useState<
+    "name" | "usage" | "spent" | "recent" | "createdAt"
+  >("usage");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+  const [deleteTarget, setDeleteTarget] = useState<MerchantItem | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
-  // Map DemoDataContext merchants to display merchants
-  const displayMerchants: DisplayMerchant[] = useMemo(() => {
-    return merchants.map(m => {
-      const formattedDate = new Date(m.lastTransaction).toLocaleDateString('vi-VN', {
-        day: '2-digit', month: '2-digit', year: 'numeric'
-      });
-      return {
-        id: m.id,
-        name: m.name,
-        defaultCategory: m.defaultCategory || null,
-        categoryName: m.categoryName || null,
-        usageCount: m.transactionCount,
-        lastUsed: formattedDate,
-        lastUsedRaw: m.lastTransaction,
-      };
-    });
-  }, [merchants]);
-
-  const filteredMerchants = displayMerchants.filter((merchant) => {
-    const matchesSearch = merchant.name.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory =
-      filterCategory === 'all' ||
-      (filterCategory === 'no-default' && !merchant.defaultCategory) ||
-      merchant.defaultCategory === filterCategory;
-    return matchesSearch && matchesCategory;
-  }).sort((a, b) => {
-    if (sortBy === 'usage') return b.usageCount - a.usageCount;
-    if (sortBy === 'lastUsed') return b.lastUsedRaw.localeCompare(a.lastUsedRaw);
-    return a.name.localeCompare(b.name, 'vi');
+  const { data: metaData } = useMerchantsMeta();
+  const { data, loading, error, reload } = useMerchantsList({
+    search: searchQuery.trim() || undefined,
+    categoryId: categoryId || undefined,
+    hidden: hiddenFilter,
+    sortBy,
+    sortOrder,
   });
 
-  const handleEdit = (id: string) => {
-    nav.goEditMerchant(id);
-  };
+  const summary = useMemo(() => {
+    return {
+      total: data?.summary.total || 0,
+      totalUsage: data?.summary.totalUsage || 0,
+      totalSpentMinor: data?.summary.totalSpentMinor || "0",
+      noDefaultCategoryCount: data?.summary.noDefaultCategoryCount || 0,
+    };
+  }, [data]);
 
-  const handleMerge = (id: string) => {
-    const merchant = displayMerchants.find(m => m.id === id);
-    if (merchant) {
-      setMerchantToMerge(merchant);
-      setMergeTargetId('');
-      setMergeModalOpen(true);
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+
+    try {
+      setDeleting(true);
+      await merchantsService.deleteMerchant(deleteTarget.id);
+      toast.success(`Đã xoá merchant "${deleteTarget.name}"`);
+      setDeleteTarget(null);
+      await reload();
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : "Không thể xoá merchant",
+      );
+    } finally {
+      setDeleting(false);
     }
   };
-
-  const confirmMerge = () => {
-    if (!merchantToMerge || !mergeTargetId) {
-      toast.error('Vui lòng chọn nhà cung cấp đích');
-      return;
-    }
-    // Find all transactions belonging to source merchant and reassign
-    const targetMerchant = displayMerchants.find(m => m.id === mergeTargetId);
-    const sourceTxns = transactions.filter(t => t.merchantId === merchantToMerge.id);
-    sourceTxns.forEach(txn => {
-      updateTransaction(txn.id, { merchantId: mergeTargetId, merchant: targetMerchant?.name });
-    });
-    // Delete source merchant
-    deleteMerchant(merchantToMerge.id);
-    toast.success(`Đã gộp "${merchantToMerge.name}" vào "${targetMerchant?.name || ''}". ${sourceTxns.length} giao dịch đã được chuyển.`);
-    setMergeModalOpen(false);
-    setMerchantToMerge(null);
-    setMergeTargetId('');
-  };
-
-  const handleSetDefault = (id: string) => {
-    toast.success('Đã đặt danh mục mặc định cho nhà cung cấp');
-  };
-
-  const handleView = (id: string) => {
-    nav.goMerchantDetail(id);
-  };
-
-  const handleDelete = (merchant: DisplayMerchant) => {
-    setMerchantToDelete(merchant);
-    setDeleteModalOpen(true);
-  };
-
-  const confirmDelete = () => {
-    if (merchantToDelete) {
-      deleteMerchant(merchantToDelete.id);
-      toast.success(`Đã xoá nhà cung cấp "${merchantToDelete.name}"`);
-      setDeleteModalOpen(false);
-      setMerchantToDelete(null);
-    }
-  };
-
-  const handleBulkDelete = () => {
-    setBulkDeleteModalOpen(true);
-  };
-
-  const confirmBulkDelete = () => {
-    selectedMerchants.forEach(id => {
-      deleteMerchant(id);
-    });
-    toast.success(`Đã xoá ${selectedMerchants.size} nhà cung cấp`);
-    setBulkDeleteModalOpen(false);
-    setSelectedMerchants(new Set());
-  };
-
-  const noDefaultCount = displayMerchants.filter((m) => !m.defaultCategory).length;
-  const totalUsage = displayMerchants.reduce((sum, m) => sum + m.usageCount, 0);
 
   return (
     <div className="min-h-screen bg-[var(--background)]">
-      <div className="max-w-7xl mx-auto p-4 md:p-6 pb-20 md:pb-6 space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
+      <div className="max-w-6xl mx-auto p-4 md:p-6 pb-20 md:pb-6 space-y-6">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl font-semibold text-[var(--text-primary)]">
               Nhà cung cấp
             </h1>
             <p className="text-sm text-[var(--text-secondary)] mt-1">
-              Quản lý nhà cung cấp và danh mục mặc định
+              Quản lý merchant để tự động gợi ý và phân loại giao dịch.
             </p>
           </div>
-          <div className="flex items-center gap-2">
-            {displayMerchants.length > 0 && (
-              <button
-                onClick={() => {
-                  if (selectedMerchants.size > 0) {
-                    setSelectedMerchants(new Set());
-                  } else {
-                    setSelectedMerchants(new Set(filteredMerchants.map(m => m.id)));
-                  }
-                }}
-                className="flex items-center gap-2 px-3 py-2.5 border border-[var(--border)] text-[var(--text-secondary)] hover:bg-[var(--surface)] rounded-[var(--radius-lg)] transition-colors"
-              >
-                {selectedMerchants.size > 0 ? (
-                  <XCircle className="w-4 h-4" />
-                ) : (
-                  <CheckSquare className="w-4 h-4" />
-                )}
-                <span className="text-sm font-medium hidden md:inline">
-                  {selectedMerchants.size > 0 ? 'Bỏ chọn' : 'Chọn'}
-                </span>
-              </button>
-            )}
-            <button
-              onClick={() => nav.goCreateMerchant()}
-              className="flex items-center gap-2 px-4 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white rounded-[var(--radius-lg)] transition-colors shadow-[var(--shadow-sm)]"
-            >
-              <Plus className="w-5 h-5" />
-              <span className="font-medium hidden md:inline">Thêm nhà cung cấp</span>
-            </button>
-          </div>
+
+          <Button onClick={nav.goCreateMerchant}>
+            <Plus className="w-4 h-4" />
+            Thêm merchant
+          </Button>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card>
             <p className="text-sm text-[var(--text-secondary)] mb-1">
-              Tổng số nhà cung cấp
+              Tổng merchant
             </p>
             <p className="text-2xl font-semibold text-[var(--text-primary)] tabular-nums">
-              {displayMerchants.length}
+              {summary.total}
             </p>
           </Card>
+
           <Card>
             <p className="text-sm text-[var(--text-secondary)] mb-1">
-              Chưa đặt danh mục
+              Tổng sử dụng
             </p>
-            <p className="text-2xl font-semibold text-[var(--warning)] tabular-nums">
-              {noDefaultCount}
+            <p className="text-2xl font-semibold text-[var(--text-primary)] tabular-nums">
+              {summary.totalUsage}
             </p>
           </Card>
+
           <Card>
-            <p className="text-sm text-[var(--text-secondary)] mb-1">Tổng sử dụng</p>
+            <p className="text-sm text-[var(--text-secondary)] mb-1">
+              Tổng chi
+            </p>
             <p className="text-2xl font-semibold text-[var(--text-primary)] tabular-nums">
-              {totalUsage}
+              {formatMoney(summary.totalSpentMinor)}₫
+            </p>
+          </Card>
+
+          <Card>
+            <p className="text-sm text-[var(--text-secondary)] mb-1">
+              Chưa có mặc định
+            </p>
+            <p className="text-2xl font-semibold text-[var(--text-primary)] tabular-nums">
+              {summary.noDefaultCategoryCount}
             </p>
           </Card>
         </div>
 
-        {/* Filters */}
         <Card>
-          <div className="flex flex-col md:flex-row gap-4">
-            {/* Search */}
-            <div className="flex-1 relative">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--text-tertiary)]" />
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+            <div className="lg:col-span-2 relative">
+              <Search className="w-4 h-4 text-[var(--text-tertiary)] absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
-                placeholder="Tìm kiếm nhà cung cấp..."
+                placeholder="Tìm theo tên merchant..."
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-12 pr-10 py-2.5 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-lg)] text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--focus-ring)]"
+                onChange={(event) => setSearchQuery(event.target.value)}
+                className="w-full pl-10 pr-4 py-2.5 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-lg)]"
               />
-              {searchQuery && (
-                <button
-                  onClick={() => setSearchQuery('')}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 p-1 rounded-[var(--radius-sm)] hover:bg-[var(--surface)] transition-colors"
-                >
-                  <X className="w-4 h-4 text-[var(--text-tertiary)]" />
-                </button>
-              )}
             </div>
 
-            {/* Category Filter */}
-            <select
-              value={filterCategory}
-              onChange={(e) => setFilterCategory(e.target.value)}
-              className="px-4 py-2.5 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-lg)] text-[var(--text-primary)] transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--focus-ring)]"
-            >
-              <option value="all">Tất cả danh mục</option>
-              <option value="no-default">Chưa đặt danh mục</option>
-              {categoryOptions.map((cat) => (
-                <option key={cat.value} value={cat.value}>
-                  {cat.label}
-                </option>
-              ))}
-            </select>
-
-            {/* Sort */}
-            <div className="relative flex-shrink-0">
-              <ArrowUpDown className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-tertiary)] pointer-events-none" />
+            <div>
               <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as any)}
-                className="pl-9 pr-8 py-2.5 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-lg)] text-sm text-[var(--text-primary)] appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-[var(--focus-ring)]"
+                value={categoryId}
+                onChange={(event) => setCategoryId(event.target.value)}
+                className="w-full px-4 py-2.5 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-lg)]"
               >
-                <option value="usage">Lượt dùng</option>
-                <option value="name">Tên A-Z</option>
-                <option value="lastUsed">Gần đây</option>
+                <option value="">Tất cả danh mục</option>
+                {(metaData?.categories || []).map((category) => (
+                  <option key={category.id} value={category.id}>
+                    {category.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <select
+                value={hiddenFilter}
+                onChange={(event) =>
+                  setHiddenFilter(
+                    event.target.value as "all" | "visible" | "hidden",
+                  )
+                }
+                className="w-full px-4 py-2.5 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-lg)]"
+              >
+                <option value="visible">Đang hiển thị</option>
+                <option value="hidden">Đã ẩn</option>
+                <option value="all">Tất cả</option>
               </select>
             </div>
           </div>
+
+          <div className="mt-4">
+            <select
+              value={`${sortBy}:${sortOrder}`}
+              onChange={(event) => {
+                const [nextSortBy, nextSortOrder] = event.target.value.split(
+                  ":",
+                ) as [
+                  "name" | "usage" | "spent" | "recent" | "createdAt",
+                  "asc" | "desc",
+                ];
+                setSortBy(nextSortBy);
+                setSortOrder(nextSortOrder);
+              }}
+              className="w-full md:w-auto px-4 py-2.5 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-lg)]"
+            >
+              <option value="usage:desc">Dùng nhiều nhất</option>
+              <option value="spent:desc">Chi nhiều nhất</option>
+              <option value="recent:desc">Dùng gần nhất</option>
+              <option value="name:asc">Tên A-Z</option>
+              <option value="createdAt:desc">Tạo mới nhất</option>
+            </select>
+          </div>
         </Card>
 
-        {/* Merchants List */}
-        {filteredMerchants.length > 0 ? (
-          <>
-            {/* Desktop Table */}
-            <Card className="hidden md:block overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-[var(--divider)]">
-                      <th className="text-left px-6 py-3 text-sm font-medium text-[var(--text-secondary)]">
-                        Nhà cung cấp
-                      </th>
-                      <th className="text-left px-6 py-3 text-sm font-medium text-[var(--text-secondary)]">
-                        Danh mục mặc định
-                      </th>
-                      <th className="text-center px-6 py-3 text-sm font-medium text-[var(--text-secondary)]">
-                        Sử dụng
-                      </th>
-                      <th className="text-right px-6 py-3 text-sm font-medium text-[var(--text-secondary)]">
-                        Hành động
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredMerchants.map((merchant) => (
-                      <MerchantTableRow
-                        key={merchant.id}
-                        merchant={merchant}
-                        onEdit={() => handleEdit(merchant.id)}
-                        onMerge={() => handleMerge(merchant.id)}
-                        onSetDefault={() => handleSetDefault(merchant.id)}
-                        onView={() => handleView(merchant.id)}
-                        onDelete={() => handleDelete(merchant)}
-                      />
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </Card>
-
-            {/* Mobile List */}
-            <div className="md:hidden space-y-3">
-              {filteredMerchants.map((merchant) => (
-                <SwipeableRow
-                  key={merchant.id}
-                  actions={[
-                    {
-                      icon: <Edit2 className="w-4 h-4" />,
-                      label: 'Sửa',
-                      color: 'white',
-                      bgColor: 'var(--primary)',
-                      onClick: () => handleEdit(merchant.id),
-                    },
-                    {
-                      icon: <GitMerge className="w-4 h-4" />,
-                      label: 'Gộp',
-                      color: 'white',
-                      bgColor: 'var(--info)',
-                      onClick: () => handleMerge(merchant.id),
-                    },
-                    {
-                      icon: <Trash2 className="w-4 h-4" />,
-                      label: 'Xoá',
-                      color: 'white',
-                      bgColor: 'var(--danger)',
-                      onClick: () => handleDelete(merchant),
-                    },
-                  ]}
-                >
-                  <MerchantCard
-                    merchant={merchant}
-                    onEdit={() => handleEdit(merchant.id)}
-                    onMerge={() => handleMerge(merchant.id)}
-                    onSetDefault={() => handleSetDefault(merchant.id)}
-                    onView={() => handleView(merchant.id)}
-                    onDelete={() => handleDelete(merchant)}
-                  />
-                </SwipeableRow>
-              ))}
-            </div>
-          </>
-        ) : (
+        {loading && (
           <Card>
-            <div className="text-center py-12">
-              <div className="w-16 h-16 bg-[var(--surface)] rounded-full flex items-center justify-center mx-auto mb-4">
-                <Store className="w-8 h-8 text-[var(--text-tertiary)]" />
+            <p className="text-sm text-[var(--text-secondary)]">
+              Đang tải danh sách merchant...
+            </p>
+          </Card>
+        )}
+
+        {!loading && error && (
+          <Card>
+            <p className="text-sm text-[var(--danger)]">{error}</p>
+          </Card>
+        )}
+
+        {!loading && !error && (data?.items || []).length === 0 && (
+          <Card>
+            <div className="text-center py-10">
+              <div className="w-14 h-14 rounded-full bg-[var(--surface)] mx-auto flex items-center justify-center mb-4">
+                <Store className="w-6 h-6 text-[var(--text-tertiary)]" />
               </div>
-              <h3 className="font-semibold text-[var(--text-primary)] mb-2">
-                Không tìm thấy nhà cung cấp
+              <h3 className="text-lg font-semibold text-[var(--text-primary)]">
+                Chưa có merchant nào
               </h3>
-              <p className="text-sm text-[var(--text-secondary)]">
-                Thử tìm kiếm với từ khoá khác hoặc thay đổi bộ lọc
+              <p className="text-sm text-[var(--text-secondary)] mt-2 mb-5">
+                Tạo merchant để gán category mặc định và dùng lại trong form
+                giao dịch.
               </p>
+              <Button onClick={nav.goCreateMerchant}>
+                <Plus className="w-4 h-4" />
+                Tạo merchant đầu tiên
+              </Button>
             </div>
           </Card>
         )}
 
-        {/* Floating Bulk Action Bar */}
-        {selectedMerchants.size > 0 && (
-          <div className="fixed bottom-24 md:bottom-8 left-1/2 -translate-x-1/2 z-30 flex items-center gap-3 px-5 py-3 bg-[var(--card)] border border-[var(--border)] rounded-full shadow-[var(--shadow-lg)]">
-            <span className="text-sm font-medium text-[var(--text-primary)] tabular-nums">
-              {selectedMerchants.size} đã chọn
-            </span>
-            <div className="w-px h-5 bg-[var(--divider)]" />
-            <button
-              onClick={() => setSelectedMerchants(new Set(filteredMerchants.map(m => m.id)))}
-              className="text-sm text-[var(--primary)] hover:text-[var(--primary-hover)] font-medium"
-            >
-              Chọn tất cả
-            </button>
-            <button
-              onClick={() => setSelectedMerchants(new Set())}
-              className="text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] font-medium"
-            >
-              Bỏ chọn
-            </button>
-            <div className="w-px h-5 bg-[var(--divider)]" />
-            <button
-              onClick={handleBulkDelete}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-[var(--danger)] hover:bg-[var(--danger)] text-white rounded-[var(--radius-lg)] text-sm font-medium transition-colors"
-            >
-              <Trash2 className="w-3.5 h-3.5" />
-              Xoá
-            </button>
+        {!loading && !error && (data?.items || []).length > 0 && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {(data?.items || []).map((merchant) => (
+              <MerchantCard
+                key={merchant.id}
+                merchant={merchant}
+                onView={() => nav.goMerchantDetail(merchant.id)}
+                onEdit={() => nav.goEditMerchant(merchant.id)}
+                onDelete={() => setDeleteTarget(merchant)}
+              />
+            ))}
           </div>
         )}
-
-        <ConfirmationModal
-          isOpen={deleteModalOpen}
-          onClose={() => { setDeleteModalOpen(false); setMerchantToDelete(null); }}
-          onConfirm={confirmDelete}
-          title="Xoá nhà cung cấp?"
-          description={`Bạn có chắc muốn xoá nhà cung cấp "${merchantToDelete?.name || ''}"? Hành động này không thể hoàn tác.`}
-          confirmLabel="Xoá"
-          cancelLabel="Huỷ"
-          isDangerous={true}
-        />
-
-        <ConfirmationModal
-          isOpen={mergeModalOpen}
-          onClose={() => { setMergeModalOpen(false); setMerchantToMerge(null); setMergeTargetId(''); }}
-          onConfirm={confirmMerge}
-          title="Gộp nhà cung cấp?"
-          description={`Bạn có chắc muốn gộp "${merchantToMerge?.name || ''}" vào nhà cung cấp khác? Hành động này không thể hoàn tác.`}
-          confirmLabel="Gộp"
-          cancelLabel="Huỷ"
-          isDangerous={true}
-        >
-          <div className="flex flex-col gap-4">
-            <p className="text-sm text-[var(--text-secondary)]">Chọn nhà cung cấp đích:</p>
-            <select
-              value={mergeTargetId}
-              onChange={(e) => setMergeTargetId(e.target.value)}
-              className="px-4 py-2.5 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-lg)] text-[var(--text-primary)] transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--focus-ring)]"
-            >
-              <option value="">Chọn nhà cung cấp</option>
-              {displayMerchants.filter(m => m.id !== merchantToMerge?.id).map((m) => (
-                <option key={m.id} value={m.id}>
-                  {m.name}
-                </option>
-              ))}
-            </select>
-          </div>
-        </ConfirmationModal>
-
-        <ConfirmationModal
-          isOpen={bulkDeleteModalOpen}
-          onClose={() => { setBulkDeleteModalOpen(false); setSelectedMerchants(new Set()); }}
-          onConfirm={confirmBulkDelete}
-          title="Xoá nhiều nhà cung cấp?"
-          description={`Bạn có chắc muốn xoá ${selectedMerchants.size} nhà cung cấp đã chọn? Hành động này không thể hoàn tác.`}
-          confirmLabel="Xoá"
-          cancelLabel="Huỷ"
-          isDangerous={true}
-        />
       </div>
+
+      <ConfirmationModal
+        isOpen={Boolean(deleteTarget)}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={() => void handleDelete()}
+        title="Xoá merchant?"
+        description={`Bạn có chắc muốn xoá merchant "${deleteTarget?.name || ""}"?`}
+        confirmLabel={deleting ? "Đang xoá..." : "Xoá"}
+        cancelLabel="Huỷ"
+        isDangerous
+      />
     </div>
   );
 }

@@ -7,7 +7,6 @@ import {
   SplitSquareHorizontal,
   Store,
   Tag,
-  Trash2,
 } from "lucide-react";
 import { AmountInput } from "../components/AmountInput";
 import { Button } from "../components/Button";
@@ -18,7 +17,11 @@ import { useToast } from "../contexts/ToastContext";
 import { useTransactionDetail } from "../hooks/useTransactionDetail";
 import { useTransactionsMeta } from "../hooks/useTransactionsMeta";
 import { transactionsService } from "../services/transactionsService";
-import type { CreateTransactionPayload } from "../types/transactions";
+import type {
+  CreateTransactionPayload,
+  TransactionMerchantOption,
+  TransactionTagOption,
+} from "../types/transactions";
 
 interface SplitLineForm {
   id: string;
@@ -51,6 +54,7 @@ export default function AddEditTransaction() {
   const [searchParams] = useSearchParams();
 
   const duplicateFrom = searchParams.get("duplicateFrom") || undefined;
+  const preselectedAccountId = searchParams.get("accountId") || "";
   const sourceTransactionId = id || duplicateFrom;
   const isEditMode = Boolean(id);
   const isDuplicateMode = !id && Boolean(duplicateFrom);
@@ -70,18 +74,22 @@ export default function AddEditTransaction() {
     "expense",
   );
   const [amount, setAmount] = useState("");
-  const [accountId, setAccountId] = useState("");
+  const [accountId, setAccountId] = useState(preselectedAccountId);
   const [categoryId, setCategoryId] = useState("");
-  const [merchantName, setMerchantName] = useState("");
   const [description, setDescription] = useState("");
   const [date, setDate] = useState(todayString());
   const [notes, setNotes] = useState("");
+
+  const [selectedMerchantId, setSelectedMerchantId] = useState("");
+  const [customMerchantName, setCustomMerchantName] = useState("");
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
+
   const [isSplit, setIsSplit] = useState(false);
   const [splitLines, setSplitLines] = useState<SplitLineForm[]>([
     createSplitLine(),
     createSplitLine(),
   ]);
+
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
   const [initialized, setInitialized] = useState(false);
@@ -94,6 +102,14 @@ export default function AddEditTransaction() {
       );
     });
   }, [metaData?.categories, transactionType]);
+
+  const selectedMerchant = useMemo<TransactionMerchantOption | null>(() => {
+    return (
+      (metaData?.merchants || []).find(
+        (item) => item.id === selectedMerchantId,
+      ) || null
+    );
+  }, [metaData?.merchants, selectedMerchantId]);
 
   const remaining = useMemo(() => {
     const totalAmount = Number(amount || 0);
@@ -111,17 +127,17 @@ export default function AddEditTransaction() {
     if (sourceTransaction) {
       if (sourceTransaction.txnType === "transfer") return;
 
-      const nextType =
-        sourceTransaction.txnType === "income" ? "income" : "expense";
-      setTransactionType(nextType);
+      setTransactionType(
+        sourceTransaction.txnType === "income" ? "income" : "expense",
+      );
       setAmount(String(Number(sourceTransaction.totalAmountMinor || 0)));
       setAccountId(
         sourceTransaction.account?.id ||
+          preselectedAccountId ||
           metaData.defaults.defaultAccountId ||
           "",
       );
       setCategoryId(sourceTransaction.category?.id || "");
-      setMerchantName(sourceTransaction.merchant?.name || "");
       setDescription(sourceTransaction.description || "");
       setDate(
         isDuplicateMode
@@ -130,26 +146,48 @@ export default function AddEditTransaction() {
       );
       setNotes(sourceTransaction.note || "");
       setSelectedTagIds(sourceTransaction.tags.map((item) => item.id));
-      setIsSplit(Boolean(sourceTransaction.isSplit));
-      setSplitLines(
-        sourceTransaction.isSplit && sourceTransaction.splitItems.length
-          ? sourceTransaction.splitItems.map((item) => ({
-              id: item.id,
-              categoryId: item.category?.id || "",
-              amount: String(Number(item.amountMinor || 0)),
-              note: item.note || "",
-            }))
-          : [createSplitLine(), createSplitLine()],
+
+      const merchantFromMeta = (metaData.merchants || []).find(
+        (item) => item.id === sourceTransaction.merchant?.id,
       );
+
+      if (merchantFromMeta) {
+        setSelectedMerchantId(merchantFromMeta.id);
+        setCustomMerchantName("");
+      } else if (sourceTransaction.merchant?.name) {
+        setSelectedMerchantId("");
+        setCustomMerchantName(sourceTransaction.merchant.name);
+      }
+
+      if (
+        sourceTransaction.isSplit &&
+        sourceTransaction.splitItems.length > 0
+      ) {
+        setIsSplit(true);
+        setSplitLines(
+          sourceTransaction.splitItems.map((item) => ({
+            id: item.id,
+            categoryId: item.category?.id || "",
+            amount: String(Number(item.amountMinor || 0)),
+            note: item.note || "",
+          })),
+        );
+      } else {
+        setIsSplit(false);
+        setSplitLines([createSplitLine(), createSplitLine()]);
+      }
+
       setInitialized(true);
       return;
     }
 
-    setAccountId(metaData.defaults.defaultAccountId || "");
+    setAccountId(
+      preselectedAccountId || metaData.defaults.defaultAccountId || "",
+    );
     setCategoryId(
-      transactionType === "income"
-        ? metaData.defaults.defaultIncomeCategoryId || ""
-        : metaData.defaults.defaultExpenseCategoryId || "",
+      metaData.defaults.defaultExpenseCategoryId ||
+        metaData.defaults.defaultIncomeCategoryId ||
+        "",
     );
     setInitialized(true);
   }, [
@@ -157,8 +195,8 @@ export default function AddEditTransaction() {
     sourceTransaction,
     sourceTransactionId,
     isDuplicateMode,
-    transactionType,
     initialized,
+    preselectedAccountId,
   ]);
 
   useEffect(() => {
@@ -173,12 +211,22 @@ export default function AddEditTransaction() {
     );
   }, [transactionType, metaData, sourceTransactionId, categoryId]);
 
-  const merchantMatch = useMemo(() => {
-    const normalized = merchantName.trim().toLowerCase();
-    return (metaData?.merchants || []).find(
-      (item) => item.name.trim().toLowerCase() === normalized,
+  useEffect(() => {
+    if (isSplit) return;
+    if (!selectedMerchant) return;
+    if (!selectedMerchant.defaultCategoryId) return;
+
+    const matchedCategory = (metaData?.categories || []).find(
+      (item) =>
+        item.id === selectedMerchant.defaultCategoryId &&
+        !item.archivedAt &&
+        (item.categoryType === transactionType || item.categoryType === "both"),
     );
-  }, [merchantName, metaData?.merchants]);
+
+    if (matchedCategory) {
+      setCategoryId(matchedCategory.id);
+    }
+  }, [selectedMerchantId, transactionType, isSplit, metaData?.categories]);
 
   const toggleTag = (tagId: string) => {
     setSelectedTagIds((prev) =>
@@ -194,8 +242,9 @@ export default function AddEditTransaction() {
     );
   };
 
-  const addSplitLine = () =>
+  const addSplitLine = () => {
     setSplitLines((prev) => [...prev, createSplitLine()]);
+  };
 
   const removeSplitLine = (lineId: string) => {
     setSplitLines((prev) => {
@@ -248,11 +297,11 @@ export default function AddEditTransaction() {
       date,
       notes: notes.trim() || undefined,
       tagIds: selectedTagIds,
-      ...(merchantName.trim()
-        ? merchantMatch
-          ? { merchantId: merchantMatch.id }
-          : { merchantName: merchantName.trim() }
-        : {}),
+      ...(selectedMerchantId
+        ? { merchantId: selectedMerchantId }
+        : customMerchantName.trim()
+          ? { merchantName: customMerchantName.trim() }
+          : {}),
       ...(isSplit
         ? {
             splitItems: splitLines.map((line) => ({
@@ -268,6 +317,7 @@ export default function AddEditTransaction() {
 
     try {
       setSubmitting(true);
+
       const result =
         isEditMode && id
           ? await transactionsService.updateTransaction(id, payload)
@@ -358,7 +408,8 @@ export default function AddEditTransaction() {
                   : "Thêm giao dịch"}
             </h1>
             <p className="text-sm text-[var(--text-secondary)] mt-1">
-              Tạo giao dịch thu/chi và đồng bộ trực tiếp với backend.
+              Tạo giao dịch thu/chi với merchant và tag lấy trực tiếp từ
+              backend.
             </p>
           </div>
         </div>
@@ -457,13 +508,15 @@ export default function AddEditTransaction() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
               <div>
                 <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-                  {!isSplit && (
+                  {!isSplit ? (
                     <>
                       Danh mục <span className="text-[var(--danger)]">*</span>
                     </>
+                  ) : (
+                    "Danh mục được chọn trong từng dòng split"
                   )}
-                  {isSplit && "Danh mục được chọn trong từng dòng split"}
                 </label>
+
                 <select
                   value={categoryId}
                   onChange={(event) => {
@@ -480,6 +533,7 @@ export default function AddEditTransaction() {
                     </option>
                   ))}
                 </select>
+
                 {errors.categoryId && (
                   <p className="mt-1 text-sm text-[var(--danger)]">
                     {errors.categoryId}
@@ -491,21 +545,61 @@ export default function AddEditTransaction() {
                 <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
                   Merchant
                 </label>
+
                 <div className="relative">
                   <Store className="w-4 h-4 text-[var(--text-tertiary)] absolute left-3 top-1/2 -translate-y-1/2" />
-                  <input
-                    list="merchant-options"
-                    value={merchantName}
-                    onChange={(event) => setMerchantName(event.target.value)}
-                    placeholder="Nhập hoặc chọn merchant"
+                  <select
+                    value={selectedMerchantId}
+                    onChange={(event) => {
+                      setSelectedMerchantId(event.target.value);
+                      if (event.target.value) {
+                        setCustomMerchantName("");
+                      }
+                    }}
                     className="w-full pl-10 pr-4 py-2.5 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-lg)]"
-                  />
-                  <datalist id="merchant-options">
-                    {(metaData?.merchants || []).map((merchant) => (
-                      <option key={merchant.id} value={merchant.name} />
-                    ))}
-                  </datalist>
+                  >
+                    <option value="">Không chọn từ danh sách</option>
+                    {(metaData?.merchants || [])
+                      .filter((merchant) => !merchant.isHidden)
+                      .map((merchant) => (
+                        <option key={merchant.id} value={merchant.id}>
+                          {merchant.name}
+                        </option>
+                      ))}
+                  </select>
                 </div>
+
+                <div className="mt-2 flex items-center justify-between gap-3">
+                  <p className="text-xs text-[var(--text-tertiary)]">
+                    Hoặc nhập merchant mới nếu chưa có sẵn.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => navigate("/merchants/create")}
+                    className="text-xs font-medium text-[var(--primary)] hover:underline"
+                  >
+                    Tạo merchant
+                  </button>
+                </div>
+
+                {!selectedMerchantId && (
+                  <div className="mt-2">
+                    <Input
+                      placeholder="Ví dụ: Highlands Coffee"
+                      value={customMerchantName}
+                      onChange={(event) =>
+                        setCustomMerchantName(event.target.value)
+                      }
+                    />
+                  </div>
+                )}
+
+                {selectedMerchant?.defaultCategoryId && !isSplit && (
+                  <p className="mt-2 text-xs text-[var(--text-secondary)]">
+                    Merchant này có danh mục mặc định và sẽ tự gợi ý khi phù
+                    hợp.
+                  </p>
+                )}
               </div>
             </div>
 
@@ -536,6 +630,7 @@ export default function AddEditTransaction() {
                     Tổng split phải bằng {formatMoney(amount || 0)} ₫
                   </p>
                 </div>
+
                 <Button
                   type="button"
                   variant="secondary"
@@ -556,12 +651,13 @@ export default function AddEditTransaction() {
                       <p className="font-medium text-[var(--text-primary)]">
                         Dòng {index + 1}
                       </p>
+
                       <button
                         type="button"
                         onClick={() => removeSplitLine(line.id)}
-                        className="p-2 rounded-[var(--radius-md)] hover:bg-[var(--surface)] text-[var(--danger)]"
+                        className="text-sm text-[var(--danger)] hover:underline"
                       >
-                        <Trash2 className="w-4 h-4" />
+                        Xoá dòng
                       </button>
                     </div>
 
@@ -647,14 +743,25 @@ export default function AddEditTransaction() {
 
           {!!metaData?.tags.length && (
             <Card>
-              <div className="flex items-center gap-2 mb-4">
-                <Tag className="w-5 h-5 text-[var(--text-tertiary)]" />
-                <h2 className="text-lg font-semibold text-[var(--text-primary)]">
-                  Thẻ
-                </h2>
+              <div className="flex items-center justify-between gap-3 mb-4">
+                <div className="flex items-center gap-2">
+                  <Tag className="w-5 h-5 text-[var(--text-tertiary)]" />
+                  <h2 className="text-lg font-semibold text-[var(--text-primary)]">
+                    Thẻ
+                  </h2>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => navigate("/tags/create")}
+                  className="text-sm font-medium text-[var(--primary)] hover:underline"
+                >
+                  Tạo nhãn mới
+                </button>
               </div>
+
               <div className="flex flex-wrap gap-2">
-                {metaData.tags.map((tag) => {
+                {metaData.tags.map((tag: TransactionTagOption) => {
                   const active = selectedTagIds.includes(tag.id);
                   return (
                     <button
@@ -693,6 +800,7 @@ export default function AddEditTransaction() {
             >
               Huỷ
             </Button>
+
             <Button type="submit" disabled={submitting}>
               {isEditMode ? (
                 <Save className="w-4 h-4" />
