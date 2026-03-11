@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router";
 import {
   ArrowDown,
@@ -6,6 +6,7 @@ import {
   ArrowLeftRight,
   Building2,
   CreditCard,
+  AlertCircle,
   Save,
   Wallet,
 } from "lucide-react";
@@ -46,6 +47,7 @@ export default function AddTransfer() {
   const editId = searchParams.get("editId") || undefined;
   const duplicateFrom = searchParams.get("duplicateFrom") || undefined;
   const prefilledFromAccountId = searchParams.get("fromAccountId") || undefined;
+
   const sourceTransactionId = editId || duplicateFrom;
   const isEditMode = Boolean(editId);
   const isDuplicateMode = !editId && Boolean(duplicateFrom);
@@ -55,6 +57,7 @@ export default function AddTransfer() {
     loading: metaLoading,
     error: metaError,
   } = useTransactionsMeta();
+
   const {
     data: sourceTransaction,
     loading: sourceLoading,
@@ -116,24 +119,62 @@ export default function AddTransfer() {
     isDuplicateMode,
   ]);
 
-  const accounts = metaData?.accounts || [];
+  const accounts = useMemo(() => {
+    return (metaData?.accounts || []).filter(
+      (item) => item.status === "active",
+    );
+  }, [metaData?.accounts]);
+
   const fromAccount =
     accounts.find((item) => item.id === fromAccountId) || null;
+  const toAccount = accounts.find((item) => item.id === toAccountId) || null;
   const totalDeduction = Number(amount || 0) + Number(serviceFee || 0);
+
+  const hasCrossCurrency =
+    Boolean(fromAccount && toAccount) &&
+    fromAccount?.currencyCode !== toAccount?.currencyCode;
+
+  const insufficientBalance =
+    Boolean(fromAccount) &&
+    Number(amount || 0) > 0 &&
+    totalDeduction > Number(fromAccount?.currentBalanceMinor || 0);
 
   const validate = () => {
     const nextErrors: Record<string, string> = {};
 
-    if (!amount || Number(amount || 0) <= 0)
+    if (!amount || Number(amount || 0) <= 0) {
       nextErrors.amount = "Vui lòng nhập số tiền hợp lệ";
-    if (!fromAccountId)
+    }
+
+    if (!fromAccountId) {
       nextErrors.fromAccountId = "Vui lòng chọn tài khoản nguồn";
-    if (!toAccountId) nextErrors.toAccountId = "Vui lòng chọn tài khoản đích";
+    }
+
+    if (!toAccountId) {
+      nextErrors.toAccountId = "Vui lòng chọn tài khoản đích";
+    }
+
     if (fromAccountId && toAccountId && fromAccountId === toAccountId) {
       nextErrors.toAccountId = "Tài khoản đích phải khác tài khoản nguồn";
     }
-    if (!description.trim()) nextErrors.description = "Vui lòng nhập mô tả";
-    if (!date) nextErrors.date = "Vui lòng chọn ngày";
+
+    if (!description.trim()) {
+      nextErrors.description = "Vui lòng nhập mô tả";
+    }
+
+    if (!date) {
+      nextErrors.date = "Vui lòng chọn ngày";
+    }
+
+    if (hasCrossCurrency) {
+      nextErrors.currency =
+        "Chưa hỗ trợ chuyển tiền giữa 2 tài khoản khác tiền tệ";
+    }
+
+    if (insufficientBalance) {
+      nextErrors.balance =
+        "Số dư tài khoản nguồn không đủ để thực hiện giao dịch";
+    }
 
     setErrors(nextErrors);
     return Object.keys(nextErrors).length === 0;
@@ -145,6 +186,7 @@ export default function AddTransfer() {
 
     try {
       setSubmitting(true);
+
       const payload = {
         type: "transfer" as const,
         amount: Number(amount || 0),
@@ -229,6 +271,7 @@ export default function AddTransfer() {
     onClick: () => void;
   }) => {
     const Icon = getAccountIcon(account.accountType);
+
     return (
       <button
         type="button"
@@ -248,6 +291,7 @@ export default function AddTransfer() {
             style={{ color: account.colorHex || "#2563eb" }}
           />
         </div>
+
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium text-[var(--text-primary)] truncate">
             {account.name}
@@ -259,14 +303,24 @@ export default function AddTransfer() {
               : ""}
           </p>
         </div>
+
         <div className="text-right flex-shrink-0">
           <p className="text-sm font-semibold text-[var(--text-primary)] tabular-nums">
             {formatMoney(account.currentBalanceMinor)} ₫
+          </p>
+          <p className="text-[10px] text-[var(--text-tertiary)] mt-0.5">
+            {account.currencyCode}
           </p>
         </div>
       </button>
     );
   };
+
+  const isSubmitDisabled =
+    submitting ||
+    Number(amount || 0) <= 0 ||
+    hasCrossCurrency ||
+    insufficientBalance;
 
   return (
     <div className="min-h-screen bg-[var(--background)]">
@@ -287,7 +341,7 @@ export default function AddTransfer() {
                   : "Chuyển tiền"}
             </h1>
             <p className="text-sm text-[var(--text-secondary)] mt-1">
-              Tạo transfer giữa 2 tài khoản, có thể kèm phí dịch vụ.
+              Tạo transfer giữa 2 tài khoản bằng dữ liệu thật từ backend.
             </p>
           </div>
         </div>
@@ -319,6 +373,8 @@ export default function AddTransfer() {
                         ...prev,
                         fromAccountId: "",
                         toAccountId: "",
+                        currency: "",
+                        balance: "",
                       }));
                     }}
                   />
@@ -351,7 +407,11 @@ export default function AddTransfer() {
                       selected={toAccountId === account.id}
                       onClick={() => {
                         setToAccountId(account.id);
-                        setErrors((prev) => ({ ...prev, toAccountId: "" }));
+                        setErrors((prev) => ({
+                          ...prev,
+                          toAccountId: "",
+                          currency: "",
+                        }));
                       }}
                     />
                   ))}
@@ -374,7 +434,12 @@ export default function AddTransfer() {
                   type="number"
                   min="0"
                   value={serviceFee}
-                  onChange={(event) => setServiceFee(event.target.value)}
+                  onChange={(event) => {
+                    setServiceFee(event.target.value);
+                    if (errors.balance) {
+                      setErrors((prev) => ({ ...prev, balance: "" }));
+                    }
+                  }}
                   placeholder="0"
                   className="w-full px-4 py-2.5 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-lg)]"
                 />
@@ -423,6 +488,32 @@ export default function AddTransfer() {
               />
             </div>
 
+            {hasCrossCurrency && (
+              <div className="mt-4 p-3 rounded-[var(--radius-lg)] bg-[var(--warning-light)] border border-[var(--warning)]/30">
+                <div className="flex items-start gap-2">
+                  <AlertCircle className="w-4 h-4 text-[var(--warning)] mt-0.5" />
+                  <p className="text-sm text-[var(--text-secondary)]">
+                    Chưa hỗ trợ chuyển tiền giữa 2 tài khoản khác tiền tệ.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {insufficientBalance && (
+              <div className="mt-4 p-3 rounded-[var(--radius-lg)] bg-[var(--danger-light)] border border-[var(--danger)]/30">
+                <div className="flex items-start gap-2">
+                  <AlertCircle className="w-4 h-4 text-[var(--danger)] mt-0.5" />
+                  <p className="text-sm text-[var(--text-secondary)]">
+                    Tài khoản nguồn không đủ số dư để trừ{" "}
+                    <span className="font-semibold text-[var(--danger)]">
+                      {formatMoney(totalDeduction)} ₫
+                    </span>{" "}
+                    (bao gồm cả phí).
+                  </p>
+                </div>
+              </div>
+            )}
+
             {fromAccount && (
               <div className="mt-4 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface)] p-4 text-sm text-[var(--text-secondary)]">
                 Khấu trừ dự kiến từ{" "}
@@ -445,7 +536,8 @@ export default function AddTransfer() {
             >
               Huỷ
             </Button>
-            <Button type="submit" disabled={submitting}>
+
+            <Button type="submit" disabled={isSubmitDisabled}>
               {isEditMode ? (
                 <Save className="w-4 h-4" />
               ) : (

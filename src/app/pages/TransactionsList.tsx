@@ -9,6 +9,8 @@ import {
   Edit2,
   Plus,
   Search,
+  Store,
+  Tag,
   Trash2,
 } from "lucide-react";
 import { Button } from "../components/Button";
@@ -90,12 +92,17 @@ export default function TransactionsList() {
 
   const initialType =
     (searchParams.get("type") as "all" | TransactionType | null) || "all";
+  const initialMerchantId = searchParams.get("merchantId") || "";
+  const initialTagId = searchParams.get("tagId") || "";
 
   const [search, setSearch] = useState("");
   const [type, setType] = useState<"all" | TransactionType>(initialType);
   const [accountId, setAccountId] = useState("");
   const [categoryId, setCategoryId] = useState("");
-  const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
+  const [merchantId, setMerchantId] = useState(initialMerchantId);
+  const [selectedTagIds, setSelectedTagIds] = useState<string[]>(
+    initialTagId ? [initialTagId] : [],
+  );
   const [tagMode, setTagMode] = useState<"and" | "or">("or");
   const [sortBy, setSortBy] = useState<"date" | "amount" | "createdAt">("date");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
@@ -116,6 +123,7 @@ export default function TransactionsList() {
       type: type === "all" ? undefined : type,
       accountId: accountId || undefined,
       categoryId: categoryId || undefined,
+      merchantId: merchantId || undefined,
       tagIds: selectedTagIds.length ? selectedTagIds : undefined,
       tagMode,
       search: search.trim() || undefined,
@@ -129,6 +137,7 @@ export default function TransactionsList() {
       type,
       accountId,
       categoryId,
+      merchantId,
       selectedTagIds,
       tagMode,
       search,
@@ -168,11 +177,27 @@ export default function TransactionsList() {
     );
   }, [data?.items]);
 
+  const activeMerchantLabel = useMemo(() => {
+    if (!merchantId) return "";
+    return (
+      (metaData?.merchants || []).find((item) => item.id === merchantId)
+        ?.name || ""
+    );
+  }, [merchantId, metaData?.merchants]);
+
+  const activeTagNames = useMemo(() => {
+    if (!selectedTagIds.length) return [];
+    return (metaData?.tags || [])
+      .filter((tag) => selectedTagIds.includes(tag.id))
+      .map((tag) => tag.name);
+  }, [selectedTagIds, metaData?.tags]);
+
   const handleResetFilters = () => {
     setSearch("");
     setType("all");
     setAccountId("");
     setCategoryId("");
+    setMerchantId("");
     setSelectedTagIds([]);
     setTagMode("or");
     setSortBy("date");
@@ -205,7 +230,6 @@ export default function TransactionsList() {
       navigate(`/transfer/create?editId=${item.id}`);
       return;
     }
-
     navigate(`/transactions/${item.id}/edit`);
   };
 
@@ -214,7 +238,6 @@ export default function TransactionsList() {
       navigate(`/transfer/create?duplicateFrom=${item.id}`);
       return;
     }
-
     navigate(`/transactions/create?duplicateFrom=${item.id}`);
   };
 
@@ -227,7 +250,8 @@ export default function TransactionsList() {
               Giao dịch
             </h1>
             <p className="text-sm text-[var(--text-secondary)] mt-1">
-              Quản lý danh sách giao dịch, lọc theo tài khoản, danh mục và thẻ.
+              Danh sách giao dịch dùng dữ liệu thật từ backend, có thể lọc theo
+              merchant và tag.
             </p>
           </div>
 
@@ -239,6 +263,7 @@ export default function TransactionsList() {
               <ArrowLeftRight className="w-4 h-4" />
               Chuyển tiền
             </Button>
+
             <Button onClick={() => navigate("/transactions/create")}>
               <Plus className="w-4 h-4" />
               Thêm giao dịch
@@ -253,12 +278,14 @@ export default function TransactionsList() {
               +{formatMoney(totals.income)} ₫
             </p>
           </Card>
+
           <Card>
             <p className="text-sm text-[var(--text-secondary)]">Tổng chi</p>
             <p className="mt-2 text-2xl font-semibold text-[var(--danger)] tabular-nums">
               -{formatMoney(totals.expense)} ₫
             </p>
           </Card>
+
           <Card>
             <p className="text-sm text-[var(--text-secondary)]">Số lượng</p>
             <p className="mt-2 text-2xl font-semibold text-[var(--text-primary)] tabular-nums">
@@ -331,6 +358,30 @@ export default function TransactionsList() {
 
             <div className="lg:col-span-2">
               <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
+                Merchant
+              </label>
+              <div className="relative">
+                <Store className="w-4 h-4 text-[var(--text-tertiary)] absolute left-3 top-1/2 -translate-y-1/2" />
+                <select
+                  value={merchantId}
+                  onChange={(event) => {
+                    setMerchantId(event.target.value);
+                    setPage(1);
+                  }}
+                  className="w-full pl-10 pr-4 py-2.5 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-lg)]"
+                >
+                  <option value="">Tất cả</option>
+                  {(metaData?.merchants || []).map((merchant) => (
+                    <option key={merchant.id} value={merchant.id}>
+                      {merchant.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div className="lg:col-span-2">
+              <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
                 Sắp xếp
               </label>
               <select
@@ -351,20 +402,10 @@ export default function TransactionsList() {
                 <option value="amount:asc">Số tiền tăng dần</option>
               </select>
             </div>
-
-            <div className="lg:col-span-2 flex items-end">
-              <Button
-                variant="secondary"
-                className="w-full"
-                onClick={handleResetFilters}
-              >
-                Đặt lại lọc
-              </Button>
-            </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-            <div>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 mt-4">
+            <div className="lg:col-span-3">
               <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
                 Từ ngày
               </label>
@@ -381,7 +422,8 @@ export default function TransactionsList() {
                 />
               </div>
             </div>
-            <div>
+
+            <div className="lg:col-span-3">
               <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
                 Đến ngày
               </label>
@@ -397,6 +439,74 @@ export default function TransactionsList() {
                   className="w-full pl-10 pr-4 py-2.5 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-lg)]"
                 />
               </div>
+            </div>
+
+            <div className="lg:col-span-4">
+              <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
+                Lọc theo thẻ
+              </label>
+
+              <div className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--input-background)] px-3 py-3">
+                <div className="flex items-center justify-between gap-3 mb-3">
+                  <div className="flex items-center gap-2">
+                    <Tag className="w-4 h-4 text-[var(--text-tertiary)]" />
+                    <span className="text-sm text-[var(--text-secondary)]">
+                      {selectedTagIds.length
+                        ? `${selectedTagIds.length} thẻ đã chọn`
+                        : "Chưa chọn thẻ"}
+                    </span>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setTagMode((prev) => (prev === "or" ? "and" : "or"))
+                    }
+                    className="text-xs px-2 py-1 rounded-full border border-[var(--border)] text-[var(--text-secondary)] hover:bg-[var(--surface)]"
+                  >
+                    Chế độ: {tagMode === "or" ? "OR" : "AND"}
+                  </button>
+                </div>
+
+                <div className="flex flex-wrap gap-2">
+                  {(metaData?.tags || []).map((tag) => {
+                    const active = selectedTagIds.includes(tag.id);
+                    return (
+                      <button
+                        key={tag.id}
+                        type="button"
+                        onClick={() => {
+                          setSelectedTagIds((prev) =>
+                            prev.includes(tag.id)
+                              ? prev.filter((item) => item !== tag.id)
+                              : [...prev, tag.id],
+                          );
+                          setPage(1);
+                        }}
+                        className={`transition-transform ${active ? "scale-[1.02]" : ""}`}
+                      >
+                        <TagChip
+                          name={tag.name}
+                          color={tag.colorHex || "#64748b"}
+                          className={
+                            active ? "ring-2 ring-[var(--primary)]/25" : ""
+                          }
+                        />
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+
+            <div className="lg:col-span-2 flex items-end">
+              <Button
+                variant="secondary"
+                className="w-full"
+                onClick={handleResetFilters}
+              >
+                Đặt lại lọc
+              </Button>
             </div>
           </div>
 
@@ -419,48 +529,24 @@ export default function TransactionsList() {
             ))}
           </div>
 
-          {!!metaData?.tags.length && (
-            <div className="mt-4">
-              <div className="flex items-center justify-between gap-3 mb-2">
-                <p className="text-sm font-medium text-[var(--text-primary)]">
-                  Lọc theo thẻ
-                </p>
-                <button
-                  onClick={() =>
-                    setTagMode((prev) => (prev === "or" ? "and" : "or"))
-                  }
-                  className="text-xs px-2 py-1 rounded-full border border-[var(--border)] text-[var(--text-secondary)] hover:bg-[var(--surface)]"
+          {(merchantId || selectedTagIds.length > 0) && (
+            <div className="mt-4 flex flex-wrap gap-2">
+              {merchantId && activeMerchantLabel && (
+                <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium bg-[var(--info-light)] text-[var(--info)] border border-[var(--info)]/20">
+                  <Store className="w-3 h-3" />
+                  {activeMerchantLabel}
+                </span>
+              )}
+
+              {activeTagNames.map((name) => (
+                <span
+                  key={name}
+                  className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium bg-[var(--surface)] text-[var(--text-secondary)] border border-[var(--border)]"
                 >
-                  Chế độ: {tagMode === "or" ? "OR" : "AND"}
-                </button>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {metaData.tags.map((tag) => {
-                  const active = selectedTagIds.includes(tag.id);
-                  return (
-                    <button
-                      key={tag.id}
-                      onClick={() => {
-                        setSelectedTagIds((prev) =>
-                          prev.includes(tag.id)
-                            ? prev.filter((item) => item !== tag.id)
-                            : [...prev, tag.id],
-                        );
-                        setPage(1);
-                      }}
-                      className={`transition-transform ${active ? "scale-[1.02]" : ""}`}
-                    >
-                      <TagChip
-                        name={tag.name}
-                        color={tag.colorHex || "#64748b"}
-                        className={
-                          active ? "ring-2 ring-[var(--primary)]/25" : ""
-                        }
-                      />
-                    </button>
-                  );
-                })}
-              </div>
+                  <Tag className="w-3 h-3" />
+                  {name}
+                </span>
+              ))}
             </div>
           )}
         </Card>
@@ -519,6 +605,7 @@ export default function TransactionsList() {
                                   item.category?.name ||
                                   "Giao dịch"}
                               </p>
+
                               {item.isSplit && (
                                 <span className="text-[10px] px-2 py-0.5 rounded-full bg-[var(--info-light)] text-[var(--info)] border border-[var(--info)]/20">
                                   Split {item.splitCount}
@@ -563,6 +650,7 @@ export default function TransactionsList() {
                           >
                             {getSignedDisplay(item)} ₫
                           </div>
+
                           <div className="flex flex-wrap gap-2">
                             <Button
                               size="sm"
@@ -572,6 +660,7 @@ export default function TransactionsList() {
                               <Copy className="w-4 h-4" />
                               Nhân bản
                             </Button>
+
                             <Button
                               size="sm"
                               variant="secondary"
@@ -580,6 +669,7 @@ export default function TransactionsList() {
                               <Edit2 className="w-4 h-4" />
                               Sửa
                             </Button>
+
                             <Button
                               size="sm"
                               variant="danger"
@@ -604,6 +694,7 @@ export default function TransactionsList() {
             <p className="text-sm text-[var(--text-secondary)]">
               Trang {data.pagination.page} / {data.pagination.totalPages}
             </p>
+
             <div className="flex gap-2">
               <Button
                 variant="secondary"
@@ -612,6 +703,7 @@ export default function TransactionsList() {
               >
                 Trang trước
               </Button>
+
               <Button
                 variant="secondary"
                 disabled={data.pagination.page >= data.pagination.totalPages}
