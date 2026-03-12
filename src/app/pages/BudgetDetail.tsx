@@ -1,600 +1,671 @@
-import React, { useState, useMemo } from 'react';
-import { useParams } from 'react-router';
+import React, { useMemo, useState } from "react";
+import { useParams } from "react-router";
 import {
-  ArrowLeft, Edit2, Plus, Trash2,
-  Utensils, ShoppingBag, Home, Car, Heart, Gift, Folder,
-  Briefcase, TrendingUp, PlusCircle, Smile, Book, Dumbbell,
-  AlertTriangle, Bell, BellOff,
-} from 'lucide-react';
-import { Card } from '../components/Card';
-import { useAppNavigation } from '../hooks/useAppNavigation';
-import { useDemoData } from '../contexts/DemoDataContext';
-import { useToast } from '../contexts/ToastContext';
-import { ConfirmationModal } from '../components/ConfirmationModals';
+  ArrowLeft,
+  Edit2,
+  PiggyBank,
+  Plus,
+  Trash2,
+  Tag,
+  Store,
+  Save,
+} from "lucide-react";
+import { Card } from "../components/Card";
+import { Button } from "../components/Button";
+import {
+  ConfirmationModal,
+  DeleteBudgetModal,
+} from "../components/ConfirmationModals";
+import { TagChip } from "../components/TagChip";
+import { useAppNavigation } from "../hooks/useAppNavigation";
+import { useToast } from "../contexts/ToastContext";
+import { useBudgetDetail } from "../hooks/useBudgetDetail";
+import { budgetsService } from "../services/budgetsService";
+import type { BudgetItemDetail } from "../types/budgets";
 
-// Icon mapping
-const iconMap: Record<string, React.ComponentType<any>> = {
-  utensils: Utensils,
-  'shopping-bag': ShoppingBag,
-  home: Home,
-  car: Car,
-  heart: Heart,
-  gift: Gift,
-  briefcase: Briefcase,
-  'trending-up': TrendingUp,
-  'plus-circle': PlusCircle,
-  smile: Smile,
-  book: Book,
-  dumbbell: Dumbbell,
-  folder: Folder,
-};
-
-function getIcon(iconName: string) {
-  return iconMap[iconName] || Folder;
+function formatMoney(value?: string | number | null) {
+  return new Intl.NumberFormat("vi-VN").format(Number(value || 0));
 }
 
-interface DisplayBudgetItem {
-  id: string;
-  categoryId: string;
-  categoryName: string;
-  icon: string;
-  color: string;
-  limit: number;
-  spent: number;
-  remaining: number;
-  percentage: number;
-  status: 'safe' | 'warning' | 'over';
-  transactionCount: number;
+function formatDate(value?: string | null) {
+  if (!value) return "--";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return new Intl.DateTimeFormat("vi-VN", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  }).format(date);
 }
 
-// ── Progress Bar with Threshold Markers ───────────────────────────────────────
-
-function ThresholdProgressBar({
-  percentage,
-  thresholds,
-  statusColor,
-  height = 'h-3',
-  bgClass = 'bg-[var(--surface)]',
-}: {
-  percentage: number;
-  thresholds: number[];
-  statusColor: string;
-  height?: string;
-  bgClass?: string;
-}) {
-  return (
-    <div className={`relative ${height} ${bgClass} rounded-full overflow-visible`}>
-      {/* Progress fill */}
-      <div
-        className={`absolute inset-y-0 left-0 rounded-full transition-all`}
-        style={{
-          width: `${Math.min(percentage, 100)}%`,
-          backgroundColor: statusColor,
-        }}
-      />
-      {/* Threshold markers */}
-      {thresholds.map(t => {
-        const crossed = percentage >= t;
-        return (
-          <div
-            key={t}
-            className="absolute top-1/2 -translate-y-1/2 z-10"
-            style={{ left: `${t}%` }}
-          >
-            {/* Marker line */}
-            <div
-              className={`w-0.5 h-5 -translate-x-1/2 rounded-full ${
-                crossed ? 'bg-[var(--text-primary)]' : 'bg-[var(--text-tertiary)]'
-              }`}
-              style={{ marginTop: '-3px' }}
-            />
-            {/* Label */}
-            <span
-              className={`absolute -translate-x-1/2 text-[9px] font-semibold tabular-nums whitespace-nowrap ${
-                crossed
-                  ? t >= 100 ? 'text-[var(--danger)]' : t >= 80 ? 'text-[var(--warning)]' : 'text-[var(--info)]'
-                  : 'text-[var(--text-tertiary)]'
-              }`}
-              style={{ top: '14px' }}
-            >
-              {t}%
-            </span>
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
-// ── Budget Item Row ───────────────────────────────────────────────────────────
-
-interface BudgetItemRowProps {
-  item: DisplayBudgetItem;
-  thresholds: number[];
-}
-
-function BudgetItemRow({ item, thresholds }: BudgetItemRowProps) {
-  const Icon = getIcon(item.icon);
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('vi-VN').format(Math.abs(amount));
+function getStatusStyles(progressPercent: number) {
+  if (progressPercent > 100) {
+    return {
+      text: "text-[var(--danger)]",
+      bg: "bg-[var(--danger-light)]",
+      bar: "var(--danger)",
+      label: "Vượt ngân sách",
+    };
+  }
+  if (progressPercent >= 80) {
+    return {
+      text: "text-[var(--warning)]",
+      bg: "bg-[var(--warning-light)]",
+      bar: "var(--warning)",
+      label: "Sắp vượt",
+    };
+  }
+  return {
+    text: "text-[var(--success)]",
+    bg: "bg-[var(--success-light)]",
+    bar: "var(--success)",
+    label: "Đúng kế hoạch",
   };
-
-  const getStatusColor = () => {
-    if (item.status === 'over') return 'var(--danger)';
-    if (item.status === 'warning') return 'var(--warning)';
-    return 'var(--success)';
-  };
-
-  // Figure out the highest crossed threshold
-  const crossedThreshold = [...thresholds].sort((a, b) => b - a).find(t => item.percentage >= t);
-
-  return (
-    <Card>
-      {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-3">
-          <div
-            className="p-2.5 rounded-[var(--radius-lg)]"
-            style={{ backgroundColor: `${item.color}20` }}
-          >
-            <Icon className="w-5 h-5" style={{ color: item.color }} />
-          </div>
-          <div>
-            <h3 className="font-semibold text-[var(--text-primary)]">{item.categoryName}</h3>
-            <p className="text-xs text-[var(--text-tertiary)]">
-              {item.transactionCount} giao dịch
-            </p>
-          </div>
-        </div>
-        {/* Alert badge — shows highest crossed threshold */}
-        {crossedThreshold && (
-          <span className={`px-2 py-1 text-xs font-semibold rounded-[var(--radius-md)] ${
-            crossedThreshold >= 100
-              ? 'bg-[var(--danger-light)] text-[var(--danger)]'
-              : crossedThreshold >= 80
-                ? 'bg-[var(--warning-light)] text-[var(--warning)]'
-                : 'bg-[var(--info-light)] text-[var(--info)]'
-          }`}>
-            Đã cảnh báo {crossedThreshold}%
-          </span>
-        )}
-      </div>
-
-      {/* Progress with threshold markers */}
-      <div className="mb-6">
-        <ThresholdProgressBar
-          percentage={item.percentage}
-          thresholds={thresholds}
-          statusColor={getStatusColor()}
-        />
-      </div>
-
-      {/* Details Grid */}
-      <div className="grid grid-cols-3 gap-4 text-center">
-        <div>
-          <p className="text-xs text-[var(--text-secondary)] mb-1">Đã chi</p>
-          <p className="text-sm font-semibold text-[var(--text-primary)] tabular-nums">
-            {formatCurrency(item.spent)}₫
-          </p>
-        </div>
-        <div>
-          <p className="text-xs text-[var(--text-secondary)] mb-1">Giới hạn</p>
-          <p className="text-sm font-semibold text-[var(--text-primary)] tabular-nums">
-            {formatCurrency(item.limit)}₫
-          </p>
-        </div>
-        <div>
-          <p className="text-xs text-[var(--text-secondary)] mb-1">Còn lại</p>
-          <p
-            className={`text-sm font-semibold tabular-nums ${
-              item.remaining < 0 ? 'text-[var(--danger)]' : 'text-[var(--success)]'
-            }`}
-          >
-            {item.remaining < 0 ? '-' : ''}
-            {formatCurrency(item.remaining)}₫
-          </p>
-        </div>
-      </div>
-
-      {/* Status Badge */}
-      <div className="mt-4 pt-4 border-t border-[var(--divider)] flex items-center justify-between">
-        <span className="text-sm text-[var(--text-secondary)]">
-          Tiến độ: <span className="font-semibold tabular-nums">{item.percentage.toFixed(1)}%</span>
-        </span>
-        {item.status === 'over' && (
-          <span className="px-2 py-1 text-xs font-semibold bg-[var(--danger-light)] text-[var(--danger)] rounded-[var(--radius-md)]">
-            Vượt ngân sách
-          </span>
-        )}
-        {item.status === 'warning' && (
-          <span className="px-2 py-1 text-xs font-semibold bg-[var(--warning-light)] text-[var(--warning)] rounded-[var(--radius-md)]">
-            Sắp vượt
-          </span>
-        )}
-        {item.status === 'safe' && (
-          <span className="px-2 py-1 text-xs font-semibold bg-[var(--success-light)] text-[var(--success)] rounded-[var(--radius-md)]">
-            Đúng kế hoạch
-          </span>
-        )}
-      </div>
-    </Card>
-  );
 }
-
-// ── Main ──────────────────────────────────────────────────────────────────────
 
 export default function BudgetDetail() {
   const { id } = useParams<{ id: string }>();
   const nav = useAppNavigation();
-  const { budgets, categories, transactions, deleteBudget } = useDemoData();
   const toast = useToast();
+
+  const { data, loading, error, reload } = useBudgetDetail(id);
+
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [deletingBudget, setDeletingBudget] = useState(false);
 
-  const budget = budgets.find((b) => b.id === id);
+  const [deleteItemTarget, setDeleteItemTarget] =
+    useState<BudgetItemDetail | null>(null);
+  const [deletingItem, setDeletingItem] = useState(false);
 
-  const categoryMap = useMemo(() => {
-    const map: Record<string, { name: string; icon: string; color: string }> = {};
-    categories.forEach((cat) => {
-      map[cat.id] = { name: cat.name, icon: cat.icon, color: cat.color };
-    });
-    return map;
-  }, [categories]);
+  const [editItemTarget, setEditItemTarget] = useState<BudgetItemDetail | null>(
+    null,
+  );
+  const [editingItemLimit, setEditingItemLimit] = useState("");
+  const [editingItemThresholds, setEditingItemThresholds] = useState<number[]>(
+    [],
+  );
+  const [savingItem, setSavingItem] = useState(false);
 
-  const txCountByCat = useMemo(() => {
-    const map: Record<string, number> = {};
-    transactions.forEach((tx) => {
-      if (tx.categoryId) map[tx.categoryId] = (map[tx.categoryId] || 0) + 1;
-    });
-    return map;
-  }, [transactions]);
+  const stats = useMemo(() => {
+    const items = data?.items || [];
+    return {
+      safe: items.filter((item) => item.progressPercent < 80).length,
+      warning: items.filter(
+        (item) => item.progressPercent >= 80 && item.progressPercent <= 100,
+      ).length,
+      over: items.filter((item) => item.progressPercent > 100).length,
+    };
+  }, [data?.items]);
 
-  const spentByCat = useMemo(() => {
-    if (!budget) return {};
-    const map: Record<string, number> = {};
-    transactions.forEach((tx) => {
-      if (tx.type !== 'expense') return;
-      if (!tx.categoryId) return;
-      if (tx.date < budget.startDate || tx.date > budget.endDate) return;
-      map[tx.categoryId] = (map[tx.categoryId] || 0) + Math.abs(tx.amount);
-    });
-    return map;
-  }, [transactions, budget]);
+  const handleDeleteBudget = async () => {
+    if (!data?.budget) return;
 
-  const budgetItems: DisplayBudgetItem[] = useMemo(() => {
-    if (!budget) return [];
-
-    if (budget.items && budget.items.length > 0) {
-      return budget.items.map((item) => {
-        const cat = categoryMap[item.categoryId];
-        const spent = spentByCat[item.categoryId] || 0;
-        const percentage = item.amount > 0 ? (spent / item.amount) * 100 : 0;
-        const remaining = item.amount - spent;
-        let status: 'safe' | 'warning' | 'over' = 'safe';
-        if (percentage > 100) status = 'over';
-        else if (percentage >= 80) status = 'warning';
-
-        return {
-          id: item.id,
-          categoryId: item.categoryId,
-          categoryName: cat?.name || item.categoryName,
-          icon: cat?.icon || 'folder',
-          color: cat?.color || '#3B82F6',
-          limit: item.amount,
-          spent,
-          remaining,
-          percentage,
-          status,
-          transactionCount: txCountByCat[item.categoryId] || 0,
-        };
-      });
+    try {
+      setDeletingBudget(true);
+      await budgetsService.deleteBudget(data.budget.id);
+      toast.success(`Đã xoá ngân sách "${data.budget.name}"`);
+      nav.goBudgets();
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : "Không thể xoá ngân sách",
+      );
+    } finally {
+      setDeletingBudget(false);
+      setDeleteModalOpen(false);
     }
-
-    const catCount = budget.categories.length || 1;
-    const perCatLimit = Math.round(budget.amount / catCount);
-
-    return budget.categories.map((catId, idx) => {
-      const cat = categoryMap[catId];
-      const limit = perCatLimit;
-      const spent = spentByCat[catId] || 0;
-      const percentage = limit > 0 ? (spent / limit) * 100 : 0;
-      const remaining = limit - spent;
-      let status: 'safe' | 'warning' | 'over' = 'safe';
-      if (percentage > 100) status = 'over';
-      else if (percentage >= 80) status = 'warning';
-
-      return {
-        id: `item-${idx}`,
-        categoryId: catId,
-        categoryName: cat?.name || catId,
-        icon: cat?.icon || 'folder',
-        color: cat?.color || '#3B82F6',
-        limit,
-        spent,
-        remaining,
-        percentage,
-        status,
-        transactionCount: txCountByCat[catId] || 0,
-      };
-    });
-  }, [budget, categoryMap, txCountByCat, spentByCat]);
-
-  const handleBack = () => nav.goBack();
-  const handleEdit = () => nav.goEditBudget(id || '');
-  const handleAddItem = () => nav.goAddBudgetItem(id || '');
-
-  const formatCurrency = (amount: number) => new Intl.NumberFormat('vi-VN').format(amount);
-  const formatDate = (dateStr: string) => {
-    const d = new Date(dateStr);
-    return d.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
   };
 
-  if (!budget) {
+  const handleDeleteItem = async () => {
+    if (!data?.budget || !deleteItemTarget) return;
+
+    try {
+      setDeletingItem(true);
+      await budgetsService.deleteBudgetItem(
+        data.budget.id,
+        deleteItemTarget.id,
+      );
+      toast.success("Đã xoá hạng mục ngân sách");
+      setDeleteItemTarget(null);
+      await reload();
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : "Không thể xoá hạng mục ngân sách",
+      );
+    } finally {
+      setDeletingItem(false);
+    }
+  };
+
+  const openEditItem = (item: BudgetItemDetail) => {
+    setEditItemTarget(item);
+    setEditingItemLimit(item.limitAmountMinor);
+    setEditingItemThresholds(
+      item.alertThresholds?.length ? item.alertThresholds : [80, 100],
+    );
+  };
+
+  const handleSaveItem = async () => {
+    if (!data?.budget || !editItemTarget) return;
+    if (!editingItemLimit || Number(editingItemLimit) <= 0) {
+      toast.error("Giới hạn hạng mục phải lớn hơn 0");
+      return;
+    }
+
+    try {
+      setSavingItem(true);
+      await budgetsService.updateBudgetItem(data.budget.id, editItemTarget.id, {
+        limitAmountMinor: Number(editingItemLimit),
+        alertThresholds: editingItemThresholds,
+      });
+      toast.success("Đã cập nhật hạng mục ngân sách");
+      setEditItemTarget(null);
+      await reload();
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : "Không thể cập nhật hạng mục",
+      );
+    } finally {
+      setSavingItem(false);
+    }
+  };
+
+  if (loading) {
     return (
-      <div className="min-h-screen bg-[var(--background)]">
-        <div className="max-w-4xl mx-auto p-4 md:p-6 pb-20 md:pb-6 space-y-6">
-          <button
-            onClick={handleBack}
-            className="flex items-center gap-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] mb-4 transition-colors"
-          >
-            <ArrowLeft className="w-5 h-5" />
-            <span className="font-medium">Quay lại</span>
-          </button>
-          <Card>
-            <div className="text-center py-12">
-              <div className="w-16 h-16 bg-[var(--warning-light)] rounded-full flex items-center justify-center mx-auto mb-4">
-                <AlertTriangle className="w-8 h-8 text-[var(--warning)]" />
-              </div>
-              <h3 className="font-semibold text-[var(--text-primary)] mb-2">
-                Không tìm thấy ngân sách
-              </h3>
-              <p className="text-sm text-[var(--text-secondary)] mb-6">
-                Ngân sách này có thể đã bị xoá hoặc không tồn tại.
-              </p>
-              <button
-                onClick={() => nav.goBudgets()}
-                className="inline-flex items-center gap-2 px-4 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white rounded-[var(--radius-lg)] transition-colors"
-              >
-                <span className="font-medium">Về danh sách ngân sách</span>
-              </button>
-            </div>
-          </Card>
-        </div>
+      <div className="min-h-screen bg-[var(--background)] p-4 md:p-6">
+        <Card>
+          <p className="text-sm text-[var(--text-secondary)]">
+            Đang tải chi tiết ngân sách...
+          </p>
+        </Card>
       </div>
     );
   }
 
-  const totalLimit = budget.amount;
-  const totalSpent = budgetItems.reduce((sum, item) => sum + item.spent, 0);
-  const totalRemaining = totalLimit - totalSpent;
-  const overallPercentage = totalLimit > 0 ? (totalSpent / totalLimit) * 100 : 0;
+  if (error || !data?.budget) {
+    return (
+      <div className="min-h-screen bg-[var(--background)] p-4 md:p-6">
+        <Card>
+          <p className="text-sm text-[var(--danger)]">
+            {error || "Không tìm thấy ngân sách"}
+          </p>
+        </Card>
+      </div>
+    );
+  }
 
-  const thresholds = budget.alertThresholds || [];
-  const alertsEnabled = budget.alertsEnabled !== false;
-
-  // Find highest crossed threshold for overall badge
-  const overallCrossedThreshold = [...thresholds].sort((a, b) => b - a).find(t => overallPercentage >= t);
+  const budget = data.budget;
+  const budgetStatus = getStatusStyles(budget.progressPercent);
 
   return (
     <div className="min-h-screen bg-[var(--background)]">
-      <div className="max-w-4xl mx-auto p-4 md:p-6 pb-20 md:pb-6 space-y-6">
-        {/* Header */}
+      <div className="max-w-6xl mx-auto p-4 md:p-6 pb-20 md:pb-6 space-y-6">
         <div>
           <button
-            onClick={handleBack}
+            onClick={nav.goBudgets}
             className="flex items-center gap-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] mb-4 transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
             <span className="font-medium">Quay lại</span>
           </button>
 
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <div className="flex items-center gap-3 mb-1">
-                <h1 className="text-2xl font-semibold text-[var(--text-primary)]">
-                  {budget.name}
-                </h1>
-                {/* Alert status indicator */}
-                {alertsEnabled ? (
-                  <Bell className="w-5 h-5 text-[var(--success)]" />
-                ) : (
-                  <BellOff className="w-5 h-5 text-[var(--text-tertiary)]" />
-                )}
-              </div>
-              <p className="text-sm text-[var(--text-secondary)]">
+          <div className="flex items-center gap-4">
+            <div
+              className="w-16 h-16 rounded-[var(--radius-lg)] flex items-center justify-center flex-shrink-0"
+              style={{
+                backgroundColor: `${budget.itemsPreview[0]?.category?.colorHex || "#64748b"}20`,
+              }}
+            >
+              <PiggyBank
+                className="w-8 h-8"
+                style={{
+                  color:
+                    budget.itemsPreview[0]?.category?.colorHex || "#64748b",
+                }}
+              />
+            </div>
+
+            <div className="flex-1 min-w-0">
+              <h1 className="text-2xl font-semibold text-[var(--text-primary)] truncate">
+                {budget.name}
+              </h1>
+              <p className="text-sm text-[var(--text-secondary)] mt-1">
                 {formatDate(budget.startDate)} - {formatDate(budget.endDate)}
               </p>
             </div>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={handleEdit}
-                className="flex items-center gap-2 px-4 py-2.5 border border-[var(--border)] text-[var(--text-primary)] rounded-[var(--radius-lg)] font-medium hover:bg-[var(--surface)] transition-colors"
+
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <Button
+                variant="secondary"
+                onClick={() => nav.goAddBudgetItem(budget.id)}
+              >
+                <Plus className="w-4 h-4" />
+                <span className="hidden md:inline">Thêm hạng mục</span>
+              </Button>
+
+              <Button
+                variant="secondary"
+                onClick={() => nav.goEditBudget(budget.id)}
               >
                 <Edit2 className="w-4 h-4" />
-                <span>Chỉnh sửa</span>
-              </button>
-              <button
-                onClick={() => setDeleteModalOpen(true)}
-                className="flex items-center gap-2 px-4 py-2.5 border border-[var(--danger)] text-[var(--danger)] rounded-[var(--radius-lg)] font-medium hover:bg-[var(--danger-light)] transition-colors"
-              >
+                <span className="hidden md:inline">Chỉnh sửa</span>
+              </Button>
+
+              <Button variant="danger" onClick={() => setDeleteModalOpen(true)}>
                 <Trash2 className="w-4 h-4" />
-                <span>Xoá</span>
-              </button>
+                <span className="hidden md:inline">Xoá</span>
+              </Button>
             </div>
           </div>
         </div>
 
-        {/* Summary Card */}
-        <Card className="bg-gradient-to-br from-[var(--primary)] to-[var(--primary-hover)] text-white">
-          <div className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
-              <div>
-                <p className="text-sm text-white/80 mb-2">Tổng đã chi</p>
-                <p className="text-2xl font-bold tabular-nums">{formatCurrency(totalSpent)}₫</p>
-              </div>
-              <div>
-                <p className="text-sm text-white/80 mb-2">Tổng giới hạn</p>
-                <p className="text-2xl font-bold tabular-nums">{formatCurrency(totalLimit)}₫</p>
-              </div>
-              <div>
-                <p className="text-sm text-white/80 mb-2">Còn lại</p>
-                <p className="text-2xl font-bold tabular-nums">
-                  {totalRemaining < 0 ? '-' : ''}
-                  {formatCurrency(Math.abs(totalRemaining))}₫
-                </p>
-              </div>
+        <Card>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-start">
+            <div>
+              <p className="text-sm text-[var(--text-secondary)] mb-1">
+                Tổng giới hạn
+              </p>
+              <p className="text-2xl font-semibold text-[var(--text-primary)] tabular-nums">
+                {formatMoney(data.summary.totalLimitMinor)}₫
+              </p>
             </div>
 
-            {/* Overall Progress with threshold markers */}
             <div>
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-white/80">Tiến độ tổng</span>
-                <div className="flex items-center gap-2">
-                  {overallCrossedThreshold && (
-                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${
-                      overallCrossedThreshold >= 100
-                        ? 'bg-red-500/30 text-red-200'
-                        : overallCrossedThreshold >= 80
-                          ? 'bg-yellow-500/30 text-yellow-200'
-                          : 'bg-blue-500/30 text-blue-200'
-                    }`}>
-                      Đã cảnh báo {overallCrossedThreshold}%
-                    </span>
-                  )}
-                  <span className="text-sm font-semibold text-white tabular-nums">
-                    {overallPercentage.toFixed(1)}%
-                  </span>
+              <p className="text-sm text-[var(--text-secondary)] mb-1">
+                Đã chi
+              </p>
+              <p className="text-2xl font-semibold text-[var(--text-primary)] tabular-nums">
+                {formatMoney(data.summary.spentMinor)}₫
+              </p>
+            </div>
+
+            <div>
+              <p className="text-sm text-[var(--text-secondary)] mb-1">
+                Còn lại
+              </p>
+              <p className="text-2xl font-semibold text-[var(--text-primary)] tabular-nums">
+                {formatMoney(data.summary.remainingMinor)}₫
+              </p>
+            </div>
+
+            <div>
+              <p className="text-sm text-[var(--text-secondary)] mb-1">
+                Trạng thái
+              </p>
+              <div
+                className={`inline-flex px-3 py-1.5 rounded-full text-sm font-medium ${budgetStatus.bg} ${budgetStatus.text}`}
+              >
+                {budgetStatus.label}
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-5">
+            <div className="h-3 bg-[var(--surface)] rounded-full overflow-hidden">
+              <div
+                className="h-full rounded-full transition-all"
+                style={{
+                  width: `${Math.min(budget.progressPercent, 100)}%`,
+                  backgroundColor: budgetStatus.bar,
+                }}
+              />
+            </div>
+            <div className="mt-2 flex items-center justify-between text-sm">
+              <span className="text-[var(--text-secondary)]">
+                {Math.round(budget.progressPercent)}%
+              </span>
+              <span className="text-[var(--text-secondary)]">
+                {stats.safe} ổn · {stats.warning} cảnh báo · {stats.over} vượt
+              </span>
+            </div>
+          </div>
+        </Card>
+
+        <div className="grid grid-cols-1 xl:grid-cols-5 gap-6">
+          <div className="xl:col-span-3">
+            <Card>
+              <div className="flex items-center justify-between gap-3 mb-4">
+                <h3 className="font-semibold text-[var(--text-primary)]">
+                  Hạng mục ngân sách
+                </h3>
+                <span className="text-sm text-[var(--text-secondary)]">
+                  {data.items.length} hạng mục
+                </span>
+              </div>
+
+              {data.items.length === 0 ? (
+                <p className="text-sm text-[var(--text-secondary)]">
+                  Chưa có hạng mục ngân sách nào.
+                </p>
+              ) : (
+                <div className="space-y-3">
+                  {data.items.map((item) => {
+                    const itemStatus = getStatusStyles(item.progressPercent);
+
+                    return (
+                      <div
+                        key={item.id}
+                        className="p-4 rounded-[var(--radius-lg)] bg-[var(--surface)]"
+                      >
+                        <div className="flex items-start justify-between gap-3 mb-3">
+                          <div className="min-w-0">
+                            {item.category?.id ? (
+                              <button
+                                onClick={() =>
+                                  nav.goTransactionsByCategory(
+                                    item.category!.id,
+                                  )
+                                }
+                                className="font-medium text-[var(--primary)] hover:underline text-left"
+                              >
+                                {item.category?.name ||
+                                  item.categoryName ||
+                                  "Danh mục"}
+                              </button>
+                            ) : (
+                              <p className="font-medium text-[var(--text-primary)]">
+                                {item.category?.name ||
+                                  item.categoryName ||
+                                  "Danh mục"}
+                              </p>
+                            )}
+
+                            <p className="text-xs text-[var(--text-secondary)] mt-1">
+                              {item.transactionCount} giao dịch
+                            </p>
+                          </div>
+
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => openEditItem(item)}
+                              className="p-2 rounded-[var(--radius-md)] hover:bg-[var(--card)] transition-colors"
+                            >
+                              <Edit2 className="w-4 h-4 text-[var(--text-secondary)]" />
+                            </button>
+
+                            <button
+                              onClick={() => setDeleteItemTarget(item)}
+                              className="p-2 rounded-[var(--radius-md)] hover:bg-[var(--danger-light)] transition-colors"
+                            >
+                              <Trash2 className="w-4 h-4 text-[var(--danger)]" />
+                            </button>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-3 gap-3 text-sm mb-3">
+                          <div>
+                            <p className="text-[var(--text-secondary)] mb-1">
+                              Giới hạn
+                            </p>
+                            <p className="font-semibold text-[var(--text-primary)] tabular-nums">
+                              {formatMoney(item.limitAmountMinor)}₫
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-[var(--text-secondary)] mb-1">
+                              Đã chi
+                            </p>
+                            <p className="font-semibold text-[var(--text-primary)] tabular-nums">
+                              {formatMoney(item.spentMinor)}₫
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-[var(--text-secondary)] mb-1">
+                              Còn lại
+                            </p>
+                            <p className="font-semibold text-[var(--text-primary)] tabular-nums">
+                              {formatMoney(item.remainingMinor)}₫
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="h-2.5 bg-[var(--card)] rounded-full overflow-hidden">
+                          <div
+                            className="h-full rounded-full transition-all"
+                            style={{
+                              width: `${Math.min(item.progressPercent, 100)}%`,
+                              backgroundColor: itemStatus.bar,
+                            }}
+                          />
+                        </div>
+
+                        <div className="flex items-center justify-between mt-2 text-xs">
+                          <span className={`${itemStatus.text} font-medium`}>
+                            {itemStatus.label}
+                          </span>
+
+                          <div className="flex items-center gap-2">
+                            {item.alertThresholds.map((threshold) => (
+                              <span
+                                key={threshold}
+                                className="px-2 py-0.5 rounded-full bg-[var(--card)] text-[var(--text-secondary)]"
+                              >
+                                {threshold}%
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
+              )}
+            </Card>
+          </div>
+
+          <div className="xl:col-span-2">
+            <Card>
+              <div className="flex items-center justify-between gap-3 mb-4">
+                <h3 className="font-semibold text-[var(--text-primary)]">
+                  Giao dịch gần đây
+                </h3>
+
+                <button
+                  onClick={() =>
+                    nav.goTransactionsWithFilters({
+                      tagIds: [],
+                      startDate: budget.startDate?.slice(0, 10),
+                      endDate: budget.endDate?.slice(0, 10) || undefined,
+                    })
+                  }
+                  className="text-sm font-medium text-[var(--primary)] hover:underline"
+                >
+                  Xem thêm
+                </button>
               </div>
-              {/* Progress bar with markers */}
-              <div className="relative h-4 bg-white/20 rounded-full overflow-visible">
-                <div
-                  className="absolute inset-y-0 left-0 bg-white rounded-full transition-all"
-                  style={{ width: `${Math.min(overallPercentage, 100)}%` }}
-                />
-                {/* Threshold markers on summary bar */}
-                {thresholds.map(t => (
-                  <div
-                    key={t}
-                    className="absolute top-1/2 -translate-y-1/2 z-10"
-                    style={{ left: `${t}%` }}
-                  >
-                    <div className={`w-0.5 h-6 -translate-x-1/2 rounded-full ${
-                      overallPercentage >= t ? 'bg-white' : 'bg-white/40'
-                    }`} />
-                  </div>
-                ))}
-              </div>
-              {/* Threshold labels */}
-              {thresholds.length > 0 && (
-                <div className="flex gap-2 mt-2">
-                  {thresholds.map(t => (
-                    <span key={t} className={`text-[10px] tabular-nums ${
-                      overallPercentage >= t ? 'text-white font-semibold' : 'text-white/50'
-                    }`}>
-                      {t}%
-                    </span>
+
+              {data.recentTransactions.length === 0 ? (
+                <p className="text-sm text-[var(--text-secondary)]">
+                  Chưa có giao dịch nào trong khoảng ngân sách.
+                </p>
+              ) : (
+                <div className="space-y-3">
+                  {data.recentTransactions.map((transaction) => (
+                    <button
+                      key={transaction.id}
+                      onClick={() => nav.goTransactionDetail(transaction.id)}
+                      className="w-full p-3 rounded-[var(--radius-lg)] bg-[var(--surface)] hover:bg-[var(--border)] transition-colors text-left"
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-[var(--text-primary)] truncate">
+                            {transaction.description || "Giao dịch"}
+                          </p>
+
+                          <div className="flex flex-wrap items-center gap-2 mt-1">
+                            <span className="text-xs text-[var(--text-tertiary)]">
+                              {formatDate(transaction.occurredAt)}
+                            </span>
+
+                            {transaction.category?.id && (
+                              <button
+                                onClick={(event) => {
+                                  event.stopPropagation();
+                                  nav.goTransactionsByCategory(
+                                    transaction.category!.id,
+                                  );
+                                }}
+                                className="text-xs text-[var(--primary)] hover:underline"
+                              >
+                                {transaction.category.name}
+                              </button>
+                            )}
+
+                            {transaction.merchant?.id && (
+                              <button
+                                onClick={(event) => {
+                                  event.stopPropagation();
+                                  nav.goTransactionsByMerchant(
+                                    transaction.merchant!.id,
+                                  );
+                                }}
+                                className="inline-flex items-center gap-1 text-xs text-[var(--primary)] hover:underline"
+                              >
+                                <Store className="w-3 h-3" />
+                                {transaction.merchant.name}
+                              </button>
+                            )}
+                          </div>
+
+                          {transaction.tags.length > 0 && (
+                            <div className="flex flex-wrap gap-2 mt-2">
+                              {transaction.tags.map((tag) => (
+                                <button
+                                  key={tag.id}
+                                  onClick={(event) => {
+                                    event.stopPropagation();
+                                    nav.goTransactionsByTag(tag.id);
+                                  }}
+                                  className="rounded-[var(--radius-md)]"
+                                >
+                                  <TagChip
+                                    name={tag.name}
+                                    color={tag.colorHex || "#64748b"}
+                                    className="hover:scale-[1.02] transition-transform"
+                                  />
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+
+                        <span
+                          className={`text-sm font-semibold tabular-nums ${
+                            transaction.txnType === "income"
+                              ? "text-[var(--success)]"
+                              : transaction.txnType === "expense"
+                                ? "text-[var(--danger)]"
+                                : "text-[var(--info)]"
+                          }`}
+                        >
+                          {transaction.txnType === "income"
+                            ? "+"
+                            : transaction.txnType === "expense"
+                              ? "-"
+                              : ""}
+                          {formatMoney(
+                            transaction.txnType === "transfer"
+                              ? transaction.totalAmountMinor
+                              : Math.abs(
+                                  Number(transaction.signedAmountMinor || 0),
+                                ),
+                          )}
+                          ₫
+                        </span>
+                      </div>
+                    </button>
                   ))}
                 </div>
               )}
-            </div>
-          </div>
-        </Card>
-
-        {/* Alert Configuration Summary */}
-        {alertsEnabled && thresholds.length > 0 && (
-          <Card className="bg-[var(--surface)]">
-            <div className="flex items-center gap-3">
-              <Bell className="w-5 h-5 text-[var(--primary)]" />
-              <div className="flex-1">
-                <p className="text-sm font-medium text-[var(--text-primary)]">
-                  Cảnh báo đang bật
-                </p>
-                <p className="text-xs text-[var(--text-secondary)]">
-                  Ngưỡng: {thresholds.map(t => `${t}%`).join(', ')} • Channel: In-app Inbox
-                </p>
-              </div>
-              <div className="flex gap-1.5">
-                {thresholds.map(t => {
-                  const crossed = overallPercentage >= t;
-                  return (
-                    <span
-                      key={t}
-                      className={`px-2 py-0.5 rounded-full text-[10px] font-semibold tabular-nums ${
-                        crossed
-                          ? t >= 100
-                            ? 'bg-[var(--danger-light)] text-[var(--danger)]'
-                            : t >= 80
-                              ? 'bg-[var(--warning-light)] text-[var(--warning)]'
-                              : 'bg-[var(--info-light)] text-[var(--info)]'
-                          : 'bg-[var(--surface)] text-[var(--text-tertiary)] border border-[var(--border)]'
-                      }`}
-                    >
-                      {t}%{crossed ? ' ✓' : ''}
-                    </span>
-                  );
-                })}
-              </div>
-            </div>
-          </Card>
-        )}
-
-        {/* Budget Items Section */}
-        <div>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-[var(--text-primary)]">
-              Chi tiết ngân sách ({budgetItems.length})
-            </h2>
-            <button
-              onClick={handleAddItem}
-              className="flex items-center gap-2 px-4 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white rounded-[var(--radius-lg)] text-sm font-medium transition-colors"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Thêm danh mục</span>
-            </button>
-          </div>
-
-          <div className="space-y-4">
-            {budgetItems.map((item) => (
-              <BudgetItemRow key={item.id} item={item} thresholds={thresholds} />
-            ))}
+            </Card>
           </div>
         </div>
+      </div>
 
-        {/* Info Card */}
-        <Card className="bg-[var(--info-light)] border-[var(--info)]">
-          <div className="flex items-start gap-3">
-            <div className="w-10 h-10 bg-[var(--info)] rounded-full flex items-center justify-center flex-shrink-0">
-              <span className="text-white text-lg font-semibold">💡</span>
-            </div>
-            <div className="flex-1">
-              <h4 className="font-semibold text-[var(--text-primary)] mb-1">
-                Mẹo quản lý ngân sách
-              </h4>
-              <p className="text-sm text-[var(--text-secondary)]">
-                Kiểm tra ngân sách hàng tuần để đảm bảo chi tiêu đúng kế hoạch. Điều chỉnh kịp thời
-                nếu thấy có dấu hiệu vượt ngân sách.
-              </p>
+      <DeleteBudgetModal
+        isOpen={deleteModalOpen}
+        onClose={() => setDeleteModalOpen(false)}
+        onConfirm={() => void handleDeleteBudget()}
+        budgetName={budget.name}
+      />
+
+      <ConfirmationModal
+        isOpen={Boolean(deleteItemTarget)}
+        onClose={() => setDeleteItemTarget(null)}
+        onConfirm={() => void handleDeleteItem()}
+        title="Xoá hạng mục ngân sách?"
+        description={
+          deleteItemTarget
+            ? `Bạn có chắc muốn xoá hạng mục "${deleteItemTarget.category?.name || deleteItemTarget.categoryName || "Danh mục"}"?`
+            : ""
+        }
+        confirmLabel={deletingItem ? "Đang xoá..." : "Xoá"}
+        cancelLabel="Huỷ"
+        isDangerous
+      />
+
+      <ConfirmationModal
+        isOpen={Boolean(editItemTarget)}
+        onClose={() => setEditItemTarget(null)}
+        onConfirm={() => void handleSaveItem()}
+        title="Chỉnh sửa hạng mục"
+        description={
+          editItemTarget
+            ? `Cập nhật giới hạn cho "${editItemTarget.category?.name || editItemTarget.categoryName || "Danh mục"}".`
+            : ""
+        }
+        confirmLabel={savingItem ? "Đang lưu..." : "Lưu"}
+        cancelLabel="Huỷ"
+      >
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
+              Giới hạn
+            </label>
+            <input
+              type="number"
+              min="0"
+              value={editingItemLimit}
+              onChange={(event) => setEditingItemLimit(event.target.value)}
+              className="w-full px-4 py-2.5 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-lg)]"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
+              Ngưỡng cảnh báo
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {[50, 80, 100].map((threshold) => {
+                const active = editingItemThresholds.includes(threshold);
+                return (
+                  <button
+                    key={threshold}
+                    type="button"
+                    onClick={() =>
+                      setEditingItemThresholds((prev) => {
+                        if (prev.includes(threshold)) {
+                          const next = prev.filter(
+                            (item) => item !== threshold,
+                          );
+                          return next.length ? next : [100];
+                        }
+                        return [...prev, threshold].sort((a, b) => a - b);
+                      })
+                    }
+                    className={`px-3 py-2 rounded-[var(--radius-lg)] text-sm font-medium border transition-colors ${
+                      active
+                        ? "bg-[var(--warning-light)] text-[var(--warning)] border-[var(--warning)]/20"
+                        : "bg-[var(--surface)] text-[var(--text-secondary)] border-[var(--border)]"
+                    }`}
+                  >
+                    {threshold}%
+                  </button>
+                );
+              })}
             </div>
           </div>
-        </Card>
-
-        {/* Delete Confirmation Modal */}
-        <ConfirmationModal
-          isOpen={deleteModalOpen}
-          onClose={() => setDeleteModalOpen(false)}
-          onConfirm={() => {
-            deleteBudget(budget.id);
-            toast.success(`Đã xoá ngân sách "${budget.name}"`);
-            nav.goBudgets();
-          }}
-          title="Xoá ngân sách?"
-          description={`Bạn có chắc muốn xoá ngân sách "${budget.name}"? Hành động này không thể hoàn tác.`}
-          confirmLabel="Xoá"
-          cancelLabel="Huỷ"
-          isDangerous={true}
-        />
-      </div>
+        </div>
+      </ConfirmationModal>
     </div>
   );
 }
