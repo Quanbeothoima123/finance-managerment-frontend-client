@@ -99,6 +99,7 @@ function CategoryRow({
   onToggleVisibility,
   onOpenMerge,
   onOpenDelete,
+  onViewTransactions,
 }: {
   category: CategoryTreeNode;
   level: number;
@@ -108,6 +109,7 @@ function CategoryRow({
   onToggleVisibility: (category: CategoryTreeNode) => void;
   onOpenMerge: (category: CategoryTreeNode) => void;
   onOpenDelete: (category: CategoryTreeNode) => void;
+  onViewTransactions: (category: CategoryTreeNode) => void;
 }) {
   const Icon = getCategoryIcon(category.iconKey || category.icon);
   const hasChildren = category.children.length > 0;
@@ -194,6 +196,14 @@ function CategoryRow({
             <Button
               size="sm"
               variant="secondary"
+              onClick={() => onViewTransactions(category)}
+            >
+              <Search className="w-4 h-4" />
+            </Button>
+
+            <Button
+              size="sm"
+              variant="secondary"
               onClick={() => onEdit(category.id)}
             >
               <Edit2 className="w-4 h-4" />
@@ -243,6 +253,7 @@ function CategoryRow({
               onToggleVisibility={onToggleVisibility}
               onOpenMerge={onOpenMerge}
               onOpenDelete={onOpenDelete}
+              onViewTransactions={onViewTransactions}
             />
           ))}
         </div>
@@ -607,6 +618,9 @@ export default function CategoriesList() {
                   setDeleteTarget(item);
                   setCascadeChildren(false);
                 }}
+                onViewTransactions={(item) =>
+                  nav.goTransactionsByCategory(item.id)
+                }
               />
             ))}
           </div>

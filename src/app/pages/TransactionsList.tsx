@@ -92,13 +92,18 @@ export default function TransactionsList() {
 
   const initialType =
     (searchParams.get("type") as "all" | TransactionType | null) || "all";
+  const initialAccountId = searchParams.get("accountId") || "";
+  const initialCategoryId = searchParams.get("categoryId") || "";
   const initialMerchantId = searchParams.get("merchantId") || "";
   const initialTagId = searchParams.get("tagId") || "";
+  const initialSearch = searchParams.get("search") || "";
+  const initialStartDate = searchParams.get("startDate") || "";
+  const initialEndDate = searchParams.get("endDate") || "";
 
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(initialSearch);
   const [type, setType] = useState<"all" | TransactionType>(initialType);
-  const [accountId, setAccountId] = useState("");
-  const [categoryId, setCategoryId] = useState("");
+  const [accountId, setAccountId] = useState(initialAccountId);
+  const [categoryId, setCategoryId] = useState(initialCategoryId);
   const [merchantId, setMerchantId] = useState(initialMerchantId);
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>(
     initialTagId ? [initialTagId] : [],
@@ -106,8 +111,8 @@ export default function TransactionsList() {
   const [tagMode, setTagMode] = useState<"and" | "or">("or");
   const [sortBy, setSortBy] = useState<"date" | "amount" | "createdAt">("date");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
+  const [startDate, setStartDate] = useState(initialStartDate);
+  const [endDate, setEndDate] = useState(initialEndDate);
   const [page, setPage] = useState(1);
   const [deleteTarget, setDeleteTarget] = useState<TransactionListItem | null>(
     null,
@@ -176,6 +181,22 @@ export default function TransactionsList() {
       { income: 0, expense: 0 },
     );
   }, [data?.items]);
+
+  const activeAccountLabel = useMemo(() => {
+    if (!accountId) return "";
+    return (
+      (metaData?.accounts || []).find((item) => item.id === accountId)?.name ||
+      ""
+    );
+  }, [accountId, metaData?.accounts]);
+
+  const activeCategoryLabel = useMemo(() => {
+    if (!categoryId) return "";
+    return (
+      (metaData?.categories || []).find((item) => item.id === categoryId)
+        ?.name || ""
+    );
+  }, [categoryId, metaData?.categories]);
 
   const activeMerchantLabel = useMemo(() => {
     if (!merchantId) return "";
@@ -529,8 +550,27 @@ export default function TransactionsList() {
             ))}
           </div>
 
-          {(merchantId || selectedTagIds.length > 0) && (
+          {(accountId ||
+            categoryId ||
+            merchantId ||
+            selectedTagIds.length > 0 ||
+            search ||
+            startDate ||
+            endDate) && (
             <div className="mt-4 flex flex-wrap gap-2">
+              {accountId && activeAccountLabel && (
+                <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium bg-[var(--surface)] text-[var(--text-secondary)] border border-[var(--border)]">
+                  {activeAccountLabel}
+                </span>
+              )}
+
+              {categoryId && activeCategoryLabel && (
+                <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium bg-[var(--surface)] text-[var(--text-secondary)] border border-[var(--border)]">
+                  <Tag className="w-3 h-3" />
+                  {activeCategoryLabel}
+                </span>
+              )}
+
               {merchantId && activeMerchantLabel && (
                 <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium bg-[var(--info-light)] text-[var(--info)] border border-[var(--info)]/20">
                   <Store className="w-3 h-3" />

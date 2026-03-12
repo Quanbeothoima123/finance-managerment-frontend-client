@@ -23,8 +23,10 @@ import {
 } from "recharts";
 import { Card } from "../components/Card";
 import { Button } from "../components/Button";
+import { TagChip } from "../components/TagChip";
 import { ConfirmationModal } from "../components/ConfirmationModals";
 import { useToast } from "../contexts/ToastContext";
+import { useAppNavigation } from "../hooks/useAppNavigation";
 import { useAccountDetail } from "../hooks/useAccountDetail";
 import { accountsService } from "../services/accountsService";
 import type { AccountSummaryDto } from "../types/accounts";
@@ -217,6 +219,7 @@ function ReconcileModal({
 export default function AccountDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const nav = useAppNavigation();
   const toast = useToast();
   const { data, loading, error, reload } = useAccountDetail(id);
 
@@ -411,18 +414,14 @@ export default function AccountDetail() {
               <Button
                 variant="secondary"
                 onClick={() =>
-                  navigate(`/transfer/create?fromAccountId=${account.id}`)
+                  nav.goTo(`/transfer/create?fromAccountId=${account.id}`)
                 }
               >
                 <ArrowRightLeft className="w-4 h-4" />
                 Chuyển tiền
               </Button>
 
-              <Button
-                onClick={() =>
-                  navigate(`/transactions/create?accountId=${account.id}`)
-                }
-              >
+              <Button onClick={() => nav.goCreateTransaction(account.id)}>
                 <Plus className="w-4 h-4" />
                 Thêm giao dịch
               </Button>
@@ -554,6 +553,19 @@ export default function AccountDetail() {
 
         {activeTab === "transactions" ? (
           <Card>
+            <div className="flex items-center justify-between gap-3 mb-4">
+              <h4 className="font-medium text-[var(--text-primary)]">
+                Giao dịch gần đây
+              </h4>
+
+              <button
+                onClick={() => nav.goTransactionsByAccount(account.id)}
+                className="text-sm font-medium text-[var(--primary)] hover:underline"
+              >
+                Xem tất cả
+              </button>
+            </div>
+
             {data.recentTransactions.length === 0 ? (
               <p className="text-sm text-[var(--text-secondary)] text-center py-8">
                 Chưa có giao dịch nào cho tài khoản này.
@@ -569,26 +581,70 @@ export default function AccountDetail() {
                   return (
                     <button
                       key={transaction.id}
-                      onClick={() =>
-                        navigate(`/transactions/${transaction.id}`)
-                      }
+                      onClick={() => nav.goTransactionDetail(transaction.id)}
                       className="w-full flex items-start justify-between gap-4 p-3 rounded-[var(--radius-lg)] hover:bg-[var(--surface)] transition-colors text-left"
                     >
-                      <div className="min-w-0">
+                      <div className="min-w-0 flex-1">
                         <p className="font-medium text-[var(--text-primary)] truncate">
                           {transaction.description ||
                             transaction.category?.name ||
                             "Giao dịch"}
                         </p>
-                        <p className="text-xs text-[var(--text-tertiary)] mt-1 truncate">
-                          {[
-                            formatDateTime(transaction.occurredAt),
-                            transaction.category?.name,
-                            transaction.merchant?.name,
-                          ]
-                            .filter(Boolean)
-                            .join(" • ")}
-                        </p>
+
+                        <div className="flex flex-wrap items-center gap-2 mt-1">
+                          <span className="text-xs text-[var(--text-tertiary)]">
+                            {formatDateTime(transaction.occurredAt)}
+                          </span>
+
+                          {transaction.category?.id && (
+                            <button
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                nav.goTransactionsByCategory(
+                                  transaction.category!.id,
+                                );
+                              }}
+                              className="text-xs text-[var(--primary)] hover:underline"
+                            >
+                              {transaction.category.name}
+                            </button>
+                          )}
+
+                          {transaction.merchant?.id && (
+                            <button
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                nav.goTransactionsByMerchant(
+                                  transaction.merchant!.id,
+                                );
+                              }}
+                              className="text-xs text-[var(--primary)] hover:underline"
+                            >
+                              {transaction.merchant.name}
+                            </button>
+                          )}
+                        </div>
+
+                        {transaction.tags?.length > 0 && (
+                          <div className="flex flex-wrap gap-2 mt-2">
+                            {transaction.tags.map((tag) => (
+                              <button
+                                key={tag.id}
+                                onClick={(event) => {
+                                  event.stopPropagation();
+                                  nav.goTransactionsByTag(tag.id);
+                                }}
+                                className="rounded-[var(--radius-md)]"
+                              >
+                                <TagChip
+                                  name={tag.name}
+                                  color={tag.colorHex || "#64748b"}
+                                  className="hover:scale-[1.02] transition-transform"
+                                />
+                              </button>
+                            ))}
+                          </div>
+                        )}
                       </div>
 
                       <span
