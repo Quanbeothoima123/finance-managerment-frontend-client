@@ -25,10 +25,12 @@ function TagCard({
   tag,
   onEdit,
   onDelete,
+  onViewTransactions,
 }: {
   tag: TagItem;
   onEdit: () => void;
   onDelete: () => void;
+  onViewTransactions: () => void;
 }) {
   const color = ensureColor(tag.colorHex || tag.color);
 
@@ -88,7 +90,7 @@ function TagCard({
           </div>
         </div>
 
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-3">
           <span
             className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium"
             style={{
@@ -104,9 +106,22 @@ function TagCard({
             {tag.name}
           </span>
 
-          <span className="text-sm font-semibold text-[var(--text-primary)] tabular-nums">
-            {tag.usageCount}
-          </span>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={(event) => {
+                event.stopPropagation();
+                onViewTransactions();
+              }}
+              className="text-xs font-medium text-[var(--primary)] hover:underline"
+            >
+              Xem giao dịch
+            </button>
+
+            <span className="text-sm font-semibold text-[var(--text-primary)] tabular-nums">
+              {tag.usageCount}
+            </span>
+          </div>
         </div>
       </div>
     </Card>
@@ -289,6 +304,7 @@ export default function TagsList() {
                 tag={tag}
                 onEdit={() => nav.goEditTag(tag.id)}
                 onDelete={() => setDeleteTarget(tag)}
+                onViewTransactions={() => nav.goTransactionsByTag(tag.id)}
               />
             ))}
           </div>

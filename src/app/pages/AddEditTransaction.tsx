@@ -4,6 +4,7 @@ import {
   ArrowLeft,
   Plus,
   Save,
+  Sparkles,
   SplitSquareHorizontal,
   Store,
   Tag,
@@ -13,6 +14,10 @@ import { Button } from "../components/Button";
 import { Card } from "../components/Card";
 import { Input } from "../components/Input";
 import { TagChip } from "../components/TagChip";
+import {
+  ChatTransactionParser,
+  type QuickTransactionDraft,
+} from "../components/ChatTransactionParser";
 import { useToast } from "../contexts/ToastContext";
 import { useTransactionDetail } from "../hooks/useTransactionDetail";
 import { useTransactionsMeta } from "../hooks/useTransactionsMeta";
@@ -93,6 +98,7 @@ export default function AddEditTransaction() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
   const [initialized, setInitialized] = useState(false);
+  const [showChatParser, setShowChatParser] = useState(false);
 
   const categories = useMemo(() => {
     return (metaData?.categories || []).filter((item) => {
@@ -253,6 +259,28 @@ export default function AddEditTransaction() {
     });
   };
 
+  const handleApplyQuickDraft = (draft: QuickTransactionDraft) => {
+    setTransactionType(draft.type);
+    setAmount(draft.amount);
+    setAccountId(draft.accountId || accountId);
+    setDescription(draft.description || description);
+    setIsSplit(false);
+    setSplitLines([createSplitLine(), createSplitLine()]);
+    setErrors({});
+
+    if (draft.categoryId) {
+      setCategoryId(draft.categoryId);
+    }
+
+    if (draft.merchantId) {
+      setSelectedMerchantId(draft.merchantId);
+      setCustomMerchantName("");
+    } else if (draft.merchantName) {
+      setSelectedMerchantId("");
+      setCustomMerchantName(draft.merchantName);
+    }
+  };
+
   const validate = () => {
     const nextErrors: Record<string, string> = {};
     const numericAmount = Number(amount || 0);
@@ -392,26 +420,37 @@ export default function AddEditTransaction() {
   return (
     <div className="min-h-screen bg-[var(--background)]">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="mb-6 flex items-center gap-3">
-          <button
-            onClick={() => navigate(-1)}
-            className="p-2 rounded-[var(--radius-lg)] hover:bg-[var(--surface)] transition-colors"
-          >
-            <ArrowLeft className="w-5 h-5 text-[var(--text-primary)]" />
-          </button>
-          <div>
-            <h1 className="text-2xl font-semibold text-[var(--text-primary)]">
-              {isEditMode
-                ? "Chỉnh sửa giao dịch"
-                : isDuplicateMode
-                  ? "Nhân bản giao dịch"
-                  : "Thêm giao dịch"}
-            </h1>
-            <p className="text-sm text-[var(--text-secondary)] mt-1">
-              Tạo giao dịch thu/chi với merchant và tag lấy trực tiếp từ
-              backend.
-            </p>
+        <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => navigate(-1)}
+              className="p-2 rounded-[var(--radius-lg)] hover:bg-[var(--surface)] transition-colors"
+            >
+              <ArrowLeft className="w-5 h-5 text-[var(--text-primary)]" />
+            </button>
+            <div>
+              <h1 className="text-2xl font-semibold text-[var(--text-primary)]">
+                {isEditMode
+                  ? "Chỉnh sửa giao dịch"
+                  : isDuplicateMode
+                    ? "Nhân bản giao dịch"
+                    : "Thêm giao dịch"}
+              </h1>
+              <p className="text-sm text-[var(--text-secondary)] mt-1">
+                Tạo giao dịch thu/chi với merchant và tag lấy trực tiếp từ
+                backend.
+              </p>
+            </div>
           </div>
+
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={() => setShowChatParser(true)}
+          >
+            <Sparkles className="w-4 h-4" />
+            Nhập nhanh (chat)
+          </Button>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -816,6 +855,31 @@ export default function AddEditTransaction() {
           </div>
         </form>
       </div>
+      <ChatTransactionParser
+        isOpen={showChatParser}
+        onClose={() => setShowChatParser(false)}
+        accounts={(metaData?.accounts || []).map((account) => ({
+          id: account.id,
+          name: account.name,
+          status: account.status,
+          providerName: account.providerName,
+          accountType: account.accountType,
+          currencyCode: account.currencyCode,
+        }))}
+        categories={(metaData?.categories || []).map((category) => ({
+          id: category.id,
+          name: category.name,
+          categoryType: category.categoryType,
+          archivedAt: category.archivedAt,
+        }))}
+        merchants={(metaData?.merchants || []).map((merchant) => ({
+          id: merchant.id,
+          name: merchant.name,
+          defaultCategoryId: merchant.defaultCategoryId,
+          isHidden: merchant.isHidden,
+        }))}
+        onApply={handleApplyQuickDraft}
+      />
     </div>
   );
 }

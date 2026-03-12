@@ -30,11 +30,13 @@ function MerchantCard({
   onView,
   onEdit,
   onDelete,
+  onViewTransactions,
 }: {
   merchant: MerchantItem;
   onView: () => void;
   onEdit: () => void;
   onDelete: () => void;
+  onViewTransactions: () => void;
 }) {
   return (
     <Card
@@ -88,25 +90,37 @@ function MerchantCard({
         </div>
       </div>
 
-      <div className="flex items-center justify-end gap-2">
+      <div className="flex items-center justify-between gap-2">
         <button
           onClick={(event) => {
             event.stopPropagation();
-            onEdit();
+            onViewTransactions();
           }}
-          className="p-2 rounded-[var(--radius-md)] hover:bg-[var(--surface)] transition-colors"
+          className="text-sm font-medium text-[var(--primary)] hover:underline"
         >
-          <Edit2 className="w-4 h-4 text-[var(--text-secondary)]" />
+          Xem giao dịch
         </button>
-        <button
-          onClick={(event) => {
-            event.stopPropagation();
-            onDelete();
-          }}
-          className="p-2 rounded-[var(--radius-md)] hover:bg-[var(--danger-light)] transition-colors"
-        >
-          <Trash2 className="w-4 h-4 text-[var(--danger)]" />
-        </button>
+
+        <div className="flex items-center gap-2">
+          <button
+            onClick={(event) => {
+              event.stopPropagation();
+              onEdit();
+            }}
+            className="p-2 rounded-[var(--radius-md)] hover:bg-[var(--surface)] transition-colors"
+          >
+            <Edit2 className="w-4 h-4 text-[var(--text-secondary)]" />
+          </button>
+          <button
+            onClick={(event) => {
+              event.stopPropagation();
+              onDelete();
+            }}
+            className="p-2 rounded-[var(--radius-md)] hover:bg-[var(--danger-light)] transition-colors"
+          >
+            <Trash2 className="w-4 h-4 text-[var(--danger)]" />
+          </button>
+        </div>
       </div>
     </Card>
   );
@@ -334,6 +348,9 @@ export default function MerchantsList() {
                 onView={() => nav.goMerchantDetail(merchant.id)}
                 onEdit={() => nav.goEditMerchant(merchant.id)}
                 onDelete={() => setDeleteTarget(merchant)}
+                onViewTransactions={() =>
+                  nav.goTransactionsByMerchant(merchant.id)
+                }
               />
             ))}
           </div>
