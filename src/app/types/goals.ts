@@ -1,28 +1,21 @@
+import type { AccountType } from "./accounts";
 import type { TransactionListItem } from "./transactions";
 
 export type GoalPriority = "low" | "medium" | "high";
 export type GoalStatus = "active" | "completed" | "paused" | "cancelled";
 export type GoalUiStatus = "on-track" | "behind" | "achieved";
-export type GoalWithdrawalLimitType = "none" | "percentage" | "amount";
 export type GoalEventType =
   | "deposit"
   | "withdrawal"
   | "adjustment"
   | "complete"
   | "reopen";
+export type GoalWithdrawalLimitType = "none" | "percentage" | "amount";
 
-export interface GoalLedgerSummary {
+export interface GoalAccountRef {
   id: string;
   name: string;
-  baseCurrencyCode: string;
-  timezone: string;
-  weekStartsOn: number;
-}
-
-export interface GoalAccountOption {
-  id: string;
-  name: string;
-  accountType: string;
+  accountType: AccountType | string;
   accountTypeLabel: string;
   currencyCode: string;
   providerName: string | null;
@@ -31,7 +24,29 @@ export interface GoalAccountOption {
   currentBalanceMinor: string;
 }
 
-export interface GoalListItem {
+export interface GoalContribution {
+  id: string;
+  goalId: string;
+  eventType: GoalEventType | string;
+  type: GoalEventType | string;
+  amountMinor: string;
+  amount: number;
+  note: string | null;
+  notes: string | null;
+  eventAt: string;
+  date: string | null;
+  transactionId: string | null;
+  linkedTransactionId: string | null;
+  accountId: string | null;
+  linkedAccountId: string | null;
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
+  account: GoalAccountRef | null;
+  transaction: TransactionListItem | null;
+}
+
+export interface GoalItem {
   id: string;
   ledgerId: string;
   name: string;
@@ -48,11 +63,11 @@ export interface GoalListItem {
   remainingMinor: string;
   remainingAmount: number;
   currencyCode: string;
-  priority: GoalPriority;
-  status: GoalStatus;
+  priority: GoalPriority | string;
+  status: GoalStatus | string;
   percentage: number;
   progressPercent: number;
-  uiStatus: GoalUiStatus;
+  uiStatus: GoalUiStatus | string;
   autoContributeEnabled: boolean;
   autoContributeAmountMinor: string;
   autoContributeAmount: number;
@@ -61,62 +76,45 @@ export interface GoalListItem {
   linkedAccountId: string | null;
   withdrawalLockEnabled: boolean;
   withdrawalLockUntil: string | null;
-  withdrawalLimitType: GoalWithdrawalLimitType;
+  withdrawalLimitType: GoalWithdrawalLimitType | string;
   withdrawalLimitValue: number | null;
   withdrawalApprovalEnabled: boolean;
   withdrawalApprovalThreshold: number | null;
-  withdrawalApprovalThresholdMinor: string;
+  withdrawalApprovalThresholdMinor: string | null;
   completedAt: string | null;
   createdAt: string;
   updatedAt: string;
-  autoContributeAccount: GoalAccountOption | null;
-}
-
-export interface GoalContribution {
-  id: string;
-  goalId: string;
-  eventType: GoalEventType;
-  type: GoalEventType;
-  amountMinor: string;
-  amount: number;
-  note: string | null;
-  notes: string | null;
-  eventAt: string;
-  date: string;
-  transactionId: string | null;
-  linkedTransactionId: string | null;
-  accountId: string | null;
-  linkedAccountId: string | null;
-  createdBy: string;
-  createdAt: string;
-  updatedAt: string;
-  account: GoalAccountOption | null;
-  transaction: TransactionListItem | null;
+  autoContributeAccount: GoalAccountRef | null;
+  contributions?: GoalContribution[];
 }
 
 export interface GoalsMetaResponse {
-  ledger: GoalLedgerSummary;
+  ledger: {
+    id: string;
+    name: string;
+    baseCurrencyCode: string;
+    timezone: string;
+    weekStartsOn: number;
+  };
   defaults: {
     currencyCode: string;
   };
-  accounts: GoalAccountOption[];
+  accounts: GoalAccountRef[];
 }
 
 export interface GoalsListResponse {
-  ledger: GoalLedgerSummary;
+  ledger: GoalsMetaResponse["ledger"];
   summary: {
     total: number;
     achievedCount: number;
     behindCount: number;
     onTrackCount: number;
   };
-  items: GoalListItem[];
+  items: GoalItem[];
 }
 
 export interface GoalDetailResponse {
-  goal: GoalListItem & {
-    contributions: GoalContribution[];
-  };
+  goal: GoalItem;
   summary: {
     totalDepositedMinor: string;
     totalWithdrawnMinor: string;
@@ -151,28 +149,26 @@ export interface CreateGoalPayload {
   note?: string | null;
   startDate?: string | null;
   targetDate?: string | null;
-  deadline?: string | null;
-  targetAmountMinor?: number | string;
-  targetAmount?: number | string;
-  amount?: number | string;
-  currentAmountMinor?: number | string;
-  currentAmount?: number | string;
-  initialAmount?: number | string;
+  targetAmountMinor?: string | number;
+  targetAmount?: string | number;
+  currentAmountMinor?: string | number;
+  currentAmount?: string | number;
+  initialAmount?: string | number;
   currencyCode?: string;
   priority?: GoalPriority;
   status?: GoalStatus;
   autoContributeEnabled?: boolean;
-  autoContributeAmountMinor?: number | string | null;
-  autoContributeAmount?: number | string | null;
+  autoContributeAmountMinor?: string | number | null;
+  autoContributeAmount?: string | number | null;
   autoContributeDay?: number | null;
   autoContributeAccountId?: string | null;
   linkedAccountId?: string | null;
   withdrawalLockEnabled?: boolean;
   withdrawalLockUntil?: string | null;
   withdrawalLimitType?: GoalWithdrawalLimitType;
-  withdrawalLimitValue?: number | string | null;
+  withdrawalLimitValue?: string | number | null;
   withdrawalApprovalEnabled?: boolean;
-  withdrawalApprovalThreshold?: number | string | null;
+  withdrawalApprovalThreshold?: string | number | null;
 }
 
 export interface UpdateGoalPayload extends Partial<CreateGoalPayload> {}
@@ -180,8 +176,8 @@ export interface UpdateGoalPayload extends Partial<CreateGoalPayload> {}
 export interface CreateGoalContributionPayload {
   eventType?: GoalEventType;
   type?: GoalEventType;
-  amountMinor?: number | string;
-  amount?: number | string;
+  amountMinor?: string | number;
+  amount?: string | number;
   transactionId?: string | null;
   linkedTransactionId?: string | null;
   accountId?: string | null;

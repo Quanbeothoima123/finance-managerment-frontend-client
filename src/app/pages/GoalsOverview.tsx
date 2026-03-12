@@ -1,240 +1,182 @@
 import React, { useMemo, useState } from "react";
-import {
-  ArrowUpDown,
-  Calendar,
-  Edit2,
-  Plus,
-  Search,
-  Target,
-  Trash2,
-  TrendingUp,
-  X,
-} from "lucide-react";
+import { Edit2, Plus, Search, Target, Trash2 } from "lucide-react";
 import { Card } from "../components/Card";
+import { Button } from "../components/Button";
 import { ConfirmationModal } from "../components/ConfirmationModals";
-import { SwipeableRow } from "../components/SwipeableRow";
-import { useToast } from "../contexts/ToastContext";
 import { useAppNavigation } from "../hooks/useAppNavigation";
 import { useGoalsList } from "../hooks/useGoalsList";
 import { goalsService } from "../services/goalsService";
-import type { GoalListItem, GoalUiStatus } from "../types/goals";
+import type { GoalItem, GoalsListQuery } from "../types/goals";
 import {
   formatCurrency,
   formatDate,
-  getDaysRemaining,
-  getGoalIcon,
-  getGoalPriorityLabel,
-  getGoalStatusMeta,
+  getGoalIconComponent,
+  getPriorityLabel,
+  getUiStatus,
+  getUiStatusMeta,
 } from "../utils/goalHelpers";
-
-type UiFilter = "all" | GoalUiStatus;
-type UiSort = "deadline" | "progress" | "amount" | "name";
-
-function mapSort(sortBy: UiSort) {
-  if (sortBy === "progress") {
-    return { sortBy: "progress" as const, sortOrder: "desc" as const };
-  }
-
-  if (sortBy === "amount") {
-    return { sortBy: "targetAmount" as const, sortOrder: "desc" as const };
-  }
-
-  if (sortBy === "name") {
-    return { sortBy: "name" as const, sortOrder: "asc" as const };
-  }
-
-  return { sortBy: "targetDate" as const, sortOrder: "asc" as const };
-}
+import { useToast } from "../contexts/ToastContext";
 
 function GoalCard({
   goal,
-  onClick,
+  onOpen,
+  onEdit,
   onDelete,
 }: {
-  goal: GoalListItem;
-  onClick: () => void;
+  goal: GoalItem;
+  onOpen: () => void;
+  onEdit: () => void;
   onDelete: () => void;
 }) {
-  const GoalIcon = getGoalIcon(goal.icon);
-  const statusMeta = getGoalStatusMeta(goal.uiStatus);
-  const daysRemaining = getDaysRemaining(goal.deadline);
-  const remaining = Math.max(goal.remainingAmount, 0);
+  const GoalIcon = getGoalIconComponent(goal.icon);
+  const status = getUiStatus(goal);
+  const statusMeta = getUiStatusMeta(status);
+  const StatusIcon = statusMeta.Icon;
 
   return (
     <Card
-      className="cursor-pointer hover:shadow-[var(--shadow-md)] transition-all"
-      onClick={onClick}
+      className="cursor-pointer hover:shadow-[var(--shadow-lg)] transition-all"
+      onClick={onOpen}
     >
-      <div className="flex items-start justify-between gap-4 mb-4">
+      <div className="flex items-start justify-between gap-3 mb-4">
         <div className="flex items-center gap-3 min-w-0">
           <div
-            className="w-12 h-12 rounded-[var(--radius-lg)] flex items-center justify-center"
-            style={{ backgroundColor: `${goal.color}20` }}
+            className="w-12 h-12 rounded-[var(--radius-lg)] flex items-center justify-center shrink-0"
+            style={{ backgroundColor: `${goal.color || "#3b82f6"}20` }}
           >
-            <GoalIcon className="w-6 h-6" style={{ color: goal.color }} />
+            <GoalIcon
+              className="w-6 h-6"
+              style={{ color: goal.color || "#3b82f6" }}
+            />
           </div>
           <div className="min-w-0">
             <h3 className="font-semibold text-[var(--text-primary)] truncate">
               {goal.name}
             </h3>
-            <p className="text-xs text-[var(--text-tertiary)] mt-0.5">
-              {getGoalPriorityLabel(goal.priority)}
+            <p className="text-xs text-[var(--text-secondary)]">
+              {getPriorityLabel(goal.priority)}
             </p>
           </div>
         </div>
 
         <div
-          className="flex items-center gap-1.5 px-2.5 py-1 rounded-[var(--radius-md)] text-xs font-semibold whitespace-nowrap"
-          style={{
-            backgroundColor: statusMeta.bgColor,
-            color: statusMeta.textColor,
-          }}
+          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[var(--radius-md)] text-xs font-semibold shrink-0"
+          style={{ backgroundColor: statusMeta.bg, color: statusMeta.color }}
         >
-          <statusMeta.Icon className="w-3.5 h-3.5" />
+          <StatusIcon className="w-3.5 h-3.5" />
           <span>{statusMeta.label}</span>
         </div>
       </div>
 
       <div className="mb-4">
-        <div className="flex items-center justify-between mb-2 gap-3">
-          <span className="text-sm text-[var(--text-secondary)]">
-            <span className="font-semibold text-[var(--text-primary)] tabular-nums">
+        <div className="flex items-center justify-between mb-2 text-sm">
+          <span className="text-[var(--text-secondary)]">
+            <span className="font-semibold text-[var(--text-primary)]">
               {formatCurrency(goal.currentAmount)}₫
-            </span>{" "}
-            / {formatCurrency(goal.targetAmount)}₫
+            </span>
+            {" / "}
+            {formatCurrency(goal.targetAmount)}₫
           </span>
-          <span
-            className="text-sm font-semibold tabular-nums"
-            style={{ color: statusMeta.textColor }}
-          >
-            {goal.progressPercent.toFixed(0)}%
+          <span className="font-semibold" style={{ color: statusMeta.color }}>
+            {Number(goal.progressPercent || 0).toFixed(1)}%
           </span>
         </div>
         <div className="h-3 bg-[var(--surface)] rounded-full overflow-hidden">
           <div
             className="h-full rounded-full transition-all"
             style={{
-              width: `${Math.min(goal.progressPercent, 100)}%`,
-              backgroundColor: statusMeta.textColor,
+              width: `${Math.min(Number(goal.progressPercent || 0), 100)}%`,
+              backgroundColor: statusMeta.color,
             }}
           />
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 pt-4 border-t border-[var(--divider)]">
+      <div className="grid grid-cols-2 gap-4 text-sm pt-4 border-t border-[var(--divider)]">
         <div>
-          <div className="flex items-center gap-1.5 mb-1">
-            <Calendar className="w-3.5 h-3.5 text-[var(--text-tertiary)]" />
-            <span className="text-xs text-[var(--text-secondary)]">
-              Mục tiêu
-            </span>
-          </div>
-          <p className="text-sm font-semibold text-[var(--text-primary)] tabular-nums">
-            {formatDate(goal.deadline)}
+          <p className="text-[var(--text-secondary)] mb-1">Mục tiêu</p>
+          <p className="font-semibold text-[var(--text-primary)]">
+            {formatDate(goal.targetDate || goal.deadline)}
           </p>
         </div>
-
         <div>
-          <div className="flex items-center gap-1.5 mb-1">
-            <Target className="w-3.5 h-3.5 text-[var(--text-tertiary)]" />
-            <span className="text-xs text-[var(--text-secondary)]">
-              Còn lại
-            </span>
-          </div>
-          <p className="text-sm font-semibold text-[var(--text-primary)] tabular-nums">
-            {goal.uiStatus === "achieved"
-              ? "0₫"
-              : `${formatCurrency(remaining)}₫`}
+          <p className="text-[var(--text-secondary)] mb-1">Còn lại</p>
+          <p className="font-semibold text-[var(--text-primary)]">
+            {formatCurrency(goal.remainingAmount)}₫
           </p>
         </div>
       </div>
 
-      <div className="mt-3 pt-3 border-t border-[var(--divider)] flex items-center justify-between gap-3">
-        <p
-          className={`text-xs font-medium ${
-            daysRemaining !== null && daysRemaining < 30
-              ? "text-[var(--warning)]"
-              : "text-[var(--text-secondary)]"
-          }`}
+      <div className="flex items-center justify-end gap-2 mt-4 pt-4 border-t border-[var(--divider)]">
+        <Button
+          variant="secondary"
+          size="sm"
+          onClick={(event) => {
+            event.stopPropagation();
+            onEdit();
+          }}
         >
-          {daysRemaining === null
-            ? "Không có hạn chót"
-            : daysRemaining > 0
-              ? `Còn ${daysRemaining} ngày`
-              : "Đã quá hạn"}
-        </p>
-
-        <button
+          <Edit2 className="w-4 h-4" />
+          Sửa
+        </Button>
+        <Button
+          variant="danger"
+          size="sm"
           onClick={(event) => {
             event.stopPropagation();
             onDelete();
           }}
-          className="hidden md:inline text-xs text-[var(--text-tertiary)] hover:text-[var(--danger)] transition-colors"
         >
+          <Trash2 className="w-4 h-4" />
           Xoá
-        </button>
+        </Button>
       </div>
     </Card>
   );
 }
 
 export default function GoalsOverview() {
-  const [filter, setFilter] = useState<UiFilter>("all");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [sortBy, setSortBy] = useState<UiSort>("deadline");
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [goalToDelete, setGoalToDelete] = useState<GoalListItem | null>(null);
-  const [deleting, setDeleting] = useState(false);
-
   const nav = useAppNavigation();
   const toast = useToast();
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<
+    "all" | "on-track" | "behind" | "achieved"
+  >("all");
+  const [priority, setPriority] = useState<"all" | "low" | "medium" | "high">(
+    "all",
+  );
+  const [sortBy, setSortBy] = useState<GoalsListQuery["sortBy"]>("targetDate");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+  const [goalToDelete, setGoalToDelete] = useState<GoalItem | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
-  const { data, loading, error, reload } = useGoalsList(mapSort(sortBy));
+  const query: GoalsListQuery = useMemo(
+    () => ({
+      search,
+      priority,
+      sortBy,
+      sortOrder,
+    }),
+    [search, priority, sortBy, sortOrder],
+  );
 
-  const filteredGoals = useMemo(() => {
+  const { data, loading, error, reload } = useGoalsList(query);
+
+  const items = useMemo(() => {
     const source = data?.items || [];
-    return source.filter((goal) => {
-      const matchesFilter = filter === "all" || goal.uiStatus === filter;
-      const keyword = searchQuery.trim().toLowerCase();
-      const matchesSearch =
-        !keyword ||
-        goal.name.toLowerCase().includes(keyword) ||
-        (goal.note || "").toLowerCase().includes(keyword);
+    if (statusFilter === "all") return source;
+    return source.filter((goal) => getUiStatus(goal) === statusFilter);
+  }, [data?.items, statusFilter]);
 
-      return matchesFilter && matchesSearch;
-    });
-  }, [data?.items, filter, searchQuery]);
+  const summary = data?.summary;
 
-  const totals = useMemo(() => {
-    const items = data?.items || [];
-    const totalTarget = items.reduce((sum, item) => sum + item.targetAmount, 0);
-    const totalSaved = items.reduce((sum, item) => sum + item.currentAmount, 0);
-    const overallPercentage =
-      totalTarget > 0 ? (totalSaved / totalTarget) * 100 : 0;
-
-    return {
-      totalTarget,
-      totalSaved,
-      overallPercentage,
-      achievedCount: data?.summary.achievedCount || 0,
-      behindCount: data?.summary.behindCount || 0,
-      onTrackCount: data?.summary.onTrackCount || 0,
-    };
-  }, [data]);
-
-  const handleDeleteGoal = (goal: GoalListItem) => {
-    setGoalToDelete(goal);
-    setDeleteModalOpen(true);
-  };
-
-  const confirmDeleteGoal = async () => {
+  const handleDelete = async () => {
     if (!goalToDelete) return;
 
     try {
       setDeleting(true);
       await goalsService.deleteGoal(goalToDelete.id);
       toast.success(`Đã xoá mục tiêu "${goalToDelete.name}"`);
-      setDeleteModalOpen(false);
       setGoalToDelete(null);
       await reload();
     } catch (err) {
@@ -249,263 +191,204 @@ export default function GoalsOverview() {
   return (
     <div className="min-h-screen bg-[var(--background)]">
       <div className="max-w-6xl mx-auto p-4 md:p-6 pb-20 md:pb-6 space-y-6">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <h1 className="text-2xl font-semibold text-[var(--text-primary)]">
               Mục tiêu
             </h1>
             <p className="text-sm text-[var(--text-secondary)] mt-1">
-              Theo dõi và quản lý mục tiêu tài chính bằng dữ liệu thật từ
-              backend.
+              Theo dõi tiến độ tiết kiệm và các đóng góp cho từng mục tiêu.
             </p>
           </div>
-
-          <button
-            onClick={nav.goCreateGoal}
-            className="flex items-center justify-center gap-2 px-4 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white rounded-[var(--radius-lg)] transition-colors shadow-[var(--shadow-sm)]"
-          >
-            <Plus className="w-5 h-5" />
-            <span className="font-medium">Tạo mục tiêu</span>
-          </button>
+          <Button onClick={nav.goCreateGoal}>
+            <Plus className="w-4 h-4" />
+            Tạo mục tiêu
+          </Button>
         </div>
 
-        <Card className="bg-gradient-to-br from-[var(--primary)] to-[var(--primary-hover)] text-white">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="md:col-span-2">
-              <p className="text-sm text-white/80 mb-2">Tổng tiến độ</p>
-              <div className="flex items-baseline gap-3 mb-4 flex-wrap">
-                <h2 className="text-3xl font-bold tabular-nums">
-                  {formatCurrency(totals.totalSaved)}₫
-                </h2>
-                <span className="text-lg text-white/80">
-                  / {formatCurrency(totals.totalTarget)}₫
-                </span>
-              </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+          <Card>
+            <p className="text-sm text-[var(--text-secondary)]">
+              Tổng mục tiêu
+            </p>
+            <p className="text-2xl font-semibold text-[var(--text-primary)] mt-2">
+              {summary?.total ?? 0}
+            </p>
+          </Card>
+          <Card>
+            <p className="text-sm text-[var(--text-secondary)]">Hoàn thành</p>
+            <p className="text-2xl font-semibold text-[var(--success)] mt-2">
+              {summary?.achievedCount ?? 0}
+            </p>
+          </Card>
+          <Card>
+            <p className="text-sm text-[var(--text-secondary)]">Cần tăng tốc</p>
+            <p className="text-2xl font-semibold text-[var(--warning)] mt-2">
+              {summary?.behindCount ?? 0}
+            </p>
+          </Card>
+          <Card>
+            <p className="text-sm text-[var(--text-secondary)]">Đúng tiến độ</p>
+            <p className="text-2xl font-semibold text-[var(--primary)] mt-2">
+              {summary?.onTrackCount ?? 0}
+            </p>
+          </Card>
+        </div>
 
-              <div className="mb-3">
-                <div className="h-4 bg-white/20 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-white rounded-full transition-all"
-                    style={{
-                      width: `${Math.min(totals.overallPercentage, 100)}%`,
-                    }}
-                  />
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between text-sm gap-4 flex-wrap">
-                <span className="text-white/90">
-                  Còn lại:{" "}
-                  <span className="font-semibold tabular-nums">
-                    {formatCurrency(
-                      Math.max(totals.totalTarget - totals.totalSaved, 0),
-                    )}
-                    ₫
-                  </span>
-                </span>
-                <span className="text-white/90 font-semibold tabular-nums">
-                  {totals.overallPercentage.toFixed(1)}%
-                </span>
+        <Card>
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+            <div className="lg:col-span-2">
+              <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
+                Tìm kiếm
+              </label>
+              <div className="relative">
+                <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)]" />
+                <input
+                  value={search}
+                  onChange={(event) => setSearch(event.target.value)}
+                  placeholder="Tìm theo tên mục tiêu"
+                  className="w-full pl-9 pr-4 py-2.5 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-lg)] text-[var(--text-primary)]"
+                />
               </div>
             </div>
 
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <TrendingUp className="w-5 h-5 text-white" />
-                <span className="text-sm text-white/90">
-                  <span className="font-semibold tabular-nums">
-                    {totals.onTrackCount}
-                  </span>{" "}
-                  Đúng tiến độ
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Target className="w-5 h-5 text-yellow-300" />
-                <span className="text-sm text-white/90">
-                  <span className="font-semibold tabular-nums">
-                    {totals.behindCount}
-                  </span>{" "}
-                  Cần tăng tốc
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Target className="w-5 h-5 text-green-300" />
-                <span className="text-sm text-white/90">
-                  <span className="font-semibold tabular-nums">
-                    {totals.achievedCount}
-                  </span>{" "}
-                  Hoàn thành
-                </span>
-              </div>
+            <div>
+              <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
+                Tiến độ
+              </label>
+              <select
+                value={statusFilter}
+                onChange={(event) =>
+                  setStatusFilter(
+                    event.target.value as
+                      | "all"
+                      | "on-track"
+                      | "behind"
+                      | "achieved",
+                  )
+                }
+                className="w-full px-4 py-2.5 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-lg)] text-[var(--text-primary)]"
+              >
+                <option value="all">Tất cả</option>
+                <option value="on-track">Đúng tiến độ</option>
+                <option value="behind">Cần tăng tốc</option>
+                <option value="achieved">Hoàn thành</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
+                Ưu tiên
+              </label>
+              <select
+                value={priority}
+                onChange={(event) =>
+                  setPriority(
+                    event.target.value as "all" | "low" | "medium" | "high",
+                  )
+                }
+                className="w-full px-4 py-2.5 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-lg)] text-[var(--text-primary)]"
+              >
+                <option value="all">Tất cả</option>
+                <option value="high">Ưu tiên cao</option>
+                <option value="medium">Ưu tiên trung bình</option>
+                <option value="low">Ưu tiên thấp</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
+            <div>
+              <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
+                Sắp xếp theo
+              </label>
+              <select
+                value={sortBy}
+                onChange={(event) =>
+                  setSortBy(event.target.value as GoalsListQuery["sortBy"])
+                }
+                className="w-full px-4 py-2.5 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-lg)] text-[var(--text-primary)]"
+              >
+                <option value="targetDate">Ngày mục tiêu</option>
+                <option value="progress">Tiến độ</option>
+                <option value="targetAmount">Số tiền mục tiêu</option>
+                <option value="name">Tên mục tiêu</option>
+                <option value="createdAt">Ngày tạo</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
+                Thứ tự
+              </label>
+              <select
+                value={sortOrder}
+                onChange={(event) =>
+                  setSortOrder(event.target.value as "asc" | "desc")
+                }
+                className="w-full px-4 py-2.5 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-lg)] text-[var(--text-primary)]"
+              >
+                <option value="asc">Tăng dần</option>
+                <option value="desc">Giảm dần</option>
+              </select>
             </div>
           </div>
         </Card>
 
-        <div className="flex gap-2 overflow-x-auto pb-2">
-          {[
-            { value: "all", label: "Tất cả", count: data?.items.length || 0 },
-            {
-              value: "on-track",
-              label: "Đúng tiến độ",
-              count: totals.onTrackCount,
-            },
-            {
-              value: "behind",
-              label: "Cần tăng tốc",
-              count: totals.behindCount,
-            },
-            {
-              value: "achieved",
-              label: "Hoàn thành",
-              count: totals.achievedCount,
-            },
-          ].map((tab) => {
-            const isActive = filter === tab.value;
-            return (
-              <button
-                key={tab.value}
-                onClick={() => setFilter(tab.value as UiFilter)}
-                className={`px-4 py-2 rounded-[var(--radius-lg)] text-sm font-medium transition-all whitespace-nowrap ${
-                  isActive
-                    ? "bg-[var(--primary)] text-white shadow-[var(--shadow-sm)]"
-                    : "bg-[var(--card)] text-[var(--text-secondary)] hover:bg-[var(--surface)] border border-[var(--border)]"
-                }`}
-              >
-                {tab.label} ({tab.count})
-              </button>
-            );
-          })}
-        </div>
-
-        <div className="flex gap-3">
-          <div className="relative flex-1">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--text-tertiary)]" />
-            <input
-              type="text"
-              placeholder="Tìm kiếm mục tiêu..."
-              value={searchQuery}
-              onChange={(event) => setSearchQuery(event.target.value)}
-              className="w-full pl-12 pr-10 py-2.5 bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-lg)] text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--focus-ring)]"
-            />
-            {searchQuery && (
-              <button
-                onClick={() => setSearchQuery("")}
-                className="absolute right-4 top-1/2 -translate-y-1/2 p-1 rounded-[var(--radius-sm)] hover:bg-[var(--surface)] transition-colors"
-              >
-                <X className="w-4 h-4 text-[var(--text-tertiary)]" />
-              </button>
-            )}
-          </div>
-
-          <div className="relative flex-shrink-0">
-            <ArrowUpDown className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-tertiary)] pointer-events-none" />
-            <select
-              value={sortBy}
-              onChange={(event) => setSortBy(event.target.value as UiSort)}
-              className="pl-9 pr-8 py-2.5 bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-lg)] text-sm text-[var(--text-primary)] appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-[var(--focus-ring)]"
-            >
-              <option value="deadline">Hạn chót</option>
-              <option value="progress">Tiến độ</option>
-              <option value="amount">Mục tiêu</option>
-              <option value="name">Tên A-Z</option>
-            </select>
-          </div>
-        </div>
-
         {loading && (
           <Card>
-            <p className="text-sm text-[var(--text-secondary)]">
+            <p className="text-[var(--text-secondary)]">
               Đang tải danh sách mục tiêu...
             </p>
           </Card>
         )}
-
-        {!loading && error && (
+        {error && !loading && (
           <Card>
-            <p className="text-sm text-[var(--danger)] mb-4">{error}</p>
-            <button
-              onClick={() => void reload()}
-              className="px-4 py-2 rounded-[var(--radius-lg)] bg-[var(--primary)] text-white"
-            >
-              Tải lại
-            </button>
+            <p className="text-[var(--danger)]">{error}</p>
           </Card>
         )}
 
-        {!loading && !error && filteredGoals.length === 0 && (
-          <Card>
-            <div className="text-center py-12">
-              <div className="w-16 h-16 bg-[var(--surface)] rounded-full flex items-center justify-center mx-auto mb-4">
-                <Target className="w-8 h-8 text-[var(--text-tertiary)]" />
-              </div>
-              <h3 className="font-semibold text-[var(--text-primary)] mb-2">
-                {searchQuery || filter !== "all"
-                  ? "Không tìm thấy mục tiêu"
-                  : "Chưa có mục tiêu nào"}
-              </h3>
-              <p className="text-sm text-[var(--text-secondary)] mb-6">
-                {searchQuery || filter !== "all"
-                  ? "Thử thay đổi bộ lọc hoặc từ khoá tìm kiếm"
-                  : "Tạo mục tiêu đầu tiên để bắt đầu hành trình tiết kiệm"}
-              </p>
-              {!searchQuery && filter === "all" && (
-                <button
-                  onClick={nav.goCreateGoal}
-                  className="inline-flex items-center gap-2 px-4 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white rounded-[var(--radius-lg)] transition-colors"
-                >
-                  <Plus className="w-5 h-5" />
-                  <span className="font-medium">Tạo mục tiêu</span>
-                </button>
-              )}
-            </div>
+        {!loading && !error && items.length === 0 && (
+          <Card className="text-center py-12">
+            <Target className="w-12 h-12 text-[var(--text-tertiary)] mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-[var(--text-primary)]">
+              Chưa có mục tiêu phù hợp
+            </h3>
+            <p className="text-sm text-[var(--text-secondary)] mt-2 mb-6">
+              Hãy tạo mục tiêu mới hoặc thay đổi bộ lọc hiện tại.
+            </p>
+            <Button onClick={nav.goCreateGoal}>Tạo mục tiêu đầu tiên</Button>
           </Card>
         )}
 
-        {!loading && !error && filteredGoals.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {filteredGoals.map((goal) => (
-              <SwipeableRow
+        {!loading && !error && items.length > 0 && (
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+            {items.map((goal) => (
+              <GoalCard
                 key={goal.id}
-                actions={[
-                  {
-                    icon: <Edit2 className="w-4 h-4" />,
-                    label: "Sửa",
-                    color: "white",
-                    bgColor: "var(--primary)",
-                    onClick: () => nav.goEditGoal(goal.id),
-                  },
-                  {
-                    icon: <Trash2 className="w-4 h-4" />,
-                    label: "Xoá",
-                    color: "white",
-                    bgColor: "var(--danger)",
-                    onClick: () => handleDeleteGoal(goal),
-                  },
-                ]}
-              >
-                <GoalCard
-                  goal={goal}
-                  onClick={() => nav.goGoalDetail(goal.id)}
-                  onDelete={() => handleDeleteGoal(goal)}
-                />
-              </SwipeableRow>
+                goal={goal}
+                onOpen={() => nav.goGoalDetail(goal.id)}
+                onEdit={() => nav.goEditGoal(goal.id)}
+                onDelete={() => setGoalToDelete(goal)}
+              />
             ))}
           </div>
         )}
       </div>
 
       <ConfirmationModal
-        isOpen={deleteModalOpen}
-        onClose={() => {
-          if (deleting) return;
-          setDeleteModalOpen(false);
-          setGoalToDelete(null);
-        }}
-        onConfirm={() => {
-          void confirmDeleteGoal();
-        }}
+        isOpen={Boolean(goalToDelete)}
+        onClose={() => setGoalToDelete(null)}
+        onConfirm={handleDelete}
         title="Xoá mục tiêu?"
-        description={`Bạn có chắc muốn xoá "${goalToDelete?.name || "mục tiêu này"}"? Hành động này không thể hoàn tác.`}
+        description={
+          goalToDelete
+            ? `Bạn có chắc muốn xoá mục tiêu "${goalToDelete.name}"?`
+            : "Bạn có chắc muốn xoá mục tiêu này?"
+        }
+        consequences={[
+          "Tất cả đóng góp của mục tiêu sẽ bị xoá.",
+          "Dữ liệu này không thể khôi phục.",
+        ]}
         confirmLabel={deleting ? "Đang xoá..." : "Xoá mục tiêu"}
         cancelLabel="Huỷ"
         isDangerous={true}

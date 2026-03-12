@@ -2,13 +2,13 @@ import { useCallback, useEffect, useState } from "react";
 import { goalsService } from "../services/goalsService";
 import type { GoalDetailResponse } from "../types/goals";
 
-export function useGoalDetail(goalId?: string) {
+export function useGoalDetail(goalId?: string, enabled = true) {
   const [data, setData] = useState<GoalDetailResponse | null>(null);
-  const [loading, setLoading] = useState(Boolean(goalId));
+  const [loading, setLoading] = useState(Boolean(goalId && enabled));
   const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
-    if (!goalId) {
+    if (!enabled || !goalId) {
       setData(null);
       setLoading(false);
       return;
@@ -26,17 +26,11 @@ export function useGoalDetail(goalId?: string) {
     } finally {
       setLoading(false);
     }
-  }, [goalId]);
+  }, [enabled, goalId]);
 
   useEffect(() => {
     void load();
   }, [load]);
 
-  return {
-    data,
-    loading,
-    error,
-    reload: load,
-    setData,
-  };
+  return { data, loading, error, reload: load, setData };
 }

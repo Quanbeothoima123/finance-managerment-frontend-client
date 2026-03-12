@@ -1,4 +1,4 @@
-import type * as React from "react";
+import React from "react";
 import {
   Bike,
   BookOpen,
@@ -12,34 +12,10 @@ import {
   Smartphone,
   Target,
   TrendingUp,
+  CheckCircle,
   Clock3,
-  CheckCircle2,
 } from "lucide-react";
-import type { GoalPriority, GoalUiStatus } from "../types/goals";
-
-export const goalIcons: Array<{ key: string; label: string }> = [
-  { key: "smartphone", label: "📱" },
-  { key: "plane", label: "✈️" },
-  { key: "home", label: "🏠" },
-  { key: "car", label: "🚗" },
-  { key: "bike", label: "🏍️" },
-  { key: "book", label: "📚" },
-  { key: "shield", label: "🛡️" },
-  { key: "target", label: "🎯" },
-  { key: "gift", label: "🎁" },
-  { key: "heart", label: "❤️" },
-];
-
-export const goalColors = [
-  "#3b82f6",
-  "#8b5cf6",
-  "#10b981",
-  "#ef4444",
-  "#f59e0b",
-  "#06b6d4",
-  "#ec4899",
-  "#14b8a6",
-];
+import type { GoalItem, GoalUiStatus } from "../types/goals";
 
 export const goalIconMap: Record<
   string,
@@ -58,12 +34,48 @@ export const goalIconMap: Record<
   folder: Folder,
 };
 
-export function getGoalIcon(iconName?: string) {
-  return goalIconMap[iconName || ""] || Target;
+export const goalIconOptions = [
+  { key: "smartphone", label: "📱" },
+  { key: "plane", label: "✈️" },
+  { key: "home", label: "🏠" },
+  { key: "car", label: "🚗" },
+  { key: "bike", label: "🏍️" },
+  { key: "book", label: "📚" },
+  { key: "shield", label: "🛡️" },
+  { key: "target", label: "🎯" },
+  { key: "gift", label: "🎁" },
+  { key: "heart", label: "❤️" },
+];
+
+export const goalColorOptions = [
+  "#3b82f6",
+  "#8b5cf6",
+  "#10b981",
+  "#ef4444",
+  "#f59e0b",
+  "#06b6d4",
+  "#ec4899",
+  "#14b8a6",
+];
+
+export function getGoalIconComponent(icon?: string) {
+  return goalIconMap[icon || "target"] || Target;
 }
 
-export function formatCurrency(value?: string | number | null) {
-  return new Intl.NumberFormat("vi-VN").format(Number(value || 0));
+export function formatCurrency(value: number | string | null | undefined) {
+  const amount = typeof value === "number" ? value : Number(value || 0);
+  return new Intl.NumberFormat("vi-VN").format(
+    Number.isFinite(amount) ? amount : 0,
+  );
+}
+
+export function minorToNumber(value: string | number | null | undefined) {
+  const amount = typeof value === "number" ? value : Number(value || 0);
+  return Number.isFinite(amount) ? amount : 0;
+}
+
+export function formatMinor(value: string | number | null | undefined) {
+  return formatCurrency(minorToNumber(value));
 }
 
 export function formatDate(value?: string | null) {
@@ -77,43 +89,89 @@ export function formatDate(value?: string | null) {
   });
 }
 
-export function getGoalPriorityLabel(priority: GoalPriority) {
-  if (priority === "high") return "Ưu tiên cao";
-  if (priority === "low") return "Ưu tiên thấp";
-  return "Ưu tiên trung bình";
+export function getPriorityLabel(priority?: string | null) {
+  switch (priority) {
+    case "high":
+      return "Ưu tiên cao";
+    case "low":
+      return "Ưu tiên thấp";
+    default:
+      return "Ưu tiên trung bình";
+  }
 }
 
-export function getGoalStatusMeta(status: GoalUiStatus) {
+export function getUiStatus(
+  goal?: Pick<GoalItem, "uiStatus" | "status" | "progressPercent"> | null,
+): GoalUiStatus {
+  if (!goal) return "on-track";
+  if (
+    goal.uiStatus === "achieved" ||
+    goal.status === "completed" ||
+    Number(goal.progressPercent) >= 100
+  ) {
+    return "achieved";
+  }
+  if (goal.uiStatus === "behind") return "behind";
+  return "on-track";
+}
+
+export function getUiStatusMeta(status: GoalUiStatus) {
   if (status === "achieved") {
     return {
       label: "Hoàn thành",
-      textColor: "var(--success)",
-      bgColor: "var(--success-light)",
-      Icon: CheckCircle2,
+      color: "var(--success)",
+      bg: "var(--success-light)",
+      Icon: CheckCircle,
     };
   }
 
   if (status === "behind") {
     return {
       label: "Cần tăng tốc",
-      textColor: "var(--warning)",
-      bgColor: "var(--warning-light)",
+      color: "var(--warning)",
+      bg: "var(--warning-light)",
       Icon: Clock3,
     };
   }
 
   return {
     label: "Đúng tiến độ",
-    textColor: "var(--primary)",
-    bgColor: "var(--primary-light)",
+    color: "var(--primary)",
+    bg: "var(--primary-light)",
     Icon: TrendingUp,
   };
 }
 
-export function getDaysRemaining(deadline?: string | null) {
-  if (!deadline) return null;
-  const target = new Date(deadline);
-  if (Number.isNaN(target.getTime())) return null;
-  const today = new Date();
-  return Math.ceil((target.getTime() - today.getTime()) / 86400000);
+export function toDateInputValue(value?: string | null) {
+  if (!value) return "";
+  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  return date.toISOString().slice(0, 10);
+}
+
+export function buildGoalPreview(
+  goal: Partial<GoalItem> & {
+    name?: string;
+    color?: string;
+    icon?: string;
+    targetAmount?: number;
+    currentAmount?: number;
+  },
+) {
+  const currentAmount =
+    goal.currentAmount ?? minorToNumber(goal.currentAmountMinor);
+  const targetAmount =
+    goal.targetAmount ?? minorToNumber(goal.targetAmountMinor);
+  const progressPercent =
+    targetAmount > 0 ? Math.min((currentAmount / targetAmount) * 100, 100) : 0;
+
+  return {
+    icon: goal.icon || "target",
+    color: goal.color || "#3b82f6",
+    name: goal.name || "Mục tiêu mới",
+    currentAmount,
+    targetAmount,
+    progressPercent,
+  };
 }

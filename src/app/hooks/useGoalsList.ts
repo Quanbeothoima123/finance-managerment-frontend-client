@@ -17,9 +17,7 @@ export function useGoalsList(query: GoalsListQuery = {}) {
       setData(result);
     } catch (err) {
       setError(
-        err instanceof Error
-          ? err.message
-          : "Không thể tải danh sách mục tiêu",
+        err instanceof Error ? err.message : "Không thể tải danh sách mục tiêu",
       );
     } finally {
       setLoading(false);
@@ -30,10 +28,5 @@ export function useGoalsList(query: GoalsListQuery = {}) {
     void load();
   }, [load]);
 
-  return {
-    data,
-    loading,
-    error,
-    reload: load,
-  };
+  return { data, loading, error, reload: load, setData };
 }

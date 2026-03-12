@@ -60,13 +60,10 @@ export const goalsService = {
   },
 
   deleteGoal(goalId: string) {
-    return apiRequest<{ deleted: boolean; id: string; name: string }>(
-      `/goals/${goalId}`,
-      {
-        method: "DELETE",
-        requiresAuth: true,
-      },
-    );
+    return apiRequest<{ deleted: boolean; id: string }>(`/goals/${goalId}`, {
+      method: "DELETE",
+      requiresAuth: true,
+    });
   },
 
   createContribution(goalId: string, payload: CreateGoalContributionPayload) {
