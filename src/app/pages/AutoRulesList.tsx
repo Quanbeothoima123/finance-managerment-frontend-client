@@ -1,30 +1,128 @@
-import React, { useState, useCallback, useRef } from 'react';
-import { Plus, ChevronRight, Hash, Tag, Store, Trash2, Search, X, ArrowUpDown, GripVertical, Edit2 } from 'lucide-react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  ArrowUpDown,
+  ChevronRight,
+  Edit2,
+  GripVertical,
+  Hash,
+  Plus,
+  Search,
+  Store,
+  Tag,
+  Trash2,
+  Wallet,
+  X,
+} from 'lucide-react';
 import { Card } from '../components/Card';
 import { Button } from '../components/Button';
 import { useAppNavigation } from '../hooks/useAppNavigation';
-import { useDemoData } from '../contexts/DemoDataContext';
 import { useToast } from '../contexts/ToastContext';
 import { ConfirmationModal } from '../components/ConfirmationModals';
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { TouchBackend } from 'react-dnd-touch-backend';
 import { SwipeableRow } from '../components/SwipeableRow';
+import { useAutoRulesList } from '../hooks/useAutoRulesList';
+import { autoRulesService } from '../services/autoRulesService';
+import type { AutoRuleAction, AutoRuleItem } from '../types/autoRules';
 
-// Detect touch-only device
-const isTouchDevice = typeof window !== 'undefined' &&
+const isTouchDevice =
+  typeof window !== 'undefined' &&
   ('ontouchstart' in window || navigator.maxTouchPoints > 0);
-
 const touchBackendOptions = { enableMouseEvents: false, delay: 200 };
 
-interface RuleActionBadgeProps {
-  action: {
-    type: string;
-    value: string;
+type RuleActionBadgeData = {
+  type: 'category' | 'tag' | 'merchant' | 'account';
+  value: string;
+};
+
+type DisplayRule = {
+  id: string;
+  name: string;
+  priority: number;
+  active: boolean;
+  matchField: string;
+  matchType: string;
+  pattern: string;
+  actions: RuleActionBadgeData[];
+};
+
+function mapActionToBadge(action: AutoRuleAction): RuleActionBadgeData | null {
+  const value = action.targetText || action.value;
+  if (!value) return null;
+
+  switch (action.type) {
+    case 'set_category':
+      return { type: 'category', value };
+    case 'add_tag':
+      return { type: 'tag', value };
+    case 'set_merchant':
+      return { type: 'merchant', value };
+    case 'set_account':
+      return { type: 'account', value };
+    default:
+      return null;
+  }
+}
+
+function mapRuleToDisplay(rule: AutoRuleItem): DisplayRule {
+  return {
+    id: rule.id,
+    name: rule.name,
+    priority: rule.priority,
+    active: rule.enabled,
+    matchField: rule.matchField || 'description',
+    matchType: rule.matchType || 'contains',
+    pattern: rule.pattern || '',
+    actions: (rule.actions || [])
+      .map(mapActionToBadge)
+      .filter((action): action is RuleActionBadgeData => Boolean(action)),
   };
 }
 
-function RuleActionBadge({ action }: RuleActionBadgeProps) {
+function getMatchFieldLabel(field: string) {
+  switch (field) {
+    case 'description':
+      return 'Mô tả';
+    case 'merchant':
+      return 'Merchant';
+    case 'note':
+      return 'Ghi chú';
+    case 'amount':
+      return 'Số tiền';
+    case 'account':
+      return 'Tài khoản';
+    case 'weekday':
+      return 'Thứ';
+    default:
+      return field;
+  }
+}
+
+function getMatchTypeLabel(type: string) {
+  switch (type) {
+    case 'contains':
+      return 'chứa';
+    case 'equals':
+      return 'bằng';
+    case 'regex':
+      return 'regex';
+    case 'starts_with':
+      return 'bắt đầu với';
+    case 'ends_with':
+      return 'kết thúc với';
+    case 'greater_than':
+    case 'gt':
+      return 'lớn hơn';
+    case 'less_than':
+    case 'lt':
+      return 'nhỏ hơn';
+    default:
+      return type;
+  }
+}
+
+function RuleActionBadge({ action }: { action: RuleActionBadgeData }) {
   const getIcon = () => {
     switch (action.type) {
       case 'category':
@@ -33,6 +131,8 @@ function RuleActionBadge({ action }: RuleActionBadgeProps) {
         return <Tag className="w-3 h-3" />;
       case 'merchant':
         return <Store className="w-3 h-3" />;
+      case 'account':
+        return <Wallet className="w-3 h-3" />;
       default:
         return null;
     }
@@ -46,6 +146,8 @@ function RuleActionBadge({ action }: RuleActionBadgeProps) {
         return 'bg-[var(--info-light)] text-[var(--info)]';
       case 'merchant':
         return 'bg-[var(--success-light)] text-[var(--success)]';
+      case 'account':
+        return 'bg-[var(--warning-light)] text-[var(--warning)]';
       default:
         return 'bg-[var(--surface)] text-[var(--text-secondary)]';
     }
@@ -61,17 +163,6 @@ function RuleActionBadge({ action }: RuleActionBadgeProps) {
   );
 }
 
-interface DisplayRule {
-  id: string;
-  name: string;
-  priority: number;
-  active: boolean;
-  matchField: string;
-  matchType: string;
-  pattern: string;
-  actions: { type: string; value: string }[];
-}
-
 interface AutoRuleItemProps {
   rule: DisplayRule;
   onToggle: (id: string) => void;
@@ -82,101 +173,68 @@ interface AutoRuleItemProps {
   canDrag?: boolean;
 }
 
-function AutoRuleItem({ rule, onToggle, onEdit, onDelete, index, moveRule, canDrag = true }: AutoRuleItemProps) {
-  const getMatchFieldLabel = (field: string) => {
-    switch (field) {
-      case 'description':
-        return 'Mô tả';
-      case 'merchant':
-        return 'Merchant';
-      case 'note':
-        return 'Ghi chú';
-      default:
-        return field;
-    }
-  };
-
-  const getMatchTypeLabel = (type: string) => {
-    switch (type) {
-      case 'contains':
-        return 'chứa';
-      case 'equals':
-        return 'bằng';
-      case 'regex':
-        return 'regex';
-      default:
-        return type;
-    }
-  };
-
+function AutoRuleItem({
+  rule,
+  onToggle,
+  onEdit,
+  onDelete,
+  index,
+  moveRule,
+  canDrag = true,
+}: AutoRuleItemProps) {
   const ref = useRef<HTMLDivElement>(null);
 
-  const [{ isDragging }, drag] = useDrag({
+  const [{ isDragging }, drag] = useDrag(() => ({
     type: 'RULE',
     item: { index },
-    canDrag: canDrag,
+    canDrag,
     collect: (monitor) => ({
       isDragging: monitor.isDragging(),
     }),
-  });
+  }), [index, canDrag]);
 
-  const [{ handlerId, isOver }, drop] = useDrop({
+  const [{ handlerId, isOver }, drop] = useDrop(() => ({
     accept: 'RULE',
-    collect(monitor) {
-      return {
-        handlerId: monitor.getHandlerId(),
-        isOver: monitor.isOver(),
-      };
-    },
+    collect: (monitor) => ({
+      handlerId: monitor.getHandlerId(),
+      isOver: monitor.isOver(),
+    }),
     hover(item: { index: number }) {
-      if (!ref.current) {
-        return;
-      }
+      if (!ref.current) return;
       const dragIndex = item.index;
       const hoverIndex = index;
-
-      if (dragIndex === hoverIndex) {
-        return;
-      }
-
+      if (dragIndex === hoverIndex) return;
       moveRule(dragIndex, hoverIndex);
-
       item.index = hoverIndex;
     },
-  });
+  }), [index, moveRule]);
 
   drop(ref);
 
   return (
     <div ref={ref} data-handler-id={handlerId}>
-      {/* Drop indicator line */}
       {isOver && !isDragging && (
         <div className="h-0.5 bg-[var(--primary)] rounded-full -mb-0.5 mx-4 transition-all" />
       )}
-      <Card
-        className={`${
-          isDragging ? 'opacity-40 scale-[0.98]' : ''
-        } transition-all`}
-      >
+      <Card className={`${isDragging ? 'opacity-40 scale-[0.98]' : ''} transition-all`}>
         <div className="flex items-start gap-4">
-          {/* Drag Handle */}
           {canDrag && (
             <div
-              ref={(node) => { drag(node); }}
+              ref={(node) => {
+                drag(node);
+              }}
               className="flex-shrink-0 cursor-grab active:cursor-grabbing flex items-center pt-1 touch-none"
             >
               <GripVertical className="w-5 h-5 text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] transition-colors" />
             </div>
           )}
 
-          {/* Priority Badge */}
           <div className="flex-shrink-0 w-8 h-8 bg-[var(--surface)] rounded-[var(--radius-md)] flex items-center justify-center">
             <span className="text-sm font-bold text-[var(--text-secondary)] tabular-nums">
               {rule.priority}
             </span>
           </div>
 
-          {/* Content */}
           <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between gap-4 mb-3">
               <div className="flex-1">
@@ -189,7 +247,6 @@ function AutoRuleItem({ rule, onToggle, onEdit, onDelete, index, moveRule, canDr
                 </p>
               </div>
 
-              {/* Active Toggle */}
               <button
                 onClick={() => onToggle(rule.id)}
                 className={`flex-shrink-0 relative w-12 h-6 rounded-full transition-colors ${
@@ -204,14 +261,12 @@ function AutoRuleItem({ rule, onToggle, onEdit, onDelete, index, moveRule, canDr
               </button>
             </div>
 
-            {/* Actions */}
             <div className="flex flex-wrap gap-2 mb-3">
-              {rule.actions.map((action, index) => (
-                <RuleActionBadge key={index} action={action} />
+              {rule.actions.map((action, actionIndex) => (
+                <RuleActionBadge key={`${rule.id}-${action.type}-${actionIndex}`} action={action} />
               ))}
             </div>
 
-            {/* Bottom Actions */}
             <div className="flex items-center justify-between">
               <button
                 onClick={() => onEdit(rule.id)}
@@ -236,39 +291,48 @@ function AutoRuleItem({ rule, onToggle, onEdit, onDelete, index, moveRule, canDr
 }
 
 export default function AutoRulesList() {
-  const { autoRules, updateAutoRule, deleteAutoRule, reorderAutoRules } = useDemoData();
   const nav = useAppNavigation();
   const toast = useToast();
+  const { data, loading, error, reload, setData } = useAutoRulesList({
+    status: 'all',
+    sortBy: 'priority',
+    sortOrder: 'asc',
+  });
 
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [ruleToDelete, setRuleToDelete] = useState<DisplayRule | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState<'all' | 'active' | 'inactive'>('all');
   const [sortBy, setSortBy] = useState<'priority' | 'name'>('priority');
+  const [reordering, setReordering] = useState(false);
 
-  // Map DemoDataContext autoRules to the display format
-  const rules: DisplayRule[] = autoRules.map((rule, index) => ({
-    id: rule.id,
-    name: rule.name,
-    priority: index + 1,
-    active: rule.enabled,
-    matchField: rule.conditions?.[0]?.field || 'description',
-    matchType: rule.conditions?.[0]?.operator || 'contains',
-    pattern: String(rule.conditions?.[0]?.value || ''),
-    actions: [
-      ...rule.actions?.filter(a => a.type === 'set_category').map(a => ({ type: 'category', value: a.value })) || [],
-      ...rule.actions?.filter(a => a.type === 'set_merchant').map(a => ({ type: 'merchant', value: a.value })) || [],
-      ...rule.actions?.filter(a => a.type === 'add_tag').map(a => ({ type: 'tag', value: a.value })) || [],
-    ],
-  }));
+  const baseRules = useMemo(() => (data?.items || []).map(mapRuleToDisplay), [data?.items]);
+  const [orderedRules, setOrderedRules] = useState<DisplayRule[]>([]);
 
-  const handleToggle = (id: string) => {
-    const rule = autoRules.find(r => r.id === id);
-    if (rule) {
-      updateAutoRule(id, { enabled: !rule.enabled });
-      toast.success(rule.enabled ? 'Đã tạm dừng quy tắc' : 'Đã kích hoạt quy tắc');
-    }
-  };
+  useEffect(() => {
+    setOrderedRules(baseRules);
+  }, [baseRules]);
+
+  const totalRulesCount = orderedRules.length;
+  const activeRulesCount = orderedRules.filter((rule) => rule.active).length;
+
+  const filteredRules = useMemo(() => {
+    return orderedRules
+      .filter((rule) => {
+        if (activeFilter === 'active') return rule.active;
+        if (activeFilter === 'inactive') return !rule.active;
+        return true;
+      })
+      .filter((rule) => {
+        if (!searchQuery) return true;
+        const q = searchQuery.toLowerCase();
+        return rule.name.toLowerCase().includes(q) || rule.pattern.toLowerCase().includes(q);
+      })
+      .sort((a, b) => {
+        if (sortBy === 'name') return a.name.localeCompare(b.name, 'vi');
+        return a.priority - b.priority;
+      });
+  }, [activeFilter, orderedRules, searchQuery, sortBy]);
 
   const handleEdit = (id: string) => {
     nav.goEditAutoRule(id);
@@ -283,48 +347,102 @@ export default function AutoRulesList() {
     setDeleteModalOpen(true);
   };
 
-  const confirmDelete = () => {
-    if (ruleToDelete) {
-      deleteAutoRule(ruleToDelete.id);
+  const confirmDelete = async () => {
+    if (!ruleToDelete) return;
+    try {
+      await autoRulesService.deleteAutoRule(ruleToDelete.id);
+      setData((prev) => {
+        if (!prev) return prev;
+        const nextItems = prev.items.filter((item) => item.id !== ruleToDelete.id);
+        return {
+          ...prev,
+          summary: {
+            totalRules: nextItems.length,
+            activeRules: nextItems.filter((item) => item.enabled).length,
+            inactiveRules: nextItems.filter((item) => !item.enabled).length,
+          },
+          items: nextItems,
+        };
+      });
       toast.success(`Đã xoá quy tắc "${ruleToDelete.name}"`);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Không thể xoá quy tắc');
+    } finally {
       setDeleteModalOpen(false);
       setRuleToDelete(null);
     }
   };
 
-  const activeRulesCount = rules.filter((r) => r.active).length;
-  const totalRulesCount = rules.length;
+  const handleToggle = async (id: string) => {
+    const rule = orderedRules.find((item) => item.id === id);
+    if (!rule) return;
+    const nextEnabled = !rule.active;
 
-  const filteredRules = rules
-    .filter(r => {
-      if (activeFilter === 'active') return r.active;
-      if (activeFilter === 'inactive') return !r.active;
-      return true;
-    })
-    .filter(r => {
-      if (!searchQuery) return true;
-      const q = searchQuery.toLowerCase();
-      return r.name.toLowerCase().includes(q) || r.pattern.toLowerCase().includes(q);
-    })
-    .sort((a, b) => {
-      if (sortBy === 'name') return a.name.localeCompare(b.name, 'vi');
-      return a.priority - b.priority;
+    setData((prev) => {
+      if (!prev) return prev;
+      const nextItems = prev.items.map((item) =>
+        item.id === id
+          ? { ...item, enabled: nextEnabled, active: nextEnabled, isActive: nextEnabled }
+          : item,
+      );
+      return {
+        ...prev,
+        summary: {
+          totalRules: nextItems.length,
+          activeRules: nextItems.filter((item) => item.enabled).length,
+          inactiveRules: nextItems.filter((item) => !item.enabled).length,
+        },
+        items: nextItems,
+      };
     });
 
-  const moveRule = useCallback((dragIndex: number, hoverIndex: number) => {
-    const newRules = rules.slice();
-    const [draggedRule] = newRules.splice(dragIndex, 1);
-    newRules.splice(hoverIndex, 0, draggedRule);
-    reorderAutoRules(newRules.map(r => r.id));
-  }, [rules, reorderAutoRules]);
+    try {
+      await autoRulesService.updateAutoRule(id, { enabled: nextEnabled });
+      toast.success(nextEnabled ? 'Đã kích hoạt quy tắc' : 'Đã tạm dừng quy tắc');
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Không thể cập nhật trạng thái quy tắc');
+      await reload();
+    }
+  };
 
-  // Only enable drag-to-reorder when viewing all rules in priority order
+  const moveRule = useCallback(
+    (dragIndex: number, hoverIndex: number) => {
+      if (reordering) return;
+      setOrderedRules((prev) => {
+        if (dragIndex < 0 || hoverIndex < 0 || dragIndex >= prev.length || hoverIndex >= prev.length) {
+          return prev;
+        }
+        const next = [...prev];
+        const [draggedRule] = next.splice(dragIndex, 1);
+        if (!draggedRule) return prev;
+        next.splice(hoverIndex, 0, draggedRule);
+        const reordered = next.map((rule, index) => ({ ...rule, priority: index + 1 }));
+
+        void (async () => {
+          try {
+            setReordering(true);
+            const response = await autoRulesService.reorderAutoRules(reordered.map((rule) => rule.id));
+            setData(response);
+          } catch (err) {
+            toast.error(err instanceof Error ? err.message : 'Không thể sắp xếp lại quy tắc');
+            await reload();
+          } finally {
+            setReordering(false);
+          }
+        })();
+
+        return reordered;
+      });
+    },
+    [reordering, reload, setData, toast],
+  );
+
   const isDragEnabled = sortBy === 'priority' && activeFilter === 'all' && !searchQuery;
+  const hasNoResults = totalRulesCount > 0 && filteredRules.length === 0;
 
   return (
     <div className="min-h-screen bg-[var(--background)]">
       <div className="max-w-5xl mx-auto p-4 md:p-6 pb-20 md:pb-6 space-y-6">
-        {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl font-semibold text-[var(--text-primary)]">Quy tắc tự động</h1>
@@ -339,7 +457,6 @@ export default function AutoRulesList() {
           </Button>
         </div>
 
-        {/* Stats Card */}
         <Card>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div>
@@ -367,8 +484,7 @@ export default function AutoRulesList() {
           </div>
         </Card>
 
-        {/* Search & Filter */}
-        {rules.length > 0 && (
+        {totalRulesCount > 0 && (
           <div className="space-y-3">
             <div className="relative">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--text-tertiary)]" />
@@ -376,7 +492,7 @@ export default function AutoRulesList() {
                 type="text"
                 placeholder="Tìm kiếm quy tắc..."
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(event) => setSearchQuery(event.target.value)}
                 className="w-full pl-12 pr-10 py-2.5 bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-lg)] text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--focus-ring)]"
               />
               {searchQuery && (
@@ -393,10 +509,10 @@ export default function AutoRulesList() {
                 { value: 'all', label: 'Tất cả' },
                 { value: 'active', label: 'Đang hoạt động' },
                 { value: 'inactive', label: 'Tạm dừng' },
-              ].map(tab => (
+              ].map((tab) => (
                 <button
                   key={tab.value}
-                  onClick={() => setActiveFilter(tab.value as any)}
+                  onClick={() => setActiveFilter(tab.value as 'all' | 'active' | 'inactive')}
                   className={`px-3 py-1.5 rounded-[var(--radius-lg)] text-sm font-medium transition-all whitespace-nowrap ${
                     activeFilter === tab.value
                       ? 'bg-[var(--primary)] text-white'
@@ -411,7 +527,7 @@ export default function AutoRulesList() {
                 <ArrowUpDown className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-tertiary)] pointer-events-none" />
                 <select
                   value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value as any)}
+                  onChange={(event) => setSortBy(event.target.value as 'priority' | 'name')}
                   className="pl-9 pr-8 py-1.5 bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-lg)] text-sm text-[var(--text-primary)] appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-[var(--focus-ring)]"
                 >
                   <option value="priority">Ưu tiên</option>
@@ -422,70 +538,38 @@ export default function AutoRulesList() {
           </div>
         )}
 
-        {/* Info Card */}
         <Card className="bg-[var(--info-light)] border-[var(--info)]">
           <div className="flex items-start gap-3">
             <div className="w-10 h-10 bg-[var(--info)] rounded-full flex items-center justify-center flex-shrink-0">
               <span className="text-white text-lg font-semibold">💡</span>
             </div>
             <div className="flex-1">
-              <h4 className="font-semibold text-[var(--text-primary)] mb-1">
-                Cách hoạt động
-              </h4>
+              <h4 className="font-semibold text-[var(--text-primary)] mb-1">Cách hoạt động</h4>
               <p className="text-sm text-[var(--text-secondary)]">
                 Quy tắc sẽ được áp dụng theo thứ tự ưu tiên từ cao đến thấp. Khi một giao dịch
-                khớp với mẫu, hệ thống sẽ tự động thêm danh mục, merchant, hoặc tag tương ứng.
+                khớp với mẫu, hệ thống sẽ tự động thêm danh mục, merchant hoặc tag tương ứng.
               </p>
             </div>
           </div>
         </Card>
 
-        {/* Rules List */}
-        <DndProvider backend={isTouchDevice ? TouchBackend : HTML5Backend} options={isTouchDevice ? touchBackendOptions : undefined}>
-          <div className="space-y-4">
-            {filteredRules.map((rule, index) => (
-              <SwipeableRow
-                key={rule.id}
-                actions={[
-                  {
-                    icon: <Edit2 className="w-4 h-4" />,
-                    label: 'Sửa',
-                    color: 'white',
-                    bgColor: 'var(--primary)',
-                    onClick: () => handleEdit(rule.id),
-                  },
-                  {
-                    icon: <Trash2 className="w-3.5 h-3.5" />,
-                    label: 'Xoá',
-                    color: 'white',
-                    bgColor: 'var(--danger)',
-                    onClick: () => handleDeleteRequest(rule),
-                  },
-                ]}
-              >
-                <AutoRuleItem
-                  rule={rule}
-                  onToggle={handleToggle}
-                  onEdit={handleEdit}
-                  onDelete={handleDeleteRequest}
-                  index={index}
-                  moveRule={moveRule}
-                  canDrag={isDragEnabled}
-                />
-              </SwipeableRow>
-            ))}
-          </div>
-        </DndProvider>
-
-        {/* Empty State */}
-        {rules.length === 0 && (
+        {loading ? (
+          <Card>
+            <p className="text-[var(--text-secondary)]">Đang tải danh sách quy tắc tự động...</p>
+          </Card>
+        ) : error ? (
+          <Card>
+            <p className="text-[var(--danger)]">{error}</p>
+            <Button variant="secondary" className="mt-4" onClick={() => void reload()}>
+              Tải lại
+            </Button>
+          </Card>
+        ) : totalRulesCount === 0 ? (
           <Card className="text-center py-12">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-[var(--surface)] rounded-full mb-4">
               <Hash className="w-8 h-8 text-[var(--text-secondary)]" />
             </div>
-            <h3 className="font-semibold text-[var(--text-primary)] mb-2">
-              Chưa có quy tắc nào
-            </h3>
+            <h3 className="font-semibold text-[var(--text-primary)] mb-2">Chưa có quy tắc nào</h3>
             <p className="text-sm text-[var(--text-secondary)] mb-4">
               Tạo quy tắc đầu tiên để tự động phân loại giao dịch
             </p>
@@ -494,28 +578,66 @@ export default function AutoRulesList() {
               Tạo rule
             </Button>
           </Card>
-        )}
-
-        {/* Search No Results */}
-        {rules.length > 0 && filteredRules.length === 0 && (
+        ) : hasNoResults ? (
           <Card className="text-center py-12">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-[var(--surface)] rounded-full mb-4">
               <Search className="w-8 h-8 text-[var(--text-tertiary)]" />
             </div>
-            <h3 className="font-semibold text-[var(--text-primary)] mb-2">
-              Không tìm thấy quy tắc
-            </h3>
+            <h3 className="font-semibold text-[var(--text-primary)] mb-2">Không tìm thấy quy tắc</h3>
             <p className="text-sm text-[var(--text-secondary)]">
               Thử thay đổi bộ lọc hoặc từ khoá tìm kiếm
             </p>
           </Card>
+        ) : (
+          <DndProvider
+            backend={isTouchDevice ? TouchBackend : HTML5Backend}
+            options={isTouchDevice ? touchBackendOptions : undefined}
+          >
+            <div className="space-y-4">
+              {filteredRules.map((rule, index) => (
+                <SwipeableRow
+                  key={rule.id}
+                  actions={[
+                    {
+                      icon: <Edit2 className="w-4 h-4" />,
+                      label: 'Sửa',
+                      color: 'white',
+                      bgColor: 'var(--primary)',
+                      onClick: () => handleEdit(rule.id),
+                    },
+                    {
+                      icon: <Trash2 className="w-3.5 h-3.5" />,
+                      label: 'Xoá',
+                      color: 'white',
+                      bgColor: 'var(--danger)',
+                      onClick: () => handleDeleteRequest(rule),
+                    },
+                  ]}
+                >
+                  <AutoRuleItem
+                    rule={rule}
+                    onToggle={handleToggle}
+                    onEdit={handleEdit}
+                    onDelete={handleDeleteRequest}
+                    index={index}
+                    moveRule={moveRule}
+                    canDrag={isDragEnabled && !reordering}
+                  />
+                </SwipeableRow>
+              ))}
+            </div>
+          </DndProvider>
         )}
 
-        {/* Delete Confirmation Modal */}
         <ConfirmationModal
           isOpen={deleteModalOpen}
-          onClose={() => { setDeleteModalOpen(false); setRuleToDelete(null); }}
-          onConfirm={confirmDelete}
+          onClose={() => {
+            setDeleteModalOpen(false);
+            setRuleToDelete(null);
+          }}
+          onConfirm={() => {
+            void confirmDelete();
+          }}
           title="Xoá quy tắc?"
           description={`Bạn có chắc muốn xoá quy tắc "${ruleToDelete?.name || ''}"? Các giao dịch đã được phân loại trước đó sẽ không bị ảnh hưởng.`}
           confirmLabel="Xoá"
