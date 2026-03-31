@@ -1,37 +1,87 @@
-import React, { useState, useMemo } from 'react';
-import { useNavigate, useParams } from 'react-router';
-import { ChevronLeft, Search, Users, UserPlus } from 'lucide-react';
-import { useSocialData } from '../contexts/SocialDataContext';
-import { ProfileRow } from '../components/social/ProfileRow';
-import { SocialEmptyState } from '../components/social/SocialEmptyState';
+import React, { useState, useMemo, useEffect, useCallback } from "react";
+import { useNavigate, useParams } from "react-router";
+import { ChevronLeft, Search, Users, UserPlus } from "lucide-react";
+import { usePublicProfile } from "../hooks/usePublicProfile";
+import { useMyProfile } from "../hooks/useMyProfile";
+import { socialFollowsService } from "../services/socialFollowsService";
+import type { FollowerItem, FollowingItem } from "../types/community";
+import { ProfileRow } from "../components/social/ProfileRow";
+import { SocialEmptyState } from "../components/social/SocialEmptyState";
 
-type Tab = 'followers' | 'following';
+type Tab = "followers" | "following";
 
 export default function FollowersList() {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
-  const { users, toggleFollow } = useSocialData();
-  const [activeTab, setActiveTab] = useState<Tab>(window.location.pathname.endsWith('following') ? 'following' : 'followers');
-  const [searchQuery, setSearchQuery] = useState('');
+  const { data: profile } = usePublicProfile(id);
+  const { data: myProfile } = useMyProfile();
+  const [activeTab, setActiveTab] = useState<Tab>(
+    window.location.pathname.endsWith("following") ? "following" : "followers",
+  );
+  const [searchQuery, setSearchQuery] = useState("");
+  const [followers, setFollowers] = useState<FollowerItem[]>([]);
+  const [following, setFollowing] = useState<FollowingItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [followingState, setFollowingState] = useState<Record<string, boolean>>(
+    {},
+  );
 
-  const user = users.find(u => u.id === id);
-  if (!user) return null;
+  const loadData = useCallback(async () => {
+    if (!id) return;
+    try {
+      setLoading(true);
+      const [fRes, gRes] = await Promise.all([
+        socialFollowsService.listFollowers(id),
+        socialFollowsService.listFollowing(id),
+      ]);
+      setFollowers(fRes.items as FollowerItem[]);
+      setFollowing(gRes.items as FollowingItem[]);
+    } catch {
+      /* ignore */
+    } finally {
+      setLoading(false);
+    }
+  }, [id]);
 
-  const isMe = user.id === 'user-me';
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
-  // Mock followers/following from available users (excluding self)
-  const mockFollowers = useMemo(() => users.filter(u => u.id !== id && u.id !== 'user-me'), [users, id]);
-  const mockFollowing = useMemo(() => users.filter(u => u.id !== id && u.isFollowing), [users, id]);
+  const isMe = myProfile && profile ? profile.id === myProfile.id : false;
 
-  const currentList = activeTab === 'followers' ? mockFollowers : mockFollowing;
+  const currentList =
+    activeTab === "followers"
+      ? followers.map((f) => f.profile)
+      : following.map((f) => f.profile);
 
   const filtered = useMemo(() => {
     if (!searchQuery.trim()) return currentList;
     const q = searchQuery.toLowerCase();
-    return currentList.filter(u =>
-      u.displayName.toLowerCase().includes(q) || u.username.toLowerCase().includes(q)
+    return currentList.filter(
+      (u) =>
+        (u.displayName || "").toLowerCase().includes(q) ||
+        u.username.toLowerCase().includes(q),
     );
   }, [currentList, searchQuery]);
+
+  if (!profile) return null;
+
+  const handleFollow = async (targetId: string) => {
+    const isCurrentlyFollowing = followingState[targetId] ?? false;
+    setFollowingState((prev) => ({
+      ...prev,
+      [targetId]: !isCurrentlyFollowing,
+    }));
+    try {
+      if (isCurrentlyFollowing) await socialFollowsService.unfollow(targetId);
+      else await socialFollowsService.follow(targetId);
+    } catch {
+      setFollowingState((prev) => ({
+        ...prev,
+        [targetId]: isCurrentlyFollowing,
+      }));
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[var(--background)]">
@@ -39,29 +89,42 @@ export default function FollowersList() {
         {/* Header */}
         <div className="sticky top-0 z-20 bg-[var(--background)]/95 backdrop-blur-sm border-b border-[var(--border)]">
           <div className="px-4 py-3 flex items-center gap-3">
-            <button onClick={() => navigate(-1)} className="p-2 rounded-xl hover:bg-[var(--surface)] text-[var(--text-secondary)]">
+            <button
+              onClick={() => navigate(-1)}
+              className="p-2 rounded-xl hover:bg-[var(--surface)] text-[var(--text-secondary)]"
+            >
               <ChevronLeft className="w-5 h-5" />
             </button>
-            <h1 className="font-semibold text-[var(--text-primary)]">{user.displayName}</h1>
+            <h1 className="font-semibold text-[var(--text-primary)]">
+              {profile.displayName || profile.username}
+            </h1>
           </div>
 
           {/* Tabs */}
           <div className="flex border-b border-[var(--border)]">
             <button
-              onClick={() => setActiveTab('followers')}
+              onClick={() => setActiveTab("followers")}
               className={`flex-1 py-2.5 text-sm font-medium border-b-2 transition-colors ${
-                activeTab === 'followers' ? 'border-[var(--primary)] text-[var(--primary)]' : 'border-transparent text-[var(--text-tertiary)]'
+                activeTab === "followers"
+                  ? "border-[var(--primary)] text-[var(--primary)]"
+                  : "border-transparent text-[var(--text-tertiary)]"
               }`}
             >
-              <span className="tabular-nums">{user.followersCount.toLocaleString()}</span> Người theo dõi
+              <span className="tabular-nums">
+                {profile.followersCount.toLocaleString()}
+              </span>{" "}
+              Người theo dõi
             </button>
             <button
-              onClick={() => setActiveTab('following')}
+              onClick={() => setActiveTab("following")}
               className={`flex-1 py-2.5 text-sm font-medium border-b-2 transition-colors ${
-                activeTab === 'following' ? 'border-[var(--primary)] text-[var(--primary)]' : 'border-transparent text-[var(--text-tertiary)]'
+                activeTab === "following"
+                  ? "border-[var(--primary)] text-[var(--primary)]"
+                  : "border-transparent text-[var(--text-tertiary)]"
               }`}
             >
-              <span className="tabular-nums">{user.followingCount}</span> Đang theo dõi
+              <span className="tabular-nums">{profile.followingCount}</span>{" "}
+              Đang theo dõi
             </button>
           </div>
 
@@ -73,7 +136,7 @@ export default function FollowersList() {
                 type="text"
                 placeholder="Tìm kiếm..."
                 value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-9 pr-4 py-2.5 bg-[var(--surface)] rounded-xl text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] outline-none focus:ring-2 focus:ring-[var(--primary)]"
               />
             </div>
@@ -84,32 +147,55 @@ export default function FollowersList() {
         <div className="px-4 pb-24">
           {filtered.length > 0 ? (
             <div className="divide-y divide-[var(--divider)]">
-              {filtered.map(u => (
+              {filtered.map((u) => (
                 <ProfileRow
                   key={u.id}
                   user={u}
+                  isFollowing={followingState[u.id] ?? false}
+                  isMe={myProfile?.id === u.id}
                   onClick={() => navigate(`/community/profile/${u.id}`)}
-                  onFollow={() => toggleFollow(u.id)}
+                  onFollow={() => handleFollow(u.id)}
                 />
               ))}
             </div>
           ) : searchQuery.trim() ? (
             <div className="text-center py-12">
               <Search className="w-8 h-8 text-[var(--text-tertiary)] mx-auto mb-2" />
-              <p className="text-sm text-[var(--text-tertiary)]">Không tìm thấy kết quả cho "{searchQuery}"</p>
+              <p className="text-sm text-[var(--text-tertiary)]">
+                Không tìm thấy kết quả cho "{searchQuery}"
+              </p>
             </div>
           ) : (
             <SocialEmptyState
-              icon={activeTab === 'followers' ? <Users className="w-8 h-8" /> : <UserPlus className="w-8 h-8" />}
-              title={activeTab === 'followers'
-                ? (isMe ? 'Chưa có người theo dõi' : `${user.displayName} chưa có người theo dõi`)
-                : (isMe ? 'Bạn chưa theo dõi ai' : `${user.displayName} chưa theo dõi ai`)
+              icon={
+                activeTab === "followers" ? (
+                  <Users className="w-8 h-8" />
+                ) : (
+                  <UserPlus className="w-8 h-8" />
+                )
               }
-              description={activeTab === 'followers'
-                ? 'Chia sẻ bài viết chất lượng để thu hút người theo dõi!'
-                : 'Khám phá cộng đồng để tìm người dùng thú vị.'
+              title={
+                activeTab === "followers"
+                  ? isMe
+                    ? "Chưa có người theo dõi"
+                    : `${profile.displayName || profile.username} chưa có người theo dõi`
+                  : isMe
+                    ? "Bạn chưa theo dõi ai"
+                    : `${profile.displayName || profile.username} chưa theo dõi ai`
               }
-              action={isMe ? { label: 'Khám phá cộng đồng', onClick: () => navigate('/community/discover') } : undefined}
+              description={
+                activeTab === "followers"
+                  ? "Chia sẻ bài viết chất lượng để thu hút người theo dõi!"
+                  : "Khám phá cộng đồng để tìm người dùng thú vị."
+              }
+              action={
+                isMe
+                  ? {
+                      label: "Khám phá cộng đồng",
+                      onClick: () => navigate("/community/discover"),
+                    }
+                  : undefined
+              }
             />
           )}
         </div>

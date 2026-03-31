@@ -1,9 +1,33 @@
-import React from 'react';
-import { TrendingUp, TrendingDown, Minus, Target, PiggyBank, BarChart3, Calendar, ShieldCheck } from 'lucide-react';
-import type { FinanceRecapData } from '../../contexts/SocialDataContext';
+import React from "react";
+import {
+  TrendingUp,
+  TrendingDown,
+  Minus,
+  Target,
+  PiggyBank,
+  BarChart3,
+  Calendar,
+  ShieldCheck,
+} from "lucide-react";
+import type { RecapType } from "../../types/community";
+
+/** Minimal shape accepted by the card – both PostRecapData (API) and locally-built objects satisfy this. */
+export interface RecapCardData {
+  recapType: RecapType;
+  title: string;
+  period?: string | null;
+  color: string;
+  progressPercent?: number | null;
+  stats: {
+    label: string;
+    value: string;
+    trend?: "up" | "down" | "neutral" | null;
+    sortOrder?: number;
+  }[];
+}
 
 interface FinanceRecapCardProps {
-  data: FinanceRecapData;
+  data: RecapCardData;
   large?: boolean;
   showPrivacyHint?: boolean;
   onRemove?: () => void;
@@ -17,10 +41,10 @@ const typeIcons: Record<string, React.ReactNode> = {
 };
 
 const typeLabels: Record<string, string> = {
-  weekly: 'Recap tuần',
-  monthly: 'Tổng kết tháng',
-  goal: 'Tiến độ mục tiêu',
-  budget: 'Tiến độ ngân sách',
+  weekly: "Recap tuần",
+  monthly: "Tổng kết tháng",
+  goal: "Tiến độ mục tiêu",
+  budget: "Tiến độ ngân sách",
 };
 
 const trendIcons = {
@@ -29,13 +53,20 @@ const trendIcons = {
   neutral: <Minus className="w-3.5 h-3.5 text-[var(--text-tertiary)]" />,
 };
 
-export function FinanceRecapCard({ data, large, showPrivacyHint, onRemove }: FinanceRecapCardProps) {
-  const hasMaskedValues = data.stats.some(s => s.value === '***');
+export function FinanceRecapCard({
+  data,
+  large,
+  showPrivacyHint,
+  onRemove,
+}: FinanceRecapCardProps) {
+  const hasMaskedValues = data.stats.some((s) => s.value === "***");
 
   return (
     <div
       className="rounded-2xl border border-[var(--border)] overflow-hidden relative"
-      style={{ background: `linear-gradient(135deg, ${data.color}08, ${data.color}15)` }}
+      style={{
+        background: `linear-gradient(135deg, ${data.color}08, ${data.color}15)`,
+      }}
     >
       {/* Remove button */}
       {onRemove && (
@@ -50,12 +81,21 @@ export function FinanceRecapCard({ data, large, showPrivacyHint, onRemove }: Fin
 
       {/* Header */}
       <div className="px-4 py-3 flex items-center gap-2 border-b border-[var(--divider)]">
-        <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ backgroundColor: `${data.color}20`, color: data.color }}>
-          {typeIcons[data.type]}
+        <div
+          className="w-7 h-7 rounded-lg flex items-center justify-center"
+          style={{ backgroundColor: `${data.color}20`, color: data.color }}
+        >
+          {typeIcons[data.recapType]}
         </div>
         <div className="flex-1 min-w-0">
-          <p className={`font-semibold text-[var(--text-primary)] ${large ? 'text-sm' : 'text-xs'}`}>{data.title}</p>
-          {data.period && <p className="text-xs text-[var(--text-tertiary)]">{data.period}</p>}
+          <p
+            className={`font-semibold text-[var(--text-primary)] ${large ? "text-sm" : "text-xs"}`}
+          >
+            {data.title}
+          </p>
+          {data.period && (
+            <p className="text-xs text-[var(--text-tertiary)]">{data.period}</p>
+          )}
         </div>
         <div className="flex items-center gap-1.5">
           {hasMaskedValues && (
@@ -64,19 +104,28 @@ export function FinanceRecapCard({ data, large, showPrivacyHint, onRemove }: Fin
               Ẩn số liệu
             </span>
           )}
-          <div className="flex-shrink-0 px-2 py-0.5 rounded-full text-xs font-medium" style={{ backgroundColor: `${data.color}20`, color: data.color }}>
-            {typeLabels[data.type] || 'MoneyApp'}
+          <div
+            className="flex-shrink-0 px-2 py-0.5 rounded-full text-xs font-medium"
+            style={{ backgroundColor: `${data.color}20`, color: data.color }}
+          >
+            {typeLabels[data.recapType] || "MoneyApp"}
           </div>
         </div>
       </div>
 
       {/* Stats Grid */}
-      <div className={`px-4 py-3 grid gap-3 ${data.stats.length <= 3 ? 'grid-cols-3' : 'grid-cols-2'}`}>
+      <div
+        className={`px-4 py-3 grid gap-3 ${data.stats.length <= 3 ? "grid-cols-3" : "grid-cols-2"}`}
+      >
         {data.stats.map((stat, i) => (
           <div key={i}>
-            <p className="text-xs text-[var(--text-tertiary)] mb-0.5">{stat.label}</p>
+            <p className="text-xs text-[var(--text-tertiary)] mb-0.5">
+              {stat.label}
+            </p>
             <div className="flex items-center gap-1">
-              <span className={`font-semibold text-[var(--text-primary)] ${large ? 'text-sm' : 'text-xs'} tabular-nums`}>
+              <span
+                className={`font-semibold text-[var(--text-primary)] ${large ? "text-sm" : "text-xs"} tabular-nums`}
+              >
                 {stat.value}
               </span>
               {stat.trend && trendIcons[stat.trend]}
@@ -86,16 +135,26 @@ export function FinanceRecapCard({ data, large, showPrivacyHint, onRemove }: Fin
       </div>
 
       {/* Progress Bar */}
-      {data.progress !== undefined && (
+      {data.progressPercent != null && (
         <div className="px-4 pb-3">
           <div className="flex items-center justify-between mb-1.5">
-            <span className="text-xs text-[var(--text-secondary)]">Tiến độ</span>
-            <span className="text-xs font-semibold" style={{ color: data.color }}>{data.progress}%</span>
+            <span className="text-xs text-[var(--text-secondary)]">
+              Tiến độ
+            </span>
+            <span
+              className="text-xs font-semibold"
+              style={{ color: data.color }}
+            >
+              {data.progressPercent}%
+            </span>
           </div>
           <div className="h-2 rounded-full bg-[var(--surface)] overflow-hidden">
             <div
               className="h-full rounded-full transition-all duration-500"
-              style={{ width: `${Math.min(data.progress, 100)}%`, backgroundColor: data.color }}
+              style={{
+                width: `${Math.min(data.progressPercent, 100)}%`,
+                backgroundColor: data.color,
+              }}
             />
           </div>
         </div>

@@ -18,6 +18,7 @@ import {
   Folder,
   Plus,
   Bell,
+  Users,
 } from "lucide-react";
 
 // Onboarding & Public Pages
@@ -128,6 +129,19 @@ import StatesShowcase from "./pages/StatesShowcase";
 // Empty Home Preview
 import EmptyHomePreviewWithLayout from "./pages/EmptyHomePreviewWithLayout";
 
+// Community & Social
+import CommunityFeedWithLayout from "./pages/CommunityFeedWithLayout";
+import CommunityDiscoverWithLayout from "./pages/CommunityDiscoverWithLayout";
+import PostDetailWithLayout from "./pages/PostDetailWithLayout";
+import CreatePostWithLayout from "./pages/CreatePostWithLayout";
+import SavedPostsWithLayout from "./pages/SavedPostsWithLayout";
+import PublicProfileWithLayout from "./pages/PublicProfileWithLayout";
+import FollowersListWithLayout from "./pages/FollowersListWithLayout";
+import TopicDetailWithLayout from "./pages/TopicDetailWithLayout";
+import ShareFinanceRecapWithLayout from "./pages/ShareFinanceRecapWithLayout";
+import SocialNotificationsWithLayout from "./pages/SocialNotificationsWithLayout";
+import SocialOnboarding from "./pages/SocialOnboarding";
+
 // Root Layout
 import RootLayout from "./components/RootLayout";
 
@@ -144,6 +158,7 @@ export type RouteGroup =
   | "insights"
   | "rules"
   | "settings"
+  | "community"
   | "showcase";
 
 export interface RouteConfig {
@@ -768,6 +783,94 @@ export const routeConfigs: RouteConfig[] = [
     Component: EmptyHomePreviewWithLayout,
     label: "Preview Empty Home",
     group: "showcase",
+    showInSidebar: false,
+  },
+
+  // Community & Social
+  {
+    path: "/community",
+    Component: CommunityFeedWithLayout,
+    label: "Cộng đồng",
+    icon: Users,
+    group: "community",
+    showInSidebar: true,
+    showInMobileNav: true,
+  },
+  {
+    path: "/community/discover",
+    Component: CommunityDiscoverWithLayout,
+    label: "Khám phá",
+    group: "community",
+    showInSidebar: false,
+  },
+  {
+    path: "/community/post/:id",
+    Component: PostDetailWithLayout,
+    label: "Chi tiết bài viết",
+    group: "community",
+    showInSidebar: false,
+  },
+  {
+    path: "/community/create",
+    Component: CreatePostWithLayout,
+    label: "Tạo bài viết",
+    group: "community",
+    showInSidebar: false,
+  },
+  {
+    path: "/community/saved",
+    Component: SavedPostsWithLayout,
+    label: "Bài viết đã lưu",
+    group: "community",
+    showInSidebar: false,
+  },
+  {
+    path: "/community/profile/:id",
+    Component: PublicProfileWithLayout,
+    label: "Hồ sơ",
+    group: "community",
+    showInSidebar: false,
+  },
+  {
+    path: "/community/profile/:id/followers",
+    Component: FollowersListWithLayout,
+    label: "Người theo dõi",
+    group: "community",
+    showInSidebar: false,
+  },
+  {
+    path: "/community/profile/:id/following",
+    Component: FollowersListWithLayout,
+    label: "Đang theo dõi",
+    group: "community",
+    showInSidebar: false,
+  },
+  {
+    path: "/community/topic/:name",
+    Component: TopicDetailWithLayout,
+    label: "Chủ đề",
+    group: "community",
+    showInSidebar: false,
+  },
+  {
+    path: "/community/share-recap",
+    Component: ShareFinanceRecapWithLayout,
+    label: "Chia sẻ Recap",
+    group: "community",
+    showInSidebar: false,
+  },
+  {
+    path: "/community/notifications",
+    Component: SocialNotificationsWithLayout,
+    label: "Thông báo cộng đồng",
+    group: "community",
+    showInSidebar: false,
+  },
+  {
+    path: "/community/onboarding",
+    Component: SocialOnboarding,
+    label: "Onboarding Cộng đồng",
+    group: "community",
     showInSidebar: false,
   },
 ];

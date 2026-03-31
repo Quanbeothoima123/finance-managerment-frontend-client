@@ -1,69 +1,73 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import { useNavigate } from 'react-router';
-import { Search, Bell, PenSquare, Sparkles } from 'lucide-react';
-import { useSocialData } from '../contexts/SocialDataContext';
-import { PostCard } from '../components/social/PostCard';
-import { TopicChip } from '../components/social/TopicChip';
-import { PostSkeleton } from '../components/social/PostSkeleton';
-import { SocialEmptyState } from '../components/social/SocialEmptyState';
+import React, { useState, useMemo, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router";
+import { Search, Bell, PenSquare, Sparkles } from "lucide-react";
+import { useCommunityFeed } from "../hooks/useCommunityFeed";
+import { useMyProfile } from "../hooks/useMyProfile";
+import { useSocialUnreadCount } from "../hooks/useSocialUnreadCount";
+import { useSocialTopics } from "../hooks/useSocialTopics";
+import { PostCard } from "../components/social/PostCard";
+import { TopicChip } from "../components/social/TopicChip";
+import { PostSkeleton } from "../components/social/PostSkeleton";
+import { SocialEmptyState } from "../components/social/SocialEmptyState";
 
-type FeedTab = 'foryou' | 'following' | 'discover';
-
-const TOPIC_FILTERS = ['Tất cả', 'Tiết kiệm', 'Budget', 'Mục tiêu', 'Chi tiêu gia đình', 'Sinh viên', 'Thu nhập phụ', 'Đầu tư cơ bản'];
+type FeedTab = "foryou" | "following";
 
 export default function CommunityFeed() {
   const navigate = useNavigate();
+
+  const { data: myProfile } = useMyProfile();
+  const { count: unreadNotificationsCount } = useSocialUnreadCount();
+  const { data: topicsList } = useSocialTopics();
+
+  const [activeTab, setActiveTab] = useState<FeedTab>("foryou");
+  const [activeTopicId, setActiveTopicId] = useState<string | undefined>(
+    undefined,
+  );
+
+  const apiTab =
+    activeTab === "foryou" ? ("for-you" as const) : ("following" as const);
   const {
-    posts, users, unreadNotificationsCount,
-    hasCompletedOnboarding, hiddenPostIds, blockedUserIds, currentUser,
-  } = useSocialData();
+    data: feedData,
+    loading,
+    reload,
+  } = useCommunityFeed(apiTab, activeTopicId);
 
-  const [activeTab, setActiveTab] = useState<FeedTab>('foryou');
-  const [activeTopic, setActiveTopic] = useState('Tất cả');
-  const [isLoading] = useState(false);
-
-  // If not onboarded, redirect
+  // Redirect if not onboarded
+  const hasCompletedOnboarding = myProfile?.onboardingDoneAt != null;
   useEffect(() => {
-    if (!hasCompletedOnboarding) {
-      navigate('/community/onboarding', { replace: true });
+    if (myProfile && !hasCompletedOnboarding) {
+      navigate("/community/onboarding", { replace: true });
     }
-  }, [hasCompletedOnboarding, navigate]);
+  }, [myProfile, hasCompletedOnboarding, navigate]);
 
-  if (!hasCompletedOnboarding) return null;
+  // Client-side hidden post tracking
+  const [hiddenPostIds, setHiddenPostIds] = useState<Set<string>>(new Set());
+  const handlePostRemoved = useCallback((postId: string) => {
+    setHiddenPostIds((prev) => new Set(prev).add(postId));
+  }, []);
 
   const filteredPosts = useMemo(() => {
-    let result = [...posts];
+    if (!feedData) return [];
+    return feedData.items.filter((p) => !hiddenPostIds.has(p.id));
+  }, [feedData, hiddenPostIds]);
 
-    // Filter out hidden and blocked
-    result = result.filter(p => !hiddenPostIds.includes(p.id) && !blockedUserIds.includes(p.authorId));
+  const topicFilters = useMemo(() => {
+    const all = [{ id: undefined as string | undefined, name: "Tất cả" }];
+    if (topicsList)
+      all.push(
+        ...topicsList.map((t) => ({
+          id: t.id as string | undefined,
+          name: t.name,
+        })),
+      );
+    return all;
+  }, [topicsList]);
 
-    // Filter by audience visibility
-    result = result.filter(p => {
-      if (p.authorId === currentUser.id) return true; // Own posts always visible
-      if (p.audience === 'private') return false;
-      if (p.audience === 'followers') {
-        const author = users.find(u => u.id === p.authorId);
-        return author?.isFollowing ?? false;
-      }
-      return true; // public
-    });
-
-    if (activeTab === 'following') {
-      const followingIds = users.filter(u => u.isFollowing).map(u => u.id);
-      result = result.filter(p => followingIds.includes(p.authorId));
-    }
-
-    if (activeTopic !== 'Tất cả') {
-      result = result.filter(p => p.topics.includes(activeTopic));
-    }
-
-    return result.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-  }, [posts, users, activeTab, activeTopic, hiddenPostIds, blockedUserIds, currentUser.id]);
+  if (myProfile && !hasCompletedOnboarding) return null;
 
   const tabs: { key: FeedTab; label: string }[] = [
-    { key: 'foryou', label: 'Dành cho bạn' },
-    { key: 'following', label: 'Đang theo dõi' },
-    { key: 'discover', label: 'Khám phá' },
+    { key: "foryou", label: "Dành cho bạn" },
+    { key: "following", label: "Đang theo dõi" },
   ];
 
   return (
@@ -72,16 +76,18 @@ export default function CommunityFeed() {
         {/* Header */}
         <div className="sticky top-0 z-20 bg-[var(--background)]/95 backdrop-blur-sm border-b border-[var(--border)]">
           <div className="px-4 pt-4 pb-2 flex items-center justify-between">
-            <h1 className="text-xl font-bold text-[var(--text-primary)]">Cộng đồng</h1>
+            <h1 className="text-xl font-bold text-[var(--text-primary)]">
+              Cộng đồng
+            </h1>
             <div className="flex items-center gap-2">
               <button
-                onClick={() => navigate('/community/discover')}
+                onClick={() => navigate("/community/discover")}
                 className="p-2.5 rounded-xl hover:bg-[var(--surface)] text-[var(--text-secondary)] transition-colors"
               >
                 <Search className="w-5 h-5" />
               </button>
               <button
-                onClick={() => navigate('/community/notifications')}
+                onClick={() => navigate("/community/notifications")}
                 className="relative p-2.5 rounded-xl hover:bg-[var(--surface)] text-[var(--text-secondary)] transition-colors"
               >
                 <Bell className="w-5 h-5" />
@@ -97,17 +103,16 @@ export default function CommunityFeed() {
           {/* Segmented Tabs */}
           <div className="px-4 pb-2">
             <div className="flex bg-[var(--surface)] rounded-xl p-1">
-              {tabs.map(tab => (
+              {tabs.map((tab) => (
                 <button
                   key={tab.key}
                   onClick={() => {
                     setActiveTab(tab.key);
-                    if (tab.key === 'discover') navigate('/community/discover');
                   }}
                   className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${
                     activeTab === tab.key
-                      ? 'bg-[var(--card)] text-[var(--text-primary)] shadow-sm'
-                      : 'text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]'
+                      ? "bg-[var(--card)] text-[var(--text-primary)] shadow-sm"
+                      : "text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]"
                   }`}
                 >
                   {tab.label}
@@ -119,12 +124,12 @@ export default function CommunityFeed() {
           {/* Topic Filter Chips */}
           <div className="px-4 pb-3 overflow-x-auto scrollbar-none">
             <div className="flex gap-2 min-w-max">
-              {TOPIC_FILTERS.map(topic => (
+              {topicFilters.map((topic) => (
                 <TopicChip
-                  key={topic}
-                  label={topic}
-                  isActive={activeTopic === topic}
-                  onClick={() => setActiveTopic(topic)}
+                  key={topic.name}
+                  label={topic.name}
+                  isActive={activeTopicId === topic.id}
+                  onClick={() => setActiveTopicId(topic.id)}
                   size="sm"
                 />
               ))}
@@ -134,7 +139,7 @@ export default function CommunityFeed() {
 
         {/* Feed Content */}
         <div className="px-4 py-4 space-y-4 pb-24">
-          {isLoading ? (
+          {loading ? (
             <>
               <PostSkeleton />
               <PostSkeleton />
@@ -144,17 +149,26 @@ export default function CommunityFeed() {
             <SocialEmptyState
               icon={<Sparkles className="w-8 h-8" />}
               title="Chưa có bài viết nào"
-              description={activeTab === 'following' ? 'Hãy theo dõi những người dùng khác để thấy bài viết của họ.' : 'Chưa có bài viết nào phù hợp với bộ lọc của bạn.'}
-              action={{ label: 'Khám phá cộng đồng', onClick: () => navigate('/community/discover') }}
+              description={
+                activeTab === "following"
+                  ? "Hãy theo dõi những người dùng khác để thấy bài viết của họ."
+                  : "Chưa có bài viết nào phù hợp với bộ lọc của bạn."
+              }
+              action={{
+                label: "Khám phá cộng đồng",
+                onClick: () => navigate("/community/discover"),
+              }}
             />
           ) : (
-            filteredPosts.map(post => (
+            filteredPosts.map((post) => (
               <PostCard
                 key={post.id}
                 post={post}
+                myProfileId={myProfile?.id}
                 onPostClick={(id) => navigate(`/community/post/${id}`)}
                 onAuthorClick={(id) => navigate(`/community/profile/${id}`)}
                 onTopicClick={(t) => navigate(`/community/topic/${t}`)}
+                onPostRemoved={handlePostRemoved}
               />
             ))
           )}
@@ -162,7 +176,7 @@ export default function CommunityFeed() {
 
         {/* Floating Create Button */}
         <button
-          onClick={() => navigate('/community/create')}
+          onClick={() => navigate("/community/create")}
           className="fixed bottom-24 md:bottom-8 right-4 md:right-8 w-14 h-14 bg-[var(--primary)] text-white rounded-2xl shadow-lg hover:bg-[var(--primary-hover)] transition-all hover:scale-105 flex items-center justify-center z-30"
         >
           <PenSquare className="w-6 h-6" />

@@ -71,6 +71,7 @@ export function Sidebar({ activePath, onNavigate }: SidebarProps) {
     goals: sidebarRoutes.filter((r) => r.group === "goals"),
     insights: sidebarRoutes.filter((r) => r.group === "insights"),
     rules: sidebarRoutes.filter((r) => r.group === "rules"),
+    community: sidebarRoutes.filter((r) => r.group === "community"),
     settings: sidebarRoutes.filter((r) => r.group === "settings"),
   };
 
@@ -186,6 +187,18 @@ export function Sidebar({ activePath, onNavigate }: SidebarProps) {
             </div>
             <div className="space-y-1">
               {groupedRoutes.rules.map(renderNavItem)}
+            </div>
+          </div>
+        )}
+
+        {/* Community */}
+        {groupedRoutes.community.length > 0 && (
+          <div>
+            <div className="px-4 py-2 text-xs font-semibold text-[var(--text-tertiary)] uppercase tracking-wider">
+              Cộng đồng
+            </div>
+            <div className="space-y-1">
+              {groupedRoutes.community.map(renderNavItem)}
             </div>
           </div>
         )}
