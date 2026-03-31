@@ -155,7 +155,7 @@ export default function InsightsOverview() {
     return {
       startDate: `${start.getFullYear()}-${pad(start.getMonth() + 1)}-${pad(start.getDate())}`,
       endDate: `${end.getFullYear()}-${pad(end.getMonth() + 1)}-${pad(end.getDate())}`,
-      limit: 5000,
+      limit: 100,
       sortBy: "date" as const,
       sortOrder: "desc" as const,
     };
