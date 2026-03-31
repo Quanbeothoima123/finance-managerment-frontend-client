@@ -1,13 +1,15 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router";
 import {
   ArrowLeft,
+  Camera,
   Plus,
   Save,
   Sparkles,
   SplitSquareHorizontal,
   Store,
   Tag,
+  X,
 } from "lucide-react";
 import { AmountInput } from "../components/AmountInput";
 import { Button } from "../components/Button";
@@ -99,6 +101,9 @@ export default function AddEditTransaction() {
   const [submitting, setSubmitting] = useState(false);
   const [initialized, setInitialized] = useState(false);
   const [showChatParser, setShowChatParser] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const imageInputRef = useRef<HTMLInputElement>(null);
 
   const categories = useMemo(() => {
     return (metaData?.categories || []).filter((item) => {
@@ -152,6 +157,10 @@ export default function AddEditTransaction() {
       );
       setNotes(sourceTransaction.note || "");
       setSelectedTagIds(sourceTransaction.tags.map((item) => item.id));
+      // preserve existing image when editing (not duplicating)
+      if (isEditMode && sourceTransaction.imageUrl) {
+        setImagePreview(sourceTransaction.imageUrl);
+      }
 
       const merchantFromMeta = (metaData.merchants || []).find(
         (item) => item.id === sourceTransaction.merchant?.id,
@@ -350,6 +359,20 @@ export default function AddEditTransaction() {
         isEditMode && id
           ? await transactionsService.updateTransaction(id, payload)
           : await transactionsService.createTransaction(payload);
+
+      // upload image if one was selected
+      if (imageFile) {
+        try {
+          await transactionsService.uploadTransactionImage(
+            result.id,
+            imageFile,
+          );
+        } catch {
+          toast.error(
+            "Giao dịch đã được lưu nhưng không thể tải ảnh. Hãy thử lại.",
+          );
+        }
+      }
 
       toast.success(isEditMode ? "Đã cập nhật giao dịch" : "Đã tạo giao dịch");
       navigate(`/transactions/${result.id}`);
@@ -828,6 +851,61 @@ export default function AddEditTransaction() {
               value={notes}
               onChange={(event) => setNotes(event.target.value)}
               placeholder="Ghi chú thêm cho giao dịch"
+            />
+          </Card>
+
+          {/* Image upload card */}
+          <Card>
+            <h2 className="text-base font-semibold text-[var(--text-primary)] mb-3 flex items-center gap-2">
+              <Camera className="w-4 h-4 text-[var(--text-tertiary)]" />
+              Hình ảnh
+            </h2>
+
+            {imagePreview ? (
+              <div className="relative inline-block">
+                <img
+                  src={imagePreview}
+                  alt="Preview"
+                  className="max-h-48 rounded-[var(--radius-lg)] border border-[var(--border)] object-contain"
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    setImageFile(null);
+                    setImagePreview(null);
+                    if (imageInputRef.current) imageInputRef.current.value = "";
+                  }}
+                  className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-[var(--danger)] text-white flex items-center justify-center hover:opacity-80 transition-opacity"
+                  title="Xóa ảnh"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => imageInputRef.current?.click()}
+                className="flex items-center gap-2 px-4 py-2.5 border border-dashed border-[var(--border)] rounded-[var(--radius-lg)] text-sm text-[var(--text-secondary)] hover:bg-[var(--surface)] transition-colors"
+              >
+                <Camera className="w-4 h-4" />
+                Chọn ảnh (tùy chọn)
+              </button>
+            )}
+
+            <input
+              ref={imageInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+                setImageFile(file);
+                const reader = new FileReader();
+                reader.onload = (ev) =>
+                  setImagePreview(ev.target?.result as string);
+                reader.readAsDataURL(file);
+              }}
             />
           </Card>
 

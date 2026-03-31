@@ -65,7 +65,7 @@ export const transactionsService = {
     return apiRequest<TransactionDetailResponse>("/transactions", {
       method: "POST",
       requiresAuth: true,
-      body: payload,
+      body: payload as unknown as Record<string, unknown>,
     });
   },
 
@@ -75,7 +75,7 @@ export const transactionsService = {
       {
         method: "PATCH",
         requiresAuth: true,
-        body: payload,
+        body: payload as unknown as Record<string, unknown>,
       },
     );
   },
@@ -87,6 +87,15 @@ export const transactionsService = {
         method: "DELETE",
         requiresAuth: true,
       },
+    );
+  },
+
+  uploadTransactionImage(transactionId: string, file: File) {
+    const form = new FormData();
+    form.append("image", file);
+    return apiRequest<TransactionDetailResponse>(
+      `/transactions/${transactionId}/image`,
+      { method: "POST", body: form, requiresAuth: true },
     );
   },
 };

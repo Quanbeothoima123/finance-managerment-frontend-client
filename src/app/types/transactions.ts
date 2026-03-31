@@ -90,6 +90,7 @@ export interface TransactionListItem {
   description: string | null;
   note: string | null;
   notes: string | null;
+  imageUrl: string | null;
   sourceType: string;
   sourceRefId: string | null;
   merchant: TransactionMerchantOption | null;

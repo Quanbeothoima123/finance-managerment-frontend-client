@@ -6,6 +6,7 @@ import {
   ArrowLeftRight,
   ArrowUpRight,
   Calendar,
+  Camera,
   Copy,
   Edit,
   FileText,
@@ -105,6 +106,7 @@ export default function TransactionDetail() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [imageLightboxOpen, setImageLightboxOpen] = useState(false);
 
   const canEdit = useMemo(() => {
     if (!transaction) return false;
@@ -404,6 +406,20 @@ export default function TransactionDetail() {
             </div>
           )}
 
+          {transaction.imageUrl && (
+            <div className="p-4">
+              <div className="text-sm text-[var(--text-secondary)] mb-3 flex items-center gap-1.5">
+                <Camera className="w-4 h-4" /> Hình ảnh
+              </div>
+              <img
+                src={transaction.imageUrl}
+                alt="Transaction image"
+                onClick={() => setImageLightboxOpen(true)}
+                className="max-h-60 rounded-[var(--radius-lg)] border border-[var(--border)] object-contain cursor-pointer hover:opacity-90 transition-opacity"
+              />
+            </div>
+          )}
+
           {transaction.tags?.length > 0 && (
             <div className="p-4">
               <div className="text-sm text-[var(--text-secondary)] mb-3">
@@ -469,6 +485,20 @@ export default function TransactionDetail() {
         cancelLabel="Huỷ"
         isDangerous
       />
+
+      {imageLightboxOpen && transaction.imageUrl && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/75"
+          onClick={() => setImageLightboxOpen(false)}
+        >
+          <img
+            src={transaction.imageUrl}
+            alt="Transaction image"
+            onClick={(e) => e.stopPropagation()}
+            className="max-w-[92vw] max-h-[92vh] rounded-2xl object-contain shadow-2xl"
+          />
+        </div>
+      )}
     </div>
   );
 }
