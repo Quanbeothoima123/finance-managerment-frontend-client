@@ -12,12 +12,25 @@ import { Card } from "../components/Card";
 import { Button } from "../components/Button";
 import { useAppNavigation } from "../hooks/useAppNavigation";
 import { useToast } from "../contexts/ToastContext";
-import { useDemoData } from "../contexts/DemoDataContext";
 
 export default function SecuritySettings() {
   const nav = useAppNavigation();
   const toast = useToast();
-  const { hideAccountNumbers, setHideAccountNumbers } = useDemoData();
+
+  const [hideAccountNumbers, setHideAccountNumbers] = useState(() => {
+    try {
+      return localStorage.getItem("finance-hide-account-numbers") === "true";
+    } catch {
+      return false;
+    }
+  });
+
+  const toggleHideAccountNumbers = (value: boolean) => {
+    setHideAccountNumbers(value);
+    try {
+      localStorage.setItem("finance-hide-account-numbers", String(value));
+    } catch {}
+  };
   const [pinEnabled, setPinEnabled] = useState(false);
   const [biometricsEnabled, setBiometricsEnabled] = useState(false);
   const [privacyMode, setPrivacyMode] = useState(false);
@@ -276,7 +289,7 @@ export default function SecuritySettings() {
                 </div>
 
                 <button
-                  onClick={() => setHideAccountNumbers(!hideAccountNumbers)}
+                  onClick={() => toggleHideAccountNumbers(!hideAccountNumbers)}
                   className={`flex-shrink-0 relative w-12 h-6 rounded-full transition-colors ${
                     hideAccountNumbers
                       ? "bg-[var(--warning)]"

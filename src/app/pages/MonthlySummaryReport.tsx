@@ -15,6 +15,7 @@ import {
   TrendingUp,
   TrendingDown,
   Plus,
+  Loader2,
 } from "lucide-react";
 import {
   BarChart,
@@ -28,7 +29,9 @@ import {
 } from "recharts";
 import { Card } from "../components/Card";
 import { useAppNavigation } from "../hooks/useAppNavigation";
-import { useDemoData } from "../contexts/DemoDataContext";
+import { useTransactionsList } from "../hooks/useTransactionsList";
+import { useCategoriesList } from "../hooks/useCategoriesList";
+import { useBudgetsList } from "../hooks/useBudgetsList";
 import { useToast } from "../contexts/ToastContext";
 
 const fmt = (n: number) => new Intl.NumberFormat("vi-VN").format(Math.abs(n));
@@ -182,15 +185,19 @@ function ShareSheet({
 // MAIN
 // ═══════════════════════════════════════════════════════════════════════════
 export default function MonthlySummaryReport() {
-  const [monthDate, setMonthDate] = useState(new Date("2026-03-01"));
+  const now = new Date();
+  const pad = (n: number) => String(n).padStart(2, "0");
+  const [monthDate, setMonthDate] = useState(
+    new Date(`${now.getFullYear()}-${pad(now.getMonth() + 1)}-01`),
+  );
   const [showShare, setShowShare] = useState(false);
   const nav = useAppNavigation();
   const toast = useToast();
-  const { transactions, categories, budgets } = useDemoData();
 
   const year = monthDate.getFullYear();
   const month = monthDate.getMonth();
-  const monthLabel = `Tháng ${String(month + 1).padStart(2, "0")}/${year}`;
+  const monthKey = `${year}-${pad(month + 1)}`;
+  const monthLabel = `Tháng ${pad(month + 1)}/${year}`;
 
   const shiftMonth = (delta: number) => {
     const d = new Date(monthDate);
@@ -198,21 +205,31 @@ export default function MonthlySummaryReport() {
     setMonthDate(d);
   };
 
-  const now = new Date();
   const isThisMonth = year === now.getFullYear() && month === now.getMonth();
   const isLastMonth =
     (year === now.getFullYear() && month === now.getMonth() - 1) ||
     (now.getMonth() === 0 && year === now.getFullYear() - 1 && month === 11);
 
-  // Filter transactions
-  const monthTxns = useMemo(
-    () =>
-      transactions.filter((t) => {
-        const d = new Date(t.date);
-        return d.getFullYear() === year && d.getMonth() === month;
-      }),
-    [transactions, year, month],
+  // ── Data fetching ──
+  const monthStart = new Date(year, month, 1);
+  const monthEnd = new Date(year, month + 1, 0);
+  const txnQuery = useMemo(
+    () => ({
+      startDate: `${monthStart.getFullYear()}-${pad(monthStart.getMonth() + 1)}-01`,
+      endDate: `${monthEnd.getFullYear()}-${pad(monthEnd.getMonth() + 1)}-${pad(monthEnd.getDate())}`,
+      limit: 100,
+      sortBy: "date" as const,
+      sortOrder: "desc" as const,
+    }),
+    [monthKey],
   );
+  const { data: txnData, loading: txnLoading } = useTransactionsList(txnQuery);
+  const monthTxns = txnData?.items ?? [];
+
+  const { data: catData } = useCategoriesList();
+  const { data: budgetData } = useBudgetsList({ month: monthKey });
+
+  const minor = (s: string | null | undefined) => parseInt(s || "0", 10) || 0;
 
   const expenses = useMemo(
     () => monthTxns.filter((t) => t.type === "expense"),
@@ -222,19 +239,25 @@ export default function MonthlySummaryReport() {
     () => monthTxns.filter((t) => t.type === "income"),
     [monthTxns],
   );
-  const totalSpending = expenses.reduce((s, t) => s + Math.abs(t.amount), 0);
-  const totalIncome = incomes.reduce((s, t) => s + Math.abs(t.amount), 0);
+  const totalSpending = expenses.reduce(
+    (s, t) => s + minor(t.totalAmountMinor),
+    0,
+  );
+  const totalIncome = incomes.reduce(
+    (s, t) => s + minor(t.totalAmountMinor),
+    0,
+  );
   const netBalance = totalIncome - totalSpending;
   const savingsRate = totalIncome > 0 ? (netBalance / totalIncome) * 100 : 0;
 
   // Category lookup
   const catLookup = useMemo(() => {
     const m: Record<string, { name: string; color: string }> = {};
-    categories.forEach((c) => {
-      m[c.id] = { name: c.name, color: c.color };
+    (catData?.items ?? []).forEach((c) => {
+      m[c.id] = { name: c.name, color: c.colorHex || c.color || "#6b7280" };
     });
     return m;
-  }, [categories]);
+  }, [catData]);
 
   // ── Highlights / Bullets ──
   const bullets: Bullet[] = useMemo(() => {
@@ -244,13 +267,16 @@ export default function MonthlySummaryReport() {
     // Top category
     const catMap: Record<string, number> = {};
     expenses.forEach((t) => {
-      const k = t.categoryId || t.category;
-      catMap[k] = (catMap[k] || 0) + Math.abs(t.amount);
+      const k = t.category?.id || "unknown";
+      catMap[k] = (catMap[k] || 0) + minor(t.totalAmountMinor);
     });
     const sorted = Object.entries(catMap).sort(([, a], [, b]) => b - a);
     const topCat = sorted[0];
     if (topCat) {
-      const name = catLookup[topCat[0]]?.name || topCat[0];
+      const name =
+        catLookup[topCat[0]]?.name ||
+        expenses.find((t) => t.category?.id === topCat[0])?.category?.name ||
+        topCat[0];
       const pct =
         totalSpending > 0 ? Math.round((topCat[1] / totalSpending) * 100) : 0;
       result.push({
@@ -262,12 +288,12 @@ export default function MonthlySummaryReport() {
 
     // Biggest transaction
     const biggest = [...expenses].sort(
-      (a, b) => Math.abs(b.amount) - Math.abs(a.amount),
+      (a, b) => minor(b.totalAmountMinor) - minor(a.totalAmountMinor),
     )[0];
     if (biggest) {
       result.push({
         icon: <Receipt className="w-4 h-4" />,
-        label: `${biggest.description || biggest.category} ${fmt(biggest.amount)}₫`,
+        label: `${biggest.description || biggest.category?.name || "Giao dịch"} ${fmt(minor(biggest.totalAmountMinor))}₫`,
         color: "text-[var(--warning)]",
       });
     }
@@ -276,8 +302,8 @@ export default function MonthlySummaryReport() {
     const DAYS = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"];
     const dayMap: Record<number, number> = {};
     expenses.forEach((t) => {
-      const d = new Date(t.date).getDay();
-      dayMap[d] = (dayMap[d] || 0) + Math.abs(t.amount);
+      const d = new Date(t.date || t.occurredAt).getDay();
+      dayMap[d] = (dayMap[d] || 0) + minor(t.totalAmountMinor);
     });
     const peak = Object.entries(dayMap).sort(([, a], [, b]) => b - a)[0];
     if (peak) {
@@ -289,31 +315,16 @@ export default function MonthlySummaryReport() {
     }
 
     // Budget status
-    const activeBudgets = budgets.filter((b) => {
-      const bs = new Date(b.startDate);
-      const be = new Date(b.endDate);
-      return (
-        bs.getFullYear() === year &&
-        bs.getMonth() <= month &&
-        be.getMonth() >= month
-      );
-    });
+    const activeBudgets = budgetData?.items ?? [];
     for (const b of activeBudgets) {
-      const spent = transactions
-        .filter(
-          (t) =>
-            t.type === "expense" &&
-            new Date(t.date).getFullYear() === year &&
-            new Date(t.date).getMonth() === month &&
-            b.categories.includes(t.categoryId),
-        )
-        .reduce((s, t) => s + Math.abs(t.amount), 0);
-      const pct = b.amount > 0 ? Math.round((spent / b.amount) * 100) : 0;
-      if (pct >= 50) {
+      if (b.progressPercent >= 50) {
         result.push({
           icon: <PiggyBank className="w-4 h-4" />,
-          label: `${b.name} dùng ${pct}%`,
-          color: pct >= 80 ? "text-[var(--danger)]" : "text-[var(--warning)]",
+          label: `${b.name} dùng ${b.progressPercent}%`,
+          color:
+            b.progressPercent >= 80
+              ? "text-[var(--danger)]"
+              : "text-[var(--warning)]",
         });
         break;
       }
@@ -339,10 +350,7 @@ export default function MonthlySummaryReport() {
     expenses,
     catLookup,
     totalSpending,
-    budgets,
-    transactions,
-    year,
-    month,
+    budgetData,
     totalIncome,
     savingsRate,
   ]);
@@ -351,14 +359,17 @@ export default function MonthlySummaryReport() {
   const top3Cats = useMemo(() => {
     const catMap: Record<string, number> = {};
     expenses.forEach((t) => {
-      const k = t.categoryId || t.category;
-      catMap[k] = (catMap[k] || 0) + Math.abs(t.amount);
+      const k = t.category?.id || "unknown";
+      catMap[k] = (catMap[k] || 0) + minor(t.totalAmountMinor);
     });
     return Object.entries(catMap)
       .sort(([, a], [, b]) => b - a)
       .slice(0, 3)
       .map(([id, amount], i) => ({
-        name: catLookup[id]?.name || id,
+        name:
+          catLookup[id]?.name ||
+          expenses.find((t) => t.category?.id === id)?.category?.name ||
+          id,
         amount,
         pct: totalSpending > 0 ? Math.round((amount / totalSpending) * 100) : 0,
         color: catLookup[id]?.color || CATEGORY_COLORS[i],
@@ -378,10 +389,10 @@ export default function MonthlySummaryReport() {
       if (weekEnd > lastDay) weekEnd.setTime(lastDay.getTime());
       const amount = expenses
         .filter((t) => {
-          const td = new Date(t.date);
+          const td = new Date(t.date || t.occurredAt);
           return td >= d && td <= weekEnd;
         })
-        .reduce((s, t) => s + Math.abs(t.amount), 0);
+        .reduce((s, t) => s + minor(t.totalAmountMinor), 0);
       weeks.push({ label: `Tuần ${wk}`, amount });
       d = new Date(weekEnd);
       d.setDate(d.getDate() + 1);
@@ -422,6 +433,14 @@ export default function MonthlySummaryReport() {
     toast.success("Đã tạo PDF summary");
     setShowShare(false);
   }, [toast]);
+
+  if (txnLoading) {
+    return (
+      <div className="min-h-screen bg-[var(--background)] flex items-center justify-center">
+        <Loader2 className="w-8 h-8 text-[var(--primary)] animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[var(--background)]">

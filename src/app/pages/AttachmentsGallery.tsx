@@ -1,103 +1,32 @@
-import React, { useState } from "react";
-import { X, ChevronRight, Calendar, Filter, Search } from "lucide-react";
+import React, { useState, useMemo } from "react";
+import {
+  X,
+  ChevronRight,
+  Calendar,
+  Filter,
+  Search,
+  Loader2,
+} from "lucide-react";
 import { Card } from "../components/Card";
-import { Button } from "../components/Button";
 import { Input } from "../components/Input";
+import { useTransactionsList } from "../hooks/useTransactionsList";
+import { useCategoriesList } from "../hooks/useCategoriesList";
 
-// Mock attachments data
-const mockAttachments = [
-  {
-    id: "1",
-    thumbnailUrl:
-      "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=400",
-    date: "2026-02-10",
-    amount: 450000,
-    transactionId: "t1",
-    transactionDescription: "Cơm trưa - Quán Ngon",
-    category: "Ăn uống",
-    type: "expense",
-  },
-  {
-    id: "2",
-    thumbnailUrl:
-      "https://images.unsplash.com/photo-1572811165-d03b0e645dc7?w=400",
-    date: "2026-02-09",
-    amount: 850000,
-    transactionId: "t2",
-    transactionDescription: "Mua giày thể thao",
-    category: "Mua sắm",
-    type: "expense",
-  },
-  {
-    id: "3",
-    thumbnailUrl:
-      "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=400",
-    date: "2026-02-08",
-    amount: 125000,
-    transactionId: "t3",
-    transactionDescription: "Cà phê Highlands",
-    category: "Ăn uống",
-    type: "expense",
-  },
-  {
-    id: "4",
-    thumbnailUrl:
-      "https://images.unsplash.com/photo-1606166059861-557c93ea2674?w=400",
-    date: "2026-02-07",
-    amount: 2500000,
-    transactionId: "t4",
-    transactionDescription: "Tiền điện tháng 2",
-    category: "Nhà ở",
-    type: "expense",
-  },
-  {
-    id: "5",
-    thumbnailUrl:
-      "https://images.unsplash.com/photo-1586227740560-8cf2732c1531?w=400",
-    date: "2026-02-06",
-    amount: 680000,
-    transactionId: "t5",
-    transactionDescription: "Grab - Về nhà",
-    category: "Di chuyển",
-    type: "expense",
-  },
-  {
-    id: "6",
-    thumbnailUrl:
-      "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=400",
-    date: "2026-02-05",
-    amount: 320000,
-    transactionId: "t6",
-    transactionDescription: "Đồ ăn trưa",
-    category: "Ăn uống",
-    type: "expense",
-  },
-  {
-    id: "7",
-    thumbnailUrl:
-      "https://images.unsplash.com/photo-1544148103-0773bf10d330?w=400",
-    date: "2026-02-04",
-    amount: 1200000,
-    transactionId: "t7",
-    transactionDescription: "Mua sách",
-    category: "Giải trí",
-    type: "expense",
-  },
-  {
-    id: "8",
-    thumbnailUrl:
-      "https://images.unsplash.com/photo-1578328819058-b69f3a3b0f6b?w=400",
-    date: "2026-02-03",
-    amount: 750000,
-    transactionId: "t8",
-    transactionDescription: "Mua đồ điện tử",
-    category: "Mua sắm",
-    type: "expense",
-  },
-];
+const minor = (s: string | null | undefined) => parseInt(s || "0", 10) || 0;
+
+interface AttachmentItem {
+  id: string;
+  imageUrl: string;
+  date: string;
+  amount: number;
+  transactionId: string;
+  transactionDescription: string;
+  category: string;
+  type: string;
+}
 
 interface AttachmentDetailPanelProps {
-  attachment: (typeof mockAttachments)[0];
+  attachment: AttachmentItem;
   isOpen: boolean;
   onClose: () => void;
 }
@@ -156,7 +85,7 @@ function AttachmentDetailPanel({
             {/* Image */}
             <div className="rounded-[var(--radius-lg)] overflow-hidden bg-[var(--surface)]">
               <img
-                src={attachment.thumbnailUrl}
+                src={attachment.imageUrl}
                 alt="Receipt"
                 className="w-full h-auto object-contain"
               />
@@ -219,31 +148,70 @@ function AttachmentDetailPanel({
 }
 
 export default function AttachmentsGallery() {
-  const [selectedAttachment, setSelectedAttachment] = useState<
-    (typeof mockAttachments)[0] | null
-  >(null);
+  const [selectedAttachment, setSelectedAttachment] =
+    useState<AttachmentItem | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
-  const [selectedMonth, setSelectedMonth] = useState("2026-02");
 
-  const categories = [
-    "all",
-    "Ăn uống",
-    "Mua sắm",
-    "Nhà ở",
-    "Di chuyển",
-    "Giải trí",
-  ];
+  const now = new Date();
+  const pad = (n: number) => String(n).padStart(2, "0");
+  const defaultMonth = `${now.getFullYear()}-${pad(now.getMonth() + 1)}`;
+  const [selectedMonth, setSelectedMonth] = useState(defaultMonth);
 
-  const filteredAttachments = mockAttachments.filter((attachment) => {
-    const matchesSearch = attachment.transactionDescription
-      .toLowerCase()
-      .includes(searchQuery.toLowerCase());
-    const matchesCategory =
-      selectedCategory === "all" || attachment.category === selectedCategory;
-    const matchesMonth = attachment.date.startsWith(selectedMonth);
-    return matchesSearch && matchesCategory && matchesMonth;
+  const { data: txnData, loading: txnLoading } = useTransactionsList({
+    limit: 100,
   });
+  const { data: catData, loading: catLoading } = useCategoriesList();
+  const loading = txnLoading || catLoading;
+
+  // Build attachment items from transactions with imageUrl
+  const attachmentItems: AttachmentItem[] = useMemo(() => {
+    const txns = txnData?.items ?? [];
+    return txns
+      .filter((t: any) => t.imageUrl)
+      .map((t: any) => ({
+        id: t.id,
+        imageUrl: t.imageUrl,
+        date: t.date || t.occurredAt?.split("T")[0] || "",
+        amount: minor(t.totalAmountMinor),
+        transactionId: t.id,
+        transactionDescription: t.description || "",
+        category: t.category?.name || "",
+        type: t.type,
+      }));
+  }, [txnData]);
+
+  // Derive categories from items
+  const categories = useMemo(() => {
+    const cats = new Set(
+      attachmentItems.map((a) => a.category).filter(Boolean),
+    );
+    return ["all", ...Array.from(cats)];
+  }, [attachmentItems]);
+
+  // Generate month options from last 12 months
+  const monthOptions = useMemo(() => {
+    const opts: { value: string; label: string }[] = [];
+    for (let i = 0; i < 12; i++) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const value = `${d.getFullYear()}-${pad(d.getMonth() + 1)}`;
+      const label = `Tháng ${d.getMonth() + 1}, ${d.getFullYear()}`;
+      opts.push({ value, label });
+    }
+    return opts;
+  }, []);
+
+  const filteredAttachments = useMemo(() => {
+    return attachmentItems.filter((attachment) => {
+      const matchesSearch = attachment.transactionDescription
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase());
+      const matchesCategory =
+        selectedCategory === "all" || attachment.category === selectedCategory;
+      const matchesMonth = attachment.date.startsWith(selectedMonth);
+      return matchesSearch && matchesCategory && matchesMonth;
+    });
+  }, [attachmentItems, searchQuery, selectedCategory, selectedMonth]);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("vi-VN").format(amount);
@@ -256,6 +224,14 @@ export default function AttachmentsGallery() {
       month: "2-digit",
     });
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[var(--background)] flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-[var(--primary)]" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[var(--background)]">
@@ -277,7 +253,7 @@ export default function AttachmentsGallery() {
               Tổng hoá đơn
             </p>
             <p className="text-2xl font-bold text-[var(--text-primary)] tabular-nums">
-              {mockAttachments.length}
+              {attachmentItems.length}
             </p>
           </Card>
 
@@ -304,10 +280,10 @@ export default function AttachmentsGallery() {
 
           <Card>
             <p className="text-sm text-[var(--text-secondary)] mb-1">
-              Dung lượng
+              Tổng hoá đơn (lọc)
             </p>
-            <p className="text-xl font-bold text-[var(--text-primary)] tabular-nums">
-              12.4 MB
+            <p className="text-2xl font-bold text-[var(--text-primary)] tabular-nums">
+              {filteredAttachments.length}
             </p>
           </Card>
         </div>
@@ -339,9 +315,11 @@ export default function AttachmentsGallery() {
                   onChange={(e) => setSelectedMonth(e.target.value)}
                   className="w-full px-4 py-2.5 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-lg)] text-[var(--text-primary)] appearance-none cursor-pointer transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--focus-ring)]"
                 >
-                  <option value="2026-02">Tháng 2, 2026</option>
-                  <option value="2026-01">Tháng 1, 2026</option>
-                  <option value="2025-12">Tháng 12, 2025</option>
+                  {monthOptions.map((m) => (
+                    <option key={m.value} value={m.value}>
+                      {m.label}
+                    </option>
+                  ))}
                 </select>
               </div>
 
@@ -378,7 +356,7 @@ export default function AttachmentsGallery() {
               >
                 {/* Thumbnail */}
                 <img
-                  src={attachment.thumbnailUrl}
+                  src={attachment.imageUrl}
                   alt="Receipt"
                   className="w-full h-full object-cover transition-transform group-hover:scale-105"
                 />

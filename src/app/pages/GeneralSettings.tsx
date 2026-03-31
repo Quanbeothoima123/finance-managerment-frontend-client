@@ -2,11 +2,12 @@ import React, { useState, useEffect, useMemo } from "react";
 import { ArrowLeft, RotateCcw } from "lucide-react";
 import { Card } from "../components/Card";
 import { useAppNavigation } from "../hooks/useAppNavigation";
-import { useDemoData } from "../contexts/DemoDataContext";
 import { useToast } from "../contexts/ToastContext";
+import { onboardingService } from "../services/onboardingService";
 
 // ── Storage helpers ──
 const STORAGE_KEYS = {
+  currency: "finance-selected-currency",
   decimals: "finance-number-decimals",
   thousandsSep: "finance-thousands-separator",
   symbolPosition: "finance-symbol-position",
@@ -69,7 +70,14 @@ const DEFAULTS = {
 export default function GeneralSettings() {
   const nav = useAppNavigation();
   const toast = useToast();
-  const { selectedCurrency, setSelectedCurrency } = useDemoData();
+
+  const [selectedCurrency, setSelectedCurrency] = useState(() => {
+    try {
+      return localStorage.getItem(STORAGE_KEYS.currency) || "VND";
+    } catch {
+      return "VND";
+    }
+  });
 
   // Local state for all settings
   const [decimals, setDecimals] = useState(() =>
@@ -157,6 +165,9 @@ export default function GeneralSettings() {
 
   const handleCurrencyChange = (code: string) => {
     setSelectedCurrency(code);
+    try {
+      localStorage.setItem(STORAGE_KEYS.currency, code);
+    } catch {}
     // Auto-set decimals based on currency
     if (code === "VND") {
       setDecimals(0);
@@ -165,11 +176,21 @@ export default function GeneralSettings() {
       setDecimals(2);
       setSymbolPosition("before");
     }
+    // Persist to backend
+    onboardingService
+      .saveCurrencyDate({
+        baseCurrencyCode: code,
+        trackingStartDate: new Date().toISOString().split("T")[0],
+      })
+      .catch(() => {});
     toast.warning("Chỉ áp dụng cho giao dịch mới.");
   };
 
   const handleRestoreDefaults = () => {
     setSelectedCurrency("VND");
+    try {
+      localStorage.setItem(STORAGE_KEYS.currency, "VND");
+    } catch {}
     setDecimals(DEFAULTS.decimals);
     setThousandsSep(DEFAULTS.thousandsSep);
     setSymbolPosition(DEFAULTS.symbolPosition);

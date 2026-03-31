@@ -16,13 +16,15 @@ import {
   Eye,
   Calendar,
   Files,
+  Loader2,
 } from "lucide-react";
-import { useDemoData, type CloudAttachment } from "../contexts/DemoDataContext";
+import { useTransactionsList } from "../hooks/useTransactionsList";
+import { useAccountsOverview } from "../hooks/useAccountsOverview";
 import { useAppNavigation } from "../hooks/useAppNavigation";
 import { Button } from "../components/Button";
 
 interface GalleryItem {
-  attachment: CloudAttachment;
+  imageUrl: string;
   transactionId: string;
   transactionDescription: string;
   transactionDate: string;
@@ -30,14 +32,19 @@ interface GalleryItem {
   transactionType: string;
   transactionCategory: string;
   transactionAccount: string;
-  isCloud: boolean;
 }
 
-type QuickFilter = "all" | "image" | "pdf" | "other" | "pro";
+type QuickFilter = "all" | "image";
+
+const minor = (s: string | null | undefined) => parseInt(s || "0", 10) || 0;
 
 export default function AttachmentLibrary() {
-  const { transactions, accounts, isPro } = useDemoData();
+  const { data: txnData, loading: txnLoading } = useTransactionsList({
+    limit: 100,
+  });
+  const { data: accData, loading: accLoading } = useAccountsOverview();
   const { goTransactionDetail, goCreateTransaction } = useAppNavigation();
+  const loading = txnLoading || accLoading;
 
   // State
   const [searchQuery, setSearchQuery] = useState("");
@@ -52,64 +59,40 @@ export default function AttachmentLibrary() {
   const [filterDateStart, setFilterDateStart] = useState("");
   const [filterDateEnd, setFilterDateEnd] = useState("");
   const [filterAccounts, setFilterAccounts] = useState<string[]>([]);
-  const [filterFileTypes, setFilterFileTypes] = useState<Set<string>>(
-    new Set(),
-  );
-  const [filterProOnly, setFilterProOnly] = useState(false);
 
-  // Aggregate all attachments from transactions
+  const transactions = txnData?.items ?? [];
+
+  // Aggregate all attachments from transactions that have imageUrl
   const allItems: GalleryItem[] = useMemo(() => {
     const items: GalleryItem[] = [];
-    transactions.forEach((txn) => {
-      if (txn.attachments && txn.attachments.length > 0) {
-        txn.attachments.forEach((att) => {
-          items.push({
-            attachment: att,
-            transactionId: txn.id,
-            transactionDescription: txn.description,
-            transactionDate: txn.date,
-            transactionAmount: txn.amount,
-            transactionType: txn.type,
-            transactionCategory: txn.category,
-            transactionAccount: txn.account,
-            isCloud: true, // Cloud attachments from the new system
-          });
+    transactions.forEach((txn: any) => {
+      if (txn.imageUrl) {
+        items.push({
+          imageUrl: txn.imageUrl,
+          transactionId: txn.id,
+          transactionDescription: txn.description || "",
+          transactionDate: txn.date || txn.occurredAt?.split("T")[0] || "",
+          transactionAmount: minor(txn.totalAmountMinor),
+          transactionType: txn.type,
+          transactionCategory: txn.category?.name || "",
+          transactionAccount: txn.account?.name || "",
         });
       }
     });
-    // Sort by upload date descending
-    items.sort(
-      (a, b) =>
-        new Date(b.attachment.uploadedAt).getTime() -
-        new Date(a.attachment.uploadedAt).getTime(),
-    );
+    // Sort by date descending
+    items.sort((a, b) => b.transactionDate.localeCompare(a.transactionDate));
     return items;
   }, [transactions]);
-
-  // Check if any cloud files exist for showing PRO chip
-  const hasCloudFiles = allItems.some((i) => i.isCloud);
 
   // Apply filters
   const filteredItems = useMemo(() => {
     return allItems.filter((item) => {
-      // Quick filter
-      if (quickFilter === "image" && item.attachment.type !== "image")
-        return false;
-      if (quickFilter === "pdf" && item.attachment.type !== "pdf") return false;
-      if (
-        quickFilter === "other" &&
-        (item.attachment.type === "image" || item.attachment.type === "pdf")
-      )
-        return false;
-      if (quickFilter === "pro" && !item.isCloud) return false;
-
       // Search
       if (searchQuery) {
         const q = searchQuery.toLowerCase();
-        const matchName = item.attachment.name.toLowerCase().includes(q);
         const matchTxn = item.transactionDescription.toLowerCase().includes(q);
         const matchCat = item.transactionCategory.toLowerCase().includes(q);
-        if (!matchName && !matchTxn && !matchCat) return false;
+        if (!matchTxn && !matchCat) return false;
       }
 
       // Advanced: date range
@@ -124,28 +107,9 @@ export default function AttachmentLibrary() {
       )
         return false;
 
-      // Advanced: file types
-      if (
-        filterFileTypes.size > 0 &&
-        !filterFileTypes.has(item.attachment.type)
-      )
-        return false;
-
-      // Advanced: pro only
-      if (filterProOnly && !item.isCloud) return false;
-
       return true;
     });
-  }, [
-    allItems,
-    quickFilter,
-    searchQuery,
-    filterDateStart,
-    filterDateEnd,
-    filterAccounts,
-    filterFileTypes,
-    filterProOnly,
-  ]);
+  }, [allItems, searchQuery, filterDateStart, filterDateEnd, filterAccounts]);
 
   // Group by month
   const groupedByMonth = useMemo(() => {
@@ -160,11 +124,7 @@ export default function AttachmentLibrary() {
   }, [filteredItems]);
 
   // Stats
-  const totalSize = allItems.reduce((sum, i) => sum + i.attachment.size, 0);
-  const imageCount = allItems.filter(
-    (i) => i.attachment.type === "image",
-  ).length;
-  const pdfCount = allItems.filter((i) => i.attachment.type === "pdf").length;
+  const imageCount = allItems.length;
 
   const formatMonthHeader = (monthKey: string) => {
     const [year, month] = monthKey.split("-");
@@ -183,18 +143,12 @@ export default function AttachmentLibrary() {
   };
 
   const hasAdvancedFilters =
-    filterDateStart ||
-    filterDateEnd ||
-    filterAccounts.length > 0 ||
-    filterFileTypes.size > 0 ||
-    filterProOnly;
+    filterDateStart || filterDateEnd || filterAccounts.length > 0;
 
   const clearAdvancedFilters = () => {
     setFilterDateStart("");
     setFilterDateEnd("");
     setFilterAccounts([]);
-    setFilterFileTypes(new Set());
-    setFilterProOnly(false);
   };
 
   const openLightbox = (item: GalleryItem, allVisible: GalleryItem[]) => {
@@ -206,9 +160,6 @@ export default function AttachmentLibrary() {
   const quickFilters: { key: QuickFilter; label: string; show: boolean }[] = [
     { key: "all", label: "Tất cả", show: true },
     { key: "image", label: "Ảnh", show: true },
-    { key: "pdf", label: "PDF", show: true },
-    { key: "other", label: "Khác", show: true },
-    { key: "pro", label: "Chỉ PRO", show: hasCloudFiles },
   ];
 
   // Unique accounts that have attachments
@@ -216,6 +167,14 @@ export default function AttachmentLibrary() {
     const set = new Set(allItems.map((i) => i.transactionAccount));
     return Array.from(set);
   }, [allItems]);
+
+  if (loading) {
+    return (
+      <div className="h-full flex items-center justify-center bg-[var(--background)]">
+        <Loader2 className="w-8 h-8 animate-spin text-[var(--primary)]" />
+      </div>
+    );
+  }
 
   return (
     <div className="h-full flex flex-col overflow-hidden bg-[var(--background)]">
@@ -268,22 +227,16 @@ export default function AttachmentLibrary() {
                   onClick={() => setQuickFilter(f.key)}
                   className={`flex-shrink-0 px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
                     quickFilter === f.key
-                      ? f.key === "pro"
-                        ? "bg-amber-500 text-white"
-                        : "bg-[var(--primary)] text-white"
+                      ? "bg-[var(--primary)] text-white"
                       : "bg-[var(--surface)] text-[var(--text-secondary)] hover:bg-[var(--border)]"
                   }`}
                 >
-                  {f.key === "pro" && <Crown className="w-3 h-3 inline mr-1" />}
                   {f.label}
                   {f.key === "all" && (
                     <span className="ml-1 opacity-70">{allItems.length}</span>
                   )}
                   {f.key === "image" && (
                     <span className="ml-1 opacity-70">{imageCount}</span>
-                  )}
-                  {f.key === "pdf" && (
-                    <span className="ml-1 opacity-70">{pdfCount}</span>
                   )}
                 </button>
               ))}
@@ -293,9 +246,8 @@ export default function AttachmentLibrary() {
           <div className="flex items-center gap-4 mt-3 text-xs text-[var(--text-tertiary)]">
             <span className="flex items-center gap-1">
               <Files className="w-3.5 h-3.5" />
-              {filteredItems.length} tệp
+              {filteredItems.length} ảnh
             </span>
-            <span>{formatTotalSize(totalSize)} tổng</span>
             {hasAdvancedFilters && (
               <button
                 onClick={clearAdvancedFilters}
@@ -326,7 +278,7 @@ export default function AttachmentLibrary() {
                   : "Không tìm thấy đính kèm phù hợp bộ lọc."}
               </p>
               {allItems.length === 0 && (
-                <Button onClick={goCreateTransaction}>
+                <Button onClick={() => goCreateTransaction()}>
                   Thêm đính kèm từ giao dịch
                 </Button>
               )}
@@ -351,62 +303,30 @@ export default function AttachmentLibrary() {
                   <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
                     {items.map((item) => (
                       <button
-                        key={`${item.transactionId}-${item.attachment.id}`}
+                        key={`${item.transactionId}`}
                         onClick={() => {
-                          if (item.attachment.type === "image") {
-                            openLightbox(item, filteredItems);
-                          } else {
-                            window.open(item.attachment.url, "_blank");
-                          }
+                          openLightbox(item, filteredItems);
                         }}
                         className="group relative aspect-square rounded-[var(--radius-lg)] overflow-hidden bg-[var(--surface)] border border-[var(--border)] hover:ring-2 hover:ring-[var(--primary)] transition-all focus:outline-none focus:ring-2 focus:ring-[var(--focus-ring)]"
                       >
                         {/* Thumbnail */}
-                        {item.attachment.type === "image" ? (
-                          <img
-                            src={item.attachment.url}
-                            alt={item.attachment.name}
-                            className="w-full h-full object-cover transition-transform group-hover:scale-105"
-                            loading="lazy"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex flex-col items-center justify-center gap-2 bg-gradient-to-br from-blue-50 to-indigo-50">
-                            <FileText className="w-8 h-8 text-[var(--primary)]" />
-                            <span className="text-[10px] font-medium text-[var(--text-secondary)] px-2 text-center truncate max-w-full">
-                              {item.attachment.name
-                                .split(".")
-                                .pop()
-                                ?.toUpperCase()}
-                            </span>
-                          </div>
-                        )}
+                        <img
+                          src={item.imageUrl}
+                          alt={item.transactionDescription}
+                          className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                          loading="lazy"
+                        />
 
                         {/* Overlay gradient */}
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
 
-                        {/* Cloud badge - top left */}
-                        {item.isCloud && (
-                          <div className="absolute top-1.5 left-1.5">
-                            <Cloud className="w-3.5 h-3.5 text-white drop-shadow-md" />
-                          </div>
-                        )}
-
-                        {/* PRO badge - top right */}
-                        {item.isCloud && (
-                          <div className="absolute top-1.5 right-1.5">
-                            <span className="px-1 py-0.5 rounded text-[7px] font-bold bg-amber-500 text-white leading-none shadow-sm">
-                              PRO
-                            </span>
-                          </div>
-                        )}
-
                         {/* Hover info overlay */}
                         <div className="absolute bottom-0 left-0 right-0 p-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
                           <p className="text-[10px] text-white truncate font-medium drop-shadow">
-                            {item.attachment.name}
+                            {item.transactionDescription}
                           </p>
                           <p className="text-[9px] text-white/70 truncate">
-                            {formatFileSize(item.attachment.size)}
+                            {item.transactionDate}
                           </p>
                         </div>
                       </button>
@@ -417,14 +337,14 @@ export default function AttachmentLibrary() {
                   <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 mt-1 md:hidden">
                     {items.map((item) => (
                       <div
-                        key={`label-${item.transactionId}-${item.attachment.id}`}
+                        key={`label-${item.transactionId}`}
                         className="min-w-0"
                       >
                         <p className="text-[10px] text-[var(--text-secondary)] truncate">
-                          {item.attachment.name}
+                          {item.transactionDescription}
                         </p>
                         <p className="text-[9px] text-[var(--text-tertiary)]">
-                          {formatFileSize(item.attachment.size)}
+                          {item.transactionDate}
                         </p>
                       </div>
                     ))}
@@ -478,13 +398,24 @@ export default function AttachmentLibrary() {
                     },
                     {
                       label: "Tháng này",
-                      start: "2026-03-01",
-                      end: "2026-03-31",
+                      start: (() => {
+                        const d = new Date();
+                        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-01`;
+                      })(),
+                      end: new Date().toISOString().split("T")[0],
                     },
                     {
                       label: "Tháng trước",
-                      start: "2026-02-01",
-                      end: "2026-02-28",
+                      start: (() => {
+                        const d = new Date();
+                        d.setMonth(d.getMonth() - 1);
+                        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-01`;
+                      })(),
+                      end: (() => {
+                        const d = new Date();
+                        d.setDate(0);
+                        return d.toISOString().split("T")[0];
+                      })(),
                     },
                   ].map((preset) => (
                     <button
@@ -555,67 +486,6 @@ export default function AttachmentLibrary() {
                   )}
                 </div>
               </div>
-
-              {/* File Type */}
-              <div>
-                <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-                  Loại tệp
-                </label>
-                <div className="flex gap-3">
-                  {[
-                    { key: "image", label: "Hình ảnh", icon: ImageIcon },
-                    { key: "pdf", label: "PDF", icon: FileText },
-                  ].map((ft) => {
-                    const checked = filterFileTypes.has(ft.key);
-                    return (
-                      <label
-                        key={ft.key}
-                        className={`flex items-center gap-2 px-3 py-2 rounded-[var(--radius-md)] border cursor-pointer transition-colors ${
-                          checked
-                            ? "bg-[var(--primary-light)] border-[var(--primary)] text-[var(--primary)]"
-                            : "border-[var(--border)] text-[var(--text-secondary)] hover:bg-[var(--surface)]"
-                        }`}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={checked}
-                          onChange={() => {
-                            const next = new Set(filterFileTypes);
-                            if (checked) next.delete(ft.key);
-                            else next.add(ft.key);
-                            setFilterFileTypes(next);
-                          }}
-                          className="sr-only"
-                        />
-                        <ft.icon className="w-4 h-4" />
-                        <span className="text-sm font-medium">{ft.label}</span>
-                      </label>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Pro filter */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Crown className="w-4 h-4 text-amber-500" />
-                  <span className="text-sm font-medium text-[var(--text-primary)]">
-                    Chỉ PRO
-                  </span>
-                </div>
-                <button
-                  onClick={() => setFilterProOnly(!filterProOnly)}
-                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                    filterProOnly ? "bg-amber-500" : "bg-[var(--border)]"
-                  }`}
-                >
-                  <span
-                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                      filterProOnly ? "translate-x-6" : "translate-x-1"
-                    }`}
-                  />
-                </button>
-              </div>
             </div>
 
             {/* Sheet footer */}
@@ -644,7 +514,6 @@ export default function AttachmentLibrary() {
       {lightboxState &&
         (() => {
           const currentItem = lightboxState.items[lightboxState.index];
-          const att = currentItem.attachment;
           return (
             <div
               className="fixed inset-0 bg-black/90 flex flex-col z-[60]"
@@ -659,15 +528,10 @@ export default function AttachmentLibrary() {
                   <span className="px-2.5 py-1 rounded-full bg-white/15 text-white text-xs font-medium tabular-nums">
                     {lightboxState.index + 1} / {lightboxState.items.length}
                   </span>
-                  {currentItem.isCloud && (
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-[10px] font-semibold">
-                      <Crown className="w-2.5 h-2.5" /> PRO
-                    </span>
-                  )}
                 </div>
                 <div className="flex items-center gap-2">
                   <a
-                    href={att.url}
+                    href={currentItem.imageUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="p-2 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
@@ -676,8 +540,8 @@ export default function AttachmentLibrary() {
                     <ExternalLink className="w-5 h-5" />
                   </a>
                   <a
-                    href={att.url}
-                    download={att.name}
+                    href={currentItem.imageUrl}
+                    download
                     className="p-2 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
                     title="Tải về"
                   >
@@ -698,8 +562,8 @@ export default function AttachmentLibrary() {
                 onClick={(e) => e.stopPropagation()}
               >
                 <img
-                  src={att.url}
-                  alt={att.name}
+                  src={currentItem.imageUrl}
+                  alt={currentItem.transactionDescription}
                   className="max-w-full max-h-full object-contain px-4"
                 />
 
@@ -751,11 +615,10 @@ export default function AttachmentLibrary() {
                   <div className="flex items-center justify-between gap-4">
                     <div className="min-w-0">
                       <p className="text-sm font-medium text-white truncate">
-                        {att.name}
+                        {currentItem.transactionDescription}
                       </p>
                       <p className="text-xs text-white/60 mt-0.5">
-                        {formatFileSize(att.size)} &bull;{" "}
-                        {currentItem.transactionDescription}
+                        {currentItem.transactionDate}
                       </p>
                     </div>
                     <button

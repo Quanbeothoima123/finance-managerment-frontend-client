@@ -4,6 +4,7 @@ import {
   PieChart as PieChartIcon,
   BarChart3,
   ChevronDown,
+  Loader2,
 } from "lucide-react";
 import { Card } from "../components/Card";
 import {
@@ -18,11 +19,13 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { useAppNavigation } from "../hooks/useAppNavigation";
-import { useDemoData } from "../contexts/DemoDataContext";
+import { useAccountsOverview } from "../hooks/useAccountsOverview";
+import { useTransactionsList } from "../hooks/useTransactionsList";
+import { useCategoriesList } from "../hooks/useCategoriesList";
+import { useTagsList } from "../hooks/useTagsList";
 import {
   TagFilterDropdown,
   TagFilterBadge,
-  filterByTags,
 } from "../components/TagFilterDropdown";
 
 const FALLBACK_COLORS = [
@@ -88,12 +91,59 @@ function CategoryItem({ category, rank }: CategoryItemProps) {
 
 export default function CategoryBreakdown() {
   const [chartType, setChartType] = useState<"pie" | "bar">("pie");
-  const [selectedMonth, setSelectedMonth] = useState("2026-02");
+  const now = new Date();
+  const pad = (n: number) => String(n).padStart(2, "0");
+  const [selectedMonth, setSelectedMonth] = useState(
+    `${now.getFullYear()}-${pad(now.getMonth() + 1)}`,
+  );
   const [selectedAccount, setSelectedAccount] = useState("all");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [tagFilterMode, setTagFilterMode] = useState<"AND" | "OR">("OR");
   const nav = useAppNavigation();
-  const { transactions, categories, accounts, tags } = useDemoData();
+
+  // ── Data fetching ──
+  const { data: accData } = useAccountsOverview();
+  const accounts = accData?.accounts ?? [];
+
+  const { data: catData } = useCategoriesList();
+
+  const { data: tagsData } = useTagsList();
+  const tags = useMemo(
+    () =>
+      (tagsData?.items ?? []).map((t) => ({
+        id: t.id,
+        name: t.name,
+        color: t.colorHex || t.color || "#6b7280",
+      })),
+    [tagsData],
+  );
+
+  // Fetch expenses for selected month with account/tag filters applied server-side
+  const txnQuery = useMemo(() => {
+    const [y, m] = selectedMonth.split("-").map(Number);
+    const start = new Date(y, m - 1, 1);
+    const end = new Date(y, m, 0);
+    return {
+      startDate: `${start.getFullYear()}-${pad(start.getMonth() + 1)}-${pad(start.getDate())}`,
+      endDate: `${end.getFullYear()}-${pad(end.getMonth() + 1)}-${pad(end.getDate())}`,
+      type: "expense" as const,
+      ...(selectedAccount !== "all" ? { accountId: selectedAccount } : {}),
+      ...(selectedTags.length > 0
+        ? {
+            tagIds: selectedTags,
+            tagMode:
+              tagFilterMode === "AND" ? ("and" as const) : ("or" as const),
+          }
+        : {}),
+      limit: 100,
+      sortBy: "date" as const,
+      sortOrder: "desc" as const,
+    };
+  }, [selectedMonth, selectedAccount, selectedTags, tagFilterMode]);
+  const { data: txnData, loading: txnLoading } = useTransactionsList(txnQuery);
+  const transactions = txnData?.items ?? [];
+
+  const minor = (s: string | null | undefined) => parseInt(s || "0", 10) || 0;
 
   const handleBack = () => {
     nav.goBack();
@@ -103,88 +153,76 @@ export default function CategoryBreakdown() {
     return new Intl.NumberFormat("vi-VN").format(amount);
   };
 
-  // Build month options from transactions
+  // Build month options (last 12 months)
   const months = useMemo(() => {
-    const monthSet = new Set<string>();
-    transactions.forEach((t) => {
-      const d = new Date(t.date);
-      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
-      monthSet.add(key);
-    });
-    return [...monthSet]
-      .sort((a, b) => b.localeCompare(a))
-      .slice(0, 12)
-      .map((key) => {
-        const [y, m] = key.split("-");
-        return { id: key, name: `Tháng ${parseInt(m)}, ${y}` };
+    const result: { id: string; name: string }[] = [];
+    const today = new Date();
+    for (let i = 0; i < 12; i++) {
+      const d = new Date(today.getFullYear(), today.getMonth() - i, 1);
+      const key = `${d.getFullYear()}-${pad(d.getMonth() + 1)}`;
+      result.push({
+        id: key,
+        name: `Tháng ${d.getMonth() + 1}, ${d.getFullYear()}`,
       });
-  }, [transactions]);
+    }
+    return result;
+  }, []);
 
   // Build account options
   const accountOptions = useMemo(
     () => [
       { id: "all", name: "Tất cả tài khoản" },
-      ...accounts.map((a) => ({ id: a.id, name: a.name })),
+      ...accounts
+        .filter((a) => a.status === "active")
+        .map((a) => ({ id: a.id, name: a.name })),
     ],
     [accounts],
   );
 
   // Build category data from real transactions
   const categoryData = useMemo(() => {
-    const [yearStr, monthStr] = selectedMonth.split("-");
-    const year = parseInt(yearStr);
-    const month = parseInt(monthStr) - 1;
-
     const catLookup: Record<string, { name: string; color: string }> = {};
-    categories.forEach((c) => {
-      catLookup[c.id] = { name: c.name, color: c.color };
+    (catData?.items ?? []).forEach((c) => {
+      catLookup[c.id] = {
+        name: c.name,
+        color: c.colorHex || c.color || FALLBACK_COLORS[0],
+      };
     });
 
-    const catMap: Record<string, { amount: number; transactions: number }> = {};
+    const catMap: Record<
+      string,
+      { amount: number; transactions: number; name: string; color: string }
+    > = {};
 
-    transactions
-      .filter((t) => {
-        if (t.type !== "expense") return false;
-        const d = new Date(t.date);
-        if (d.getFullYear() !== year || d.getMonth() !== month) return false;
-        if (selectedAccount !== "all" && t.accountId !== selectedAccount)
-          return false;
-        if (
-          selectedTags.length > 0 &&
-          !filterByTags(t.tags, selectedTags, tagFilterMode)
-        )
-          return false;
-        return true;
-      })
-      .forEach((t) => {
-        const key = t.categoryId || t.category;
-        if (!catMap[key]) catMap[key] = { amount: 0, transactions: 0 };
-        catMap[key].amount += Math.abs(t.amount);
-        catMap[key].transactions += 1;
-      });
+    transactions.forEach((t) => {
+      const catId = t.category?.id || "unknown";
+      const catName = t.category?.name || "Không danh mục";
+      const catColor =
+        catLookup[catId]?.color || t.category?.colorHex || FALLBACK_COLORS[0];
+      if (!catMap[catId])
+        catMap[catId] = {
+          amount: 0,
+          transactions: 0,
+          name: catName,
+          color: catColor,
+        };
+      catMap[catId].amount += minor(t.totalAmountMinor);
+      catMap[catId].transactions += 1;
+    });
 
     const total = Object.values(catMap).reduce((s, v) => s + v.amount, 0) || 1;
 
     return Object.entries(catMap)
       .map(([key, val], idx) => ({
         id: key,
-        name: catLookup[key]?.name || key,
+        name: val.name,
         amount: val.amount,
         percentage: Math.round((val.amount / total) * 100),
-        color:
-          catLookup[key]?.color ||
-          FALLBACK_COLORS[idx % FALLBACK_COLORS.length],
+        color: val.color || FALLBACK_COLORS[idx % FALLBACK_COLORS.length],
         transactions: val.transactions,
       }))
       .sort((a, b) => b.amount - a.amount);
-  }, [
-    transactions,
-    categories,
-    selectedMonth,
-    selectedAccount,
-    selectedTags,
-    tagFilterMode,
-  ]);
+  }, [transactions, catData]);
 
   const totalAmount = categoryData.reduce((sum, cat) => sum + cat.amount, 0);
   const totalTransactions = categoryData.reduce(
@@ -193,6 +231,14 @@ export default function CategoryBreakdown() {
   );
   const avgPerTransaction =
     totalTransactions > 0 ? totalAmount / totalTransactions : 0;
+
+  if (txnLoading) {
+    return (
+      <div className="min-h-screen bg-[var(--background)] flex items-center justify-center">
+        <Loader2 className="w-8 h-8 text-[var(--primary)] animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[var(--background)]">

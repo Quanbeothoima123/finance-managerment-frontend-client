@@ -5,6 +5,7 @@ import {
   TrendingUp,
   TrendingDown,
   ChevronDown,
+  Loader2,
 } from "lucide-react";
 import { Card } from "../components/Card";
 import {
@@ -17,12 +18,14 @@ import {
   Cell,
 } from "recharts";
 import { useAppNavigation } from "../hooks/useAppNavigation";
-import { useDemoData } from "../contexts/DemoDataContext";
+import { useAccountsOverview } from "../hooks/useAccountsOverview";
+import { useTransactionsList } from "../hooks/useTransactionsList";
 
 const ACCOUNT_TYPE_COLORS: Record<string, string> = {
   bank: "#3b82f6",
   cash: "#10b981",
-  credit: "#ef4444",
+  credit_card: "#ef4444",
+  e_wallet: "#06b6d4",
   investment: "#f59e0b",
   savings: "#8b5cf6",
 };
@@ -30,7 +33,8 @@ const ACCOUNT_TYPE_COLORS: Record<string, string> = {
 const ACCOUNT_TYPE_LABELS: Record<string, string> = {
   bank: "Ngân hàng",
   cash: "Tiền mặt",
-  credit: "Tín dụng",
+  credit_card: "Tín dụng",
+  e_wallet: "Ví điện tử",
   investment: "Đầu tư",
   savings: "Tiết kiệm",
 };
@@ -112,7 +116,14 @@ function AccountItem({ account }: AccountItemProps) {
 export default function AccountBreakdown() {
   const [dateRange, setDateRange] = useState("this-month");
   const nav = useAppNavigation();
-  const { accounts, transactions } = useDemoData();
+
+  // ── Data fetching ──
+  const { data: accData, loading: accLoading } = useAccountsOverview();
+  const accounts =
+    accData?.accounts?.filter((a) => a.status === "active") ?? [];
+
+  const minor = (s: string | null | undefined) => parseInt(s || "0", 10) || 0;
+  const pad = (n: number) => String(n).padStart(2, "0");
 
   const handleBack = () => {
     nav.goBack();
@@ -124,7 +135,7 @@ export default function AccountBreakdown() {
 
   // Get date range bounds
   const dateRangeBounds = useMemo(() => {
-    const now = new Date("2026-02-23");
+    const now = new Date();
     let start: Date;
     switch (dateRange) {
       case "last-month":
@@ -146,37 +157,44 @@ export default function AccountBreakdown() {
     }
   }, [dateRange]);
 
+  // Fetch transactions for the date range
+  const txnQuery = useMemo(
+    () => ({
+      startDate: `${dateRangeBounds.start.getFullYear()}-${pad(dateRangeBounds.start.getMonth() + 1)}-${pad(dateRangeBounds.start.getDate())}`,
+      endDate: `${dateRangeBounds.end.getFullYear()}-${pad(dateRangeBounds.end.getMonth() + 1)}-${pad(dateRangeBounds.end.getDate())}`,
+      limit: 100,
+      sortBy: "date" as const,
+      sortOrder: "desc" as const,
+    }),
+    [dateRangeBounds],
+  );
+  const { data: txnData, loading: txnLoading } = useTransactionsList(txnQuery);
+  const transactions = txnData?.items ?? [];
+
   // Compute account data with change from transactions
   const accountData: AccountDisplayData[] = useMemo(() => {
     return accounts.map((acc) => {
-      // Sum net flow for this account in the date range
       const netFlow = transactions
-        .filter((t) => {
-          if (t.accountId !== acc.id) return false;
-          const d = new Date(t.date);
-          return d >= dateRangeBounds.start && d <= dateRangeBounds.end;
-        })
-        .reduce((sum, t) => {
-          if (t.type === "income") return sum + Math.abs(t.amount);
-          if (t.type === "expense") return sum - Math.abs(t.amount);
-          return sum;
-        }, 0);
+        .filter((t) => t.account?.id === acc.id)
+        .reduce((sum, t) => sum + minor(t.signedAmountMinor), 0);
 
-      const previousBalance = acc.balance - netFlow;
+      const currentBalance = minor(acc.currentBalanceMinor);
+      const previousBalance = currentBalance - netFlow;
       const changePercent =
         previousBalance !== 0 ? (netFlow / Math.abs(previousBalance)) * 100 : 0;
 
       return {
         id: acc.id,
         name: acc.name,
-        type: acc.type,
-        currentBalance: acc.balance,
+        type: acc.accountType,
+        currentBalance,
         change: netFlow,
         changePercent,
-        color: acc.color || ACCOUNT_TYPE_COLORS[acc.type] || "#6b7280",
+        color:
+          acc.colorHex || ACCOUNT_TYPE_COLORS[acc.accountType] || "#6b7280",
       };
     });
-  }, [accounts, transactions, dateRangeBounds]);
+  }, [accounts, transactions]);
 
   const totalCurrentBalance = accountData.reduce(
     (sum, acc) => sum + acc.currentBalance,
@@ -219,6 +237,14 @@ export default function AccountBreakdown() {
       })
       .sort((a, b) => b.totalBalance - a.totalBalance);
   }, [accountData, totalCurrentBalance]);
+
+  if (accLoading || txnLoading) {
+    return (
+      <div className="min-h-screen bg-[var(--background)] flex items-center justify-center">
+        <Loader2 className="w-8 h-8 text-[var(--primary)] animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[var(--background)]">

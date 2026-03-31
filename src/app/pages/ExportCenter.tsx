@@ -6,12 +6,14 @@ import {
   Calendar,
   Filter,
   CheckCircle,
+  Loader2,
 } from "lucide-react";
 import { Card } from "../components/Card";
 import { Button } from "../components/Button";
 import { Input } from "../components/Input";
 import { useToast } from "../contexts/ToastContext";
-import { useDemoData } from "../contexts/DemoDataContext";
+import { useTransactionsList } from "../hooks/useTransactionsList";
+import { useAccountsOverview } from "../hooks/useAccountsOverview";
 import { useAppNavigation } from "../hooks/useAppNavigation";
 
 function downloadFile(content: string, filename: string, mimeType: string) {
@@ -35,47 +37,62 @@ function escapeCSV(val: string): string {
   return val;
 }
 
+const minor = (s: string | null | undefined) => parseInt(s || "0", 10) || 0;
+
 export default function ExportCenter() {
   const toast = useToast();
-  const { transactions, accounts } = useDemoData();
   const nav = useAppNavigation();
+
+  const now = new Date();
+  const pad = (n: number) => String(n).padStart(2, "0");
+  const thisMonthStart = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-01`;
+  const thisMonthEnd = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate())}`;
+
   const [exportType, setExportType] = useState<"csv" | "pdf">("csv");
-  const [startDate, setStartDate] = useState("2026-02-01");
-  const [endDate, setEndDate] = useState("2026-02-28");
+  const [startDate, setStartDate] = useState(thisMonthStart);
+  const [endDate, setEndDate] = useState(thisMonthEnd);
   const [selectedAccount, setSelectedAccount] = useState("all");
   const [includeAttachments, setIncludeAttachments] = useState(false);
   const [includeCategories, setIncludeCategories] = useState(true);
   const [includeTags, setIncludeTags] = useState(true);
   const [exported, setExported] = useState(false);
 
+  const { data: accData, loading: accLoading } = useAccountsOverview();
+  const { data: txnData, loading: txnLoading } = useTransactionsList({
+    startDate,
+    endDate,
+    accountId: selectedAccount !== "all" ? selectedAccount : undefined,
+    limit: 100,
+  });
+
+  const accounts = accData?.accounts ?? [];
+  const filteredTransactions = txnData?.items ?? [];
+  const loading = accLoading || txnLoading;
+
   const accountOptions = useMemo(() => {
     return [
       { id: "all", name: "Tất cả tài khoản" },
-      ...accounts.map((a) => ({ id: a.id, name: a.name })),
+      ...accounts.map((a: any) => ({ id: a.id, name: a.name })),
     ];
   }, [accounts]);
-
-  const filteredTransactions = useMemo(() => {
-    return transactions.filter((txn) => {
-      const txnDate = txn.date;
-      if (txnDate < startDate || txnDate > endDate) return false;
-      if (selectedAccount !== "all" && txn.accountId !== selectedAccount)
-        return false;
-      return true;
-    });
-  }, [transactions, startDate, endDate, selectedAccount]);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("vi-VN").format(amount);
   };
 
   const totalIncome = filteredTransactions
-    .filter((t) => t.type === "income")
-    .reduce((sum, t) => sum + Math.abs(t.amount), 0);
+    .filter((t: any) => t.type === "income")
+    .reduce(
+      (sum: number, t: any) => sum + Math.abs(minor(t.totalAmountMinor)),
+      0,
+    );
 
   const totalExpense = filteredTransactions
-    .filter((t) => t.type === "expense")
-    .reduce((sum, t) => sum + Math.abs(t.amount), 0);
+    .filter((t: any) => t.type === "expense")
+    .reduce(
+      (sum: number, t: any) => sum + Math.abs(minor(t.totalAmountMinor)),
+      0,
+    );
 
   const handleExport = () => {
     if (exportType === "csv") {
@@ -92,9 +109,9 @@ export default function ExportCenter() {
     if (includeAttachments) headerParts.push("Đính kèm");
     headerParts.push("Nhà cung cấp");
 
-    const rows = filteredTransactions.map((txn) => {
+    const rows = filteredTransactions.map((txn: any) => {
       const parts = [
-        escapeCSV(txn.date),
+        escapeCSV(txn.date || txn.occurredAt?.split("T")[0] || ""),
         escapeCSV(
           txn.type === "income"
             ? "Thu nhập"
@@ -102,14 +119,17 @@ export default function ExportCenter() {
               ? "Chi tiêu"
               : "Chuyển khoản",
         ),
-        escapeCSV(txn.description),
-        String(txn.amount),
-        escapeCSV(txn.account),
+        escapeCSV(txn.description || ""),
+        String(minor(txn.totalAmountMinor)),
+        escapeCSV(txn.account?.name || ""),
       ];
-      if (includeCategories) parts.push(escapeCSV(txn.category || ""));
-      if (includeTags) parts.push(escapeCSV((txn.tags || []).join("; ")));
-      if (includeAttachments) parts.push(txn.attachment ? "Có" : "Không");
-      parts.push(escapeCSV(txn.merchant || ""));
+      if (includeCategories) parts.push(escapeCSV(txn.category?.name || ""));
+      if (includeTags)
+        parts.push(
+          escapeCSV((txn.tags || []).map((t: any) => t.name).join("; ")),
+        );
+      if (includeAttachments) parts.push(txn.imageUrl ? "Có" : "Không");
+      parts.push(escapeCSV(txn.merchant?.name || ""));
       return parts.join(",");
     });
 
@@ -131,7 +151,7 @@ export default function ExportCenter() {
     lines.push("");
     lines.push(`Khoảng thời gian: ${startDate} → ${endDate}`);
     lines.push(
-      `Tài khoản: ${selectedAccount === "all" ? "Tất cả" : accounts.find((a) => a.id === selectedAccount)?.name || selectedAccount}`,
+      `Tài khoản: ${selectedAccount === "all" ? "Tất cả" : accounts.find((a: any) => a.id === selectedAccount)?.name || selectedAccount}`,
     );
     lines.push(`Ngày xuất: ${new Date().toLocaleDateString("vi-VN")}`);
     lines.push("");
@@ -151,13 +171,19 @@ export default function ExportCenter() {
     lines.push("");
 
     filteredTransactions
-      .sort((a, b) => a.date.localeCompare(b.date))
-      .forEach((txn, idx) => {
+      .sort((a: any, b: any) =>
+        (a.date || a.occurredAt || "").localeCompare(
+          b.date || b.occurredAt || "",
+        ),
+      )
+      .forEach((txn: any, idx: number) => {
         const sign =
           txn.type === "income" ? "+" : txn.type === "expense" ? "-" : "↔";
-        lines.push(`  ${idx + 1}. [${txn.date}] ${txn.description}`);
         lines.push(
-          `     ${sign}${formatCurrency(Math.abs(txn.amount))}₫ | ${txn.account}${txn.category ? ` | ${txn.category}` : ""}`,
+          `  ${idx + 1}. [${txn.date || txn.occurredAt?.split("T")[0] || ""}] ${txn.description || ""}`,
+        );
+        lines.push(
+          `     ${sign}${formatCurrency(Math.abs(minor(txn.totalAmountMinor)))}₫ | ${txn.account?.name || ""}${txn.category?.name ? ` | ${txn.category.name}` : ""}`,
         );
         lines.push("");
       });
@@ -174,10 +200,17 @@ export default function ExportCenter() {
     setTimeout(() => setExported(false), 3000);
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[var(--background)] flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-[var(--primary)]" />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[var(--background)]">
       <div className="max-w-4xl mx-auto p-4 md:p-6 pb-20 md:pb-6 space-y-6">
-        {/* Header */}
         <div>
           <h1 className="text-2xl font-semibold text-[var(--text-primary)]">
             Trung tâm xuất dữ liệu
@@ -314,8 +347,8 @@ export default function ExportCenter() {
           <div className="mt-4 flex flex-wrap gap-2">
             <button
               onClick={() => {
-                setStartDate("2026-02-01");
-                setEndDate("2026-02-28");
+                setStartDate(thisMonthStart);
+                setEndDate(thisMonthEnd);
               }}
               className="px-3 py-1.5 bg-[var(--surface)] hover:bg-[var(--border)] rounded-[var(--radius-md)] text-sm font-medium text-[var(--text-primary)] transition-colors"
             >
@@ -323,8 +356,14 @@ export default function ExportCenter() {
             </button>
             <button
               onClick={() => {
-                setStartDate("2026-01-01");
-                setEndDate("2026-01-31");
+                const prev = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+                const prevEnd = new Date(now.getFullYear(), now.getMonth(), 0);
+                setStartDate(
+                  `${prev.getFullYear()}-${pad(prev.getMonth() + 1)}-01`,
+                );
+                setEndDate(
+                  `${prevEnd.getFullYear()}-${pad(prevEnd.getMonth() + 1)}-${pad(prevEnd.getDate())}`,
+                );
               }}
               className="px-3 py-1.5 bg-[var(--surface)] hover:bg-[var(--border)] rounded-[var(--radius-md)] text-sm font-medium text-[var(--text-primary)] transition-colors"
             >
@@ -332,8 +371,8 @@ export default function ExportCenter() {
             </button>
             <button
               onClick={() => {
-                setStartDate("2026-01-01");
-                setEndDate("2026-12-31");
+                setStartDate(`${now.getFullYear()}-01-01`);
+                setEndDate(`${now.getFullYear()}-12-31`);
               }}
               className="px-3 py-1.5 bg-[var(--surface)] hover:bg-[var(--border)] rounded-[var(--radius-md)] text-sm font-medium text-[var(--text-primary)] transition-colors"
             >

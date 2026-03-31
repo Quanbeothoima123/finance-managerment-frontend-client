@@ -9,66 +9,102 @@ import {
   DollarSign,
   Calendar,
   FileText,
+  Loader2,
 } from "lucide-react";
 import { Card } from "../components/Card";
 import { useToast } from "../contexts/ToastContext";
-import { useDemoData } from "../contexts/DemoDataContext";
 import { useAppNavigation } from "../hooks/useAppNavigation";
+import { useTransactionsList } from "../hooks/useTransactionsList";
+import { useCategoriesList } from "../hooks/useCategoriesList";
+import { useBudgetsList } from "../hooks/useBudgetsList";
+import { useGoalsList } from "../hooks/useGoalsList";
 
 export default function MonthlyRecap() {
   const toast = useToast();
-  const { transactions, categories, budgets, goals } = useDemoData();
   const nav = useAppNavigation();
+
+  const now = new Date();
+  const pad = (n: number) => String(n).padStart(2, "0");
+  const currentMonthKey = `${now.getFullYear()}-${pad(now.getMonth() + 1)}`;
+  const prevMonthDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  const prevMonthKey = `${prevMonthDate.getFullYear()}-${pad(prevMonthDate.getMonth() + 1)}`;
+
+  // Current month transactions
+  const curStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const curEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+  const { data: curTxnData, loading: curLoading } = useTransactionsList({
+    startDate: `${curStart.getFullYear()}-${pad(curStart.getMonth() + 1)}-01`,
+    endDate: `${curEnd.getFullYear()}-${pad(curEnd.getMonth() + 1)}-${pad(curEnd.getDate())}`,
+    limit: 100,
+    sortBy: "date",
+    sortOrder: "desc",
+  });
+  const currentTxns = curTxnData?.items ?? [];
+
+  // Previous month transactions
+  const prevStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  const prevEnd = new Date(now.getFullYear(), now.getMonth(), 0);
+  const { data: prevTxnData, loading: prevLoading } = useTransactionsList({
+    startDate: `${prevStart.getFullYear()}-${pad(prevStart.getMonth() + 1)}-01`,
+    endDate: `${prevEnd.getFullYear()}-${pad(prevEnd.getMonth() + 1)}-${pad(prevEnd.getDate())}`,
+    limit: 100,
+    sortBy: "date",
+    sortOrder: "desc",
+  });
+  const prevTxns = prevTxnData?.items ?? [];
+
+  const { data: catData } = useCategoriesList();
+  const { data: budgetData, loading: budLoading } = useBudgetsList({
+    month: currentMonthKey,
+  });
+  const { data: goalData, loading: goalLoading } = useGoalsList();
+
+  const minor = (s: string | null | undefined) => parseInt(s || "0", 10) || 0;
+
+  const isLoading = curLoading || prevLoading || budLoading || goalLoading;
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("vi-VN").format(amount);
   };
 
-  // Compute all recap data from real DemoDataContext
+  const monthLabel = now.toLocaleDateString("vi-VN", {
+    month: "long",
+    year: "numeric",
+  });
+
+  // Compute all recap data from real APIs
   const recapData = useMemo(() => {
-    const year = 2026;
-    const month = 1; // February (0-indexed)
-    const prevMonth = 0; // January
-
-    // Filter transactions for current and previous month
-    const currentTxns = transactions.filter((t) => {
-      const d = new Date(t.date);
-      return d.getFullYear() === year && d.getMonth() === month;
-    });
-    const prevTxns = transactions.filter((t) => {
-      const d = new Date(t.date);
-      return d.getFullYear() === year && d.getMonth() === prevMonth;
-    });
-
     // Income & expense totals
     const totalIncome = currentTxns
       .filter((t) => t.type === "income")
-      .reduce((s, t) => s + Math.abs(t.amount), 0);
+      .reduce((s, t) => s + minor(t.totalAmountMinor), 0);
     const totalExpense = currentTxns
       .filter((t) => t.type === "expense")
-      .reduce((s, t) => s + Math.abs(t.amount), 0);
+      .reduce((s, t) => s + minor(t.totalAmountMinor), 0);
     const prevIncome = prevTxns
       .filter((t) => t.type === "income")
-      .reduce((s, t) => s + Math.abs(t.amount), 0);
+      .reduce((s, t) => s + minor(t.totalAmountMinor), 0);
     const prevExpense = prevTxns
       .filter((t) => t.type === "expense")
-      .reduce((s, t) => s + Math.abs(t.amount), 0);
+      .reduce((s, t) => s + minor(t.totalAmountMinor), 0);
 
     const savings = totalIncome - totalExpense;
     const savingsRate = totalIncome > 0 ? (savings / totalIncome) * 100 : 0;
+
+    // Category lookup
+    const catLookup: Record<string, string> = {};
+    (catData?.items ?? []).forEach((c) => {
+      catLookup[c.id] = c.name;
+    });
 
     // Top category
     const catSpend: Record<string, number> = {};
     currentTxns
       .filter((t) => t.type === "expense")
       .forEach((t) => {
-        const key = t.categoryId || t.category;
-        catSpend[key] = (catSpend[key] || 0) + Math.abs(t.amount);
+        const key = t.category?.id || "unknown";
+        catSpend[key] = (catSpend[key] || 0) + minor(t.totalAmountMinor);
       });
-    const catLookup: Record<string, string> = {};
-    categories.forEach((c) => {
-      catLookup[c.id] = c.name;
-    });
     const sortedCats = Object.entries(catSpend).sort((a, b) => b[1] - a[1]);
     const topCat = sortedCats[0];
     const topCatPercentage =
@@ -79,22 +115,21 @@ export default function MonthlyRecap() {
     // Biggest purchase
     const expenses = currentTxns
       .filter((t) => t.type === "expense")
-      .sort((a, b) => Math.abs(b.amount) - Math.abs(a.amount));
+      .sort((a, b) => minor(b.totalAmountMinor) - minor(a.totalAmountMinor));
     const biggest = expenses[0];
 
-    // Budget status
-    const onTrack = budgets.filter(
-      (b) => b.status === "on_track" || b.status === "good",
-    ).length;
-    const exceeded = budgets.filter((b) => b.status === "over").length;
-    const underUsed = budgets.filter((b) => b.status === "warning").length;
+    // Budget status (derived from progressPercent)
+    const budgets = budgetData?.items ?? [];
+    const onTrack = budgets.filter((b) => b.progressPercent <= 80).length;
+    const exceeded = budgets.filter((b) => b.progressPercent > 100).length;
 
-    // Goal progress
-    const goalsOnTrack = goals.filter((g) => g.status === "on_track").length;
-    const goalsAtRisk = goals.filter(
-      (g) => g.status === "at_risk" || g.status === "behind",
+    // Goal progress (using uiStatus)
+    const goals = goalData?.items ?? [];
+    const goalsOnTrack = goals.filter((g) => g.uiStatus === "on-track").length;
+    const goalsAtRisk = goals.filter((g) => g.uiStatus === "behind").length;
+    const goalsCompleted = goals.filter(
+      (g) => g.uiStatus === "achieved",
     ).length;
-    const goalsCompleted = goals.filter((g) => g.status === "achieved").length;
 
     // Comparisons
     const incomeDiff =
@@ -108,22 +143,30 @@ export default function MonthlyRecap() {
         : 0;
 
     return {
-      month: "Tháng 2, 2026",
+      month: monthLabel,
       totalIncome,
       totalExpense,
       savings,
       savingsRate: Number(savingsRate.toFixed(1)),
       topCategory: {
-        name: topCat ? catLookup[topCat[0]] || topCat[0] : "N/A",
+        name: topCat
+          ? catLookup[topCat[0]] ||
+            currentTxns.find((t) => t.category?.id === topCat[0])?.category
+              ?.name ||
+            topCat[0]
+          : "N/A",
         amount: topCat ? topCat[1] : 0,
         percentage: topCatPercentage,
       },
       biggestPurchase: biggest
         ? {
-            description: biggest.description,
-            amount: Math.abs(biggest.amount),
-            date: new Date(biggest.date).toLocaleDateString("vi-VN"),
-            category: biggest.category,
+            description:
+              biggest.description || biggest.category?.name || "Giao dịch",
+            amount: minor(biggest.totalAmountMinor),
+            date: new Date(
+              biggest.date || biggest.occurredAt,
+            ).toLocaleDateString("vi-VN"),
+            category: biggest.category?.name || "",
           }
         : {
             description: "Chưa có dữ liệu",
@@ -149,7 +192,7 @@ export default function MonthlyRecap() {
         savingsDiff: Number(savingsDiff.toFixed(1)),
       },
     };
-  }, [transactions, categories, budgets, goals]);
+  }, [currentTxns, prevTxns, catData, budgetData, goalData, monthLabel]);
 
   // Generate summary message
   const summaryMessage = useMemo(() => {
@@ -189,13 +232,21 @@ export default function MonthlyRecap() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `tong-ket-thang-2-2026.txt`;
+    a.download = `tong-ket-${currentMonthKey}.txt`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
     toast.success("Đã xuất báo cáo tổng kết tháng");
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-[var(--primary)] to-[var(--primary-hover)] flex items-center justify-center">
+        <Loader2 className="w-8 h-8 text-white animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[var(--primary)] to-[var(--primary-hover)]">
@@ -465,7 +516,7 @@ export default function MonthlyRecap() {
                     &bull;
                   </span>
                   <span className="text-xs text-[var(--text-tertiary)]">
-                    23/02/2026
+                    {now.toLocaleDateString("vi-VN")}
                   </span>
                 </div>
               </div>

@@ -33,12 +33,15 @@ import {
   CartesianGrid,
   Cell,
 } from "recharts";
+import { Loader2 } from "lucide-react";
 import { Card } from "../components/Card";
 import { useAppNavigation } from "../hooks/useAppNavigation";
-import { useDemoData } from "../contexts/DemoDataContext";
+import { useTransactionsList } from "../hooks/useTransactionsList";
+import { useBudgetsList } from "../hooks/useBudgetsList";
 import { useToast } from "../contexts/ToastContext";
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
+const minor = (s: string | null | undefined) => parseInt(s || "0", 10) || 0;
 const fmt = (n: number) => new Intl.NumberFormat("vi-VN").format(Math.abs(n));
 const fmtDate = (d: Date) =>
   d.toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit" });
@@ -232,37 +235,48 @@ export default function WeeklyRecapDetail() {
   const [showShare, setShowShare] = useState(false);
   const nav = useAppNavigation();
   const toast = useToast();
-  const { transactions, categories, accounts, budgets } = useDemoData();
 
   const [weekStart, weekEnd] = useMemo(
     () => getWeekRange(weekAnchor),
     [weekAnchor],
   );
 
-  const weekLabel = `${fmtDate(weekStart)} – ${fmtDate(weekEnd)}`;
+  const pad = (n: number) => String(n).padStart(2, "0");
+  const startStr = `${weekStart.getFullYear()}-${pad(weekStart.getMonth() + 1)}-${pad(weekStart.getDate())}`;
+  const endStr = `${weekEnd.getFullYear()}-${pad(weekEnd.getMonth() + 1)}-${pad(weekEnd.getDate())}`;
+  const monthKey = `${weekStart.getFullYear()}-${pad(weekStart.getMonth() + 1)}`;
 
-  // Filter transactions in this week
-  const weekTxns = useMemo(() => {
-    return transactions.filter((t) => {
-      const d = new Date(t.date);
-      return d >= weekStart && d <= weekEnd;
-    });
-  }, [transactions, weekStart, weekEnd]);
+  const { data: txnData, loading: txnLoading } = useTransactionsList({
+    startDate: startStr,
+    endDate: endStr,
+    limit: 100,
+  });
+  const { data: budgetData, loading: budgetLoading } = useBudgetsList({
+    month: monthKey,
+  });
+
+  const weekLabel = `${fmtDate(weekStart)} – ${fmtDate(weekEnd)}`;
+  const loading = txnLoading || budgetLoading;
+
+  const weekTxns = txnData?.items ?? [];
 
   const weekExpenses = useMemo(
-    () => weekTxns.filter((t) => t.type === "expense"),
+    () => weekTxns.filter((t: any) => t.type === "expense"),
     [weekTxns],
   );
   const weekIncome = useMemo(
-    () => weekTxns.filter((t) => t.type === "income"),
+    () => weekTxns.filter((t: any) => t.type === "income"),
     [weekTxns],
   );
 
   const totalSpending = weekExpenses.reduce(
-    (s, t) => s + Math.abs(t.amount),
+    (s: number, t: any) => s + Math.abs(minor(t.totalAmountMinor)),
     0,
   );
-  const totalIncome = weekIncome.reduce((s, t) => s + Math.abs(t.amount), 0);
+  const totalIncome = weekIncome.reduce(
+    (s: number, t: any) => s + Math.abs(minor(t.totalAmountMinor)),
+    0,
+  );
   const netBalance = totalIncome - totalSpending;
 
   // ── Build story bullets ──
@@ -272,10 +286,11 @@ export default function WeeklyRecapDetail() {
 
     // 1) Top category
     const catMap: Record<string, { name: string; total: number }> = {};
-    weekExpenses.forEach((t) => {
-      const key = t.categoryId || t.category;
-      if (!catMap[key]) catMap[key] = { name: t.category, total: 0 };
-      catMap[key].total += Math.abs(t.amount);
+    weekExpenses.forEach((t: any) => {
+      const key = t.category?.id || "uncategorized";
+      if (!catMap[key])
+        catMap[key] = { name: t.category?.name || "Khác", total: 0 };
+      catMap[key].total += Math.abs(minor(t.totalAmountMinor));
     });
     const topCat = Object.values(catMap).sort((a, b) => b.total - a.total)[0];
     if (topCat) {
@@ -292,21 +307,23 @@ export default function WeeklyRecapDetail() {
 
     // 2) Biggest transaction
     const biggest = [...weekExpenses].sort(
-      (a, b) => Math.abs(b.amount) - Math.abs(a.amount),
+      (a: any, b: any) =>
+        Math.abs(minor(b.totalAmountMinor)) -
+        Math.abs(minor(a.totalAmountMinor)),
     )[0];
     if (biggest) {
       result.push({
         type: "biggest-txn",
-        headline: `Giao dịch lớn nhất: ${biggest.description || biggest.category} ${fmt(biggest.amount)}₫`,
-        detail: `${biggest.description} vào ngày ${fmtDate(new Date(biggest.date))}.`,
+        headline: `Giao dịch lớn nhất: ${biggest.description || biggest.category?.name || "Giao dịch"} ${fmt(minor(biggest.totalAmountMinor))}₫`,
+        detail: `${biggest.description || ""} vào ngày ${fmtDate(new Date(biggest.date || biggest.occurredAt))}.`,
       });
     }
 
     // 3) Peak spending day
     const dayMap: Record<number, number> = {};
-    weekExpenses.forEach((t) => {
-      const day = new Date(t.date).getDay();
-      dayMap[day] = (dayMap[day] || 0) + Math.abs(t.amount);
+    weekExpenses.forEach((t: any) => {
+      const day = new Date(t.date || t.occurredAt).getDay();
+      dayMap[day] = (dayMap[day] || 0) + Math.abs(minor(t.totalAmountMinor));
     });
     const peakDay = Object.entries(dayMap).sort(([, a], [, b]) => b - a)[0];
     if (peakDay) {
@@ -319,15 +336,15 @@ export default function WeeklyRecapDetail() {
 
     // 4) Account insight — account with biggest balance decrease
     const accDelta: Record<string, { name: string; delta: number }> = {};
-    weekTxns.forEach((t) => {
+    weekTxns.forEach((t: any) => {
+      const accId = t.account?.id || "unknown";
+      const accName = t.account?.name || "Tài khoản";
       if (t.type === "expense") {
-        if (!accDelta[t.accountId])
-          accDelta[t.accountId] = { name: t.account, delta: 0 };
-        accDelta[t.accountId].delta -= Math.abs(t.amount);
+        if (!accDelta[accId]) accDelta[accId] = { name: accName, delta: 0 };
+        accDelta[accId].delta -= Math.abs(minor(t.totalAmountMinor));
       } else if (t.type === "income") {
-        if (!accDelta[t.accountId])
-          accDelta[t.accountId] = { name: t.account, delta: 0 };
-        accDelta[t.accountId].delta += Math.abs(t.amount);
+        if (!accDelta[accId]) accDelta[accId] = { name: accName, delta: 0 };
+        accDelta[accId].delta += Math.abs(minor(t.totalAmountMinor));
       }
     });
     const biggestDrop = Object.values(accDelta).sort(
@@ -342,35 +359,24 @@ export default function WeeklyRecapDetail() {
     }
 
     // 5) Budget warning
-    const now = new Date();
-    const activeBudgets = budgets.filter(
-      (b) => new Date(b.startDate) <= now && new Date(b.endDate) >= now,
-    );
+    const budgets = budgetData?.items ?? [];
+    const activeBudgets = budgets.filter((b: any) => b.status === "active");
     for (const b of activeBudgets) {
-      // Compute spent from real transactions
-      const budgetExpenses = transactions.filter((t) => {
-        if (t.type !== "expense") return false;
-        const d = new Date(t.date);
-        return (
-          d >= new Date(b.startDate) &&
-          d <= new Date(b.endDate) &&
-          b.categories.includes(t.categoryId)
-        );
-      });
-      const spent = budgetExpenses.reduce((s, t) => s + Math.abs(t.amount), 0);
-      const pctUsed = b.amount > 0 ? Math.round((spent / b.amount) * 100) : 0;
+      const pctUsed = Math.round(b.progressPercent ?? 0);
       if (pctUsed >= 70) {
+        const spent = minor(b.spentMinor);
+        const limit = minor(b.amountMinor);
         result.push({
           type: "budget-warning",
           headline: `Ngân sách "${b.name}" đã dùng ${pctUsed}%`,
-          detail: `Đã chi ${fmt(spent)}₫ / ${fmt(b.amount)}₫ — hãy cân nhắc chi tiêu.`,
+          detail: `Đã chi ${fmt(spent)}₫ / ${fmt(limit)}₫ — hãy cân nhắc chi tiêu.`,
         });
         break; // Only 1 budget warning
       }
     }
 
     return result.slice(0, 5);
-  }, [weekExpenses, weekTxns, totalSpending, budgets, transactions]);
+  }, [weekExpenses, weekTxns, totalSpending, budgetData]);
 
   // ── Daily spending chart data ──
   const dailyChartData = useMemo(() => {
@@ -381,8 +387,11 @@ export default function WeeklyRecapDetail() {
       const dayOfWeek = d.getDay();
       const dayStr = d.toISOString().split("T")[0];
       const amount = weekExpenses
-        .filter((t) => t.date === dayStr)
-        .reduce((s, t) => s + Math.abs(t.amount), 0);
+        .filter((t: any) => (t.date || t.occurredAt?.split("T")[0]) === dayStr)
+        .reduce(
+          (s: number, t: any) => s + Math.abs(minor(t.totalAmountMinor)),
+          0,
+        );
       result.push({
         day: DAY_NAMES[dayOfWeek],
         amount,
@@ -432,6 +441,14 @@ export default function WeeklyRecapDetail() {
   };
 
   const hasData = weekTxns.length > 0;
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[var(--background)] flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-[var(--primary)]" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[var(--background)]">
