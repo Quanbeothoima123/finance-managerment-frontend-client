@@ -65,34 +65,50 @@ async function doRequest<T>(path: string, init: RequestInit = {}) {
   return payload.data;
 }
 
-export async function refreshAuthSession() {
+// Singleton promise to deduplicate concurrent token refresh calls.
+// When multiple requests expire simultaneously, they all wait on the same
+// refresh call instead of each triggering a separate /auth/refresh hit,
+// which would rotate the refresh token out from under concurrent requests.
+let refreshingPromise: Promise<AuthSession | null> | null = null;
+
+export async function refreshAuthSession(): Promise<AuthSession | null> {
+  if (refreshingPromise) {
+    return refreshingPromise;
+  }
+
   const currentSession = getStoredSession();
 
-  try {
-    const data = await doRequest<AuthSuccessPayload>("/auth/refresh", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+  refreshingPromise = (async () => {
+    try {
+      const data = await doRequest<AuthSuccessPayload>("/auth/refresh", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
 
-    if (!data) {
+      if (!data) {
+        clearStoredSession();
+        return null;
+      }
+
+      const nextSession: AuthSession = {
+        accessToken: data.accessToken,
+        user: data.user,
+        rememberMe: currentSession?.rememberMe ?? true,
+      };
+
+      setStoredSession(nextSession);
+      return nextSession;
+    } catch {
       clearStoredSession();
       return null;
     }
+  })().finally(() => {
+    refreshingPromise = null;
+  });
 
-    const nextSession: AuthSession = {
-      accessToken: data.accessToken,
-      user: data.user,
-      rememberMe: currentSession?.rememberMe ?? true,
-    };
-
-    setStoredSession(nextSession);
-    return nextSession;
-  } catch {
-    clearStoredSession();
-    return null;
-  }
+  return refreshingPromise;
 }
 
 interface RequestOptions extends Omit<RequestInit, "body"> {
