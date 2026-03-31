@@ -1,16 +1,37 @@
-import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
+import React, {
+  useState,
+  useRef,
+  useEffect,
+  useMemo,
+  useCallback,
+} from "react";
 import {
-  RefreshCw, BarChart3, Target, MoreVertical, Check, CheckCheck,
-  PartyPopper, ArrowLeft, Trash2, Settings, XCircle, SquareCheck, Square, X,
-} from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
-import { Button } from '../components/Button';
-import { SwipeableRow } from '../components/SwipeableRow';
-import { ConfirmationModal } from '../components/ConfirmationModals';
-import { useNotifications, AppNotification } from '../contexts/NotificationContext';
-import { useDemoData } from '../contexts/DemoDataContext';
-import { useToast } from '../contexts/ToastContext';
-import { useAppNavigation } from '../hooks/useAppNavigation';
+  RefreshCw,
+  BarChart3,
+  Target,
+  MoreVertical,
+  Check,
+  CheckCheck,
+  PartyPopper,
+  ArrowLeft,
+  Trash2,
+  Settings,
+  XCircle,
+  SquareCheck,
+  Square,
+  X,
+} from "lucide-react";
+import { motion, AnimatePresence } from "motion/react";
+import { Button } from "../components/Button";
+import { SwipeableRow } from "../components/SwipeableRow";
+import { ConfirmationModal } from "../components/ConfirmationModals";
+import {
+  useNotifications,
+  AppNotification,
+} from "../contexts/NotificationContext";
+import { useToast } from "../contexts/ToastContext";
+import { recurringService } from "../services/recurringService";
+import { useAppNavigation } from "../hooks/useAppNavigation";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -18,16 +39,16 @@ function timeAgo(dateStr: string): string {
   const now = Date.now();
   const diff = now - new Date(dateStr).getTime();
   const mins = Math.floor(diff / 60000);
-  if (mins < 1) return 'Vừa xong';
+  if (mins < 1) return "Vừa xong";
   if (mins < 60) return `${mins} phút trước`;
   const hours = Math.floor(mins / 60);
   if (hours < 24) return `${hours} giờ trước`;
   const days = Math.floor(hours / 24);
   if (days < 7) return `${days} ngày trước`;
-  return new Date(dateStr).toLocaleDateString('vi-VN');
+  return new Date(dateStr).toLocaleDateString("vi-VN");
 }
 
-function getDateGroup(dateStr: string): 'today' | 'yesterday' | 'earlier' {
+function getDateGroup(dateStr: string): "today" | "yesterday" | "earlier" {
   const now = new Date();
   const d = new Date(dateStr);
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -35,40 +56,40 @@ function getDateGroup(dateStr: string): 'today' | 'yesterday' | 'earlier' {
   yesterday.setDate(yesterday.getDate() - 1);
   const target = new Date(d.getFullYear(), d.getMonth(), d.getDate());
 
-  if (target.getTime() === today.getTime()) return 'today';
-  if (target.getTime() === yesterday.getTime()) return 'yesterday';
-  return 'earlier';
+  if (target.getTime() === today.getTime()) return "today";
+  if (target.getTime() === yesterday.getTime()) return "yesterday";
+  return "earlier";
 }
 
 const GROUP_LABELS: Record<string, string> = {
-  today: 'Hôm nay',
-  yesterday: 'Hôm qua',
-  earlier: 'Trước đó',
+  today: "Hôm nay",
+  yesterday: "Hôm qua",
+  earlier: "Trước đó",
 };
 
-function getNotifIcon(type: AppNotification['type']) {
+function getNotifIcon(type: AppNotification["type"]) {
   switch (type) {
-    case 'recurring-due':
+    case "recurring-due":
       return <RefreshCw className="w-5 h-5" />;
-    case 'budget-alert':
+    case "budget-alert":
       return <BarChart3 className="w-5 h-5" />;
-    case 'goal-reminder':
+    case "goal-reminder":
       return <Target className="w-5 h-5" />;
-    case 'goal-withdrawal-alert':
+    case "goal-withdrawal-alert":
       return <Target className="w-5 h-5" />;
   }
 }
 
-function getNotifColor(type: AppNotification['type']) {
+function getNotifColor(type: AppNotification["type"]) {
   switch (type) {
-    case 'recurring-due':
-      return 'bg-[var(--primary-light)] text-[var(--primary)]';
-    case 'budget-alert':
-      return 'bg-[var(--warning-light)] text-[var(--warning)]';
-    case 'goal-reminder':
-      return 'bg-[var(--success-light)] text-[var(--success)]';
-    case 'goal-withdrawal-alert':
-      return 'bg-[var(--danger-light)] text-[var(--danger)]';
+    case "recurring-due":
+      return "bg-[var(--primary-light)] text-[var(--primary)]";
+    case "budget-alert":
+      return "bg-[var(--warning-light)] text-[var(--warning)]";
+    case "goal-reminder":
+      return "bg-[var(--success-light)] text-[var(--success)]";
+    case "goal-withdrawal-alert":
+      return "bg-[var(--danger-light)] text-[var(--danger)]";
   }
 }
 
@@ -96,10 +117,11 @@ function HeaderMenu({
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+      if (ref.current && !ref.current.contains(e.target as Node))
+        setOpen(false);
     };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
   }, []);
 
   return (
@@ -114,15 +136,21 @@ function HeaderMenu({
         <div className="absolute right-0 top-full mt-1 w-56 bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-lg)] shadow-lg z-50 py-1">
           {hasNotifications && (
             <button
-              onClick={() => { onToggleBulkSelect(); setOpen(false); }}
+              onClick={() => {
+                onToggleBulkSelect();
+                setOpen(false);
+              }}
               className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-[var(--text-primary)] hover:bg-[var(--surface)] transition-colors"
             >
               <SquareCheck className="w-4 h-4 text-[var(--text-secondary)]" />
-              {bulkMode ? 'Huỷ chọn nhiều' : 'Chọn nhiều'}
+              {bulkMode ? "Huỷ chọn nhiều" : "Chọn nhiều"}
             </button>
           )}
           <button
-            onClick={() => { onMarkAllRead(); setOpen(false); }}
+            onClick={() => {
+              onMarkAllRead();
+              setOpen(false);
+            }}
             className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-[var(--text-primary)] hover:bg-[var(--surface)] transition-colors"
           >
             <CheckCheck className="w-4 h-4 text-[var(--text-secondary)]" />
@@ -130,7 +158,10 @@ function HeaderMenu({
           </button>
           {hasRead && (
             <button
-              onClick={() => { onClearAllRead(); setOpen(false); }}
+              onClick={() => {
+                onClearAllRead();
+                setOpen(false);
+              }}
               className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-[var(--danger)] hover:bg-[var(--danger-light)] transition-colors"
             >
               <XCircle className="w-4 h-4" />
@@ -139,7 +170,10 @@ function HeaderMenu({
           )}
           <div className="border-t border-[var(--border)] my-1" />
           <button
-            onClick={() => { onGoSettings(); setOpen(false); }}
+            onClick={() => {
+              onGoSettings();
+              setOpen(false);
+            }}
             className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-[var(--text-primary)] hover:bg-[var(--surface)] transition-colors"
           >
             <Settings className="w-4 h-4 text-[var(--text-secondary)]" />
@@ -185,18 +219,18 @@ function NotificationCard({
           ? [
               {
                 icon: <Check className="w-5 h-5" />,
-                label: 'Đã đọc',
-                color: '#FFFFFF',
-                bgColor: 'var(--primary)',
+                label: "Đã đọc",
+                color: "#FFFFFF",
+                bgColor: "var(--primary)",
                 onClick: onMarkRead,
               },
             ]
           : []),
         {
           icon: <Trash2 className="w-5 h-5" />,
-          label: 'Xoá',
-          color: '#FFFFFF',
-          bgColor: 'var(--danger)',
+          label: "Xoá",
+          color: "#FFFFFF",
+          bgColor: "var(--danger)",
           onClick: onDelete,
         },
       ];
@@ -205,13 +239,13 @@ function NotificationCard({
     <div
       onClick={bulkMode ? onToggleSelect : undefined}
       className={`relative p-4 border transition-colors rounded-[var(--radius-lg)] ${
-        bulkMode ? 'cursor-pointer' : ''
+        bulkMode ? "cursor-pointer" : ""
       } ${
         selected
-          ? 'bg-[var(--primary-light)] border-[var(--primary)] ring-1 ring-[var(--primary)]'
+          ? "bg-[var(--primary-light)] border-[var(--primary)] ring-1 ring-[var(--primary)]"
           : notification.read
-            ? 'bg-[var(--surface)] border-[var(--border)] opacity-70'
-            : 'bg-[var(--card)] border-[var(--border)] shadow-sm'
+            ? "bg-[var(--surface)] border-[var(--border)] opacity-70"
+            : "bg-[var(--card)] border-[var(--border)] shadow-sm"
       }`}
     >
       {/* Unread dot */}
@@ -223,7 +257,10 @@ function NotificationCard({
         {/* Bulk checkbox */}
         {bulkMode && (
           <button
-            onClick={(e) => { e.stopPropagation(); onToggleSelect(); }}
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleSelect();
+            }}
             className="flex-shrink-0 mt-0.5"
           >
             {selected ? (
@@ -235,7 +272,9 @@ function NotificationCard({
         )}
 
         {/* Icon */}
-        <div className={`flex-shrink-0 w-10 h-10 rounded-[var(--radius-lg)] flex items-center justify-center ${getNotifColor(notification.type)}`}>
+        <div
+          className={`flex-shrink-0 w-10 h-10 rounded-[var(--radius-lg)] flex items-center justify-center ${getNotifColor(notification.type)}`}
+        >
           {getNotifIcon(notification.type)}
         </div>
 
@@ -252,10 +291,7 @@ function NotificationCard({
 
           {!bulkMode && (
             <div className="flex items-center gap-2 flex-wrap">
-              <Button
-                onClick={onPrimaryAction}
-                className="text-xs px-3 py-1.5"
-              >
+              <Button onClick={onPrimaryAction} className="text-xs px-3 py-1.5">
                 {primaryLabel}
               </Button>
               {secondaryLabel && onSecondaryAction && (
@@ -314,7 +350,10 @@ function NotificationCard({
   }
 
   return (
-    <SwipeableRow actions={swipeActions} className="rounded-[var(--radius-lg)] overflow-hidden">
+    <SwipeableRow
+      actions={swipeActions}
+      className="rounded-[var(--radius-lg)] overflow-hidden"
+    >
       {cardContent}
     </SwipeableRow>
   );
@@ -346,7 +385,7 @@ function BulkToolbar({
       initial={{ y: 80, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       exit={{ y: 80, opacity: 0 }}
-      transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+      transition={{ type: "spring", damping: 25, stiffness: 300 }}
       className="fixed bottom-0 left-0 right-0 z-50 md:bottom-4 md:left-1/2 md:-translate-x-1/2 md:max-w-lg md:rounded-[var(--radius-xl)]"
     >
       <div className="bg-[var(--card)] border-t md:border border-[var(--border)] shadow-[var(--shadow-lg)] px-4 py-3 md:rounded-[var(--radius-xl)]">
@@ -413,13 +452,7 @@ export default function NotificationsInbox() {
     removeNotifications,
     clearAllRead,
   } = useNotifications();
-  const {
-    generateRecurringTransaction,
-    skipNextOccurrence,
-    recurringRules,
-  } = useDemoData();
-
-  const [tab, setTab] = useState<'unread' | 'all'>('unread');
+  const [tab, setTab] = useState<"unread" | "all">("unread");
   const [showClearModal, setShowClearModal] = useState(false);
   const [showBulkDeleteModal, setShowBulkDeleteModal] = useState(false);
 
@@ -428,7 +461,7 @@ export default function NotificationsInbox() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   const toggleBulkMode = useCallback(() => {
-    setBulkMode(prev => {
+    setBulkMode((prev) => {
       if (prev) setSelectedIds(new Set());
       return !prev;
     });
@@ -440,7 +473,7 @@ export default function NotificationsInbox() {
   }, []);
 
   const toggleSelect = useCallback((id: string) => {
-    setSelectedIds(prev => {
+    setSelectedIds((prev) => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id);
       else next.add(id);
@@ -449,15 +482,14 @@ export default function NotificationsInbox() {
   }, []);
 
   // ── Derived data ─────────────────────────────────────────────────
-  const filtered = tab === 'unread'
-    ? notifications.filter(n => !n.read)
-    : notifications;
+  const filtered =
+    tab === "unread" ? notifications.filter((n) => !n.read) : notifications;
 
-  const unreadCount = notifications.filter(n => !n.read).length;
-  const readCount = notifications.filter(n => n.read).length;
+  const unreadCount = notifications.filter((n) => !n.read).length;
+  const readCount = notifications.filter((n) => n.read).length;
 
   const selectAll = useCallback(() => {
-    setSelectedIds(new Set(filtered.map(n => n.id)));
+    setSelectedIds(new Set(filtered.map((n) => n.id)));
   }, [filtered]);
 
   const deselectAll = useCallback(() => {
@@ -467,17 +499,23 @@ export default function NotificationsInbox() {
   // Group notifications by date
   const grouped = useMemo(() => {
     const sorted = [...filtered].sort(
-      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
     );
 
-    const groupOrder = ['today', 'yesterday', 'earlier'] as const;
-    const buckets: Record<string, AppNotification[]> = { today: [], yesterday: [], earlier: [] };
+    const groupOrder = ["today", "yesterday", "earlier"] as const;
+    const buckets: Record<string, AppNotification[]> = {
+      today: [],
+      yesterday: [],
+      earlier: [],
+    };
 
     for (const n of sorted) {
       buckets[getDateGroup(n.createdAt)].push(n);
     }
 
-    const groups: { key: string; label: string; items: AppNotification[] }[] = [];
+    const groups: { key: string; label: string; items: AppNotification[] }[] =
+      [];
     for (const key of groupOrder) {
       if (buckets[key].length > 0) {
         groups.push({ key, label: GROUP_LABELS[key], items: buckets[key] });
@@ -489,7 +527,7 @@ export default function NotificationsInbox() {
   // ── Handlers ─────────────────────────────────────────────────────
   const handleMarkAllRead = () => {
     markAllAsRead();
-    toast.success('Đánh dấu đã đọc tất cả');
+    toast.success("Đánh dấu đã đọc tất cả");
   };
 
   const handleClearAllRead = () => {
@@ -498,13 +536,13 @@ export default function NotificationsInbox() {
 
   const confirmClearAllRead = () => {
     clearAllRead();
-    toast.success('Đã xoá tất cả thông báo đã đọc');
+    toast.success("Đã xoá tất cả thông báo đã đọc");
     setShowClearModal(false);
   };
 
   const handleDelete = (notif: AppNotification) => {
     removeNotification(notif.id);
-    toast.success('Đã xoá thông báo');
+    toast.success("Đã xoá thông báo");
   };
 
   // ── Bulk action handlers ─────────────────────────────────────────
@@ -530,35 +568,33 @@ export default function NotificationsInbox() {
 
   // ── Per-type CTA handlers ────────────────────────────────────────
 
-  const handleRecurringConfirm = (notif: AppNotification) => {
-    if (notif.recurringRuleId) {
-      const rule = recurringRules.find(r => r.id === notif.recurringRuleId);
-      if (rule) {
-        try {
-          generateRecurringTransaction(rule.id);
-          toast.success('Đã tạo giao dịch');
-          markAsRead(notif.id);
-        } catch {
-          toast.error('Không thể tạo giao dịch');
-        }
-        return;
-      }
+  const handleRecurringConfirm = async (notif: AppNotification) => {
+    if (!notif.recurringRuleId) {
+      toast.info("Quy tắc không tồn tại");
+      markAsRead(notif.id);
+      return;
     }
-    toast.info('Quy tắc không tồn tại');
-    markAsRead(notif.id);
+    try {
+      await recurringService.runRecurringRuleNow(notif.recurringRuleId);
+      toast.success("Đã tạo giao dịch");
+      markAsRead(notif.id);
+    } catch {
+      toast.error("Không thể tạo giao dịch");
+    }
   };
 
-  const handleRecurringSkip = (notif: AppNotification) => {
-    if (notif.recurringRuleId) {
-      const rule = recurringRules.find(r => r.id === notif.recurringRuleId);
-      if (rule) {
-        skipNextOccurrence(rule.id);
-        toast.success('Đã bỏ qua lần chạy');
-        markAsRead(notif.id);
-        return;
-      }
+  const handleRecurringSkip = async (notif: AppNotification) => {
+    if (!notif.recurringRuleId) {
+      markAsRead(notif.id);
+      return;
     }
-    markAsRead(notif.id);
+    try {
+      await recurringService.skipNextOccurrence(notif.recurringRuleId);
+      toast.success("Đã bỏ qua lần chạy");
+      markAsRead(notif.id);
+    } catch {
+      toast.error("Không thể bỏ qua lần chạy");
+    }
   };
 
   const handleBudgetView = (notif: AppNotification) => {
@@ -590,7 +626,7 @@ export default function NotificationsInbox() {
     };
 
     switch (notif.type) {
-      case 'recurring-due':
+      case "recurring-due":
         return (
           <NotificationCard
             key={notif.id}
@@ -601,7 +637,7 @@ export default function NotificationsInbox() {
             onSecondaryAction={() => handleRecurringSkip(notif)}
           />
         );
-      case 'budget-alert':
+      case "budget-alert":
         return (
           <NotificationCard
             key={notif.id}
@@ -610,7 +646,7 @@ export default function NotificationsInbox() {
             onPrimaryAction={() => handleBudgetView(notif)}
           />
         );
-      case 'goal-reminder':
+      case "goal-reminder":
         return (
           <NotificationCard
             key={notif.id}
@@ -619,13 +655,17 @@ export default function NotificationsInbox() {
             onPrimaryAction={() => handleGoalContribute(notif)}
           />
         );
-      case 'goal-withdrawal-alert':
+      case "goal-withdrawal-alert":
         return (
           <NotificationCard
             key={notif.id}
             {...commonProps}
             primaryLabel="Xem mục tiêu"
-            onPrimaryAction={() => { markAsRead(notif.id); if (notif.goalId) nav.goGoalDetail(notif.goalId); else nav.goGoals(); }}
+            onPrimaryAction={() => {
+              markAsRead(notif.id);
+              if (notif.goalId) nav.goGoalDetail(notif.goalId);
+              else nav.goGoals();
+            }}
           />
         );
       default:
@@ -635,7 +675,9 @@ export default function NotificationsInbox() {
 
   return (
     <div className="min-h-screen bg-[var(--background)]">
-      <div className={`max-w-3xl mx-auto p-4 md:p-6 ${bulkMode ? 'pb-28' : 'pb-20'} md:pb-6 space-y-6`}>
+      <div
+        className={`max-w-3xl mx-auto p-4 md:p-6 ${bulkMode ? "pb-28" : "pb-20"} md:pb-6 space-y-6`}
+      >
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -646,13 +688,15 @@ export default function NotificationsInbox() {
               <ArrowLeft className="w-5 h-5 text-[var(--text-secondary)]" />
             </button>
             <div>
-              <h1 className="text-2xl font-semibold text-[var(--text-primary)]">Thông báo</h1>
+              <h1 className="text-2xl font-semibold text-[var(--text-primary)]">
+                Thông báo
+              </h1>
               <p className="text-sm text-[var(--text-secondary)] mt-0.5">
                 {bulkMode
                   ? `${selectedIds.size} đã chọn`
                   : unreadCount > 0
                     ? `${unreadCount} chưa đọc`
-                    : 'Không có thông báo mới'}
+                    : "Không có thông báo mới"}
               </p>
             </div>
           </div>
@@ -679,7 +723,8 @@ export default function NotificationsInbox() {
           <div className="flex items-center gap-3 px-4 py-3 bg-[var(--primary-light)] border border-[var(--primary)] rounded-[var(--radius-lg)]">
             <SquareCheck className="w-5 h-5 text-[var(--primary)] flex-shrink-0" />
             <p className="text-sm text-[var(--primary)]">
-              Chạm vào thông báo để chọn. Dùng thanh công cụ bên dưới để thực hiện hành động.
+              Chạm vào thông báo để chọn. Dùng thanh công cụ bên dưới để thực
+              hiện hành động.
             </p>
           </div>
         )}
@@ -687,11 +732,14 @@ export default function NotificationsInbox() {
         {/* Tabs */}
         <div className="flex gap-1 p-1 bg-[var(--surface)] rounded-[var(--radius-lg)]">
           <button
-            onClick={() => { setTab('unread'); if (bulkMode) exitBulkMode(); }}
+            onClick={() => {
+              setTab("unread");
+              if (bulkMode) exitBulkMode();
+            }}
             className={`flex-1 py-2.5 rounded-[var(--radius-md)] text-sm font-medium transition-all ${
-              tab === 'unread'
-                ? 'bg-[var(--card)] text-[var(--text-primary)] shadow-sm'
-                : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+              tab === "unread"
+                ? "bg-[var(--card)] text-[var(--text-primary)] shadow-sm"
+                : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
             }`}
           >
             Chưa đọc
@@ -702,11 +750,14 @@ export default function NotificationsInbox() {
             )}
           </button>
           <button
-            onClick={() => { setTab('all'); if (bulkMode) exitBulkMode(); }}
+            onClick={() => {
+              setTab("all");
+              if (bulkMode) exitBulkMode();
+            }}
             className={`flex-1 py-2.5 rounded-[var(--radius-md)] text-sm font-medium transition-all ${
-              tab === 'all'
-                ? 'bg-[var(--card)] text-[var(--text-primary)] shadow-sm'
-                : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+              tab === "all"
+                ? "bg-[var(--card)] text-[var(--text-primary)] shadow-sm"
+                : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
             }`}
           >
             Tất cả
@@ -720,7 +771,9 @@ export default function NotificationsInbox() {
               <PartyPopper className="w-8 h-8 text-[var(--success)]" />
             </div>
             <h3 className="font-semibold text-[var(--text-primary)] mb-1">
-              {tab === 'unread' ? 'Không có thông báo mới' : 'Chưa có thông báo nào'}
+              {tab === "unread"
+                ? "Không có thông báo mới"
+                : "Chưa có thông báo nào"}
             </h3>
             <p className="text-sm text-[var(--text-secondary)]">
               Bạn đã cập nhật xong rồi!
@@ -728,7 +781,7 @@ export default function NotificationsInbox() {
           </div>
         ) : (
           <div className="space-y-5">
-            {grouped.map(group => (
+            {grouped.map((group) => (
               <div key={group.key}>
                 {/* Date group header */}
                 <div className="flex items-center gap-3 mb-3">
@@ -741,13 +794,18 @@ export default function NotificationsInbox() {
                   </span>
                 </div>
                 <AnimatePresence mode="popLayout">
-                  {group.items.map(notif => (
+                  {group.items.map((notif) => (
                     <motion.div
                       key={notif.id}
                       layout
                       initial={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.95, height: 0, marginBottom: 0 }}
-                      transition={{ duration: 0.25, ease: 'easeOut' }}
+                      exit={{
+                        opacity: 0,
+                        scale: 0.95,
+                        height: 0,
+                        marginBottom: 0,
+                      }}
+                      transition={{ duration: 0.25, ease: "easeOut" }}
                       className="mb-3 last:mb-0"
                     >
                       {renderCard(notif)}
@@ -760,7 +818,7 @@ export default function NotificationsInbox() {
         )}
 
         {/* Clear all read — inline banner when on "all" tab */}
-        {tab === 'all' && readCount > 0 && !bulkMode && (
+        {tab === "all" && readCount > 0 && !bulkMode && (
           <div className="flex items-center justify-center gap-3 py-4">
             <button
               onClick={handleClearAllRead}
