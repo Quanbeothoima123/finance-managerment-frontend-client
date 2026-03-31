@@ -7,6 +7,7 @@ import {
   Filter,
   CheckCircle,
   Loader2,
+  AlertTriangle,
 } from "lucide-react";
 import { Card } from "../components/Card";
 import { Button } from "../components/Button";
@@ -58,7 +59,12 @@ export default function ExportCenter() {
   const [exported, setExported] = useState(false);
 
   const { data: accData, loading: accLoading } = useAccountsOverview();
-  const { data: txnData, loading: txnLoading } = useTransactionsList({
+  const {
+    data: txnData,
+    loading: txnLoading,
+    error: txnError,
+    reload: reloadTxn,
+  } = useTransactionsList({
     startDate,
     endDate,
     accountId: selectedAccount !== "all" ? selectedAccount : undefined,
@@ -68,6 +74,7 @@ export default function ExportCenter() {
   const accounts = accData?.accounts ?? [];
   const filteredTransactions = txnData?.items ?? [];
   const loading = accLoading || txnLoading;
+  const isTruncated = (txnData?.pagination?.total ?? 0) > (txnData?.items?.length ?? 0);
 
   const accountOptions = useMemo(() => {
     return [
@@ -208,6 +215,28 @@ export default function ExportCenter() {
     );
   }
 
+  if (txnError) {
+    return (
+      <div className="min-h-screen bg-[var(--background)] flex items-center justify-center p-4">
+        <div className="text-center">
+          <AlertTriangle className="w-10 h-10 text-[var(--danger)] mx-auto mb-3" />
+          <p className="text-[var(--text-primary)] font-medium mb-1">
+            Không thể tải dữ liệu
+          </p>
+          <p className="text-sm text-[var(--text-secondary)] mb-4">
+            {txnError}
+          </p>
+          <button
+            onClick={reloadTxn}
+            className="px-4 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white rounded-[var(--radius-lg)] text-sm font-medium transition-colors"
+          >
+            Thử lại
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[var(--background)]">
       <div className="max-w-4xl mx-auto p-4 md:p-6 pb-20 md:pb-6 space-y-6">
@@ -219,6 +248,17 @@ export default function ExportCenter() {
             Xuất giao dịch và báo cáo theo định dạng mong muốn
           </p>
         </div>
+
+        {/* Truncation warning */}
+        {isTruncated && (
+          <div className="flex items-center gap-2 px-4 py-2.5 bg-[var(--warning-light)] border border-[var(--warning)] text-[var(--warning)] rounded-[var(--radius-lg)] text-sm">
+            <AlertTriangle className="w-4 h-4 shrink-0" />
+            <span>
+              Đang hiển thị {txnData?.items?.length}/{txnData?.pagination?.total} giao dịch.
+              File xuất có thể chưa đầy đủ.
+            </span>
+          </div>
+        )}
 
         {/* Monthly Summary Card */}
         <Card className="border-l-4 border-l-[var(--primary)]">

@@ -6,6 +6,7 @@ import {
   TrendingDown,
   ChevronDown,
   Loader2,
+  AlertTriangle,
 } from "lucide-react";
 import { Card } from "../components/Card";
 import {
@@ -168,8 +169,14 @@ export default function AccountBreakdown() {
     }),
     [dateRangeBounds],
   );
-  const { data: txnData, loading: txnLoading } = useTransactionsList(txnQuery);
+  const {
+    data: txnData,
+    loading: txnLoading,
+    error: txnError,
+    reload: reloadTxn,
+  } = useTransactionsList(txnQuery);
   const transactions = txnData?.items ?? [];
+  const isTruncated = (txnData?.pagination?.total ?? 0) > (txnData?.items?.length ?? 0);
 
   // Compute account data with change from transactions
   const accountData: AccountDisplayData[] = useMemo(() => {
@@ -246,6 +253,28 @@ export default function AccountBreakdown() {
     );
   }
 
+  if (txnError) {
+    return (
+      <div className="min-h-screen bg-[var(--background)] flex items-center justify-center p-4">
+        <div className="text-center">
+          <AlertTriangle className="w-10 h-10 text-[var(--danger)] mx-auto mb-3" />
+          <p className="text-[var(--text-primary)] font-medium mb-1">
+            Không thể tải dữ liệu
+          </p>
+          <p className="text-sm text-[var(--text-secondary)] mb-4">
+            {txnError}
+          </p>
+          <button
+            onClick={reloadTxn}
+            className="px-4 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white rounded-[var(--radius-lg)] text-sm font-medium transition-colors"
+          >
+            Thử lại
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[var(--background)]">
       <div className="max-w-6xl mx-auto p-4 md:p-6 pb-20 md:pb-6 space-y-6">
@@ -266,6 +295,17 @@ export default function AccountBreakdown() {
             So sánh số dư và biến động của các tài khoản
           </p>
         </div>
+
+        {/* Truncation warning */}
+        {isTruncated && (
+          <div className="flex items-center gap-2 px-4 py-2.5 bg-[var(--warning-light)] border border-[var(--warning)] text-[var(--warning)] rounded-[var(--radius-lg)] text-sm">
+            <AlertTriangle className="w-4 h-4 shrink-0" />
+            <span>
+              Đang hiển thị {txnData?.items?.length}/{txnData?.pagination?.total} giao dịch.
+              Số liệu có thể chưa đầy đủ.
+            </span>
+          </div>
+        )}
 
         {/* Filters */}
         <Card>

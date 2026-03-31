@@ -16,6 +16,7 @@ import {
   TrendingDown,
   Plus,
   Loader2,
+  AlertTriangle,
 } from "lucide-react";
 import {
   BarChart,
@@ -225,6 +226,7 @@ export default function MonthlySummaryReport() {
   );
   const { data: txnData, loading: txnLoading } = useTransactionsList(txnQuery);
   const monthTxns = txnData?.items ?? [];
+  const isTruncated = (txnData?.pagination?.total ?? 0) > (txnData?.items?.length ?? 0);
 
   const { data: catData } = useCategoriesList();
   const { data: budgetData } = useBudgetsList({ month: monthKey });
@@ -519,6 +521,17 @@ export default function MonthlySummaryReport() {
             </button>
           </div>
         </div>
+
+        {/* Truncation warning */}
+        {isTruncated && (
+          <div className="flex items-center gap-2 px-4 py-2.5 bg-[var(--warning-light)] border border-[var(--warning)] text-[var(--warning)] rounded-[var(--radius-lg)] text-sm">
+            <AlertTriangle className="w-4 h-4 shrink-0" />
+            <span>
+              Đang hiển thị {txnData?.items?.length}/{txnData?.pagination?.total} giao dịch.
+              Số liệu có thể chưa đầy đủ.
+            </span>
+          </div>
+        )}
 
         {!hasData ? (
           <Card>

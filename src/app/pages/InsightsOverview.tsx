@@ -162,6 +162,7 @@ export default function InsightsOverview() {
   }, [month]);
   const { data: txnData, loading: txnLoading } = useTransactionsList(txnQuery);
   const transactions = txnData?.items ?? [];
+  const isTruncated = (txnData?.pagination?.total ?? 0) > (txnData?.items?.length ?? 0);
 
   // ── Helpers ──
   const minor = (s: string | null | undefined) => parseInt(s || "0", 10) || 0;
@@ -542,6 +543,17 @@ export default function InsightsOverview() {
             </button>
           </div>
         </div>
+
+        {/* Truncation warning */}
+        {isTruncated && (
+          <div className="flex items-center gap-2 px-4 py-2.5 bg-[var(--warning-light)] border border-[var(--warning)] text-[var(--warning)] rounded-[var(--radius-lg)] text-sm">
+            <AlertTriangle className="w-4 h-4 shrink-0" />
+            <span>
+              Đang hiển thị {txnData?.items?.length}/{txnData?.pagination?.total} giao dịch.
+              Số liệu có thể chưa đầy đủ.
+            </span>
+          </div>
+        )}
 
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

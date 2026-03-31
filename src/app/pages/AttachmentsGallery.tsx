@@ -6,6 +6,7 @@ import {
   Filter,
   Search,
   Loader2,
+  AlertTriangle,
 } from "lucide-react";
 import { Card } from "../components/Card";
 import { Input } from "../components/Input";
@@ -158,11 +159,17 @@ export default function AttachmentsGallery() {
   const defaultMonth = `${now.getFullYear()}-${pad(now.getMonth() + 1)}`;
   const [selectedMonth, setSelectedMonth] = useState(defaultMonth);
 
-  const { data: txnData, loading: txnLoading } = useTransactionsList({
+  const {
+    data: txnData,
+    loading: txnLoading,
+    error: txnError,
+    reload: reloadTxn,
+  } = useTransactionsList({
     limit: 100,
   });
   const { data: catData, loading: catLoading } = useCategoriesList();
   const loading = txnLoading || catLoading;
+  const isTruncated = (txnData?.pagination?.total ?? 0) > (txnData?.items?.length ?? 0);
 
   // Build attachment items from transactions with imageUrl
   const attachmentItems: AttachmentItem[] = useMemo(() => {
@@ -233,6 +240,28 @@ export default function AttachmentsGallery() {
     );
   }
 
+  if (txnError) {
+    return (
+      <div className="min-h-screen bg-[var(--background)] flex items-center justify-center p-4">
+        <div className="text-center">
+          <AlertTriangle className="w-10 h-10 text-[var(--danger)] mx-auto mb-3" />
+          <p className="text-[var(--text-primary)] font-medium mb-1">
+            Không thể tải dữ liệu
+          </p>
+          <p className="text-sm text-[var(--text-secondary)] mb-4">
+            {txnError}
+          </p>
+          <button
+            onClick={reloadTxn}
+            className="px-4 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white rounded-[var(--radius-lg)] text-sm font-medium transition-colors"
+          >
+            Thử lại
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[var(--background)]">
       <div className="max-w-7xl mx-auto p-4 md:p-6 pb-20 md:pb-6 space-y-6">
@@ -245,6 +274,17 @@ export default function AttachmentsGallery() {
             Quản lý ảnh hoá đơn và chứng từ
           </p>
         </div>
+
+        {/* Truncation warning */}
+        {isTruncated && (
+          <div className="flex items-center gap-2 px-4 py-2.5 bg-[var(--warning-light)] border border-[var(--warning)] text-[var(--warning)] rounded-[var(--radius-lg)] text-sm">
+            <AlertTriangle className="w-4 h-4 shrink-0" />
+            <span>
+              Đang hiển thị {txnData?.items?.length}/{txnData?.pagination?.total} giao dịch.
+              Danh sách hoá đơn có thể chưa đầy đủ.
+            </span>
+          </div>
+        )}
 
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

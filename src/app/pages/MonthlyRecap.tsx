@@ -10,6 +10,7 @@ import {
   Calendar,
   FileText,
   Loader2,
+  AlertTriangle,
 } from "lucide-react";
 import { Card } from "../components/Card";
 import { useToast } from "../contexts/ToastContext";
@@ -32,7 +33,12 @@ export default function MonthlyRecap() {
   // Current month transactions
   const curStart = new Date(now.getFullYear(), now.getMonth(), 1);
   const curEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-  const { data: curTxnData, loading: curLoading } = useTransactionsList({
+  const {
+    data: curTxnData,
+    loading: curLoading,
+    error: curError,
+    reload: reloadCur,
+  } = useTransactionsList({
     startDate: `${curStart.getFullYear()}-${pad(curStart.getMonth() + 1)}-01`,
     endDate: `${curEnd.getFullYear()}-${pad(curEnd.getMonth() + 1)}-${pad(curEnd.getDate())}`,
     limit: 100,
@@ -40,6 +46,8 @@ export default function MonthlyRecap() {
     sortOrder: "desc",
   });
   const currentTxns = curTxnData?.items ?? [];
+  const isTruncated =
+    (curTxnData?.pagination?.total ?? 0) > (curTxnData?.items?.length ?? 0);
 
   // Previous month transactions
   const prevStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
@@ -248,6 +256,28 @@ export default function MonthlyRecap() {
     );
   }
 
+  if (curError) {
+    return (
+      <div className="min-h-screen bg-[var(--background)] flex items-center justify-center p-4">
+        <div className="text-center">
+          <AlertTriangle className="w-10 h-10 text-[var(--danger)] mx-auto mb-3" />
+          <p className="text-[var(--text-primary)] font-medium mb-1">
+            Không thể tải dữ liệu
+          </p>
+          <p className="text-sm text-[var(--text-secondary)] mb-4">
+            {curError}
+          </p>
+          <button
+            onClick={reloadCur}
+            className="px-4 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white rounded-[var(--radius-lg)] text-sm font-medium transition-colors"
+          >
+            Thử lại
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-[var(--primary)] to-[var(--primary-hover)]">
       <div className="max-w-4xl mx-auto p-4 md:p-6 pb-20 md:pb-6">
@@ -275,6 +305,17 @@ export default function MonthlyRecap() {
             <span>Xuất file</span>
           </button>
         </div>
+
+        {/* Truncation warning */}
+        {isTruncated && (
+          <div className="flex items-center gap-2 px-4 py-2.5 mb-4 bg-yellow-500/20 border border-yellow-400/50 text-yellow-200 rounded-[var(--radius-lg)] text-sm">
+            <AlertTriangle className="w-4 h-4 shrink-0" />
+            <span>
+              Đang hiển thị {curTxnData?.items?.length}/{curTxnData?.pagination?.total} giao
+              dịch. Số liệu có thể chưa đầy đủ.
+            </span>
+          </div>
+        )}
 
         {/* Main Card */}
         <div className="bg-[var(--card)] rounded-[var(--radius-xl)] shadow-2xl overflow-hidden">
