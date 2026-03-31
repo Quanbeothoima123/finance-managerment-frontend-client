@@ -1,8 +1,10 @@
-import React from 'react';
-import { useLocation, useNavigate } from 'react-router';
-import { Wallet, ChevronDown } from 'lucide-react';
-import { getSidebarRoutes } from '../routes';
-import { useRecurringDueCount } from '../hooks/useRecurringDueCount';
+import React, { useRef, useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router";
+import { Wallet, ChevronDown, Settings, LogOut } from "lucide-react";
+import { getSidebarRoutes } from "../routes";
+import { useRecurringDueCount } from "../hooks/useRecurringDueCount";
+import { useAuth } from "../hooks/useAuth";
+import { LogoutModal } from "./ConfirmationModals";
 
 interface SidebarProps {
   activePath?: string;
@@ -13,7 +15,42 @@ export function Sidebar({ activePath, onNavigate }: SidebarProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const sidebarRoutes = getSidebarRoutes();
-  const recurringDueCount = useRecurringDueCount(1); // due today or overdue
+  const recurringDueCount = useRecurringDueCount(1);
+  const { user, logout } = useAuth();
+
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const profileRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (
+        profileRef.current &&
+        !profileRef.current.contains(e.target as Node)
+      ) {
+        setProfileOpen(false);
+      }
+    }
+    if (profileOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [profileOpen]);
+
+  const handleLogoutConfirm = async () => {
+    setShowLogoutModal(false);
+    await logout();
+    navigate("/auth/login", { replace: true });
+  };
+
+  const initials = user?.displayName
+    ? user.displayName
+        .split(" ")
+        .map((w) => w[0])
+        .slice(0, 2)
+        .join("")
+        .toUpperCase()
+    : "?";
 
   const currentPath = activePath || location.pathname;
 
@@ -27,20 +64,22 @@ export function Sidebar({ activePath, onNavigate }: SidebarProps) {
 
   // Group routes by category
   const groupedRoutes = {
-    core: sidebarRoutes.filter(r => r.group === 'core'),
-    accounts: sidebarRoutes.filter(r => r.group === 'accounts'),
-    categories: sidebarRoutes.filter(r => r.group === 'categories'),
-    budgets: sidebarRoutes.filter(r => r.group === 'budgets'),
-    goals: sidebarRoutes.filter(r => r.group === 'goals'),
-    insights: sidebarRoutes.filter(r => r.group === 'insights'),
-    rules: sidebarRoutes.filter(r => r.group === 'rules'),
-    settings: sidebarRoutes.filter(r => r.group === 'settings'),
+    core: sidebarRoutes.filter((r) => r.group === "core"),
+    accounts: sidebarRoutes.filter((r) => r.group === "accounts"),
+    categories: sidebarRoutes.filter((r) => r.group === "categories"),
+    budgets: sidebarRoutes.filter((r) => r.group === "budgets"),
+    goals: sidebarRoutes.filter((r) => r.group === "goals"),
+    insights: sidebarRoutes.filter((r) => r.group === "insights"),
+    rules: sidebarRoutes.filter((r) => r.group === "rules"),
+    settings: sidebarRoutes.filter((r) => r.group === "settings"),
   };
 
   const renderNavItem = (route: any) => {
     const Icon = route.icon;
-    const isActive = currentPath === route.path || currentPath.startsWith(route.path + '/');
-    const showBadge = route.path === '/rules/recurring' && recurringDueCount > 0;
+    const isActive =
+      currentPath === route.path || currentPath.startsWith(route.path + "/");
+    const showBadge =
+      route.path === "/rules/recurring" && recurringDueCount > 0;
 
     return (
       <button
@@ -48,8 +87,8 @@ export function Sidebar({ activePath, onNavigate }: SidebarProps) {
         onClick={() => handleNavigate(route.path)}
         className={`w-full flex items-center gap-3 px-4 py-3 rounded-[var(--radius-lg)] transition-colors ${
           isActive
-            ? 'bg-[var(--primary-light)] text-[var(--primary)]'
-            : 'text-[var(--text-secondary)] hover:bg-[var(--surface-elevated)] hover:text-[var(--text-primary)]'
+            ? "bg-[var(--primary-light)] text-[var(--primary)]"
+            : "text-[var(--text-secondary)] hover:bg-[var(--surface-elevated)] hover:text-[var(--text-primary)]"
         }`}
       >
         {Icon && <Icon className="w-5 h-5" />}
@@ -72,8 +111,12 @@ export function Sidebar({ activePath, onNavigate }: SidebarProps) {
             <Wallet className="w-6 h-6 text-white" />
           </div>
           <div>
-            <h1 className="font-semibold text-[var(--text-primary)]">MoneyApp</h1>
-            <p className="text-xs text-[var(--text-secondary)]">Quản lý tài chính</p>
+            <h1 className="font-semibold text-[var(--text-primary)]">
+              MoneyApp
+            </h1>
+            <p className="text-xs text-[var(--text-secondary)]">
+              Quản lý tài chính
+            </p>
           </div>
         </div>
       </div>
@@ -82,9 +125,7 @@ export function Sidebar({ activePath, onNavigate }: SidebarProps) {
       <nav className="flex-1 p-4 space-y-6">
         {/* Core */}
         {groupedRoutes.core.length > 0 && (
-          <div>
-            {groupedRoutes.core.map(renderNavItem)}
-          </div>
+          <div>{groupedRoutes.core.map(renderNavItem)}</div>
         )}
 
         {/* Accounts */}
@@ -112,7 +153,8 @@ export function Sidebar({ activePath, onNavigate }: SidebarProps) {
         )}
 
         {/* Budgets & Goals */}
-        {(groupedRoutes.budgets.length > 0 || groupedRoutes.goals.length > 0) && (
+        {(groupedRoutes.budgets.length > 0 ||
+          groupedRoutes.goals.length > 0) && (
           <div>
             <div className="px-4 py-2 text-xs font-semibold text-[var(--text-tertiary)] uppercase tracking-wider">
               Lập kế hoạch
@@ -162,18 +204,89 @@ export function Sidebar({ activePath, onNavigate }: SidebarProps) {
       </nav>
 
       {/* User Profile */}
-      <div className="p-4 border-t border-[var(--divider)]">
-        <div className="flex items-center gap-3 px-4 py-3 rounded-[var(--radius-lg)] hover:bg-[var(--surface-elevated)] transition-colors cursor-pointer">
-          <div className="w-8 h-8 rounded-full bg-[var(--primary-light)] flex items-center justify-center">
-            <span className="text-sm font-semibold text-[var(--primary)]">NV</span>
+      <div
+        className="p-4 border-t border-[var(--divider)] relative"
+        ref={profileRef}
+      >
+        {/* Dropdown menu — renders above the button */}
+        {profileOpen && (
+          <div className="absolute bottom-full left-4 right-4 mb-2 bg-[var(--surface)] border border-[var(--border)] rounded-[var(--radius-lg)] shadow-lg overflow-hidden z-50">
+            {/* User info header */}
+            <div className="px-4 py-3 border-b border-[var(--divider)]">
+              <p className="text-sm font-semibold text-[var(--text-primary)] truncate">
+                {user?.displayName ?? "—"}
+              </p>
+              <p className="text-xs text-[var(--text-secondary)] truncate">
+                {user?.email ?? "—"}
+              </p>
+            </div>
+            {/* Actions */}
+            <div className="py-1">
+              <button
+                onClick={() => {
+                  setProfileOpen(false);
+                  navigate("/settings");
+                }}
+                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-[var(--text-primary)] hover:bg-[var(--surface-elevated)] transition-colors"
+              >
+                <Settings className="w-4 h-4 text-[var(--text-secondary)]" />
+                Cài đặt
+              </button>
+              <button
+                onClick={() => {
+                  setProfileOpen(false);
+                  setShowLogoutModal(true);
+                }}
+                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-[var(--danger)] hover:bg-[var(--surface-elevated)] transition-colors"
+              >
+                <LogOut className="w-4 h-4" />
+                Đăng xuất
+              </button>
+            </div>
           </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-[var(--text-primary)] truncate">Nguyễn Văn A</p>
-            <p className="text-xs text-[var(--text-secondary)] truncate">nguyenvana@email.com</p>
+        )}
+
+        {/* Profile button */}
+        <button
+          onClick={() => setProfileOpen((prev) => !prev)}
+          className={`w-full flex items-center gap-3 px-4 py-3 rounded-[var(--radius-lg)] transition-colors ${
+            profileOpen
+              ? "bg-[var(--surface-elevated)]"
+              : "hover:bg-[var(--surface-elevated)]"
+          }`}
+        >
+          {user?.avatarUrl ? (
+            <img
+              src={user.avatarUrl}
+              alt={user.displayName}
+              className="w-8 h-8 rounded-full object-cover flex-shrink-0"
+            />
+          ) : (
+            <div className="w-8 h-8 rounded-full bg-[var(--primary-light)] flex items-center justify-center flex-shrink-0">
+              <span className="text-sm font-semibold text-[var(--primary)]">
+                {initials}
+              </span>
+            </div>
+          )}
+          <div className="flex-1 min-w-0 text-left">
+            <p className="text-sm font-medium text-[var(--text-primary)] truncate">
+              {user?.displayName ?? "—"}
+            </p>
+            <p className="text-xs text-[var(--text-secondary)] truncate">
+              {user?.email ?? "—"}
+            </p>
           </div>
-          <ChevronDown className="w-4 h-4 text-[var(--text-tertiary)]" />
-        </div>
+          <ChevronDown
+            className={`w-4 h-4 text-[var(--text-tertiary)] transition-transform ${profileOpen ? "rotate-180" : ""}`}
+          />
+        </button>
       </div>
+
+      <LogoutModal
+        isOpen={showLogoutModal}
+        onClose={() => setShowLogoutModal(false)}
+        onConfirm={handleLogoutConfirm}
+      />
     </aside>
   );
 }
