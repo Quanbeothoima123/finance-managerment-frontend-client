@@ -70,4 +70,16 @@ export const communityPostsService = {
       { method: "DELETE", requiresAuth: true },
     );
   },
+
+  uploadImages(files: File[]) {
+    const formData = new FormData();
+    files.forEach((file) => formData.append("images", file));
+    return apiRequest<{
+      images: { url: string; publicId: string }[];
+    }>("/community/posts/upload-images", {
+      method: "POST",
+      requiresAuth: true,
+      body: formData,
+    });
+  },
 };

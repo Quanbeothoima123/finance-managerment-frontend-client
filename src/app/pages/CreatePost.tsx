@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { useNavigate } from "react-router";
 import {
   ChevronDown,
@@ -12,6 +12,8 @@ import {
   Lock,
   Eye,
   X,
+  Plus,
+  Loader2,
 } from "lucide-react";
 import type { PostType, PostAudience } from "../types/community";
 import type { RecapCardData } from "../components/social/FinanceRecapCard";
@@ -23,6 +25,13 @@ import { TopicChip } from "../components/social/TopicChip";
 import { FinanceRecapCard } from "../components/social/FinanceRecapCard";
 import { SensitiveInfoBanner } from "../components/social/SensitiveInfoBanner";
 import { useToast } from "../contexts/ToastContext";
+
+interface UploadedImage {
+  url: string;
+  publicId: string;
+  file?: File;
+  previewUrl: string;
+}
 
 const POST_TYPES: { type: PostType; label: string; icon: React.ReactNode }[] = [
   {
@@ -86,8 +95,11 @@ export default function CreatePost() {
     null,
   );
   const [submitting, setSubmitting] = useState(false);
+  const [images, setImages] = useState<UploadedImage[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const canPost = content.trim().length > 0;
+  const canPost = content.trim().length > 0 || images.length > 0;
   const isDraft = audience === "private";
 
   const topicOptions = topicsList || [];
@@ -100,16 +112,62 @@ export default function CreatePost() {
     );
   };
 
+  const handlePickImages = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFilesSelected = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    const remaining = 5 - images.length;
+    if (remaining <= 0) {
+      toast.error("Tối đa 5 ảnh cho mỗi bài viết");
+      return;
+    }
+
+    const selected = Array.from(files).slice(0, remaining);
+    setUploading(true);
+    try {
+      const result = await communityPostsService.uploadImages(selected);
+      if (result?.images) {
+        const newImages: UploadedImage[] = result.images.map((img, i) => ({
+          url: img.url,
+          publicId: img.publicId,
+          previewUrl: URL.createObjectURL(selected[i]),
+        }));
+        setImages((prev) => [...prev, ...newImages]);
+      }
+    } catch {
+      toast.error("Upload ảnh thất bại");
+    } finally {
+      setUploading(false);
+      // Reset input so same file can be selected again
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
+  const removeImage = (index: number) => {
+    setImages((prev) => {
+      const removed = prev[index];
+      if (removed.previewUrl) URL.revokeObjectURL(removed.previewUrl);
+      return prev.filter((_, i) => i !== index);
+    });
+  };
+
   const handlePost = async () => {
     if (!canPost || submitting) return;
     setSubmitting(true);
     try {
       await communityPostsService.createPost({
         type: postType,
-        content: content.trim(),
+        content: content.trim() || " ",
         audience,
         isDraft,
         topicIds: selectedTopicIds,
+        mediaUrls: images.map((img) => img.url),
         ...(attachedRecap
           ? {
               recapData: {
@@ -235,6 +293,22 @@ export default function CreatePost() {
                   {content}
                 </p>
               </div>
+              {images.length > 0 && (
+                <div className="px-4 pb-3">
+                  <div
+                    className={`grid gap-1.5 rounded-xl overflow-hidden ${images.length === 1 ? "grid-cols-1" : "grid-cols-2"}`}
+                  >
+                    {images.map((img) => (
+                      <img
+                        key={img.url}
+                        src={img.previewUrl}
+                        alt=""
+                        className="w-full aspect-square object-cover"
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
               {attachedRecap && (
                 <div className="px-4 pb-3">
                   <FinanceRecapCard data={attachedRecap} showPrivacyHint />
@@ -351,6 +425,79 @@ export default function CreatePost() {
             placeholder={placeholders[postType]}
             className="w-full min-h-[180px] bg-transparent text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] resize-none outline-none text-sm leading-relaxed"
           />
+
+          {/* Hidden file input */}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp,image/heic"
+            multiple
+            className="hidden"
+            onChange={handleFilesSelected}
+          />
+
+          {/* Image Upload Area */}
+          {(postType === "photo" || images.length > 0) && (
+            <div>
+              {images.length > 0 && (
+                <div className="grid grid-cols-3 gap-2 mb-3">
+                  {images.map((img, i) => (
+                    <div
+                      key={img.url}
+                      className="relative aspect-square rounded-xl overflow-hidden border border-[var(--border)]"
+                    >
+                      <img
+                        src={img.previewUrl}
+                        alt=""
+                        className="w-full h-full object-cover"
+                      />
+                      <button
+                        onClick={() => removeImage(i)}
+                        className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-black/60 flex items-center justify-center text-white hover:bg-black/80 transition-colors"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  ))}
+                  {images.length < 5 && (
+                    <button
+                      onClick={handlePickImages}
+                      disabled={uploading}
+                      className="aspect-square rounded-xl border-2 border-dashed border-[var(--border)] flex flex-col items-center justify-center gap-1 text-[var(--text-tertiary)] hover:border-[var(--primary)] hover:text-[var(--primary)] transition-colors disabled:opacity-50"
+                    >
+                      {uploading ? (
+                        <Loader2 className="w-6 h-6 animate-spin" />
+                      ) : (
+                        <>
+                          <Plus className="w-6 h-6" />
+                          <span className="text-xs">Thêm ảnh</span>
+                        </>
+                      )}
+                    </button>
+                  )}
+                </div>
+              )}
+              {images.length === 0 && (
+                <button
+                  onClick={handlePickImages}
+                  disabled={uploading}
+                  className="w-full p-8 border-2 border-dashed border-[var(--border)] rounded-2xl text-center hover:border-[var(--primary)] transition-colors disabled:opacity-50"
+                >
+                  {uploading ? (
+                    <Loader2 className="w-8 h-8 mx-auto text-[var(--primary)] animate-spin mb-2" />
+                  ) : (
+                    <Image className="w-8 h-8 mx-auto text-[var(--text-tertiary)] mb-2" />
+                  )}
+                  <p className="text-sm font-medium text-[var(--text-secondary)]">
+                    {uploading ? "Đang tải ảnh lên..." : "Chọn ảnh để tải lên"}
+                  </p>
+                  <p className="text-xs text-[var(--text-tertiary)] mt-1">
+                    Tối đa 5 ảnh, mỗi ảnh không quá 10MB
+                  </p>
+                </button>
+              )}
+            </div>
+          )}
 
           {/* Attached Recap Card */}
           {attachedRecap && (
