@@ -1,9 +1,9 @@
-import React from 'react';
-import { useNavigate } from 'react-router';
-import { Button } from '../components/Button';
-import { ThemeSwitcher } from '../components/ThemeSwitcher';
-import { ArrowLeft, LogIn, UserPlus } from 'lucide-react';
-import { useAuth } from '../hooks/useAuth';
+import React from "react";
+import { useNavigate } from "react-router";
+import { Button } from "../components/Button";
+import { ThemeSwitcher } from "../components/ThemeSwitcher";
+import { ArrowLeft, LogIn, UserPlus } from "lucide-react";
+import { useAuth } from "../hooks/useAuth";
 
 export default function Welcome() {
   const navigate = useNavigate();
@@ -12,7 +12,7 @@ export default function Welcome() {
   return (
     <div className="min-h-screen bg-[var(--background)] flex flex-col">
       <div className="flex items-center justify-between p-6 border-b border-[var(--border)]">
-        <Button variant="ghost" size="sm" onClick={() => navigate('/')}>
+        <Button variant="ghost" size="sm" onClick={() => navigate("/")}>
           <ArrowLeft className="w-4 h-4" />
           Trở lại
         </Button>
@@ -22,7 +22,12 @@ export default function Welcome() {
       <div className="flex-1 flex items-center justify-center p-6">
         <div className="max-w-lg text-center space-y-6">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[var(--primary-light)] mb-4">
-            <svg className="w-8 h-8 text-[var(--primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg
+              className="w-8 h-8 text-[var(--primary)]"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -37,21 +42,28 @@ export default function Welcome() {
           </h1>
 
           <p className="text-[var(--text-secondary)] leading-relaxed">
-            Theo dõi chi tiêu, thiết lập ví ban đầu và bắt đầu hành trình quản lý tài chính cá nhân chỉ trong vài bước.
+            Theo dõi chi tiêu, thiết lập ví ban đầu và bắt đầu hành trình quản
+            lý tài chính cá nhân chỉ trong vài bước.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-3 justify-center pt-4">
             {isAuthenticated ? (
-              <Button variant="primary" onClick={() => navigate('/')}>
-                Tiếp tục với {user?.displayName || 'tài khoản hiện tại'}
+              <Button variant="primary" onClick={() => navigate("/")}>
+                Tiếp tục với {user?.displayName || "tài khoản hiện tại"}
               </Button>
             ) : (
               <>
-                <Button variant="primary" onClick={() => navigate('/auth/login')}>
+                <Button
+                  variant="primary"
+                  onClick={() => navigate("/auth/login")}
+                >
                   <LogIn className="w-4 h-4" />
                   Đăng nhập
                 </Button>
-                <Button variant="secondary" onClick={() => navigate('/auth/register')}>
+                <Button
+                  variant="secondary"
+                  onClick={() => navigate("/auth/register")}
+                >
                   <UserPlus className="w-4 h-4" />
                   Tạo tài khoản
                 </Button>
@@ -60,9 +72,16 @@ export default function Welcome() {
           </div>
 
           <div className="pt-8 space-y-2">
-            <p className="text-sm text-[var(--text-tertiary)]">Bạn sẽ được thiết lập theo thứ tự:</p>
+            <p className="text-sm text-[var(--text-tertiary)]">
+              Bạn sẽ được thiết lập theo thứ tự:
+            </p>
             <div className="flex flex-wrap gap-2 justify-center">
-              {['Tiền tệ mặc định', 'Ngày bắt đầu theo dõi', 'Ví ban đầu', 'Preset danh mục'].map((feature) => (
+              {[
+                "Tiền tệ mặc định",
+                "Ngày bắt đầu theo dõi",
+                "Ví ban đầu",
+                "Preset danh mục",
+              ].map((feature) => (
                 <span
                   key={feature}
                   className="px-3 py-1 rounded-full bg-[var(--surface)] text-xs text-[var(--text-secondary)] border border-[var(--border)]"

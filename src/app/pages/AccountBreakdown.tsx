@@ -1,32 +1,46 @@
-import React, { useState, useMemo } from 'react';
-import { ArrowLeft, Wallet, TrendingUp, TrendingDown, ChevronDown } from 'lucide-react';
-import { Card } from '../components/Card';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
-import { useAppNavigation } from '../hooks/useAppNavigation';
-import { useDemoData } from '../contexts/DemoDataContext';
+import React, { useState, useMemo } from "react";
+import {
+  ArrowLeft,
+  Wallet,
+  TrendingUp,
+  TrendingDown,
+  ChevronDown,
+} from "lucide-react";
+import { Card } from "../components/Card";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  Cell,
+} from "recharts";
+import { useAppNavigation } from "../hooks/useAppNavigation";
+import { useDemoData } from "../contexts/DemoDataContext";
 
 const ACCOUNT_TYPE_COLORS: Record<string, string> = {
-  bank: '#3b82f6',
-  cash: '#10b981',
-  credit: '#ef4444',
-  investment: '#f59e0b',
-  savings: '#8b5cf6',
+  bank: "#3b82f6",
+  cash: "#10b981",
+  credit: "#ef4444",
+  investment: "#f59e0b",
+  savings: "#8b5cf6",
 };
 
 const ACCOUNT_TYPE_LABELS: Record<string, string> = {
-  bank: 'Ngân hàng',
-  cash: 'Tiền mặt',
-  credit: 'Tín dụng',
-  investment: 'Đầu tư',
-  savings: 'Tiết kiệm',
+  bank: "Ngân hàng",
+  cash: "Tiền mặt",
+  credit: "Tín dụng",
+  investment: "Đầu tư",
+  savings: "Tiết kiệm",
 };
 
 const dateRangeOptions = [
-  { id: 'this-month', name: 'Tháng này' },
-  { id: 'last-month', name: 'Tháng trước' },
-  { id: 'last-3-months', name: '3 tháng qua' },
-  { id: 'last-6-months', name: '6 tháng qua' },
-  { id: 'this-year', name: 'Năm nay' },
+  { id: "this-month", name: "Tháng này" },
+  { id: "last-month", name: "Tháng trước" },
+  { id: "last-3-months", name: "3 tháng qua" },
+  { id: "last-6-months", name: "6 tháng qua" },
+  { id: "this-year", name: "Năm nay" },
 ];
 
 interface AccountDisplayData {
@@ -45,7 +59,7 @@ interface AccountItemProps {
 
 function AccountItem({ account }: AccountItemProps) {
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('vi-VN').format(amount);
+    return new Intl.NumberFormat("vi-VN").format(amount);
   };
 
   return (
@@ -58,8 +72,12 @@ function AccountItem({ account }: AccountItemProps) {
           <Wallet className="w-6 h-6" style={{ color: account.color }} />
         </div>
         <div className="flex-1">
-          <p className="text-sm font-medium text-[var(--text-primary)]">{account.name}</p>
-          <p className="text-xs text-[var(--text-secondary)]">{ACCOUNT_TYPE_LABELS[account.type] || account.type}</p>
+          <p className="text-sm font-medium text-[var(--text-primary)]">
+            {account.name}
+          </p>
+          <p className="text-xs text-[var(--text-secondary)]">
+            {ACCOUNT_TYPE_LABELS[account.type] || account.type}
+          </p>
         </div>
       </div>
 
@@ -75,11 +93,14 @@ function AccountItem({ account }: AccountItemProps) {
           )}
           <span
             className={`text-xs font-medium tabular-nums ${
-              account.change >= 0 ? 'text-[var(--success)]' : 'text-[var(--danger)]'
+              account.change >= 0
+                ? "text-[var(--success)]"
+                : "text-[var(--danger)]"
             }`}
           >
-            {account.change >= 0 ? '+' : ''}
-            {formatCurrency(account.change)}₫ ({account.changePercent >= 0 ? '+' : ''}
+            {account.change >= 0 ? "+" : ""}
+            {formatCurrency(account.change)}₫ (
+            {account.changePercent >= 0 ? "+" : ""}
             {account.changePercent.toFixed(2)}%)
           </span>
         </div>
@@ -89,7 +110,7 @@ function AccountItem({ account }: AccountItemProps) {
 }
 
 export default function AccountBreakdown() {
-  const [dateRange, setDateRange] = useState('this-month');
+  const [dateRange, setDateRange] = useState("this-month");
   const nav = useAppNavigation();
   const { accounts, transactions } = useDemoData();
 
@@ -98,27 +119,27 @@ export default function AccountBreakdown() {
   };
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('vi-VN').format(amount);
+    return new Intl.NumberFormat("vi-VN").format(amount);
   };
 
   // Get date range bounds
   const dateRangeBounds = useMemo(() => {
-    const now = new Date('2026-02-23');
+    const now = new Date("2026-02-23");
     let start: Date;
     switch (dateRange) {
-      case 'last-month':
+      case "last-month":
         start = new Date(now.getFullYear(), now.getMonth() - 1, 1);
         return { start, end: new Date(now.getFullYear(), now.getMonth(), 0) };
-      case 'last-3-months':
+      case "last-3-months":
         start = new Date(now.getFullYear(), now.getMonth() - 3, 1);
         return { start, end: now };
-      case 'last-6-months':
+      case "last-6-months":
         start = new Date(now.getFullYear(), now.getMonth() - 6, 1);
         return { start, end: now };
-      case 'this-year':
+      case "this-year":
         start = new Date(now.getFullYear(), 0, 1);
         return { start, end: now };
-      case 'this-month':
+      case "this-month":
       default:
         start = new Date(now.getFullYear(), now.getMonth(), 1);
         return { start, end: now };
@@ -127,22 +148,23 @@ export default function AccountBreakdown() {
 
   // Compute account data with change from transactions
   const accountData: AccountDisplayData[] = useMemo(() => {
-    return accounts.map(acc => {
+    return accounts.map((acc) => {
       // Sum net flow for this account in the date range
       const netFlow = transactions
-        .filter(t => {
+        .filter((t) => {
           if (t.accountId !== acc.id) return false;
           const d = new Date(t.date);
           return d >= dateRangeBounds.start && d <= dateRangeBounds.end;
         })
         .reduce((sum, t) => {
-          if (t.type === 'income') return sum + Math.abs(t.amount);
-          if (t.type === 'expense') return sum - Math.abs(t.amount);
+          if (t.type === "income") return sum + Math.abs(t.amount);
+          if (t.type === "expense") return sum - Math.abs(t.amount);
           return sum;
         }, 0);
 
       const previousBalance = acc.balance - netFlow;
-      const changePercent = previousBalance !== 0 ? (netFlow / Math.abs(previousBalance)) * 100 : 0;
+      const changePercent =
+        previousBalance !== 0 ? (netFlow / Math.abs(previousBalance)) * 100 : 0;
 
       return {
         id: acc.id,
@@ -151,36 +173,51 @@ export default function AccountBreakdown() {
         currentBalance: acc.balance,
         change: netFlow,
         changePercent,
-        color: acc.color || ACCOUNT_TYPE_COLORS[acc.type] || '#6b7280',
+        color: acc.color || ACCOUNT_TYPE_COLORS[acc.type] || "#6b7280",
       };
     });
   }, [accounts, transactions, dateRangeBounds]);
 
-  const totalCurrentBalance = accountData.reduce((sum, acc) => sum + acc.currentBalance, 0);
+  const totalCurrentBalance = accountData.reduce(
+    (sum, acc) => sum + acc.currentBalance,
+    0,
+  );
   const totalChange = accountData.reduce((sum, acc) => sum + acc.change, 0);
   const totalPreviousBalance = totalCurrentBalance - totalChange;
-  const totalChangePercent = totalPreviousBalance !== 0 ? (totalChange / Math.abs(totalPreviousBalance)) * 100 : 0;
+  const totalChangePercent =
+    totalPreviousBalance !== 0
+      ? (totalChange / Math.abs(totalPreviousBalance)) * 100
+      : 0;
 
   const accountsWithGrowth = accountData.filter((acc) => acc.change > 0).length;
-  const accountsWithDecline = accountData.filter((acc) => acc.change < 0).length;
+  const accountsWithDecline = accountData.filter(
+    (acc) => acc.change < 0,
+  ).length;
 
-  const chartData = [...accountData].sort((a, b) => b.currentBalance - a.currentBalance);
+  const chartData = [...accountData].sort(
+    (a, b) => b.currentBalance - a.currentBalance,
+  );
 
   // Group accounts by type for distribution
   const typeGroups = useMemo(() => {
-    const typeSet = new Set(accountData.map(a => a.type));
-    return [...typeSet].map(type => {
-      const accs = accountData.filter(a => a.type === type);
-      const totalBalance = accs.reduce((s, a) => s + a.currentBalance, 0);
-      return {
-        type,
-        label: ACCOUNT_TYPE_LABELS[type] || type,
-        accounts: accs,
-        color: ACCOUNT_TYPE_COLORS[type] || '#6b7280',
-        totalBalance,
-        percentage: totalCurrentBalance > 0 ? (totalBalance / totalCurrentBalance) * 100 : 0,
-      };
-    }).sort((a, b) => b.totalBalance - a.totalBalance);
+    const typeSet = new Set(accountData.map((a) => a.type));
+    return [...typeSet]
+      .map((type) => {
+        const accs = accountData.filter((a) => a.type === type);
+        const totalBalance = accs.reduce((s, a) => s + a.currentBalance, 0);
+        return {
+          type,
+          label: ACCOUNT_TYPE_LABELS[type] || type,
+          accounts: accs,
+          color: ACCOUNT_TYPE_COLORS[type] || "#6b7280",
+          totalBalance,
+          percentage:
+            totalCurrentBalance > 0
+              ? (totalBalance / totalCurrentBalance) * 100
+              : 0,
+        };
+      })
+      .sort((a, b) => b.totalBalance - a.totalBalance);
   }, [accountData, totalCurrentBalance]);
 
   return (
@@ -232,34 +269,44 @@ export default function AccountBreakdown() {
         {/* Summary Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Card>
-            <p className="text-sm text-[var(--text-secondary)] mb-2">Tổng số dư hiện tại</p>
+            <p className="text-sm text-[var(--text-secondary)] mb-2">
+              Tổng số dư hiện tại
+            </p>
             <p className="text-2xl font-bold text-[var(--text-primary)] tabular-nums">
               {formatCurrency(totalCurrentBalance)}₫
             </p>
           </Card>
 
           <Card>
-            <p className="text-sm text-[var(--text-secondary)] mb-2">Thay đổi</p>
+            <p className="text-sm text-[var(--text-secondary)] mb-2">
+              Thay đổi
+            </p>
             <p
               className={`text-2xl font-bold tabular-nums ${
-                totalChange >= 0 ? 'text-[var(--success)]' : 'text-[var(--danger)]'
+                totalChange >= 0
+                  ? "text-[var(--success)]"
+                  : "text-[var(--danger)]"
               }`}
             >
-              {totalChange >= 0 ? '+' : ''}
+              {totalChange >= 0 ? "+" : ""}
               {formatCurrency(totalChange)}₫
             </p>
             <p
               className={`text-xs mt-1 ${
-                totalChange >= 0 ? 'text-[var(--success)]' : 'text-[var(--danger)]'
+                totalChange >= 0
+                  ? "text-[var(--success)]"
+                  : "text-[var(--danger)]"
               }`}
             >
-              {totalChange >= 0 ? '+' : ''}
+              {totalChange >= 0 ? "+" : ""}
               {totalChangePercent.toFixed(2)}%
             </p>
           </Card>
 
           <Card>
-            <p className="text-sm text-[var(--text-secondary)] mb-2">Số tài khoản</p>
+            <p className="text-sm text-[var(--text-secondary)] mb-2">
+              Số tài khoản
+            </p>
             <p className="text-2xl font-bold text-[var(--text-primary)] tabular-nums">
               {accountData.length}
             </p>
@@ -272,7 +319,9 @@ export default function AccountBreakdown() {
         {/* Chart */}
         <Card>
           <div className="mb-4">
-            <h3 className="font-semibold text-[var(--text-primary)]">So sánh số dư</h3>
+            <h3 className="font-semibold text-[var(--text-primary)]">
+              So sánh số dư
+            </h3>
             <p className="text-sm text-[var(--text-secondary)] mt-1">
               Phân bổ số dư giữa các tài khoản
             </p>
@@ -284,27 +333,32 @@ export default function AccountBreakdown() {
                 <BarChart data={chartData} layout="vertical">
                   <XAxis
                     type="number"
-                    tick={{ fill: 'var(--text-tertiary)', fontSize: 12 }}
+                    tick={{ fill: "var(--text-tertiary)", fontSize: 12 }}
                     tickLine={false}
-                    axisLine={{ stroke: 'var(--divider)' }}
-                    tickFormatter={(value) => `${(value / 1000000).toFixed(0)}M`}
+                    axisLine={{ stroke: "var(--divider)" }}
+                    tickFormatter={(value) =>
+                      `${(value / 1000000).toFixed(0)}M`
+                    }
                   />
                   <YAxis
                     type="category"
                     dataKey="name"
-                    tick={{ fill: 'var(--text-tertiary)', fontSize: 12 }}
+                    tick={{ fill: "var(--text-tertiary)", fontSize: 12 }}
                     tickLine={false}
-                    axisLine={{ stroke: 'var(--divider)' }}
+                    axisLine={{ stroke: "var(--divider)" }}
                     width={120}
                   />
                   <Tooltip
                     contentStyle={{
-                      backgroundColor: 'var(--card)',
-                      border: '1px solid var(--border)',
-                      borderRadius: 'var(--radius-lg)',
-                      fontSize: '12px',
+                      backgroundColor: "var(--card)",
+                      border: "1px solid var(--border)",
+                      borderRadius: "var(--radius-lg)",
+                      fontSize: "12px",
                     }}
-                    formatter={(value: number) => [`${formatCurrency(value)}₫`, 'Số dư']}
+                    formatter={(value: number) => [
+                      `${formatCurrency(value)}₫`,
+                      "Số dư",
+                    ]}
                   />
                   <Bar dataKey="currentBalance" radius={[0, 8, 8, 0]}>
                     {chartData.map((entry, index) => (
@@ -316,7 +370,9 @@ export default function AccountBreakdown() {
             </div>
           ) : (
             <div className="h-96 flex items-center justify-center">
-              <p className="text-sm text-[var(--text-tertiary)]">Chưa có tài khoản nào</p>
+              <p className="text-sm text-[var(--text-tertiary)]">
+                Chưa có tài khoản nào
+              </p>
             </div>
           )}
         </Card>
@@ -344,12 +400,14 @@ export default function AccountBreakdown() {
                   <TrendingUp className="w-5 h-5 text-white" />
                 </div>
                 <div className="flex-1">
-                  <h4 className="font-semibold text-[var(--text-primary)] mb-1">Tăng trưởng tốt</h4>
+                  <h4 className="font-semibold text-[var(--text-primary)] mb-1">
+                    Tăng trưởng tốt
+                  </h4>
                   <p className="text-sm text-[var(--text-secondary)]">
-                    Tổng số dư của bạn đã tăng{' '}
+                    Tổng số dư của bạn đã tăng{" "}
                     <span className="font-semibold text-[var(--text-primary)]">
                       {formatCurrency(totalChange)}₫
-                    </span>{' '}
+                    </span>{" "}
                     trong kỳ này. Tiếp tục duy trì!
                   </p>
                 </div>
@@ -364,10 +422,12 @@ export default function AccountBreakdown() {
                   <TrendingDown className="w-5 h-5 text-white" />
                 </div>
                 <div className="flex-1">
-                  <h4 className="font-semibold text-[var(--text-primary)] mb-1">Lưu ý</h4>
+                  <h4 className="font-semibold text-[var(--text-primary)] mb-1">
+                    Lưu ý
+                  </h4>
                   <p className="text-sm text-[var(--text-secondary)]">
-                    Có {accountsWithDecline} tài khoản đang giảm số dư. Hãy kiểm tra để đảm bảo tài
-                    chính ổn định.
+                    Có {accountsWithDecline} tài khoản đang giảm số dư. Hãy kiểm
+                    tra để đảm bảo tài chính ổn định.
                   </p>
                 </div>
               </div>
@@ -377,7 +437,9 @@ export default function AccountBreakdown() {
 
         {/* Distribution Breakdown */}
         <Card>
-          <h3 className="font-semibold text-[var(--text-primary)] mb-4">Phân bổ theo loại</h3>
+          <h3 className="font-semibold text-[var(--text-primary)] mb-4">
+            Phân bổ theo loại
+          </h3>
           <div className="space-y-4">
             {typeGroups.map((group) => (
               <div key={group.type}>

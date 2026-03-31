@@ -1,6 +1,6 @@
-import React from 'react';
-import { Layout } from '../components/Layout';
-import AttachmentLibrary from './AttachmentLibrary';
+import React from "react";
+import { Layout } from "../components/Layout";
+import AttachmentLibrary from "./AttachmentLibrary";
 
 export default function AttachmentLibraryWithLayout() {
   return (

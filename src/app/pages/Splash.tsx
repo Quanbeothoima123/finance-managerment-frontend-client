@@ -1,18 +1,21 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router';
-import { motion } from 'motion/react';
-import { ThemeSwitcher } from '../components/ThemeSwitcher';
-import { useAuth } from '../hooks/useAuth';
-import { appService } from '../services/appService';
-import { ApiError } from '../services/apiClient';
-import { resolveOnboardingPath } from '../types/onboarding';
+import React, { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router";
+import { motion } from "motion/react";
+import { ThemeSwitcher } from "../components/ThemeSwitcher";
+import { useAuth } from "../hooks/useAuth";
+import { appService } from "../services/appService";
+import { ApiError } from "../services/apiClient";
+import { resolveOnboardingPath } from "../types/onboarding";
 
 export default function Splash() {
   const navigate = useNavigate();
   const { isHydrated, isAuthenticated, clearSession } = useAuth();
-  const [statusText, setStatusText] = useState('Đang khởi tạo ứng dụng...');
+  const [statusText, setStatusText] = useState("Đang khởi tạo ứng dụng...");
 
-  const fallbackRoute = useMemo(() => (isAuthenticated ? '/home' : '/welcome'), [isAuthenticated]);
+  const fallbackRoute = useMemo(
+    () => (isAuthenticated ? "/home" : "/welcome"),
+    [isAuthenticated],
+  );
 
   useEffect(() => {
     if (!isHydrated) return;
@@ -25,25 +28,30 @@ export default function Splash() {
         if (!isMounted) return;
 
         if (!isAuthenticated) {
-          navigate('/welcome', { replace: true });
+          navigate("/welcome", { replace: true });
           return;
         }
 
-        setStatusText('Đang đồng bộ phiên đăng nhập...');
+        setStatusText("Đang đồng bộ phiên đăng nhập...");
         const bootstrap = await appService.getBootstrap();
         if (!isMounted) return;
 
-        const targetRoute = bootstrap.redirectTo || resolveOnboardingPath(bootstrap.onboarding.currentStep);
-        setStatusText('Đang chuyển hướng...');
-        navigate(targetRoute === '/onboarding/completed' ? '/home' : targetRoute, {
-          replace: true,
-        });
+        const targetRoute =
+          bootstrap.redirectTo ||
+          resolveOnboardingPath(bootstrap.onboarding.currentStep);
+        setStatusText("Đang chuyển hướng...");
+        navigate(
+          targetRoute === "/onboarding/completed" ? "/home" : targetRoute,
+          {
+            replace: true,
+          },
+        );
       } catch (error) {
         if (!isMounted) return;
 
         if (error instanceof ApiError && error.status === 401) {
           clearSession();
-          navigate('/auth/login', { replace: true });
+          navigate("/auth/login", { replace: true });
           return;
         }
 
@@ -67,19 +75,24 @@ export default function Splash() {
       <motion.div
         className="absolute top-1/4 left-1/4 w-64 h-64 md:w-96 md:h-96 rounded-full bg-[var(--primary)] opacity-10 blur-3xl"
         animate={{ scale: [1, 1.2, 1], opacity: [0.1, 0.15, 0.1] }}
-        transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
       />
       <motion.div
         className="absolute bottom-1/4 right-1/4 w-64 h-64 md:w-96 md:h-96 rounded-full bg-[var(--success)] opacity-10 blur-3xl"
         animate={{ scale: [1, 1.3, 1], opacity: [0.1, 0.15, 0.1] }}
-        transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut', delay: 0.5 }}
+        transition={{
+          duration: 5,
+          repeat: Infinity,
+          ease: "easeInOut",
+          delay: 0.5,
+        }}
       />
 
       <div className="relative z-10 flex flex-col items-center justify-center px-6">
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.6, ease: 'easeOut' }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
           className="mb-12"
         >
           <div className="relative">
@@ -102,7 +115,7 @@ export default function Splash() {
             <motion.div
               className="absolute inset-0 rounded-[var(--radius-xl)] border-2 border-[var(--primary)]"
               animate={{ scale: [1, 1.2, 1], opacity: [0.5, 0, 0.5] }}
-              transition={{ duration: 2, repeat: Infinity, ease: 'easeOut' }}
+              transition={{ duration: 2, repeat: Infinity, ease: "easeOut" }}
             />
           </div>
         </motion.div>
@@ -132,7 +145,7 @@ export default function Splash() {
             <motion.div
               className="absolute inset-0 rounded-full border-2 border-[var(--primary)] border-t-transparent"
               animate={{ rotate: 360 }}
-              transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
             />
           </div>
 

@@ -1,6 +1,6 @@
-import React from 'react';
-import { Layout } from '../components/Layout';
-import GeneratePreviewDemo from './GeneratePreviewDemo';
+import React from "react";
+import { Layout } from "../components/Layout";
+import GeneratePreviewDemo from "./GeneratePreviewDemo";
 
 export default function GeneratePreviewDemoWithLayout() {
   return (

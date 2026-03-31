@@ -2,34 +2,34 @@ import type {
   TransactionCategoryOption,
   TransactionMerchantOption,
   TransactionTagOption,
-} from './transactions';
+} from "./transactions";
 
-export type AutoRuleStatusFilter = 'all' | 'active' | 'inactive';
-export type AutoRuleSortBy = 'priority' | 'name' | 'createdAt' | 'updatedAt';
-export type AutoRuleSortOrder = 'asc' | 'desc';
+export type AutoRuleStatusFilter = "all" | "active" | "inactive";
+export type AutoRuleSortBy = "priority" | "name" | "createdAt" | "updatedAt";
+export type AutoRuleSortOrder = "asc" | "desc";
 export type AutoRuleMatchField =
-  | 'description'
-  | 'merchant'
-  | 'amount'
-  | 'account'
-  | 'weekday'
-  | 'note';
+  | "description"
+  | "merchant"
+  | "amount"
+  | "account"
+  | "weekday"
+  | "note";
 export type AutoRuleMatchType =
-  | 'contains'
-  | 'equals'
-  | 'starts_with'
-  | 'ends_with'
-  | 'gt'
-  | 'lt'
-  | 'in'
-  | 'regex'
-  | 'greater_than'
-  | 'less_than';
+  | "contains"
+  | "equals"
+  | "starts_with"
+  | "ends_with"
+  | "gt"
+  | "lt"
+  | "in"
+  | "regex"
+  | "greater_than"
+  | "less_than";
 export type AutoRuleActionType =
-  | 'set_category'
-  | 'add_tag'
-  | 'set_merchant'
-  | 'set_account';
+  | "set_category"
+  | "add_tag"
+  | "set_merchant"
+  | "set_account";
 
 export interface AutoRuleAccountOption {
   id: string;
@@ -119,7 +119,7 @@ export interface AutoRulesMetaResponse {
 }
 
 export interface AutoRulesListResponse {
-  ledger: AutoRulesMetaResponse['ledger'];
+  ledger: AutoRulesMetaResponse["ledger"];
   summary: {
     totalRules: number;
     activeRules: number;

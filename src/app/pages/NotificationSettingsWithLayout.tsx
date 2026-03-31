@@ -1,6 +1,6 @@
-import React from 'react';
-import { Layout } from '../components/Layout';
-import NotificationSettings from './NotificationSettings';
+import React from "react";
+import { Layout } from "../components/Layout";
+import NotificationSettings from "./NotificationSettings";
 
 export default function NotificationSettingsWithLayout() {
   return (

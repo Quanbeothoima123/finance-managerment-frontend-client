@@ -1,6 +1,6 @@
-import React from 'react';
-import { Layout } from '../components/Layout';
-import AboutPage from './AboutPage';
+import React from "react";
+import { Layout } from "../components/Layout";
+import AboutPage from "./AboutPage";
 
 export default function AboutPageWithLayout() {
   return (

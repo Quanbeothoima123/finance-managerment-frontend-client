@@ -1,11 +1,11 @@
-import React from 'react';
-import { Layout } from '../components/Layout';
-import AttachmentsGallery from './AttachmentsGallery';
-import ExportCenter from './ExportCenter';
-import SettingsHome from './SettingsHome';
-import SecuritySettings from './SecuritySettings';
-import DataBackupSettings from './DataBackupSettings';
-import AboutPage from './AboutPage';
+import React from "react";
+import { Layout } from "../components/Layout";
+import AttachmentsGallery from "./AttachmentsGallery";
+import ExportCenter from "./ExportCenter";
+import SettingsHome from "./SettingsHome";
+import SecuritySettings from "./SecuritySettings";
+import DataBackupSettings from "./DataBackupSettings";
+import AboutPage from "./AboutPage";
 
 export default function SettingsShowcase() {
   return (
@@ -16,13 +16,16 @@ export default function SettingsShowcase() {
             Attachments/Export/Settings (I1-I6) - Design Showcase
           </h1>
           <p className="text-gray-600">
-            Complete attachments, export, and settings with comprehensive functionality
+            Complete attachments, export, and settings with comprehensive
+            functionality
           </p>
         </div>
 
         {/* I1 - Attachments Gallery */}
         <section>
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">I1 - Receipt Attachments Gallery</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">
+            I1 - Receipt Attachments Gallery
+          </h2>
 
           {/* Light Theme - Desktop */}
           <div className="mb-8">
@@ -33,13 +36,19 @@ export default function SettingsShowcase() {
               <div
                 className="bg-white"
                 style={{
-                  width: '1440px',
-                  height: '900px',
-                  transform: 'scale(0.7)',
-                  transformOrigin: 'top left',
+                  width: "1440px",
+                  height: "900px",
+                  transform: "scale(0.7)",
+                  transformOrigin: "top left",
                 }}
               >
-                <div style={{ width: '1440px', height: '900px', transform: 'scale(1.43)' }}>
+                <div
+                  style={{
+                    width: "1440px",
+                    height: "900px",
+                    transform: "scale(1.43)",
+                  }}
+                >
                   <Layout title="Hoá đơn">
                     <AttachmentsGallery />
                   </Layout>
@@ -57,13 +66,19 @@ export default function SettingsShowcase() {
               <div
                 className="dark bg-[#0f1113]"
                 style={{
-                  width: '1440px',
-                  height: '900px',
-                  transform: 'scale(0.7)',
-                  transformOrigin: 'top left',
+                  width: "1440px",
+                  height: "900px",
+                  transform: "scale(0.7)",
+                  transformOrigin: "top left",
                 }}
               >
-                <div style={{ width: '1440px', height: '900px', transform: 'scale(1.43)' }}>
+                <div
+                  style={{
+                    width: "1440px",
+                    height: "900px",
+                    transform: "scale(1.43)",
+                  }}
+                >
                   <Layout title="Hoá đơn">
                     <AttachmentsGallery />
                   </Layout>
@@ -75,7 +90,9 @@ export default function SettingsShowcase() {
 
         {/* I2 - Export Center */}
         <section>
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">I2 - Export Center (CSV/PDF)</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">
+            I2 - Export Center (CSV/PDF)
+          </h2>
 
           {/* Light Theme - Desktop */}
           <div className="mb-8">
@@ -86,13 +103,19 @@ export default function SettingsShowcase() {
               <div
                 className="bg-white"
                 style={{
-                  width: '1440px',
-                  height: '900px',
-                  transform: 'scale(0.7)',
-                  transformOrigin: 'top left',
+                  width: "1440px",
+                  height: "900px",
+                  transform: "scale(0.7)",
+                  transformOrigin: "top left",
                 }}
               >
-                <div style={{ width: '1440px', height: '900px', transform: 'scale(1.43)' }}>
+                <div
+                  style={{
+                    width: "1440px",
+                    height: "900px",
+                    transform: "scale(1.43)",
+                  }}
+                >
                   <Layout title="Xuất dữ liệu">
                     <ExportCenter />
                   </Layout>
@@ -110,13 +133,19 @@ export default function SettingsShowcase() {
               <div
                 className="dark bg-[#0f1113]"
                 style={{
-                  width: '1440px',
-                  height: '900px',
-                  transform: 'scale(0.7)',
-                  transformOrigin: 'top left',
+                  width: "1440px",
+                  height: "900px",
+                  transform: "scale(0.7)",
+                  transformOrigin: "top left",
                 }}
               >
-                <div style={{ width: '1440px', height: '900px', transform: 'scale(1.43)' }}>
+                <div
+                  style={{
+                    width: "1440px",
+                    height: "900px",
+                    transform: "scale(1.43)",
+                  }}
+                >
                   <Layout title="Xuất dữ liệu">
                     <ExportCenter />
                   </Layout>
@@ -128,7 +157,9 @@ export default function SettingsShowcase() {
 
         {/* I3 - Settings Home */}
         <section>
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">I3 - Settings Home</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">
+            I3 - Settings Home
+          </h2>
 
           {/* Light Theme - Desktop */}
           <div className="mb-8">
@@ -139,13 +170,19 @@ export default function SettingsShowcase() {
               <div
                 className="bg-white"
                 style={{
-                  width: '1440px',
-                  height: '900px',
-                  transform: 'scale(0.7)',
-                  transformOrigin: 'top left',
+                  width: "1440px",
+                  height: "900px",
+                  transform: "scale(0.7)",
+                  transformOrigin: "top left",
                 }}
               >
-                <div style={{ width: '1440px', height: '900px', transform: 'scale(1.43)' }}>
+                <div
+                  style={{
+                    width: "1440px",
+                    height: "900px",
+                    transform: "scale(1.43)",
+                  }}
+                >
                   <SettingsHome />
                 </div>
               </div>
@@ -161,13 +198,19 @@ export default function SettingsShowcase() {
               <div
                 className="dark bg-[#0f1113]"
                 style={{
-                  width: '1440px',
-                  height: '900px',
-                  transform: 'scale(0.7)',
-                  transformOrigin: 'top left',
+                  width: "1440px",
+                  height: "900px",
+                  transform: "scale(0.7)",
+                  transformOrigin: "top left",
                 }}
               >
-                <div style={{ width: '1440px', height: '900px', transform: 'scale(1.43)' }}>
+                <div
+                  style={{
+                    width: "1440px",
+                    height: "900px",
+                    transform: "scale(1.43)",
+                  }}
+                >
                   <SettingsHome />
                 </div>
               </div>
@@ -177,7 +220,9 @@ export default function SettingsShowcase() {
 
         {/* I4 - Security Settings */}
         <section>
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">I4 - Security (PIN/Biometrics)</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">
+            I4 - Security (PIN/Biometrics)
+          </h2>
 
           {/* Light Theme - Desktop */}
           <div className="mb-8">
@@ -188,13 +233,19 @@ export default function SettingsShowcase() {
               <div
                 className="bg-white"
                 style={{
-                  width: '1440px',
-                  height: '900px',
-                  transform: 'scale(0.7)',
-                  transformOrigin: 'top left',
+                  width: "1440px",
+                  height: "900px",
+                  transform: "scale(0.7)",
+                  transformOrigin: "top left",
                 }}
               >
-                <div style={{ width: '1440px', height: '900px', transform: 'scale(1.43)' }}>
+                <div
+                  style={{
+                    width: "1440px",
+                    height: "900px",
+                    transform: "scale(1.43)",
+                  }}
+                >
                   <Layout title="Bảo mật">
                     <SecuritySettings />
                   </Layout>
@@ -212,13 +263,19 @@ export default function SettingsShowcase() {
               <div
                 className="dark bg-[#0f1113]"
                 style={{
-                  width: '1440px',
-                  height: '900px',
-                  transform: 'scale(0.7)',
-                  transformOrigin: 'top left',
+                  width: "1440px",
+                  height: "900px",
+                  transform: "scale(0.7)",
+                  transformOrigin: "top left",
                 }}
               >
-                <div style={{ width: '1440px', height: '900px', transform: 'scale(1.43)' }}>
+                <div
+                  style={{
+                    width: "1440px",
+                    height: "900px",
+                    transform: "scale(1.43)",
+                  }}
+                >
                   <Layout title="Bảo mật">
                     <SecuritySettings />
                   </Layout>
@@ -230,7 +287,9 @@ export default function SettingsShowcase() {
 
         {/* I5 - Data & Backup */}
         <section>
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">I5 - Data & Backup</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">
+            I5 - Data & Backup
+          </h2>
 
           {/* Light Theme - Desktop */}
           <div className="mb-8">
@@ -241,13 +300,19 @@ export default function SettingsShowcase() {
               <div
                 className="bg-white"
                 style={{
-                  width: '1440px',
-                  height: '900px',
-                  transform: 'scale(0.7)',
-                  transformOrigin: 'top left',
+                  width: "1440px",
+                  height: "900px",
+                  transform: "scale(0.7)",
+                  transformOrigin: "top left",
                 }}
               >
-                <div style={{ width: '1440px', height: '900px', transform: 'scale(1.43)' }}>
+                <div
+                  style={{
+                    width: "1440px",
+                    height: "900px",
+                    transform: "scale(1.43)",
+                  }}
+                >
                   <Layout title="Dữ liệu & Sao lưu">
                     <DataBackupSettings />
                   </Layout>
@@ -265,13 +330,19 @@ export default function SettingsShowcase() {
               <div
                 className="dark bg-[#0f1113]"
                 style={{
-                  width: '1440px',
-                  height: '900px',
-                  transform: 'scale(0.7)',
-                  transformOrigin: 'top left',
+                  width: "1440px",
+                  height: "900px",
+                  transform: "scale(0.7)",
+                  transformOrigin: "top left",
                 }}
               >
-                <div style={{ width: '1440px', height: '900px', transform: 'scale(1.43)' }}>
+                <div
+                  style={{
+                    width: "1440px",
+                    height: "900px",
+                    transform: "scale(1.43)",
+                  }}
+                >
                   <Layout title="Dữ liệu & Sao lưu">
                     <DataBackupSettings />
                   </Layout>
@@ -283,7 +354,9 @@ export default function SettingsShowcase() {
 
         {/* I6 - About Page */}
         <section>
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">I6 - About (Version)</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">
+            I6 - About (Version)
+          </h2>
 
           {/* Light Theme - Desktop */}
           <div className="mb-8">
@@ -294,13 +367,19 @@ export default function SettingsShowcase() {
               <div
                 className="bg-white"
                 style={{
-                  width: '1440px',
-                  height: '900px',
-                  transform: 'scale(0.7)',
-                  transformOrigin: 'top left',
+                  width: "1440px",
+                  height: "900px",
+                  transform: "scale(0.7)",
+                  transformOrigin: "top left",
                 }}
               >
-                <div style={{ width: '1440px', height: '900px', transform: 'scale(1.43)' }}>
+                <div
+                  style={{
+                    width: "1440px",
+                    height: "900px",
+                    transform: "scale(1.43)",
+                  }}
+                >
                   <Layout title="Giới thiệu">
                     <AboutPage />
                   </Layout>
@@ -318,13 +397,19 @@ export default function SettingsShowcase() {
               <div
                 className="dark bg-[#0f1113]"
                 style={{
-                  width: '1440px',
-                  height: '900px',
-                  transform: 'scale(0.7)',
-                  transformOrigin: 'top left',
+                  width: "1440px",
+                  height: "900px",
+                  transform: "scale(0.7)",
+                  transformOrigin: "top left",
                 }}
               >
-                <div style={{ width: '1440px', height: '900px', transform: 'scale(1.43)' }}>
+                <div
+                  style={{
+                    width: "1440px",
+                    height: "900px",
+                    transform: "scale(1.43)",
+                  }}
+                >
                   <Layout title="Giới thiệu">
                     <AboutPage />
                   </Layout>
@@ -340,17 +425,27 @@ export default function SettingsShowcase() {
             </h3>
             <div className="grid grid-cols-2 gap-8">
               <div>
-                <h4 className="text-lg font-medium text-gray-700 mb-3">Light Theme</h4>
+                <h4 className="text-lg font-medium text-gray-700 mb-3">
+                  Light Theme
+                </h4>
                 <div className="rounded-lg overflow-hidden shadow-2xl border border-gray-300 inline-block">
-                  <div className="bg-white" style={{ width: '375px', height: '812px' }}>
+                  <div
+                    className="bg-white"
+                    style={{ width: "375px", height: "812px" }}
+                  >
                     <AboutPage />
                   </div>
                 </div>
               </div>
               <div>
-                <h4 className="text-lg font-medium text-gray-700 mb-3">Dark Theme</h4>
+                <h4 className="text-lg font-medium text-gray-700 mb-3">
+                  Dark Theme
+                </h4>
                 <div className="rounded-lg overflow-hidden shadow-2xl border border-gray-800 inline-block">
-                  <div className="dark bg-[#0f1113]" style={{ width: '375px', height: '812px' }}>
+                  <div
+                    className="dark bg-[#0f1113]"
+                    style={{ width: "375px", height: "812px" }}
+                  >
                     <AboutPage />
                   </div>
                 </div>

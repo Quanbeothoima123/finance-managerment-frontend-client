@@ -1,6 +1,6 @@
-import React from 'react';
-import { Layout } from '../components/Layout';
-import CreateEditMerchant from './CreateEditMerchant';
+import React from "react";
+import { Layout } from "../components/Layout";
+import CreateEditMerchant from "./CreateEditMerchant";
 
 export default function CreateMerchantWithLayout() {
   return (

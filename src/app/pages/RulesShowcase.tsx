@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
-import { Layout } from '../components/Layout';
-import AutoRulesList from './AutoRulesList';
-import CreateAutoRule from './CreateAutoRule';
-import RecurringRulesList from './RecurringRulesList';
-import CreateRecurringRule from './CreateRecurringRule';
-import GeneratePreviewDemo from './GeneratePreviewDemo';
+import React, { useState } from "react";
+import { Layout } from "../components/Layout";
+import AutoRulesList from "./AutoRulesList";
+import CreateAutoRule from "./CreateAutoRule";
+import RecurringRulesList from "./RecurringRulesList";
+import CreateRecurringRule from "./CreateRecurringRule";
+import GeneratePreviewDemo from "./GeneratePreviewDemo";
 
 export default function RulesShowcase() {
   return (
@@ -15,13 +15,16 @@ export default function RulesShowcase() {
             Rules & Recurring (H1-H5) - Design Showcase
           </h1>
           <p className="text-gray-600">
-            Complete rules and automation system with auto rules, recurring transactions, and preview
+            Complete rules and automation system with auto rules, recurring
+            transactions, and preview
           </p>
         </div>
 
         {/* H1 - Auto Rules List */}
         <section>
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">H1 - Auto Rules List</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">
+            H1 - Auto Rules List
+          </h2>
 
           {/* Light Theme - Desktop */}
           <div className="mb-8">
@@ -32,13 +35,19 @@ export default function RulesShowcase() {
               <div
                 className="bg-white"
                 style={{
-                  width: '1440px',
-                  height: '900px',
-                  transform: 'scale(0.7)',
-                  transformOrigin: 'top left',
+                  width: "1440px",
+                  height: "900px",
+                  transform: "scale(0.7)",
+                  transformOrigin: "top left",
                 }}
               >
-                <div style={{ width: '1440px', height: '900px', transform: 'scale(1.43)' }}>
+                <div
+                  style={{
+                    width: "1440px",
+                    height: "900px",
+                    transform: "scale(1.43)",
+                  }}
+                >
                   <Layout title="Quy tắc tự động">
                     <AutoRulesList />
                   </Layout>
@@ -56,13 +65,19 @@ export default function RulesShowcase() {
               <div
                 className="dark bg-[#0f1113]"
                 style={{
-                  width: '1440px',
-                  height: '900px',
-                  transform: 'scale(0.7)',
-                  transformOrigin: 'top left',
+                  width: "1440px",
+                  height: "900px",
+                  transform: "scale(0.7)",
+                  transformOrigin: "top left",
                 }}
               >
-                <div style={{ width: '1440px', height: '900px', transform: 'scale(1.43)' }}>
+                <div
+                  style={{
+                    width: "1440px",
+                    height: "900px",
+                    transform: "scale(1.43)",
+                  }}
+                >
                   <Layout title="Quy tắc tự động">
                     <AutoRulesList />
                   </Layout>
@@ -74,7 +89,9 @@ export default function RulesShowcase() {
 
         {/* H2 - Create/Edit Auto Rule */}
         <section>
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">H2 - Create/Edit Auto Rule</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">
+            H2 - Create/Edit Auto Rule
+          </h2>
 
           {/* Light Theme - Desktop */}
           <div className="mb-8">
@@ -85,13 +102,19 @@ export default function RulesShowcase() {
               <div
                 className="bg-white"
                 style={{
-                  width: '1440px',
-                  height: '900px',
-                  transform: 'scale(0.7)',
-                  transformOrigin: 'top left',
+                  width: "1440px",
+                  height: "900px",
+                  transform: "scale(0.7)",
+                  transformOrigin: "top left",
                 }}
               >
-                <div style={{ width: '1440px', height: '900px', transform: 'scale(1.43)' }}>
+                <div
+                  style={{
+                    width: "1440px",
+                    height: "900px",
+                    transform: "scale(1.43)",
+                  }}
+                >
                   <Layout title="Tạo quy tắc">
                     <CreateAutoRule />
                   </Layout>
@@ -109,13 +132,19 @@ export default function RulesShowcase() {
               <div
                 className="dark bg-[#0f1113]"
                 style={{
-                  width: '1440px',
-                  height: '900px',
-                  transform: 'scale(0.7)',
-                  transformOrigin: 'top left',
+                  width: "1440px",
+                  height: "900px",
+                  transform: "scale(0.7)",
+                  transformOrigin: "top left",
                 }}
               >
-                <div style={{ width: '1440px', height: '900px', transform: 'scale(1.43)' }}>
+                <div
+                  style={{
+                    width: "1440px",
+                    height: "900px",
+                    transform: "scale(1.43)",
+                  }}
+                >
                   <Layout title="Tạo quy tắc">
                     <CreateAutoRule />
                   </Layout>
@@ -127,7 +156,9 @@ export default function RulesShowcase() {
 
         {/* H3 - Recurring Rules List */}
         <section>
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">H3 - Recurring Rules List</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">
+            H3 - Recurring Rules List
+          </h2>
 
           {/* Light Theme - Desktop */}
           <div className="mb-8">
@@ -138,13 +169,19 @@ export default function RulesShowcase() {
               <div
                 className="bg-white"
                 style={{
-                  width: '1440px',
-                  height: '900px',
-                  transform: 'scale(0.7)',
-                  transformOrigin: 'top left',
+                  width: "1440px",
+                  height: "900px",
+                  transform: "scale(0.7)",
+                  transformOrigin: "top left",
                 }}
               >
-                <div style={{ width: '1440px', height: '900px', transform: 'scale(1.43)' }}>
+                <div
+                  style={{
+                    width: "1440px",
+                    height: "900px",
+                    transform: "scale(1.43)",
+                  }}
+                >
                   <Layout title="Giao dịch định kỳ">
                     <RecurringRulesList />
                   </Layout>
@@ -162,13 +199,19 @@ export default function RulesShowcase() {
               <div
                 className="dark bg-[#0f1113]"
                 style={{
-                  width: '1440px',
-                  height: '900px',
-                  transform: 'scale(0.7)',
-                  transformOrigin: 'top left',
+                  width: "1440px",
+                  height: "900px",
+                  transform: "scale(0.7)",
+                  transformOrigin: "top left",
                 }}
               >
-                <div style={{ width: '1440px', height: '900px', transform: 'scale(1.43)' }}>
+                <div
+                  style={{
+                    width: "1440px",
+                    height: "900px",
+                    transform: "scale(1.43)",
+                  }}
+                >
                   <Layout title="Giao dịch định kỳ">
                     <RecurringRulesList />
                   </Layout>
@@ -180,7 +223,9 @@ export default function RulesShowcase() {
 
         {/* H4 - Create/Edit Recurring Rule */}
         <section>
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">H4 - Create/Edit Recurring Rule</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">
+            H4 - Create/Edit Recurring Rule
+          </h2>
 
           {/* Light Theme - Desktop */}
           <div className="mb-8">
@@ -191,13 +236,19 @@ export default function RulesShowcase() {
               <div
                 className="bg-white"
                 style={{
-                  width: '1440px',
-                  height: '900px',
-                  transform: 'scale(0.7)',
-                  transformOrigin: 'top left',
+                  width: "1440px",
+                  height: "900px",
+                  transform: "scale(0.7)",
+                  transformOrigin: "top left",
                 }}
               >
-                <div style={{ width: '1440px', height: '900px', transform: 'scale(1.43)' }}>
+                <div
+                  style={{
+                    width: "1440px",
+                    height: "900px",
+                    transform: "scale(1.43)",
+                  }}
+                >
                   <Layout title="Tạo định kỳ">
                     <CreateRecurringRule />
                   </Layout>
@@ -215,13 +266,19 @@ export default function RulesShowcase() {
               <div
                 className="dark bg-[#0f1113]"
                 style={{
-                  width: '1440px',
-                  height: '900px',
-                  transform: 'scale(0.7)',
-                  transformOrigin: 'top left',
+                  width: "1440px",
+                  height: "900px",
+                  transform: "scale(0.7)",
+                  transformOrigin: "top left",
                 }}
               >
-                <div style={{ width: '1440px', height: '900px', transform: 'scale(1.43)' }}>
+                <div
+                  style={{
+                    width: "1440px",
+                    height: "900px",
+                    transform: "scale(1.43)",
+                  }}
+                >
                   <Layout title="Tạo định kỳ">
                     <CreateRecurringRule />
                   </Layout>
@@ -246,13 +303,19 @@ export default function RulesShowcase() {
               <div
                 className="bg-white"
                 style={{
-                  width: '1440px',
-                  height: '900px',
-                  transform: 'scale(0.7)',
-                  transformOrigin: 'top left',
+                  width: "1440px",
+                  height: "900px",
+                  transform: "scale(0.7)",
+                  transformOrigin: "top left",
                 }}
               >
-                <div style={{ width: '1440px', height: '900px', transform: 'scale(1.43)' }}>
+                <div
+                  style={{
+                    width: "1440px",
+                    height: "900px",
+                    transform: "scale(1.43)",
+                  }}
+                >
                   <Layout title="Xem trước">
                     <GeneratePreviewDemo />
                   </Layout>
@@ -270,13 +333,19 @@ export default function RulesShowcase() {
               <div
                 className="dark bg-[#0f1113]"
                 style={{
-                  width: '1440px',
-                  height: '900px',
-                  transform: 'scale(0.7)',
-                  transformOrigin: 'top left',
+                  width: "1440px",
+                  height: "900px",
+                  transform: "scale(0.7)",
+                  transformOrigin: "top left",
                 }}
               >
-                <div style={{ width: '1440px', height: '900px', transform: 'scale(1.43)' }}>
+                <div
+                  style={{
+                    width: "1440px",
+                    height: "900px",
+                    transform: "scale(1.43)",
+                  }}
+                >
                   <Layout title="Xem trước">
                     <GeneratePreviewDemo />
                   </Layout>
@@ -292,17 +361,27 @@ export default function RulesShowcase() {
             </h3>
             <div className="grid grid-cols-2 gap-8">
               <div>
-                <h4 className="text-lg font-medium text-gray-700 mb-3">Light Theme</h4>
+                <h4 className="text-lg font-medium text-gray-700 mb-3">
+                  Light Theme
+                </h4>
                 <div className="rounded-lg overflow-hidden shadow-2xl border border-gray-300 inline-block">
-                  <div className="bg-white" style={{ width: '375px', height: '812px' }}>
+                  <div
+                    className="bg-white"
+                    style={{ width: "375px", height: "812px" }}
+                  >
                     <GeneratePreviewDemo />
                   </div>
                 </div>
               </div>
               <div>
-                <h4 className="text-lg font-medium text-gray-700 mb-3">Dark Theme</h4>
+                <h4 className="text-lg font-medium text-gray-700 mb-3">
+                  Dark Theme
+                </h4>
                 <div className="rounded-lg overflow-hidden shadow-2xl border border-gray-800 inline-block">
-                  <div className="dark bg-[#0f1113]" style={{ width: '375px', height: '812px' }}>
+                  <div
+                    className="dark bg-[#0f1113]"
+                    style={{ width: "375px", height: "812px" }}
+                  >
                     <GeneratePreviewDemo />
                   </div>
                 </div>

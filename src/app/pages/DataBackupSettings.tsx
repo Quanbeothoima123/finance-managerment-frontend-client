@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   ArrowLeft,
   Upload,
@@ -9,13 +9,13 @@ import {
   FileText,
   Clock,
   RotateCcw,
-} from 'lucide-react';
-import { Card } from '../components/Card';
-import { Button } from '../components/Button';
-import { useAppNavigation } from '../hooks/useAppNavigation';
-import { useToast } from '../contexts/ToastContext';
-import { useDemoData } from '../contexts/DemoDataContext';
-import { CSVImportModal } from '../components/CSVImportModal';
+} from "lucide-react";
+import { Card } from "../components/Card";
+import { Button } from "../components/Button";
+import { useAppNavigation } from "../hooks/useAppNavigation";
+import { useToast } from "../contexts/ToastContext";
+import { useDemoData } from "../contexts/DemoDataContext";
+import { CSVImportModal } from "../components/CSVImportModal";
 
 export default function DataBackupSettings() {
   const nav = useAppNavigation();
@@ -34,10 +34,14 @@ export default function DataBackupSettings() {
     recurringRules,
   } = useDemoData();
   const [showResetConfirm, setShowResetConfirm] = useState(false);
-  const [confirmText, setConfirmText] = useState('');
+  const [confirmText, setConfirmText] = useState("");
   const [csvImportOpen, setCSVImportOpen] = useState(false);
   const [lastBackup, setLastBackup] = useState<string | null>(() => {
-    try { return localStorage.getItem('finance-last-backup-date'); } catch { return null; }
+    try {
+      return localStorage.getItem("finance-last-backup-date");
+    } catch {
+      return null;
+    }
   });
 
   const handleBack = () => {
@@ -48,30 +52,33 @@ export default function DataBackupSettings() {
     setCSVImportOpen(true);
   };
 
-  const handleCSVImport = (importedTransactions: Array<{
-    type: 'income' | 'expense' | 'transfer';
-    amount: number;
-    category: string;
-    account: string;
-    description: string;
-    date: string;
-    merchant?: string;
-    tags: string[];
-  }>) => {
+  const handleCSVImport = (
+    importedTransactions: Array<{
+      type: "income" | "expense" | "transfer";
+      amount: number;
+      category: string;
+      account: string;
+      description: string;
+      date: string;
+      merchant?: string;
+      tags: string[];
+    }>,
+  ) => {
     let importedCount = 0;
     importedTransactions.forEach((txn) => {
       addTransaction({
         type: txn.type,
-        amount: txn.type === 'expense' ? -Math.abs(txn.amount) : Math.abs(txn.amount),
+        amount:
+          txn.type === "expense" ? -Math.abs(txn.amount) : Math.abs(txn.amount),
         category: txn.category,
-        categoryId: '',
+        categoryId: "",
         account: txn.account,
-        accountId: '',
+        accountId: "",
         description: txn.description,
         date: txn.date,
         tags: txn.tags,
         merchant: txn.merchant,
-        merchantId: '',
+        merchantId: "",
       });
       importedCount++;
     });
@@ -81,7 +88,7 @@ export default function DataBackupSettings() {
   const handleExportAll = () => {
     const backupData = {
       exportedAt: new Date().toISOString(),
-      version: '1.0',
+      version: "1.0",
       data: {
         transactions,
         accounts,
@@ -96,27 +103,29 @@ export default function DataBackupSettings() {
     };
 
     const json = JSON.stringify(backupData, null, 2);
-    const blob = new Blob([json], { type: 'application/json;charset=utf-8' });
+    const blob = new Blob([json], { type: "application/json;charset=utf-8" });
     const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
+    const link = document.createElement("a");
     link.href = url;
-    link.download = `finance-backup_${new Date().toISOString().split('T')[0]}.json`;
+    link.download = `finance-backup_${new Date().toISOString().split("T")[0]}.json`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-    toast.success('Đã xuất toàn bộ dữ liệu thành công');
+    toast.success("Đã xuất toàn bộ dữ liệu thành công");
     const now = new Date().toISOString();
-    try { localStorage.setItem('finance-last-backup-date', now); } catch {}
+    try {
+      localStorage.setItem("finance-last-backup-date", now);
+    } catch {}
     setLastBackup(now);
   };
 
   const handleResetData = () => {
-    if (confirmText === 'XÓA DỮ LIỆU') {
+    if (confirmText === "XÓA DỮ LIỆU") {
       resetData();
-      toast.success('Đã xoá toàn bộ dữ liệu và khôi phục mặc định');
+      toast.success("Đã xoá toàn bộ dữ liệu và khôi phục mặc định");
       setShowResetConfirm(false);
-      setConfirmText('');
+      setConfirmText("");
     }
   };
 
@@ -133,7 +142,9 @@ export default function DataBackupSettings() {
             <span className="font-medium">Quay lại</span>
           </button>
 
-          <h1 className="text-2xl font-semibold text-[var(--text-primary)]">Dữ liệu & Sao lưu</h1>
+          <h1 className="text-2xl font-semibold text-[var(--text-primary)]">
+            Dữ liệu & Sao lưu
+          </h1>
           <p className="text-sm text-[var(--text-secondary)] mt-1">
             Quản lý và sao lưu dữ liệu của bạn
           </p>
@@ -147,9 +158,13 @@ export default function DataBackupSettings() {
               <Clock className="w-6 h-6" />
             </div>
             <div className="flex-1">
-              <h3 className="font-semibold text-[var(--text-primary)] mb-0.5">Sao lưu gần nhất</h3>
+              <h3 className="font-semibold text-[var(--text-primary)] mb-0.5">
+                Sao lưu gần nhất
+              </h3>
               <p className="text-sm text-[var(--text-secondary)]">
-                {lastBackup ? new Date(lastBackup).toLocaleString('vi-VN') : 'Chưa có bản sao lưu nào'}
+                {lastBackup
+                  ? new Date(lastBackup).toLocaleString("vi-VN")
+                  : "Chưa có bản sao lưu nào"}
               </p>
             </div>
           </div>
@@ -158,8 +173,10 @@ export default function DataBackupSettings() {
               <Download className="w-4 h-4" />
               Tạo sao lưu
             </Button>
-            <button onClick={() => nav.goRestoreData()}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 border border-[var(--border)] text-[var(--text-primary)] rounded-[var(--radius-lg)] font-medium hover:bg-[var(--surface)] transition-colors">
+            <button
+              onClick={() => nav.goRestoreData()}
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 border border-[var(--border)] text-[var(--text-primary)] rounded-[var(--radius-lg)] font-medium hover:bg-[var(--surface)] transition-colors"
+            >
               <RotateCcw className="w-4 h-4" />
               <span>Khôi phục</span>
             </button>
@@ -185,28 +202,37 @@ export default function DataBackupSettings() {
 
           <div className="space-y-3">
             <div className="flex justify-between items-center">
-              <span className="text-sm text-[var(--text-secondary)]">Giao dịch</span>
+              <span className="text-sm text-[var(--text-secondary)]">
+                Giao dịch
+              </span>
               <span className="text-sm font-semibold text-[var(--text-primary)] tabular-nums">
-                {new Intl.NumberFormat('vi-VN').format(transactions.length)} giao dịch
+                {new Intl.NumberFormat("vi-VN").format(transactions.length)}{" "}
+                giao dịch
               </span>
             </div>
 
             <div className="flex justify-between items-center">
-              <span className="text-sm text-[var(--text-secondary)]">Tài khoản</span>
+              <span className="text-sm text-[var(--text-secondary)]">
+                Tài khoản
+              </span>
               <span className="text-sm font-semibold text-[var(--text-primary)] tabular-nums">
                 {accounts.length} tài khoản
               </span>
             </div>
 
             <div className="flex justify-between items-center">
-              <span className="text-sm text-[var(--text-secondary)]">Danh mục / Nhãn / NCC</span>
+              <span className="text-sm text-[var(--text-secondary)]">
+                Danh mục / Nhãn / NCC
+              </span>
               <span className="text-sm font-semibold text-[var(--text-primary)] tabular-nums">
                 {categories.length} / {tags.length} / {merchants.length}
               </span>
             </div>
 
             <div className="flex justify-between items-center">
-              <span className="text-sm text-[var(--text-secondary)]">Ngân sách & Mục tiêu</span>
+              <span className="text-sm text-[var(--text-secondary)]">
+                Ngân sách & Mục tiêu
+              </span>
               <span className="text-sm font-semibold text-[var(--primary)] tabular-nums">
                 {budgets.length + goals.length} mục
               </span>
@@ -222,7 +248,9 @@ export default function DataBackupSettings() {
             </div>
 
             <div className="flex-1">
-              <h3 className="font-semibold text-[var(--text-primary)] mb-1">Nhập dữ liệu</h3>
+              <h3 className="font-semibold text-[var(--text-primary)] mb-1">
+                Nhập dữ liệu
+              </h3>
               <p className="text-sm text-[var(--text-secondary)]">
                 Nhập giao dịch từ file CSV hoặc sao lưu trước đó
               </p>
@@ -260,7 +288,8 @@ export default function DataBackupSettings() {
           <div className="mt-4 p-3 bg-[var(--warning-light)] border border-[var(--warning)] rounded-[var(--radius-lg)]">
             <p className="text-xs text-[var(--text-secondary)]">
               <AlertTriangle className="w-3.5 h-3.5 inline mr-1 text-[var(--warning)]" />
-              Dữ liệu hiện tại sẽ không bị ghi đè. Giao dịch trùng lặp sẽ được bỏ qua.
+              Dữ liệu hiện tại sẽ không bị ghi đè. Giao dịch trùng lặp sẽ được
+              bỏ qua.
             </p>
           </div>
         </Card>
@@ -273,22 +302,28 @@ export default function DataBackupSettings() {
             </div>
 
             <div className="flex-1">
-              <h3 className="font-semibold text-[var(--text-primary)] mb-1">Xuất dữ liệu</h3>
+              <h3 className="font-semibold text-[var(--text-primary)] mb-1">
+                Xuất dữ liệu
+              </h3>
               <p className="text-sm text-[var(--text-secondary)]">
                 Tạo bản sao lưu hoặc xuất dữ liệu để chuyển sang thiết bị khác
               </p>
             </div>
           </div>
 
-          <Button onClick={handleExportAll} variant="secondary" className="w-full">
+          <Button
+            onClick={handleExportAll}
+            variant="secondary"
+            className="w-full"
+          >
             <Download className="w-5 h-5" />
             Xuất toàn bộ dữ liệu
           </Button>
 
           <div className="mt-4 p-3 bg-[var(--info-light)] border border-[var(--info)] rounded-[var(--radius-lg)]">
             <p className="text-xs text-[var(--text-secondary)]">
-              Dữ liệu sẽ được xuất dạng file ZIP bao gồm: giao dịch (CSV), tài khoản, danh mục,
-              và tất cả hoá đơn đính kèm.
+              Dữ liệu sẽ được xuất dạng file ZIP bao gồm: giao dịch (CSV), tài
+              khoản, danh mục, và tất cả hoá đơn đính kèm.
             </p>
           </div>
         </Card>
@@ -301,7 +336,9 @@ export default function DataBackupSettings() {
             </div>
 
             <div className="flex-1">
-              <h3 className="font-semibold text-[var(--danger)] mb-1">Vùng nguy hiểm</h3>
+              <h3 className="font-semibold text-[var(--danger)] mb-1">
+                Vùng nguy hiểm
+              </h3>
               <p className="text-sm text-[var(--text-secondary)]">
                 Các hành động không thể hoàn tác
               </p>
@@ -342,8 +379,10 @@ export default function DataBackupSettings() {
 
               <div>
                 <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-                  Để xác nhận, gõ:{' '}
-                  <span className="font-mono font-bold text-[var(--danger)]">XÓA DỮ LIỆU</span>
+                  Để xác nhận, gõ:{" "}
+                  <span className="font-mono font-bold text-[var(--danger)]">
+                    XÓA DỮ LIỆU
+                  </span>
                 </label>
                 <input
                   type="text"
@@ -358,7 +397,7 @@ export default function DataBackupSettings() {
                 <Button
                   onClick={() => {
                     setShowResetConfirm(false);
-                    setConfirmText('');
+                    setConfirmText("");
                   }}
                   variant="secondary"
                   className="flex-1"
@@ -367,7 +406,7 @@ export default function DataBackupSettings() {
                 </Button>
                 <Button
                   onClick={handleResetData}
-                  disabled={confirmText !== 'XÓA DỮ LIỆU'}
+                  disabled={confirmText !== "XÓA DỮ LIỆU"}
                   className="flex-1 bg-[var(--danger)] hover:bg-[var(--danger)]/90 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Trash2 className="w-5 h-5" />
@@ -385,10 +424,13 @@ export default function DataBackupSettings() {
               <span className="text-white text-lg font-semibold">💡</span>
             </div>
             <div className="flex-1">
-              <h4 className="font-semibold text-[var(--text-primary)] mb-1">Khuyến nghị</h4>
+              <h4 className="font-semibold text-[var(--text-primary)] mb-1">
+                Khuyến nghị
+              </h4>
               <p className="text-sm text-[var(--text-secondary)]">
-                Nên xuất dữ liệu định kỳ để tạo bản sao lưu. File sao lưu có thể được lưu trữ trên
-                Google Drive, iCloud hoặc thiết bị lưu trữ khác.
+                Nên xuất dữ liệu định kỳ để tạo bản sao lưu. File sao lưu có thể
+                được lưu trữ trên Google Drive, iCloud hoặc thiết bị lưu trữ
+                khác.
               </p>
             </div>
           </div>

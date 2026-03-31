@@ -1,6 +1,6 @@
-import React from 'react';
-import { Layout } from '../components/Layout';
-import RecurringRulesList from './RecurringRulesList';
+import React from "react";
+import { Layout } from "../components/Layout";
+import RecurringRulesList from "./RecurringRulesList";
 
 export default function RecurringRulesListWithLayout() {
   return (

@@ -1,6 +1,6 @@
-import React from 'react';
-import { Layout } from '../components/Layout';
-import AutoRulesList from './AutoRulesList';
+import React from "react";
+import { Layout } from "../components/Layout";
+import AutoRulesList from "./AutoRulesList";
 
 export default function AutoRulesListWithLayout() {
   return (

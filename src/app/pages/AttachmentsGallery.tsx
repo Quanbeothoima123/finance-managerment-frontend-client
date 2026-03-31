@@ -1,113 +1,125 @@
-import React, { useState } from 'react';
-import { X, ChevronRight, Calendar, Filter, Search } from 'lucide-react';
-import { Card } from '../components/Card';
-import { Button } from '../components/Button';
-import { Input } from '../components/Input';
+import React, { useState } from "react";
+import { X, ChevronRight, Calendar, Filter, Search } from "lucide-react";
+import { Card } from "../components/Card";
+import { Button } from "../components/Button";
+import { Input } from "../components/Input";
 
 // Mock attachments data
 const mockAttachments = [
   {
-    id: '1',
-    thumbnailUrl: 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=400',
-    date: '2026-02-10',
+    id: "1",
+    thumbnailUrl:
+      "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=400",
+    date: "2026-02-10",
     amount: 450000,
-    transactionId: 't1',
-    transactionDescription: 'Cơm trưa - Quán Ngon',
-    category: 'Ăn uống',
-    type: 'expense',
+    transactionId: "t1",
+    transactionDescription: "Cơm trưa - Quán Ngon",
+    category: "Ăn uống",
+    type: "expense",
   },
   {
-    id: '2',
-    thumbnailUrl: 'https://images.unsplash.com/photo-1572811165-d03b0e645dc7?w=400',
-    date: '2026-02-09',
+    id: "2",
+    thumbnailUrl:
+      "https://images.unsplash.com/photo-1572811165-d03b0e645dc7?w=400",
+    date: "2026-02-09",
     amount: 850000,
-    transactionId: 't2',
-    transactionDescription: 'Mua giày thể thao',
-    category: 'Mua sắm',
-    type: 'expense',
+    transactionId: "t2",
+    transactionDescription: "Mua giày thể thao",
+    category: "Mua sắm",
+    type: "expense",
   },
   {
-    id: '3',
-    thumbnailUrl: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=400',
-    date: '2026-02-08',
+    id: "3",
+    thumbnailUrl:
+      "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=400",
+    date: "2026-02-08",
     amount: 125000,
-    transactionId: 't3',
-    transactionDescription: 'Cà phê Highlands',
-    category: 'Ăn uống',
-    type: 'expense',
+    transactionId: "t3",
+    transactionDescription: "Cà phê Highlands",
+    category: "Ăn uống",
+    type: "expense",
   },
   {
-    id: '4',
-    thumbnailUrl: 'https://images.unsplash.com/photo-1606166059861-557c93ea2674?w=400',
-    date: '2026-02-07',
+    id: "4",
+    thumbnailUrl:
+      "https://images.unsplash.com/photo-1606166059861-557c93ea2674?w=400",
+    date: "2026-02-07",
     amount: 2500000,
-    transactionId: 't4',
-    transactionDescription: 'Tiền điện tháng 2',
-    category: 'Nhà ở',
-    type: 'expense',
+    transactionId: "t4",
+    transactionDescription: "Tiền điện tháng 2",
+    category: "Nhà ở",
+    type: "expense",
   },
   {
-    id: '5',
-    thumbnailUrl: 'https://images.unsplash.com/photo-1586227740560-8cf2732c1531?w=400',
-    date: '2026-02-06',
+    id: "5",
+    thumbnailUrl:
+      "https://images.unsplash.com/photo-1586227740560-8cf2732c1531?w=400",
+    date: "2026-02-06",
     amount: 680000,
-    transactionId: 't5',
-    transactionDescription: 'Grab - Về nhà',
-    category: 'Di chuyển',
-    type: 'expense',
+    transactionId: "t5",
+    transactionDescription: "Grab - Về nhà",
+    category: "Di chuyển",
+    type: "expense",
   },
   {
-    id: '6',
-    thumbnailUrl: 'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=400',
-    date: '2026-02-05',
+    id: "6",
+    thumbnailUrl:
+      "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=400",
+    date: "2026-02-05",
     amount: 320000,
-    transactionId: 't6',
-    transactionDescription: 'Đồ ăn trưa',
-    category: 'Ăn uống',
-    type: 'expense',
+    transactionId: "t6",
+    transactionDescription: "Đồ ăn trưa",
+    category: "Ăn uống",
+    type: "expense",
   },
   {
-    id: '7',
-    thumbnailUrl: 'https://images.unsplash.com/photo-1544148103-0773bf10d330?w=400',
-    date: '2026-02-04',
+    id: "7",
+    thumbnailUrl:
+      "https://images.unsplash.com/photo-1544148103-0773bf10d330?w=400",
+    date: "2026-02-04",
     amount: 1200000,
-    transactionId: 't7',
-    transactionDescription: 'Mua sách',
-    category: 'Giải trí',
-    type: 'expense',
+    transactionId: "t7",
+    transactionDescription: "Mua sách",
+    category: "Giải trí",
+    type: "expense",
   },
   {
-    id: '8',
-    thumbnailUrl: 'https://images.unsplash.com/photo-1578328819058-b69f3a3b0f6b?w=400',
-    date: '2026-02-03',
+    id: "8",
+    thumbnailUrl:
+      "https://images.unsplash.com/photo-1578328819058-b69f3a3b0f6b?w=400",
+    date: "2026-02-03",
     amount: 750000,
-    transactionId: 't8',
-    transactionDescription: 'Mua đồ điện tử',
-    category: 'Mua sắm',
-    type: 'expense',
+    transactionId: "t8",
+    transactionDescription: "Mua đồ điện tử",
+    category: "Mua sắm",
+    type: "expense",
   },
 ];
 
 interface AttachmentDetailPanelProps {
-  attachment: typeof mockAttachments[0];
+  attachment: (typeof mockAttachments)[0];
   isOpen: boolean;
   onClose: () => void;
 }
 
-function AttachmentDetailPanel({ attachment, isOpen, onClose }: AttachmentDetailPanelProps) {
+function AttachmentDetailPanel({
+  attachment,
+  isOpen,
+  onClose,
+}: AttachmentDetailPanelProps) {
   if (!isOpen) return null;
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('vi-VN').format(amount);
+    return new Intl.NumberFormat("vi-VN").format(amount);
   };
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('vi-VN', {
-      weekday: 'long',
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
+    return date.toLocaleDateString("vi-VN", {
+      weekday: "long",
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
     });
   };
 
@@ -122,13 +134,15 @@ function AttachmentDetailPanel({ attachment, isOpen, onClose }: AttachmentDetail
       {/* Side Panel */}
       <div
         className={`fixed top-0 right-0 h-full bg-[var(--card)] z-50 shadow-2xl transition-transform duration-300 ${
-          isOpen ? 'translate-x-0' : 'translate-x-full'
+          isOpen ? "translate-x-0" : "translate-x-full"
         } w-full md:w-[600px]`}
       >
         <div className="flex flex-col h-full">
           {/* Header */}
           <div className="flex items-center justify-between p-6 border-b border-[var(--divider)]">
-            <h3 className="text-xl font-semibold text-[var(--text-primary)]">Chi tiết hoá đơn</h3>
+            <h3 className="text-xl font-semibold text-[var(--text-primary)]">
+              Chi tiết hoá đơn
+            </h3>
             <button
               onClick={onClose}
               className="p-2 hover:bg-[var(--surface)] rounded-[var(--radius-lg)] transition-colors"
@@ -156,28 +170,36 @@ function AttachmentDetailPanel({ attachment, isOpen, onClose }: AttachmentDetail
 
               <div className="space-y-3">
                 <div className="flex justify-between">
-                  <span className="text-sm text-[var(--text-secondary)]">Mô tả</span>
+                  <span className="text-sm text-[var(--text-secondary)]">
+                    Mô tả
+                  </span>
                   <span className="text-sm font-medium text-[var(--text-primary)]">
                     {attachment.transactionDescription}
                   </span>
                 </div>
 
                 <div className="flex justify-between">
-                  <span className="text-sm text-[var(--text-secondary)]">Số tiền</span>
+                  <span className="text-sm text-[var(--text-secondary)]">
+                    Số tiền
+                  </span>
                   <span className="text-sm font-semibold text-[var(--danger)] tabular-nums">
                     -{formatCurrency(attachment.amount)}₫
                   </span>
                 </div>
 
                 <div className="flex justify-between">
-                  <span className="text-sm text-[var(--text-secondary)]">Danh mục</span>
+                  <span className="text-sm text-[var(--text-secondary)]">
+                    Danh mục
+                  </span>
                   <span className="px-2 py-0.5 bg-[var(--primary-light)] text-[var(--primary)] rounded-[var(--radius-md)] text-xs font-medium">
                     {attachment.category}
                   </span>
                 </div>
 
                 <div className="flex justify-between">
-                  <span className="text-sm text-[var(--text-secondary)]">Ngày</span>
+                  <span className="text-sm text-[var(--text-secondary)]">
+                    Ngày
+                  </span>
                   <span className="text-sm font-medium text-[var(--text-primary)]">
                     {formatDate(attachment.date)}
                   </span>
@@ -197,32 +219,42 @@ function AttachmentDetailPanel({ attachment, isOpen, onClose }: AttachmentDetail
 }
 
 export default function AttachmentsGallery() {
-  const [selectedAttachment, setSelectedAttachment] = useState<typeof mockAttachments[0] | null>(
-    null
-  );
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('all');
-  const [selectedMonth, setSelectedMonth] = useState('2026-02');
+  const [selectedAttachment, setSelectedAttachment] = useState<
+    (typeof mockAttachments)[0] | null
+  >(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [selectedMonth, setSelectedMonth] = useState("2026-02");
 
-  const categories = ['all', 'Ăn uống', 'Mua sắm', 'Nhà ở', 'Di chuyển', 'Giải trí'];
+  const categories = [
+    "all",
+    "Ăn uống",
+    "Mua sắm",
+    "Nhà ở",
+    "Di chuyển",
+    "Giải trí",
+  ];
 
   const filteredAttachments = mockAttachments.filter((attachment) => {
     const matchesSearch = attachment.transactionDescription
       .toLowerCase()
       .includes(searchQuery.toLowerCase());
     const matchesCategory =
-      selectedCategory === 'all' || attachment.category === selectedCategory;
+      selectedCategory === "all" || attachment.category === selectedCategory;
     const matchesMonth = attachment.date.startsWith(selectedMonth);
     return matchesSearch && matchesCategory && matchesMonth;
   });
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('vi-VN').format(amount);
+    return new Intl.NumberFormat("vi-VN").format(amount);
   };
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' });
+    return date.toLocaleDateString("vi-VN", {
+      day: "2-digit",
+      month: "2-digit",
+    });
   };
 
   return (
@@ -230,7 +262,9 @@ export default function AttachmentsGallery() {
       <div className="max-w-7xl mx-auto p-4 md:p-6 pb-20 md:pb-6 space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-2xl font-semibold text-[var(--text-primary)]">Hoá đơn đính kèm</h1>
+          <h1 className="text-2xl font-semibold text-[var(--text-primary)]">
+            Hoá đơn đính kèm
+          </h1>
           <p className="text-sm text-[var(--text-secondary)] mt-1">
             Quản lý ảnh hoá đơn và chứng từ
           </p>
@@ -239,30 +273,39 @@ export default function AttachmentsGallery() {
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <Card>
-            <p className="text-sm text-[var(--text-secondary)] mb-1">Tổng hoá đơn</p>
+            <p className="text-sm text-[var(--text-secondary)] mb-1">
+              Tổng hoá đơn
+            </p>
             <p className="text-2xl font-bold text-[var(--text-primary)] tabular-nums">
               {mockAttachments.length}
             </p>
           </Card>
 
           <Card>
-            <p className="text-sm text-[var(--text-secondary)] mb-1">Tháng này</p>
+            <p className="text-sm text-[var(--text-secondary)] mb-1">
+              Tháng này
+            </p>
             <p className="text-2xl font-bold text-[var(--primary)] tabular-nums">
               {filteredAttachments.length}
             </p>
           </Card>
 
           <Card>
-            <p className="text-sm text-[var(--text-secondary)] mb-1">Tổng chi tiêu</p>
+            <p className="text-sm text-[var(--text-secondary)] mb-1">
+              Tổng chi tiêu
+            </p>
             <p className="text-xl font-bold text-[var(--danger)] tabular-nums">
               {formatCurrency(
-                filteredAttachments.reduce((sum, a) => sum + a.amount, 0)
-              )}₫
+                filteredAttachments.reduce((sum, a) => sum + a.amount, 0),
+              )}
+              ₫
             </p>
           </Card>
 
           <Card>
-            <p className="text-sm text-[var(--text-secondary)] mb-1">Dung lượng</p>
+            <p className="text-sm text-[var(--text-secondary)] mb-1">
+              Dung lượng
+            </p>
             <p className="text-xl font-bold text-[var(--text-primary)] tabular-nums">
               12.4 MB
             </p>
@@ -345,7 +388,9 @@ export default function AttachmentsGallery() {
 
                 {/* Info */}
                 <div className="absolute bottom-0 left-0 right-0 p-3 text-left">
-                  <p className="text-xs text-white/80 mb-1">{formatDate(attachment.date)}</p>
+                  <p className="text-xs text-white/80 mb-1">
+                    {formatDate(attachment.date)}
+                  </p>
                   <p className="text-sm font-semibold text-white tabular-nums">
                     {formatCurrency(attachment.amount)}₫
                   </p>

@@ -1,6 +1,6 @@
-import React from 'react';
-import { Layout } from '../components/Layout';
-import CategoryBreakdown from './CategoryBreakdown';
+import React from "react";
+import { Layout } from "../components/Layout";
+import CategoryBreakdown from "./CategoryBreakdown";
 
 export default function CategoryBreakdownWithLayout() {
   return (

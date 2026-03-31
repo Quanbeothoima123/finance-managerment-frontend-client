@@ -1,8 +1,8 @@
 export type OnboardingStep =
-  | 'currency-date'
-  | 'wallet-balance'
-  | 'categories-setup'
-  | 'completed';
+  | "currency-date"
+  | "wallet-balance"
+  | "categories-setup"
+  | "completed";
 
 export interface BootstrapSummary {
   accountCount: number;
@@ -67,7 +67,7 @@ export interface SaveCurrencyDatePayload {
 
 export interface SaveOnboardingAccountPayload {
   name: string;
-  type: 'cash' | 'ewallet' | 'bank';
+  type: "cash" | "ewallet" | "bank";
   openingBalanceMinor: number;
   currencyCode?: string;
   providerName?: string | null;
@@ -95,7 +95,7 @@ export interface SaveOnboardingAccountsResponse {
 }
 
 export interface SaveOnboardingCategoriesPayload {
-  preset?: 'student' | 'professional';
+  preset?: "student" | "professional";
   groups?: string[];
 }
 
@@ -104,7 +104,7 @@ export interface SaveOnboardingCategoriesResponse {
   categories: Array<{
     id: string;
     name: string;
-    categoryType: 'expense' | 'income';
+    categoryType: "expense" | "income";
   }>;
   nextStep: OnboardingStep;
 }
@@ -116,13 +116,13 @@ export interface CompleteOnboardingResponse {
 
 export function resolveOnboardingPath(step?: string | null) {
   switch (step) {
-    case 'currency-date':
-      return '/onboarding/currency-date';
-    case 'wallet-balance':
-      return '/onboarding/wallet-balance';
-    case 'categories-setup':
-      return '/onboarding/categories-setup';
+    case "currency-date":
+      return "/onboarding/currency-date";
+    case "wallet-balance":
+      return "/onboarding/wallet-balance";
+    case "categories-setup":
+      return "/onboarding/categories-setup";
     default:
-      return '/home';
+      return "/home";
   }
 }

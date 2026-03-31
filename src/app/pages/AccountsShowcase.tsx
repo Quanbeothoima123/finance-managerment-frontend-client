@@ -1,8 +1,8 @@
-import React from 'react';
-import { Layout } from '../components/Layout';
-import AccountsOverview from './AccountsOverview';
-import CreateEditAccount from './CreateEditAccount';
-import AccountDetail from './AccountDetail';
+import React from "react";
+import { Layout } from "../components/Layout";
+import AccountsOverview from "./AccountsOverview";
+import CreateEditAccount from "./CreateEditAccount";
+import AccountDetail from "./AccountDetail";
 
 export default function AccountsShowcase() {
   return (
@@ -22,15 +22,29 @@ export default function AccountsShowcase() {
           <h2 className="text-2xl font-bold text-gray-900 mb-6">
             C1 - Accounts Overview
           </h2>
-          
+
           {/* Light Theme - Desktop */}
           <div className="mb-8">
             <h3 className="text-xl font-semibold text-gray-900 mb-4">
               Light Theme - Desktop (1440px)
             </h3>
             <div className="rounded-lg overflow-hidden shadow-2xl border border-gray-300">
-              <div className="bg-white" style={{ width: '1440px', height: '900px', transform: 'scale(0.7)', transformOrigin: 'top left' }}>
-                <div style={{ width: '1440px', height: '900px', transform: 'scale(1.43)' }}>
+              <div
+                className="bg-white"
+                style={{
+                  width: "1440px",
+                  height: "900px",
+                  transform: "scale(0.7)",
+                  transformOrigin: "top left",
+                }}
+              >
+                <div
+                  style={{
+                    width: "1440px",
+                    height: "900px",
+                    transform: "scale(1.43)",
+                  }}
+                >
                   <Layout title="Ví & Tài khoản">
                     <AccountsOverview />
                   </Layout>
@@ -45,8 +59,22 @@ export default function AccountsShowcase() {
               Dark Theme - Desktop (1440px)
             </h3>
             <div className="rounded-lg overflow-hidden shadow-2xl border border-gray-800">
-              <div className="dark bg-[#0f1113]" style={{ width: '1440px', height: '900px', transform: 'scale(0.7)', transformOrigin: 'top left' }}>
-                <div style={{ width: '1440px', height: '900px', transform: 'scale(1.43)' }}>
+              <div
+                className="dark bg-[#0f1113]"
+                style={{
+                  width: "1440px",
+                  height: "900px",
+                  transform: "scale(0.7)",
+                  transformOrigin: "top left",
+                }}
+              >
+                <div
+                  style={{
+                    width: "1440px",
+                    height: "900px",
+                    transform: "scale(1.43)",
+                  }}
+                >
                   <Layout title="Ví & Tài khoản">
                     <AccountsOverview />
                   </Layout>
@@ -62,9 +90,14 @@ export default function AccountsShowcase() {
             </h3>
             <div className="grid grid-cols-2 gap-8">
               <div>
-                <h4 className="text-lg font-medium text-gray-700 mb-3">Light Theme</h4>
+                <h4 className="text-lg font-medium text-gray-700 mb-3">
+                  Light Theme
+                </h4>
                 <div className="rounded-lg overflow-hidden shadow-2xl border border-gray-300 inline-block">
-                  <div className="bg-white" style={{ width: '375px', height: '812px' }}>
+                  <div
+                    className="bg-white"
+                    style={{ width: "375px", height: "812px" }}
+                  >
                     <Layout title="Ví & Tài khoản">
                       <AccountsOverview />
                     </Layout>
@@ -72,9 +105,14 @@ export default function AccountsShowcase() {
                 </div>
               </div>
               <div>
-                <h4 className="text-lg font-medium text-gray-700 mb-3">Dark Theme</h4>
+                <h4 className="text-lg font-medium text-gray-700 mb-3">
+                  Dark Theme
+                </h4>
                 <div className="rounded-lg overflow-hidden shadow-2xl border border-gray-800 inline-block">
-                  <div className="dark bg-[#0f1113]" style={{ width: '375px', height: '812px' }}>
+                  <div
+                    className="dark bg-[#0f1113]"
+                    style={{ width: "375px", height: "812px" }}
+                  >
                     <Layout title="Ví & Tài khoản">
                       <AccountsOverview />
                     </Layout>
@@ -90,15 +128,29 @@ export default function AccountsShowcase() {
           <h2 className="text-2xl font-bold text-gray-900 mb-6">
             C2 - Create/Edit Account
           </h2>
-          
+
           {/* Light Theme - Desktop */}
           <div className="mb-8">
             <h3 className="text-xl font-semibold text-gray-900 mb-4">
               Light Theme - Desktop (1440px)
             </h3>
             <div className="rounded-lg overflow-hidden shadow-2xl border border-gray-300">
-              <div className="bg-white" style={{ width: '1440px', height: '900px', transform: 'scale(0.7)', transformOrigin: 'top left' }}>
-                <div style={{ width: '1440px', height: '900px', transform: 'scale(1.43)' }}>
+              <div
+                className="bg-white"
+                style={{
+                  width: "1440px",
+                  height: "900px",
+                  transform: "scale(0.7)",
+                  transformOrigin: "top left",
+                }}
+              >
+                <div
+                  style={{
+                    width: "1440px",
+                    height: "900px",
+                    transform: "scale(1.43)",
+                  }}
+                >
                   <Layout title="Tạo tài khoản">
                     <CreateEditAccount mode="create" />
                   </Layout>
@@ -113,8 +165,22 @@ export default function AccountsShowcase() {
               Dark Theme - Desktop (1440px)
             </h3>
             <div className="rounded-lg overflow-hidden shadow-2xl border border-gray-800">
-              <div className="dark bg-[#0f1113]" style={{ width: '1440px', height: '900px', transform: 'scale(0.7)', transformOrigin: 'top left' }}>
-                <div style={{ width: '1440px', height: '900px', transform: 'scale(1.43)' }}>
+              <div
+                className="dark bg-[#0f1113]"
+                style={{
+                  width: "1440px",
+                  height: "900px",
+                  transform: "scale(0.7)",
+                  transformOrigin: "top left",
+                }}
+              >
+                <div
+                  style={{
+                    width: "1440px",
+                    height: "900px",
+                    transform: "scale(1.43)",
+                  }}
+                >
                   <Layout title="Tạo tài khoản">
                     <CreateEditAccount mode="create" />
                   </Layout>
@@ -130,9 +196,14 @@ export default function AccountsShowcase() {
             </h3>
             <div className="grid grid-cols-2 gap-8">
               <div>
-                <h4 className="text-lg font-medium text-gray-700 mb-3">Light Theme</h4>
+                <h4 className="text-lg font-medium text-gray-700 mb-3">
+                  Light Theme
+                </h4>
                 <div className="rounded-lg overflow-hidden shadow-2xl border border-gray-300 inline-block">
-                  <div className="bg-white" style={{ width: '375px', height: '812px' }}>
+                  <div
+                    className="bg-white"
+                    style={{ width: "375px", height: "812px" }}
+                  >
                     <Layout title="Tạo tài khoản">
                       <CreateEditAccount mode="create" />
                     </Layout>
@@ -140,9 +211,14 @@ export default function AccountsShowcase() {
                 </div>
               </div>
               <div>
-                <h4 className="text-lg font-medium text-gray-700 mb-3">Dark Theme</h4>
+                <h4 className="text-lg font-medium text-gray-700 mb-3">
+                  Dark Theme
+                </h4>
                 <div className="rounded-lg overflow-hidden shadow-2xl border border-gray-800 inline-block">
-                  <div className="dark bg-[#0f1113]" style={{ width: '375px', height: '812px' }}>
+                  <div
+                    className="dark bg-[#0f1113]"
+                    style={{ width: "375px", height: "812px" }}
+                  >
                     <Layout title="Tạo tài khoản">
                       <CreateEditAccount mode="create" />
                     </Layout>
@@ -158,15 +234,29 @@ export default function AccountsShowcase() {
           <h2 className="text-2xl font-bold text-gray-900 mb-6">
             C3 - Account Detail
           </h2>
-          
+
           {/* Light Theme - Desktop */}
           <div className="mb-8">
             <h3 className="text-xl font-semibold text-gray-900 mb-4">
               Light Theme - Desktop (1440px)
             </h3>
             <div className="rounded-lg overflow-hidden shadow-2xl border border-gray-300">
-              <div className="bg-white" style={{ width: '1440px', height: '900px', transform: 'scale(0.7)', transformOrigin: 'top left' }}>
-                <div style={{ width: '1440px', height: '900px', transform: 'scale(1.43)' }}>
+              <div
+                className="bg-white"
+                style={{
+                  width: "1440px",
+                  height: "900px",
+                  transform: "scale(0.7)",
+                  transformOrigin: "top left",
+                }}
+              >
+                <div
+                  style={{
+                    width: "1440px",
+                    height: "900px",
+                    transform: "scale(1.43)",
+                  }}
+                >
                   <Layout title="Chi tiết tài khoản">
                     <AccountDetail />
                   </Layout>
@@ -181,8 +271,22 @@ export default function AccountsShowcase() {
               Dark Theme - Desktop (1440px)
             </h3>
             <div className="rounded-lg overflow-hidden shadow-2xl border border-gray-800">
-              <div className="dark bg-[#0f1113]" style={{ width: '1440px', height: '900px', transform: 'scale(0.7)', transformOrigin: 'top left' }}>
-                <div style={{ width: '1440px', height: '900px', transform: 'scale(1.43)' }}>
+              <div
+                className="dark bg-[#0f1113]"
+                style={{
+                  width: "1440px",
+                  height: "900px",
+                  transform: "scale(0.7)",
+                  transformOrigin: "top left",
+                }}
+              >
+                <div
+                  style={{
+                    width: "1440px",
+                    height: "900px",
+                    transform: "scale(1.43)",
+                  }}
+                >
                   <Layout title="Chi tiết tài khoản">
                     <AccountDetail />
                   </Layout>
@@ -198,9 +302,14 @@ export default function AccountsShowcase() {
             </h3>
             <div className="grid grid-cols-2 gap-8">
               <div>
-                <h4 className="text-lg font-medium text-gray-700 mb-3">Light Theme</h4>
+                <h4 className="text-lg font-medium text-gray-700 mb-3">
+                  Light Theme
+                </h4>
                 <div className="rounded-lg overflow-hidden shadow-2xl border border-gray-800 inline-block">
-                  <div className="bg-white" style={{ width: '375px', height: '812px' }}>
+                  <div
+                    className="bg-white"
+                    style={{ width: "375px", height: "812px" }}
+                  >
                     <Layout title="Chi tiết tài khoản">
                       <AccountDetail />
                     </Layout>
@@ -208,9 +317,14 @@ export default function AccountsShowcase() {
                 </div>
               </div>
               <div>
-                <h4 className="text-lg font-medium text-gray-700 mb-3">Dark Theme</h4>
+                <h4 className="text-lg font-medium text-gray-700 mb-3">
+                  Dark Theme
+                </h4>
                 <div className="rounded-lg overflow-hidden shadow-2xl border border-gray-800 inline-block">
-                  <div className="dark bg-[#0f1113]" style={{ width: '375px', height: '812px' }}>
+                  <div
+                    className="dark bg-[#0f1113]"
+                    style={{ width: "375px", height: "812px" }}
+                  >
                     <Layout title="Chi tiết tài khoản">
                       <AccountDetail />
                     </Layout>

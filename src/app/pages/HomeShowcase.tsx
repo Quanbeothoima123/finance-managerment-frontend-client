@@ -1,6 +1,6 @@
-import React from 'react';
-import HomeContent from './Home';
-import { Layout } from '../components/Layout';
+import React from "react";
+import HomeContent from "./Home";
+import { Layout } from "../components/Layout";
 
 export default function HomeShowcase() {
   return (
@@ -21,8 +21,22 @@ export default function HomeShowcase() {
             Light Theme - Desktop (1440px)
           </h2>
           <div className="rounded-lg overflow-hidden shadow-2xl border border-gray-300">
-            <div className="bg-white" style={{ width: '1440px', height: '900px', transform: 'scale(0.7)', transformOrigin: 'top left' }}>
-              <div style={{ width: '1440px', height: '900px', transform: 'scale(1.43)' }}>
+            <div
+              className="bg-white"
+              style={{
+                width: "1440px",
+                height: "900px",
+                transform: "scale(0.7)",
+                transformOrigin: "top left",
+              }}
+            >
+              <div
+                style={{
+                  width: "1440px",
+                  height: "900px",
+                  transform: "scale(1.43)",
+                }}
+              >
                 <Layout title="Tổng quan">
                   <HomeContent />
                 </Layout>
@@ -37,8 +51,22 @@ export default function HomeShowcase() {
             Dark Theme - Desktop (1440px)
           </h2>
           <div className="rounded-lg overflow-hidden shadow-2xl border border-gray-800">
-            <div className="dark bg-[#0f1113]" style={{ width: '1440px', height: '900px', transform: 'scale(0.7)', transformOrigin: 'top left' }}>
-              <div style={{ width: '1440px', height: '900px', transform: 'scale(1.43)' }}>
+            <div
+              className="dark bg-[#0f1113]"
+              style={{
+                width: "1440px",
+                height: "900px",
+                transform: "scale(0.7)",
+                transformOrigin: "top left",
+              }}
+            >
+              <div
+                style={{
+                  width: "1440px",
+                  height: "900px",
+                  transform: "scale(1.43)",
+                }}
+              >
                 <Layout title="Tổng quan">
                   <HomeContent />
                 </Layout>
@@ -53,7 +81,10 @@ export default function HomeShowcase() {
             Light Theme - Mobile (375px)
           </h2>
           <div className="rounded-lg overflow-hidden shadow-2xl border border-gray-300 inline-block">
-            <div className="bg-white" style={{ width: '375px', height: '812px' }}>
+            <div
+              className="bg-white"
+              style={{ width: "375px", height: "812px" }}
+            >
               <Layout title="Tổng quan">
                 <HomeContent />
               </Layout>
@@ -67,7 +98,10 @@ export default function HomeShowcase() {
             Dark Theme - Mobile (375px)
           </h2>
           <div className="rounded-lg overflow-hidden shadow-2xl border border-gray-800 inline-block">
-            <div className="dark bg-[#0f1113]" style={{ width: '375px', height: '812px' }}>
+            <div
+              className="dark bg-[#0f1113]"
+              style={{ width: "375px", height: "812px" }}
+            >
               <Layout title="Tổng quan">
                 <HomeContent />
               </Layout>
@@ -82,10 +116,26 @@ export default function HomeShowcase() {
           </h2>
           <div className="grid grid-cols-2 gap-8">
             <div>
-              <h3 className="text-lg font-medium text-gray-700 mb-3">Light Theme</h3>
+              <h3 className="text-lg font-medium text-gray-700 mb-3">
+                Light Theme
+              </h3>
               <div className="rounded-lg overflow-hidden shadow-xl border border-gray-300">
-                <div className="bg-white" style={{ width: '720px', height: '900px', transform: 'scale(0.8)', transformOrigin: 'top left' }}>
-                  <div style={{ width: '720px', height: '900px', transform: 'scale(1.25)' }}>
+                <div
+                  className="bg-white"
+                  style={{
+                    width: "720px",
+                    height: "900px",
+                    transform: "scale(0.8)",
+                    transformOrigin: "top left",
+                  }}
+                >
+                  <div
+                    style={{
+                      width: "720px",
+                      height: "900px",
+                      transform: "scale(1.25)",
+                    }}
+                  >
                     <Layout title="Tổng quan">
                       <HomeContent />
                     </Layout>
@@ -94,10 +144,26 @@ export default function HomeShowcase() {
               </div>
             </div>
             <div>
-              <h3 className="text-lg font-medium text-gray-700 mb-3">Dark Theme</h3>
+              <h3 className="text-lg font-medium text-gray-700 mb-3">
+                Dark Theme
+              </h3>
               <div className="rounded-lg overflow-hidden shadow-xl border border-gray-800">
-                <div className="dark bg-[#0f1113]" style={{ width: '720px', height: '900px', transform: 'scale(0.8)', transformOrigin: 'top left' }}>
-                  <div style={{ width: '720px', height: '900px', transform: 'scale(1.25)' }}>
+                <div
+                  className="dark bg-[#0f1113]"
+                  style={{
+                    width: "720px",
+                    height: "900px",
+                    transform: "scale(0.8)",
+                    transformOrigin: "top left",
+                  }}
+                >
+                  <div
+                    style={{
+                      width: "720px",
+                      height: "900px",
+                      transform: "scale(1.25)",
+                    }}
+                  >
                     <Layout title="Tổng quan">
                       <HomeContent />
                     </Layout>

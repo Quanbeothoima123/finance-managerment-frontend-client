@@ -1,10 +1,22 @@
-import React from 'react';
-import { ArrowLeft, Bell, BellOff, Moon, RefreshCw, BarChart3, Target, Mail, Volume2, Vibrate, Smartphone } from 'lucide-react';
-import { Card } from '../components/Card';
-import { Button } from '../components/Button';
-import { useAppNavigation } from '../hooks/useAppNavigation';
-import { useNotifications } from '../contexts/NotificationContext';
-import { useToast } from '../contexts/ToastContext';
+import React from "react";
+import {
+  ArrowLeft,
+  Bell,
+  BellOff,
+  Moon,
+  RefreshCw,
+  BarChart3,
+  Target,
+  Mail,
+  Volume2,
+  Vibrate,
+  Smartphone,
+} from "lucide-react";
+import { Card } from "../components/Card";
+import { Button } from "../components/Button";
+import { useAppNavigation } from "../hooks/useAppNavigation";
+import { useNotifications } from "../contexts/NotificationContext";
+import { useToast } from "../contexts/ToastContext";
 
 // ── Toggle Row ────────────────────────────────────────────────────────────────
 
@@ -18,33 +30,49 @@ interface ToggleRowProps {
   badge?: string;
 }
 
-function ToggleRow({ icon, title, description, enabled, onChange, disabled, badge }: ToggleRowProps) {
+function ToggleRow({
+  icon,
+  title,
+  description,
+  enabled,
+  onChange,
+  disabled,
+  badge,
+}: ToggleRowProps) {
   return (
-    <div className={`flex items-center gap-4 py-4 ${disabled ? 'opacity-50' : ''}`}>
+    <div
+      className={`flex items-center gap-4 py-4 ${disabled ? "opacity-50" : ""}`}
+    >
       <div className="flex-shrink-0 w-10 h-10 rounded-[var(--radius-lg)] bg-[var(--primary-light)] text-[var(--primary)] flex items-center justify-center">
         {icon}
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
-          <span className="font-medium text-[var(--text-primary)]">{title}</span>
+          <span className="font-medium text-[var(--text-primary)]">
+            {title}
+          </span>
           {badge && (
             <span className="px-2 py-0.5 rounded-full bg-[var(--surface)] text-[var(--text-tertiary)] text-xs font-medium">
               {badge}
             </span>
           )}
         </div>
-        <p className="text-xs text-[var(--text-secondary)] mt-0.5">{description}</p>
+        <p className="text-xs text-[var(--text-secondary)] mt-0.5">
+          {description}
+        </p>
       </div>
       <button
         onClick={() => !disabled && onChange(!enabled)}
         disabled={disabled}
         className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 ${
-          enabled ? 'bg-[var(--success)]' : 'bg-[var(--border)]'
-        } ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+          enabled ? "bg-[var(--success)]" : "bg-[var(--border)]"
+        } ${disabled ? "cursor-not-allowed" : "cursor-pointer"}`}
       >
-        <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform shadow-sm ${
-          enabled ? 'translate-x-5' : 'translate-x-0'
-        }`} />
+        <span
+          className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform shadow-sm ${
+            enabled ? "translate-x-5" : "translate-x-0"
+          }`}
+        />
       </button>
     </div>
   );
@@ -58,7 +86,7 @@ export default function NotificationSettings() {
   const { settings, updateSettings } = useNotifications();
 
   const handleSave = () => {
-    toast.success('Đã lưu cài đặt thông báo');
+    toast.success("Đã lưu cài đặt thông báo");
   };
 
   return (
@@ -73,7 +101,9 @@ export default function NotificationSettings() {
             <ArrowLeft className="w-5 h-5" />
             <span className="font-medium">Quay lại</span>
           </button>
-          <h1 className="text-2xl font-semibold text-[var(--text-primary)]">Thông báo</h1>
+          <h1 className="text-2xl font-semibold text-[var(--text-primary)]">
+            Thông báo
+          </h1>
           <p className="text-sm text-[var(--text-secondary)] mt-1">
             Quản lý cách ứng dụng thông báo cho bạn.
           </p>
@@ -89,7 +119,9 @@ export default function NotificationSettings() {
           <div className="flex items-center gap-4 p-4 bg-[var(--surface)] rounded-[var(--radius-lg)]">
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-1">
-                <span className="font-medium text-[var(--text-primary)]">System Permissions</span>
+                <span className="font-medium text-[var(--text-primary)]">
+                  System Permissions
+                </span>
                 <span className="px-2 py-0.5 rounded-full bg-[var(--success-light)] text-[var(--success)] text-xs font-semibold">
                   Enabled
                 </span>
@@ -100,7 +132,7 @@ export default function NotificationSettings() {
             </div>
             <Button
               variant="secondary"
-              onClick={() => toast.info('Mở cài đặt hệ thống (UI-only)')}
+              onClick={() => toast.info("Mở cài đặt hệ thống (UI-only)")}
               className="text-sm flex-shrink-0"
             >
               Mở cài đặt
@@ -110,7 +142,9 @@ export default function NotificationSettings() {
 
         {/* ─── Section B: Notification Types ──────────────────────── */}
         <Card>
-          <h3 className="font-semibold text-[var(--text-primary)] mb-2">Loại thông báo</h3>
+          <h3 className="font-semibold text-[var(--text-primary)] mb-2">
+            Loại thông báo
+          </h3>
           <p className="text-xs text-[var(--text-tertiary)] mb-4">
             Bật hoặc tắt từng loại thông báo riêng biệt.
           </p>
@@ -184,21 +218,32 @@ export default function NotificationSettings() {
             Giờ yên lặng
           </h3>
           <p className="text-xs text-[var(--text-tertiary)] mb-4">
-            Thông báo hệ thống sẽ bị tắt tiếng trong khoảng thời gian này; các mục vẫn vào Hộp thư.
+            Thông báo hệ thống sẽ bị tắt tiếng trong khoảng thời gian này; các
+            mục vẫn vào Hộp thư.
           </p>
 
           {/* Toggle */}
           <div className="flex items-center justify-between py-3">
-            <span className="font-medium text-[var(--text-primary)]">Bật Giờ yên lặng</span>
+            <span className="font-medium text-[var(--text-primary)]">
+              Bật Giờ yên lặng
+            </span>
             <button
-              onClick={() => updateSettings({ quietHoursEnabled: !settings.quietHoursEnabled })}
+              onClick={() =>
+                updateSettings({
+                  quietHoursEnabled: !settings.quietHoursEnabled,
+                })
+              }
               className={`relative w-11 h-6 rounded-full transition-colors ${
-                settings.quietHoursEnabled ? 'bg-[var(--success)]' : 'bg-[var(--border)]'
+                settings.quietHoursEnabled
+                  ? "bg-[var(--success)]"
+                  : "bg-[var(--border)]"
               }`}
             >
-              <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform shadow-sm ${
-                settings.quietHoursEnabled ? 'translate-x-5' : 'translate-x-0'
-              }`} />
+              <span
+                className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform shadow-sm ${
+                  settings.quietHoursEnabled ? "translate-x-5" : "translate-x-0"
+                }`}
+              />
             </button>
           </div>
 
@@ -207,20 +252,28 @@ export default function NotificationSettings() {
             <div className="mt-3 p-4 bg-[var(--surface)] rounded-[var(--radius-lg)] space-y-3">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">Từ</label>
+                  <label className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">
+                    Từ
+                  </label>
                   <input
                     type="time"
                     value={settings.quietHoursFrom}
-                    onChange={(e) => updateSettings({ quietHoursFrom: e.target.value })}
+                    onChange={(e) =>
+                      updateSettings({ quietHoursFrom: e.target.value })
+                    }
                     className="w-full px-3 py-2.5 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-lg)] text-[var(--text-primary)] text-center focus:outline-none focus:ring-2 focus:ring-[var(--focus-ring)]"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">Đến</label>
+                  <label className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">
+                    Đến
+                  </label>
                   <input
                     type="time"
                     value={settings.quietHoursTo}
-                    onChange={(e) => updateSettings({ quietHoursTo: e.target.value })}
+                    onChange={(e) =>
+                      updateSettings({ quietHoursTo: e.target.value })
+                    }
                     className="w-full px-3 py-2.5 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-lg)] text-[var(--text-primary)] text-center focus:outline-none focus:ring-2 focus:ring-[var(--focus-ring)]"
                   />
                 </div>
@@ -228,7 +281,7 @@ export default function NotificationSettings() {
               <p className="text-xs text-[var(--text-tertiary)]">
                 {settings.quietHoursEnabled
                   ? `Yên lặng từ ${settings.quietHoursFrom} đến ${settings.quietHoursTo}.`
-                  : ''}
+                  : ""}
               </p>
             </div>
           )}
@@ -236,7 +289,11 @@ export default function NotificationSettings() {
 
         {/* ─── Save ───────────────────────────────────────────────── */}
         <div className="flex flex-col-reverse md:flex-row gap-3">
-          <Button variant="secondary" onClick={() => nav.goBack()} className="flex-1 md:flex-initial">
+          <Button
+            variant="secondary"
+            onClick={() => nav.goBack()}
+            className="flex-1 md:flex-initial"
+          >
             Huỷ
           </Button>
           <Button onClick={handleSave} className="flex-1 md:flex-initial">

@@ -1,6 +1,6 @@
-import React from 'react';
-import { Layout } from '../components/Layout';
-import AddEditTransaction from './AddEditTransaction';
+import React from "react";
+import { Layout } from "../components/Layout";
+import AddEditTransaction from "./AddEditTransaction";
 
 export default function AddEditTransactionWithLayout() {
   return (

@@ -1,6 +1,6 @@
-import React from 'react';
-import { Layout } from '../components/Layout';
-import AccountDetail from './AccountDetail';
+import React from "react";
+import { Layout } from "../components/Layout";
+import AccountDetail from "./AccountDetail";
 
 export default function AccountDetailWithLayout() {
   return (

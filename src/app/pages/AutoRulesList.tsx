@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   ArrowUpDown,
   ChevronRight,
@@ -12,27 +18,27 @@ import {
   Trash2,
   Wallet,
   X,
-} from 'lucide-react';
-import { Card } from '../components/Card';
-import { Button } from '../components/Button';
-import { useAppNavigation } from '../hooks/useAppNavigation';
-import { useToast } from '../contexts/ToastContext';
-import { ConfirmationModal } from '../components/ConfirmationModals';
-import { DndProvider, useDrag, useDrop } from 'react-dnd';
-import { HTML5Backend } from 'react-dnd-html5-backend';
-import { TouchBackend } from 'react-dnd-touch-backend';
-import { SwipeableRow } from '../components/SwipeableRow';
-import { useAutoRulesList } from '../hooks/useAutoRulesList';
-import { autoRulesService } from '../services/autoRulesService';
-import type { AutoRuleAction, AutoRuleItem } from '../types/autoRules';
+} from "lucide-react";
+import { Card } from "../components/Card";
+import { Button } from "../components/Button";
+import { useAppNavigation } from "../hooks/useAppNavigation";
+import { useToast } from "../contexts/ToastContext";
+import { ConfirmationModal } from "../components/ConfirmationModals";
+import { DndProvider, useDrag, useDrop } from "react-dnd";
+import { HTML5Backend } from "react-dnd-html5-backend";
+import { TouchBackend } from "react-dnd-touch-backend";
+import { SwipeableRow } from "../components/SwipeableRow";
+import { useAutoRulesList } from "../hooks/useAutoRulesList";
+import { autoRulesService } from "../services/autoRulesService";
+import type { AutoRuleAction, AutoRuleItem } from "../types/autoRules";
 
 const isTouchDevice =
-  typeof window !== 'undefined' &&
-  ('ontouchstart' in window || navigator.maxTouchPoints > 0);
+  typeof window !== "undefined" &&
+  ("ontouchstart" in window || navigator.maxTouchPoints > 0);
 const touchBackendOptions = { enableMouseEvents: false, delay: 200 };
 
 type RuleActionBadgeData = {
-  type: 'category' | 'tag' | 'merchant' | 'account';
+  type: "category" | "tag" | "merchant" | "account";
   value: string;
 };
 
@@ -52,14 +58,14 @@ function mapActionToBadge(action: AutoRuleAction): RuleActionBadgeData | null {
   if (!value) return null;
 
   switch (action.type) {
-    case 'set_category':
-      return { type: 'category', value };
-    case 'add_tag':
-      return { type: 'tag', value };
-    case 'set_merchant':
-      return { type: 'merchant', value };
-    case 'set_account':
-      return { type: 'account', value };
+    case "set_category":
+      return { type: "category", value };
+    case "add_tag":
+      return { type: "tag", value };
+    case "set_merchant":
+      return { type: "merchant", value };
+    case "set_account":
+      return { type: "account", value };
     default:
       return null;
   }
@@ -71,9 +77,9 @@ function mapRuleToDisplay(rule: AutoRuleItem): DisplayRule {
     name: rule.name,
     priority: rule.priority,
     active: rule.enabled,
-    matchField: rule.matchField || 'description',
-    matchType: rule.matchType || 'contains',
-    pattern: rule.pattern || '',
+    matchField: rule.matchField || "description",
+    matchType: rule.matchType || "contains",
+    pattern: rule.pattern || "",
     actions: (rule.actions || [])
       .map(mapActionToBadge)
       .filter((action): action is RuleActionBadgeData => Boolean(action)),
@@ -82,18 +88,18 @@ function mapRuleToDisplay(rule: AutoRuleItem): DisplayRule {
 
 function getMatchFieldLabel(field: string) {
   switch (field) {
-    case 'description':
-      return 'Mô tả';
-    case 'merchant':
-      return 'Merchant';
-    case 'note':
-      return 'Ghi chú';
-    case 'amount':
-      return 'Số tiền';
-    case 'account':
-      return 'Tài khoản';
-    case 'weekday':
-      return 'Thứ';
+    case "description":
+      return "Mô tả";
+    case "merchant":
+      return "Merchant";
+    case "note":
+      return "Ghi chú";
+    case "amount":
+      return "Số tiền";
+    case "account":
+      return "Tài khoản";
+    case "weekday":
+      return "Thứ";
     default:
       return field;
   }
@@ -101,22 +107,22 @@ function getMatchFieldLabel(field: string) {
 
 function getMatchTypeLabel(type: string) {
   switch (type) {
-    case 'contains':
-      return 'chứa';
-    case 'equals':
-      return 'bằng';
-    case 'regex':
-      return 'regex';
-    case 'starts_with':
-      return 'bắt đầu với';
-    case 'ends_with':
-      return 'kết thúc với';
-    case 'greater_than':
-    case 'gt':
-      return 'lớn hơn';
-    case 'less_than':
-    case 'lt':
-      return 'nhỏ hơn';
+    case "contains":
+      return "chứa";
+    case "equals":
+      return "bằng";
+    case "regex":
+      return "regex";
+    case "starts_with":
+      return "bắt đầu với";
+    case "ends_with":
+      return "kết thúc với";
+    case "greater_than":
+    case "gt":
+      return "lớn hơn";
+    case "less_than":
+    case "lt":
+      return "nhỏ hơn";
     default:
       return type;
   }
@@ -125,13 +131,13 @@ function getMatchTypeLabel(type: string) {
 function RuleActionBadge({ action }: { action: RuleActionBadgeData }) {
   const getIcon = () => {
     switch (action.type) {
-      case 'category':
+      case "category":
         return <Hash className="w-3 h-3" />;
-      case 'tag':
+      case "tag":
         return <Tag className="w-3 h-3" />;
-      case 'merchant':
+      case "merchant":
         return <Store className="w-3 h-3" />;
-      case 'account':
+      case "account":
         return <Wallet className="w-3 h-3" />;
       default:
         return null;
@@ -140,16 +146,16 @@ function RuleActionBadge({ action }: { action: RuleActionBadgeData }) {
 
   const getColor = () => {
     switch (action.type) {
-      case 'category':
-        return 'bg-[var(--primary-light)] text-[var(--primary)]';
-      case 'tag':
-        return 'bg-[var(--info-light)] text-[var(--info)]';
-      case 'merchant':
-        return 'bg-[var(--success-light)] text-[var(--success)]';
-      case 'account':
-        return 'bg-[var(--warning-light)] text-[var(--warning)]';
+      case "category":
+        return "bg-[var(--primary-light)] text-[var(--primary)]";
+      case "tag":
+        return "bg-[var(--info-light)] text-[var(--info)]";
+      case "merchant":
+        return "bg-[var(--success-light)] text-[var(--success)]";
+      case "account":
+        return "bg-[var(--warning-light)] text-[var(--warning)]";
       default:
-        return 'bg-[var(--surface)] text-[var(--text-secondary)]';
+        return "bg-[var(--surface)] text-[var(--text-secondary)]";
     }
   };
 
@@ -184,30 +190,36 @@ function AutoRuleItem({
 }: AutoRuleItemProps) {
   const ref = useRef<HTMLDivElement>(null);
 
-  const [{ isDragging }, drag] = useDrag(() => ({
-    type: 'RULE',
-    item: { index },
-    canDrag,
-    collect: (monitor) => ({
-      isDragging: monitor.isDragging(),
+  const [{ isDragging }, drag] = useDrag(
+    () => ({
+      type: "RULE",
+      item: { index },
+      canDrag,
+      collect: (monitor) => ({
+        isDragging: monitor.isDragging(),
+      }),
     }),
-  }), [index, canDrag]);
+    [index, canDrag],
+  );
 
-  const [{ handlerId, isOver }, drop] = useDrop(() => ({
-    accept: 'RULE',
-    collect: (monitor) => ({
-      handlerId: monitor.getHandlerId(),
-      isOver: monitor.isOver(),
+  const [{ handlerId, isOver }, drop] = useDrop(
+    () => ({
+      accept: "RULE",
+      collect: (monitor) => ({
+        handlerId: monitor.getHandlerId(),
+        isOver: monitor.isOver(),
+      }),
+      hover(item: { index: number }) {
+        if (!ref.current) return;
+        const dragIndex = item.index;
+        const hoverIndex = index;
+        if (dragIndex === hoverIndex) return;
+        moveRule(dragIndex, hoverIndex);
+        item.index = hoverIndex;
+      },
     }),
-    hover(item: { index: number }) {
-      if (!ref.current) return;
-      const dragIndex = item.index;
-      const hoverIndex = index;
-      if (dragIndex === hoverIndex) return;
-      moveRule(dragIndex, hoverIndex);
-      item.index = hoverIndex;
-    },
-  }), [index, moveRule]);
+    [index, moveRule],
+  );
 
   drop(ref);
 
@@ -216,7 +228,9 @@ function AutoRuleItem({
       {isOver && !isDragging && (
         <div className="h-0.5 bg-[var(--primary)] rounded-full -mb-0.5 mx-4 transition-all" />
       )}
-      <Card className={`${isDragging ? 'opacity-40 scale-[0.98]' : ''} transition-all`}>
+      <Card
+        className={`${isDragging ? "opacity-40 scale-[0.98]" : ""} transition-all`}
+      >
         <div className="flex items-start gap-4">
           {canDrag && (
             <div
@@ -238,9 +252,12 @@ function AutoRuleItem({
           <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between gap-4 mb-3">
               <div className="flex-1">
-                <h3 className="font-semibold text-[var(--text-primary)] mb-1">{rule.name}</h3>
+                <h3 className="font-semibold text-[var(--text-primary)] mb-1">
+                  {rule.name}
+                </h3>
                 <p className="text-sm text-[var(--text-secondary)]">
-                  {getMatchFieldLabel(rule.matchField)} {getMatchTypeLabel(rule.matchType)}{' '}
+                  {getMatchFieldLabel(rule.matchField)}{" "}
+                  {getMatchTypeLabel(rule.matchType)}{" "}
                   <code className="px-1.5 py-0.5 bg-[var(--surface)] rounded text-xs font-mono">
                     {rule.pattern}
                   </code>
@@ -250,12 +267,12 @@ function AutoRuleItem({
               <button
                 onClick={() => onToggle(rule.id)}
                 className={`flex-shrink-0 relative w-12 h-6 rounded-full transition-colors ${
-                  rule.active ? 'bg-[var(--success)]' : 'bg-[var(--border)]'
+                  rule.active ? "bg-[var(--success)]" : "bg-[var(--border)]"
                 }`}
               >
                 <span
                   className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform ${
-                    rule.active ? 'translate-x-6' : 'translate-x-0'
+                    rule.active ? "translate-x-6" : "translate-x-0"
                   }`}
                 />
               </button>
@@ -263,7 +280,10 @@ function AutoRuleItem({
 
             <div className="flex flex-wrap gap-2 mb-3">
               {rule.actions.map((action, actionIndex) => (
-                <RuleActionBadge key={`${rule.id}-${action.type}-${actionIndex}`} action={action} />
+                <RuleActionBadge
+                  key={`${rule.id}-${action.type}-${actionIndex}`}
+                  action={action}
+                />
               ))}
             </div>
 
@@ -294,19 +314,24 @@ export default function AutoRulesList() {
   const nav = useAppNavigation();
   const toast = useToast();
   const { data, loading, error, reload, setData } = useAutoRulesList({
-    status: 'all',
-    sortBy: 'priority',
-    sortOrder: 'asc',
+    status: "all",
+    sortBy: "priority",
+    sortOrder: "asc",
   });
 
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [ruleToDelete, setRuleToDelete] = useState<DisplayRule | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [activeFilter, setActiveFilter] = useState<'all' | 'active' | 'inactive'>('all');
-  const [sortBy, setSortBy] = useState<'priority' | 'name'>('priority');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeFilter, setActiveFilter] = useState<
+    "all" | "active" | "inactive"
+  >("all");
+  const [sortBy, setSortBy] = useState<"priority" | "name">("priority");
   const [reordering, setReordering] = useState(false);
 
-  const baseRules = useMemo(() => (data?.items || []).map(mapRuleToDisplay), [data?.items]);
+  const baseRules = useMemo(
+    () => (data?.items || []).map(mapRuleToDisplay),
+    [data?.items],
+  );
   const [orderedRules, setOrderedRules] = useState<DisplayRule[]>([]);
 
   useEffect(() => {
@@ -319,17 +344,20 @@ export default function AutoRulesList() {
   const filteredRules = useMemo(() => {
     return orderedRules
       .filter((rule) => {
-        if (activeFilter === 'active') return rule.active;
-        if (activeFilter === 'inactive') return !rule.active;
+        if (activeFilter === "active") return rule.active;
+        if (activeFilter === "inactive") return !rule.active;
         return true;
       })
       .filter((rule) => {
         if (!searchQuery) return true;
         const q = searchQuery.toLowerCase();
-        return rule.name.toLowerCase().includes(q) || rule.pattern.toLowerCase().includes(q);
+        return (
+          rule.name.toLowerCase().includes(q) ||
+          rule.pattern.toLowerCase().includes(q)
+        );
       })
       .sort((a, b) => {
-        if (sortBy === 'name') return a.name.localeCompare(b.name, 'vi');
+        if (sortBy === "name") return a.name.localeCompare(b.name, "vi");
         return a.priority - b.priority;
       });
   }, [activeFilter, orderedRules, searchQuery, sortBy]);
@@ -353,7 +381,9 @@ export default function AutoRulesList() {
       await autoRulesService.deleteAutoRule(ruleToDelete.id);
       setData((prev) => {
         if (!prev) return prev;
-        const nextItems = prev.items.filter((item) => item.id !== ruleToDelete.id);
+        const nextItems = prev.items.filter(
+          (item) => item.id !== ruleToDelete.id,
+        );
         return {
           ...prev,
           summary: {
@@ -366,7 +396,7 @@ export default function AutoRulesList() {
       });
       toast.success(`Đã xoá quy tắc "${ruleToDelete.name}"`);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Không thể xoá quy tắc');
+      toast.error(err instanceof Error ? err.message : "Không thể xoá quy tắc");
     } finally {
       setDeleteModalOpen(false);
       setRuleToDelete(null);
@@ -382,7 +412,12 @@ export default function AutoRulesList() {
       if (!prev) return prev;
       const nextItems = prev.items.map((item) =>
         item.id === id
-          ? { ...item, enabled: nextEnabled, active: nextEnabled, isActive: nextEnabled }
+          ? {
+              ...item,
+              enabled: nextEnabled,
+              active: nextEnabled,
+              isActive: nextEnabled,
+            }
           : item,
       );
       return {
@@ -398,9 +433,15 @@ export default function AutoRulesList() {
 
     try {
       await autoRulesService.updateAutoRule(id, { enabled: nextEnabled });
-      toast.success(nextEnabled ? 'Đã kích hoạt quy tắc' : 'Đã tạm dừng quy tắc');
+      toast.success(
+        nextEnabled ? "Đã kích hoạt quy tắc" : "Đã tạm dừng quy tắc",
+      );
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Không thể cập nhật trạng thái quy tắc');
+      toast.error(
+        err instanceof Error
+          ? err.message
+          : "Không thể cập nhật trạng thái quy tắc",
+      );
       await reload();
     }
   };
@@ -409,22 +450,36 @@ export default function AutoRulesList() {
     (dragIndex: number, hoverIndex: number) => {
       if (reordering) return;
       setOrderedRules((prev) => {
-        if (dragIndex < 0 || hoverIndex < 0 || dragIndex >= prev.length || hoverIndex >= prev.length) {
+        if (
+          dragIndex < 0 ||
+          hoverIndex < 0 ||
+          dragIndex >= prev.length ||
+          hoverIndex >= prev.length
+        ) {
           return prev;
         }
         const next = [...prev];
         const [draggedRule] = next.splice(dragIndex, 1);
         if (!draggedRule) return prev;
         next.splice(hoverIndex, 0, draggedRule);
-        const reordered = next.map((rule, index) => ({ ...rule, priority: index + 1 }));
+        const reordered = next.map((rule, index) => ({
+          ...rule,
+          priority: index + 1,
+        }));
 
         void (async () => {
           try {
             setReordering(true);
-            const response = await autoRulesService.reorderAutoRules(reordered.map((rule) => rule.id));
+            const response = await autoRulesService.reorderAutoRules(
+              reordered.map((rule) => rule.id),
+            );
             setData(response);
           } catch (err) {
-            toast.error(err instanceof Error ? err.message : 'Không thể sắp xếp lại quy tắc');
+            toast.error(
+              err instanceof Error
+                ? err.message
+                : "Không thể sắp xếp lại quy tắc",
+            );
             await reload();
           } finally {
             setReordering(false);
@@ -437,7 +492,8 @@ export default function AutoRulesList() {
     [reordering, reload, setData, toast],
   );
 
-  const isDragEnabled = sortBy === 'priority' && activeFilter === 'all' && !searchQuery;
+  const isDragEnabled =
+    sortBy === "priority" && activeFilter === "all" && !searchQuery;
   const hasNoResults = totalRulesCount > 0 && filteredRules.length === 0;
 
   return (
@@ -445,7 +501,9 @@ export default function AutoRulesList() {
       <div className="max-w-5xl mx-auto p-4 md:p-6 pb-20 md:pb-6 space-y-6">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-semibold text-[var(--text-primary)]">Quy tắc tự động</h1>
+            <h1 className="text-2xl font-semibold text-[var(--text-primary)]">
+              Quy tắc tự động
+            </h1>
             <p className="text-sm text-[var(--text-secondary)] mt-1">
               Tự động phân loại giao dịch dựa trên mẫu
             </p>
@@ -460,25 +518,33 @@ export default function AutoRulesList() {
         <Card>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div>
-              <p className="text-sm text-[var(--text-secondary)] mb-1">Tổng quy tắc</p>
+              <p className="text-sm text-[var(--text-secondary)] mb-1">
+                Tổng quy tắc
+              </p>
               <p className="text-2xl font-bold text-[var(--text-primary)] tabular-nums">
                 {totalRulesCount}
               </p>
             </div>
             <div>
-              <p className="text-sm text-[var(--text-secondary)] mb-1">Đang hoạt động</p>
+              <p className="text-sm text-[var(--text-secondary)] mb-1">
+                Đang hoạt động
+              </p>
               <p className="text-2xl font-bold text-[var(--success)] tabular-nums">
                 {activeRulesCount}
               </p>
             </div>
             <div>
-              <p className="text-sm text-[var(--text-secondary)] mb-1">Tạm dừng</p>
+              <p className="text-sm text-[var(--text-secondary)] mb-1">
+                Tạm dừng
+              </p>
               <p className="text-2xl font-bold text-[var(--text-tertiary)] tabular-nums">
                 {totalRulesCount - activeRulesCount}
               </p>
             </div>
             <div>
-              <p className="text-sm text-[var(--text-secondary)] mb-1">Độ ưu tiên</p>
+              <p className="text-sm text-[var(--text-secondary)] mb-1">
+                Độ ưu tiên
+              </p>
               <p className="text-sm text-[var(--text-secondary)]">Cao → Thấp</p>
             </div>
           </div>
@@ -497,7 +563,7 @@ export default function AutoRulesList() {
               />
               {searchQuery && (
                 <button
-                  onClick={() => setSearchQuery('')}
+                  onClick={() => setSearchQuery("")}
                   className="absolute right-4 top-1/2 -translate-y-1/2 p-1 rounded-[var(--radius-sm)] hover:bg-[var(--surface)] transition-colors"
                 >
                   <X className="w-4 h-4 text-[var(--text-tertiary)]" />
@@ -506,17 +572,19 @@ export default function AutoRulesList() {
             </div>
             <div className="flex gap-2">
               {[
-                { value: 'all', label: 'Tất cả' },
-                { value: 'active', label: 'Đang hoạt động' },
-                { value: 'inactive', label: 'Tạm dừng' },
+                { value: "all", label: "Tất cả" },
+                { value: "active", label: "Đang hoạt động" },
+                { value: "inactive", label: "Tạm dừng" },
               ].map((tab) => (
                 <button
                   key={tab.value}
-                  onClick={() => setActiveFilter(tab.value as 'all' | 'active' | 'inactive')}
+                  onClick={() =>
+                    setActiveFilter(tab.value as "all" | "active" | "inactive")
+                  }
                   className={`px-3 py-1.5 rounded-[var(--radius-lg)] text-sm font-medium transition-all whitespace-nowrap ${
                     activeFilter === tab.value
-                      ? 'bg-[var(--primary)] text-white'
-                      : 'bg-[var(--card)] text-[var(--text-secondary)] hover:bg-[var(--surface)] border border-[var(--border)]'
+                      ? "bg-[var(--primary)] text-white"
+                      : "bg-[var(--card)] text-[var(--text-secondary)] hover:bg-[var(--surface)] border border-[var(--border)]"
                   }`}
                 >
                   {tab.label}
@@ -527,7 +595,9 @@ export default function AutoRulesList() {
                 <ArrowUpDown className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-tertiary)] pointer-events-none" />
                 <select
                   value={sortBy}
-                  onChange={(event) => setSortBy(event.target.value as 'priority' | 'name')}
+                  onChange={(event) =>
+                    setSortBy(event.target.value as "priority" | "name")
+                  }
                   className="pl-9 pr-8 py-1.5 bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-lg)] text-sm text-[var(--text-primary)] appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-[var(--focus-ring)]"
                 >
                   <option value="priority">Ưu tiên</option>
@@ -544,10 +614,13 @@ export default function AutoRulesList() {
               <span className="text-white text-lg font-semibold">💡</span>
             </div>
             <div className="flex-1">
-              <h4 className="font-semibold text-[var(--text-primary)] mb-1">Cách hoạt động</h4>
+              <h4 className="font-semibold text-[var(--text-primary)] mb-1">
+                Cách hoạt động
+              </h4>
               <p className="text-sm text-[var(--text-secondary)]">
-                Quy tắc sẽ được áp dụng theo thứ tự ưu tiên từ cao đến thấp. Khi một giao dịch
-                khớp với mẫu, hệ thống sẽ tự động thêm danh mục, merchant hoặc tag tương ứng.
+                Quy tắc sẽ được áp dụng theo thứ tự ưu tiên từ cao đến thấp. Khi
+                một giao dịch khớp với mẫu, hệ thống sẽ tự động thêm danh mục,
+                merchant hoặc tag tương ứng.
               </p>
             </div>
           </div>
@@ -555,12 +628,18 @@ export default function AutoRulesList() {
 
         {loading ? (
           <Card>
-            <p className="text-[var(--text-secondary)]">Đang tải danh sách quy tắc tự động...</p>
+            <p className="text-[var(--text-secondary)]">
+              Đang tải danh sách quy tắc tự động...
+            </p>
           </Card>
         ) : error ? (
           <Card>
             <p className="text-[var(--danger)]">{error}</p>
-            <Button variant="secondary" className="mt-4" onClick={() => void reload()}>
+            <Button
+              variant="secondary"
+              className="mt-4"
+              onClick={() => void reload()}
+            >
               Tải lại
             </Button>
           </Card>
@@ -569,7 +648,9 @@ export default function AutoRulesList() {
             <div className="inline-flex items-center justify-center w-16 h-16 bg-[var(--surface)] rounded-full mb-4">
               <Hash className="w-8 h-8 text-[var(--text-secondary)]" />
             </div>
-            <h3 className="font-semibold text-[var(--text-primary)] mb-2">Chưa có quy tắc nào</h3>
+            <h3 className="font-semibold text-[var(--text-primary)] mb-2">
+              Chưa có quy tắc nào
+            </h3>
             <p className="text-sm text-[var(--text-secondary)] mb-4">
               Tạo quy tắc đầu tiên để tự động phân loại giao dịch
             </p>
@@ -583,7 +664,9 @@ export default function AutoRulesList() {
             <div className="inline-flex items-center justify-center w-16 h-16 bg-[var(--surface)] rounded-full mb-4">
               <Search className="w-8 h-8 text-[var(--text-tertiary)]" />
             </div>
-            <h3 className="font-semibold text-[var(--text-primary)] mb-2">Không tìm thấy quy tắc</h3>
+            <h3 className="font-semibold text-[var(--text-primary)] mb-2">
+              Không tìm thấy quy tắc
+            </h3>
             <p className="text-sm text-[var(--text-secondary)]">
               Thử thay đổi bộ lọc hoặc từ khoá tìm kiếm
             </p>
@@ -600,16 +683,16 @@ export default function AutoRulesList() {
                   actions={[
                     {
                       icon: <Edit2 className="w-4 h-4" />,
-                      label: 'Sửa',
-                      color: 'white',
-                      bgColor: 'var(--primary)',
+                      label: "Sửa",
+                      color: "white",
+                      bgColor: "var(--primary)",
                       onClick: () => handleEdit(rule.id),
                     },
                     {
                       icon: <Trash2 className="w-3.5 h-3.5" />,
-                      label: 'Xoá',
-                      color: 'white',
-                      bgColor: 'var(--danger)',
+                      label: "Xoá",
+                      color: "white",
+                      bgColor: "var(--danger)",
                       onClick: () => handleDeleteRequest(rule),
                     },
                   ]}
@@ -639,7 +722,7 @@ export default function AutoRulesList() {
             void confirmDelete();
           }}
           title="Xoá quy tắc?"
-          description={`Bạn có chắc muốn xoá quy tắc "${ruleToDelete?.name || ''}"? Các giao dịch đã được phân loại trước đó sẽ không bị ảnh hưởng.`}
+          description={`Bạn có chắc muốn xoá quy tắc "${ruleToDelete?.name || ""}"? Các giao dịch đã được phân loại trước đó sẽ không bị ảnh hưởng.`}
           confirmLabel="Xoá"
           cancelLabel="Huỷ"
           isDangerous={true}

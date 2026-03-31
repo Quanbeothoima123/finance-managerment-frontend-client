@@ -4,12 +4,12 @@ import type {
   TransactionMerchantOption,
   TransactionListItem,
   TransactionTagOption,
-} from './transactions';
+} from "./transactions";
 
-export type RecurringTxnType = 'income' | 'expense' | 'transfer';
-export type RecurringFrequency = 'daily' | 'weekly' | 'monthly' | 'yearly';
-export type RecurringExecutionMode = 'notify' | 'auto';
-export type RecurringEndCondition = 'never' | 'on-date' | 'after-n';
+export type RecurringTxnType = "income" | "expense" | "transfer";
+export type RecurringFrequency = "daily" | "weekly" | "monthly" | "yearly";
+export type RecurringExecutionMode = "notify" | "auto";
+export type RecurringEndCondition = "never" | "on-date" | "after-n";
 
 export interface RecurringRuleItem {
   id: string;
@@ -49,7 +49,7 @@ export interface RecurringRuleItem {
   completedOccurrences: number;
   dailyInterval?: number;
   weeklyDays?: number[];
-  monthlyMode?: 'specific' | 'last';
+  monthlyMode?: "specific" | "last";
   monthlyDay?: number;
   yearlyMonth?: number;
   yearlyDay?: number;
@@ -104,13 +104,13 @@ export interface RecurringListQuery {
   type?: RecurringTxnType;
   frequency?: RecurringFrequency;
   executionMode?: RecurringExecutionMode;
-  status?: 'all' | 'active' | 'paused';
-  sortBy?: 'nextRunAt' | 'amount' | 'name' | 'createdAt' | 'updatedAt';
-  sortOrder?: 'asc' | 'desc';
+  status?: "all" | "active" | "paused";
+  sortBy?: "nextRunAt" | "amount" | "name" | "createdAt" | "updatedAt";
+  sortOrder?: "asc" | "desc";
 }
 
 export interface RecurringListResponse {
-  ledger: RecurringMetaResponse['ledger'];
+  ledger: RecurringMetaResponse["ledger"];
   summary: {
     total: number;
     active: number;
@@ -137,7 +137,7 @@ export interface RecurringDetailResponse {
 }
 
 export interface RecurringOccurrencesResponse {
-  summary: RecurringDetailResponse['summary'];
+  summary: RecurringDetailResponse["summary"];
   items: RecurringOccurrenceItem[];
 }
 
@@ -160,7 +160,7 @@ export interface CreateRecurringRulePayload {
   intervalValue?: number;
   dailyInterval?: number;
   weeklyDays?: number[];
-  monthlyMode?: 'specific' | 'last';
+  monthlyMode?: "specific" | "last";
   monthlyDay?: number;
   yearlyMonth?: number;
   yearlyDay?: number;

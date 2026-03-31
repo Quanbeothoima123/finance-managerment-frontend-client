@@ -1,19 +1,21 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router';
-import { motion } from 'motion/react';
-import { Button } from '../components/Button';
-import { ThemeSwitcher } from '../components/ThemeSwitcher';
-import { ArrowLeft, Monitor, Tablet, Smartphone, Columns } from 'lucide-react';
+import React, { useState } from "react";
+import { useNavigate } from "react-router";
+import { motion } from "motion/react";
+import { Button } from "../components/Button";
+import { ThemeSwitcher } from "../components/ThemeSwitcher";
+import { ArrowLeft, Monitor, Tablet, Smartphone, Columns } from "lucide-react";
 
 export default function SplashShowcase() {
   const navigate = useNavigate();
-  const [device, setDevice] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
-  const [viewMode, setViewMode] = useState<'single' | 'compare'>('single');
+  const [device, setDevice] = useState<"desktop" | "tablet" | "mobile">(
+    "desktop",
+  );
+  const [viewMode, setViewMode] = useState<"single" | "compare">("single");
 
   const deviceSizes = {
-    desktop: 'w-full max-w-7xl',
-    tablet: 'w-full max-w-3xl',
-    mobile: 'w-full max-w-sm',
+    desktop: "w-full max-w-7xl",
+    tablet: "w-full max-w-3xl",
+    mobile: "w-full max-w-sm",
   };
 
   return (
@@ -22,11 +24,7 @@ export default function SplashShowcase() {
       <div className="max-w-7xl mx-auto mb-6">
         <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
           <div className="flex items-center gap-4">
-            <Button 
-              variant="ghost" 
-              size="sm"
-              onClick={() => navigate('/demo')}
-            >
+            <Button variant="ghost" size="sm" onClick={() => navigate("/demo")}>
               <ArrowLeft className="w-4 h-4" />
               Back to Demo
             </Button>
@@ -42,33 +40,33 @@ export default function SplashShowcase() {
           {/* Device selector */}
           <div className="flex gap-2 bg-[var(--surface-elevated)] p-1 rounded-lg border border-[var(--border)]">
             <button
-              onClick={() => setDevice('desktop')}
+              onClick={() => setDevice("desktop")}
               className={`px-4 py-2 rounded-md flex items-center gap-2 transition-colors ${
-                device === 'desktop'
-                  ? 'bg-[var(--primary)] text-white'
-                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                device === "desktop"
+                  ? "bg-[var(--primary)] text-white"
+                  : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
               }`}
             >
               <Monitor className="w-4 h-4" />
               Desktop
             </button>
             <button
-              onClick={() => setDevice('tablet')}
+              onClick={() => setDevice("tablet")}
               className={`px-4 py-2 rounded-md flex items-center gap-2 transition-colors ${
-                device === 'tablet'
-                  ? 'bg-[var(--primary)] text-white'
-                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                device === "tablet"
+                  ? "bg-[var(--primary)] text-white"
+                  : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
               }`}
             >
               <Tablet className="w-4 h-4" />
               Tablet
             </button>
             <button
-              onClick={() => setDevice('mobile')}
+              onClick={() => setDevice("mobile")}
               className={`px-4 py-2 rounded-md flex items-center gap-2 transition-colors ${
-                device === 'mobile'
-                  ? 'bg-[var(--primary)] text-white'
-                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                device === "mobile"
+                  ? "bg-[var(--primary)] text-white"
+                  : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
               }`}
             >
               <Smartphone className="w-4 h-4" />
@@ -78,18 +76,20 @@ export default function SplashShowcase() {
 
           {/* View mode toggle */}
           <Button
-            variant={viewMode === 'compare' ? 'primary' : 'secondary'}
+            variant={viewMode === "compare" ? "primary" : "secondary"}
             size="sm"
-            onClick={() => setViewMode(viewMode === 'single' ? 'compare' : 'single')}
+            onClick={() =>
+              setViewMode(viewMode === "single" ? "compare" : "single")
+            }
           >
             <Columns className="w-4 h-4" />
-            {viewMode === 'compare' ? 'Single View' : 'Compare Themes'}
+            {viewMode === "compare" ? "Single View" : "Compare Themes"}
           </Button>
         </div>
       </div>
 
       {/* Preview Container */}
-      {viewMode === 'single' ? (
+      {viewMode === "single" ? (
         <div className="flex justify-center">
           <motion.div
             layout
@@ -97,7 +97,10 @@ export default function SplashShowcase() {
             transition={{ duration: 0.3 }}
           >
             <div className="bg-[var(--surface-elevated)] rounded-xl border border-[var(--border)] overflow-hidden shadow-lg">
-              <div className="relative" style={{ aspectRatio: device === 'mobile' ? '9/16' : '16/9' }}>
+              <div
+                className="relative"
+                style={{ aspectRatio: device === "mobile" ? "9/16" : "16/9" }}
+              >
                 <SplashPreview />
               </div>
             </div>
@@ -114,7 +117,10 @@ export default function SplashShowcase() {
                 Light Theme
               </h3>
               <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-lg">
-                <div className="relative" style={{ aspectRatio: device === 'mobile' ? '9/16' : '16/9' }}>
+                <div
+                  className="relative"
+                  style={{ aspectRatio: device === "mobile" ? "9/16" : "16/9" }}
+                >
                   <SplashPreview forceTheme="light" />
                 </div>
               </div>
@@ -126,7 +132,10 @@ export default function SplashShowcase() {
                 Dark Theme
               </h3>
               <div className="bg-[#0f1113] rounded-xl border border-[#2a2c30] overflow-hidden shadow-lg">
-                <div className="relative" style={{ aspectRatio: device === 'mobile' ? '9/16' : '16/9' }}>
+                <div
+                  className="relative"
+                  style={{ aspectRatio: device === "mobile" ? "9/16" : "16/9" }}
+                >
                   <SplashPreview forceTheme="dark" />
                 </div>
               </div>
@@ -151,7 +160,9 @@ function FeatureInfo() {
       </h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <h3 className="text-sm font-medium text-[var(--text-primary)]">Visual Design</h3>
+          <h3 className="text-sm font-medium text-[var(--text-primary)]">
+            Visual Design
+          </h3>
           <ul className="text-sm text-[var(--text-secondary)] space-y-1">
             <li>✓ Minimal centered logo with gradient</li>
             <li>✓ Subtle gradient background</li>
@@ -160,7 +171,9 @@ function FeatureInfo() {
           </ul>
         </div>
         <div className="space-y-2">
-          <h3 className="text-sm font-medium text-[var(--text-primary)]">Functionality</h3>
+          <h3 className="text-sm font-medium text-[var(--text-primary)]">
+            Functionality
+          </h3>
           <ul className="text-sm text-[var(--text-secondary)] space-y-1">
             <li>✓ Auto-navigation after 2.5s</li>
             <li>✓ Light & Dark theme support</li>
@@ -174,53 +187,60 @@ function FeatureInfo() {
 }
 
 // Mini preview component that shows the splash screen design
-function SplashPreview({ forceTheme }: { forceTheme?: 'light' | 'dark' }) {
+function SplashPreview({ forceTheme }: { forceTheme?: "light" | "dark" }) {
   // Theme-specific colors
-  const colors = forceTheme === 'light' ? {
-    background: '#ffffff',
-    primaryLight: '#e6f0ff',
-    primary: '#0066ff',
-    success: '#16a34a',
-    textPrimary: '#1a1d1f',
-    textSecondary: '#6f7379',
-    textTertiary: '#9a9fa5',
-    border: '#e4e6e8',
-  } : forceTheme === 'dark' ? {
-    background: '#0f1113',
-    primaryLight: '#1e3a8a',
-    primary: '#3b82f6',
-    success: '#22c55e',
-    textPrimary: '#f5f5f6',
-    textSecondary: '#b4b6ba',
-    textTertiary: '#7c7e84',
-    border: '#2a2c30',
-  } : null;
+  const colors =
+    forceTheme === "light"
+      ? {
+          background: "#ffffff",
+          primaryLight: "#e6f0ff",
+          primary: "#0066ff",
+          success: "#16a34a",
+          textPrimary: "#1a1d1f",
+          textSecondary: "#6f7379",
+          textTertiary: "#9a9fa5",
+          border: "#e4e6e8",
+        }
+      : forceTheme === "dark"
+        ? {
+            background: "#0f1113",
+            primaryLight: "#1e3a8a",
+            primary: "#3b82f6",
+            success: "#22c55e",
+            textPrimary: "#f5f5f6",
+            textSecondary: "#b4b6ba",
+            textTertiary: "#7c7e84",
+            border: "#2a2c30",
+          }
+        : null;
 
-  const style = colors ? {
-    '--bg': colors.background,
-    '--primary-light': colors.primaryLight,
-    '--primary': colors.primary,
-    '--success': colors.success,
-    '--text-primary': colors.textPrimary,
-    '--text-secondary': colors.textSecondary,
-    '--text-tertiary': colors.textTertiary,
-    '--border': colors.border,
-  } as React.CSSProperties : {};
+  const style = colors
+    ? ({
+        "--bg": colors.background,
+        "--primary-light": colors.primaryLight,
+        "--primary": colors.primary,
+        "--success": colors.success,
+        "--text-primary": colors.textPrimary,
+        "--text-secondary": colors.textSecondary,
+        "--text-tertiary": colors.textTertiary,
+        "--border": colors.border,
+      } as React.CSSProperties)
+    : {};
 
   return (
-    <div 
+    <div
       className="absolute inset-0 flex items-center justify-center"
       style={{
         ...style,
-        background: colors 
+        background: colors
           ? `linear-gradient(135deg, ${colors.background}, ${colors.primaryLight}, ${colors.background})`
-          : 'linear-gradient(135deg, var(--background), var(--primary-light), var(--background))'
+          : "linear-gradient(135deg, var(--background), var(--primary-light), var(--background))",
       }}
     >
       {/* Animated background circles */}
       <motion.div
         className="absolute top-1/4 left-1/4 w-32 h-32 md:w-48 md:h-48 rounded-full opacity-10 blur-3xl"
-        style={{ backgroundColor: colors?.primary || 'var(--primary)' }}
+        style={{ backgroundColor: colors?.primary || "var(--primary)" }}
         animate={{
           scale: [1, 1.2, 1],
           opacity: [0.1, 0.15, 0.1],
@@ -233,7 +253,7 @@ function SplashPreview({ forceTheme }: { forceTheme?: 'light' | 'dark' }) {
       />
       <motion.div
         className="absolute bottom-1/4 right-1/4 w-32 h-32 md:w-48 md:h-48 rounded-full opacity-10 blur-3xl"
-        style={{ backgroundColor: colors?.success || 'var(--success)' }}
+        style={{ backgroundColor: colors?.success || "var(--success)" }}
         animate={{
           scale: [1, 1.3, 1],
           opacity: [0.1, 0.15, 0.1],
@@ -256,12 +276,12 @@ function SplashPreview({ forceTheme }: { forceTheme?: 'light' | 'dark' }) {
           className="mb-8 md:mb-12"
         >
           <div className="relative">
-            <div 
+            <div
               className="w-16 h-16 md:w-20 md:h-20 rounded-[16px] flex items-center justify-center shadow-lg"
               style={{
-                background: colors 
+                background: colors
                   ? `linear-gradient(135deg, ${colors.primary}, ${colors.success})`
-                  : 'linear-gradient(135deg, var(--primary), var(--success))'
+                  : "linear-gradient(135deg, var(--primary), var(--success))",
               }}
             >
               <svg
@@ -280,7 +300,7 @@ function SplashPreview({ forceTheme }: { forceTheme?: 'light' | 'dark' }) {
             </div>
             <motion.div
               className="absolute inset-0 rounded-[16px] border-2"
-              style={{ borderColor: colors?.primary || 'var(--primary)' }}
+              style={{ borderColor: colors?.primary || "var(--primary)" }}
               animate={{
                 scale: [1, 1.2, 1],
                 opacity: [0.5, 0, 0.5],
@@ -301,15 +321,15 @@ function SplashPreview({ forceTheme }: { forceTheme?: 'light' | 'dark' }) {
           transition={{ duration: 0.6, delay: 0.2 }}
           className="text-center mb-6 md:mb-8"
         >
-          <h1 
+          <h1
             className="text-xl md:text-2xl font-semibold mb-1 md:mb-2"
-            style={{ color: colors?.textPrimary || 'var(--text-primary)' }}
+            style={{ color: colors?.textPrimary || "var(--text-primary)" }}
           >
             Quản lý tài chính cá nhân
           </h1>
-          <p 
+          <p
             className="text-xs md:text-sm"
-            style={{ color: colors?.textSecondary || 'var(--text-secondary)' }}
+            style={{ color: colors?.textSecondary || "var(--text-secondary)" }}
           >
             Kiểm soát chi tiêu thông minh
           </p>
@@ -323,13 +343,13 @@ function SplashPreview({ forceTheme }: { forceTheme?: 'light' | 'dark' }) {
           className="flex flex-col items-center gap-2 md:gap-3"
         >
           <div className="relative w-8 h-8 md:w-10 md:h-10">
-            <motion.div 
+            <motion.div
               className="absolute inset-0 rounded-full border-2"
-              style={{ borderColor: colors?.border || 'var(--border)' }}
+              style={{ borderColor: colors?.border || "var(--border)" }}
             />
             <motion.div
               className="absolute inset-0 rounded-full border-2 border-t-transparent"
-              style={{ borderColor: colors?.primary || 'var(--primary)' }}
+              style={{ borderColor: colors?.primary || "var(--primary)" }}
               animate={{ rotate: 360 }}
               transition={{
                 duration: 1,
@@ -343,7 +363,7 @@ function SplashPreview({ forceTheme }: { forceTheme?: 'light' | 'dark' }) {
               <motion.div
                 key={i}
                 className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full"
-                style={{ backgroundColor: colors?.primary || 'var(--primary)' }}
+                style={{ backgroundColor: colors?.primary || "var(--primary)" }}
                 animate={{
                   scale: [1, 1.2, 1],
                   opacity: [0.4, 1, 0.4],
@@ -365,7 +385,7 @@ function SplashPreview({ forceTheme }: { forceTheme?: 'light' | 'dark' }) {
         animate={{ opacity: 1 }}
         transition={{ duration: 0.6, delay: 0.6 }}
         className="absolute bottom-4 md:bottom-8 text-xs"
-        style={{ color: colors?.textTertiary || 'var(--text-tertiary)' }}
+        style={{ color: colors?.textTertiary || "var(--text-tertiary)" }}
       >
         Version 1.0.0
       </motion.div>

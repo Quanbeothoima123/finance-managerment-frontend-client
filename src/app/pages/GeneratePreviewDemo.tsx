@@ -1,55 +1,55 @@
-import React, { useState } from 'react';
-import { Button } from '../components/Button';
-import { Card } from '../components/Card';
-import GeneratePreviewModal from './GeneratePreviewModal';
-import { useToast } from '../contexts/ToastContext';
+import React, { useState } from "react";
+import { Button } from "../components/Button";
+import { Card } from "../components/Card";
+import GeneratePreviewModal from "./GeneratePreviewModal";
+import { useToast } from "../contexts/ToastContext";
 
 // Mock upcoming transactions
 const mockTransactions = [
   {
-    id: '1',
-    date: '2026-03-01',
-    description: 'Lương tháng 3',
-    type: 'income' as const,
+    id: "1",
+    date: "2026-03-01",
+    description: "Lương tháng 3",
+    type: "income" as const,
     amount: 25000000,
-    account: 'Techcombank',
-    category: 'Lương',
+    account: "Techcombank",
+    category: "Lương",
   },
   {
-    id: '2',
-    date: '2026-03-01',
-    description: 'Chuyển tiết kiệm',
-    type: 'transfer' as const,
+    id: "2",
+    date: "2026-03-01",
+    description: "Chuyển tiết kiệm",
+    type: "transfer" as const,
     amount: 3000000,
-    fromAccount: 'Techcombank',
-    toAccount: 'BIDV',
+    fromAccount: "Techcombank",
+    toAccount: "BIDV",
   },
   {
-    id: '3',
-    date: '2026-03-05',
-    description: 'Tiền nhà tháng 3',
-    type: 'expense' as const,
+    id: "3",
+    date: "2026-03-05",
+    description: "Tiền nhà tháng 3",
+    type: "expense" as const,
     amount: 5000000,
-    account: 'Vietcombank',
-    category: 'Nhà ở',
+    account: "Vietcombank",
+    category: "Nhà ở",
   },
   {
-    id: '4',
-    date: '2026-03-10',
-    description: 'Netflix',
-    type: 'expense' as const,
+    id: "4",
+    date: "2026-03-10",
+    description: "Netflix",
+    type: "expense" as const,
     amount: 260000,
-    account: 'Vietcombank',
-    category: 'Giải trí',
+    account: "Vietcombank",
+    category: "Giải trí",
   },
   {
-    id: '5',
-    date: '2026-03-15',
-    description: 'Tiền điện tháng 3',
-    type: 'expense' as const,
+    id: "5",
+    date: "2026-03-15",
+    description: "Tiền điện tháng 3",
+    type: "expense" as const,
     amount: 800000,
-    account: 'Techcombank',
-    category: 'Nhà ở',
+    account: "Techcombank",
+    category: "Nhà ở",
   },
 ];
 
@@ -66,7 +66,7 @@ export default function GeneratePreviewDemo() {
   };
 
   const handleConfirm = () => {
-    toast.success('Đã xác nhận giao dịch');
+    toast.success("Đã xác nhận giao dịch");
     setIsModalOpen(false);
   };
 

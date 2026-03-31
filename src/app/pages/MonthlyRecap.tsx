@@ -1,9 +1,19 @@
-import React, { useMemo } from 'react';
-import { Share2, Download, TrendingUp, TrendingDown, Target, ShoppingBag, DollarSign, Calendar, FileText } from 'lucide-react';
-import { Card } from '../components/Card';
-import { useToast } from '../contexts/ToastContext';
-import { useDemoData } from '../contexts/DemoDataContext';
-import { useAppNavigation } from '../hooks/useAppNavigation';
+import React, { useMemo } from "react";
+import {
+  Share2,
+  Download,
+  TrendingUp,
+  TrendingDown,
+  Target,
+  ShoppingBag,
+  DollarSign,
+  Calendar,
+  FileText,
+} from "lucide-react";
+import { Card } from "../components/Card";
+import { useToast } from "../contexts/ToastContext";
+import { useDemoData } from "../contexts/DemoDataContext";
+import { useAppNavigation } from "../hooks/useAppNavigation";
 
 export default function MonthlyRecap() {
   const toast = useToast();
@@ -11,7 +21,7 @@ export default function MonthlyRecap() {
   const nav = useAppNavigation();
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('vi-VN').format(amount);
+    return new Intl.NumberFormat("vi-VN").format(amount);
   };
 
   // Compute all recap data from real DemoDataContext
@@ -21,78 +31,106 @@ export default function MonthlyRecap() {
     const prevMonth = 0; // January
 
     // Filter transactions for current and previous month
-    const currentTxns = transactions.filter(t => {
+    const currentTxns = transactions.filter((t) => {
       const d = new Date(t.date);
       return d.getFullYear() === year && d.getMonth() === month;
     });
-    const prevTxns = transactions.filter(t => {
+    const prevTxns = transactions.filter((t) => {
       const d = new Date(t.date);
       return d.getFullYear() === year && d.getMonth() === prevMonth;
     });
 
     // Income & expense totals
-    const totalIncome = currentTxns.filter(t => t.type === 'income').reduce((s, t) => s + Math.abs(t.amount), 0);
-    const totalExpense = currentTxns.filter(t => t.type === 'expense').reduce((s, t) => s + Math.abs(t.amount), 0);
-    const prevIncome = prevTxns.filter(t => t.type === 'income').reduce((s, t) => s + Math.abs(t.amount), 0);
-    const prevExpense = prevTxns.filter(t => t.type === 'expense').reduce((s, t) => s + Math.abs(t.amount), 0);
+    const totalIncome = currentTxns
+      .filter((t) => t.type === "income")
+      .reduce((s, t) => s + Math.abs(t.amount), 0);
+    const totalExpense = currentTxns
+      .filter((t) => t.type === "expense")
+      .reduce((s, t) => s + Math.abs(t.amount), 0);
+    const prevIncome = prevTxns
+      .filter((t) => t.type === "income")
+      .reduce((s, t) => s + Math.abs(t.amount), 0);
+    const prevExpense = prevTxns
+      .filter((t) => t.type === "expense")
+      .reduce((s, t) => s + Math.abs(t.amount), 0);
 
     const savings = totalIncome - totalExpense;
-    const savingsRate = totalIncome > 0 ? ((savings / totalIncome) * 100) : 0;
+    const savingsRate = totalIncome > 0 ? (savings / totalIncome) * 100 : 0;
 
     // Top category
     const catSpend: Record<string, number> = {};
-    currentTxns.filter(t => t.type === 'expense').forEach(t => {
-      const key = t.categoryId || t.category;
-      catSpend[key] = (catSpend[key] || 0) + Math.abs(t.amount);
-    });
+    currentTxns
+      .filter((t) => t.type === "expense")
+      .forEach((t) => {
+        const key = t.categoryId || t.category;
+        catSpend[key] = (catSpend[key] || 0) + Math.abs(t.amount);
+      });
     const catLookup: Record<string, string> = {};
-    categories.forEach(c => { catLookup[c.id] = c.name; });
+    categories.forEach((c) => {
+      catLookup[c.id] = c.name;
+    });
     const sortedCats = Object.entries(catSpend).sort((a, b) => b[1] - a[1]);
     const topCat = sortedCats[0];
-    const topCatPercentage = topCat && totalExpense > 0 ? Math.round((topCat[1] / totalExpense) * 100) : 0;
+    const topCatPercentage =
+      topCat && totalExpense > 0
+        ? Math.round((topCat[1] / totalExpense) * 100)
+        : 0;
 
     // Biggest purchase
-    const expenses = currentTxns.filter(t => t.type === 'expense').sort((a, b) => Math.abs(b.amount) - Math.abs(a.amount));
+    const expenses = currentTxns
+      .filter((t) => t.type === "expense")
+      .sort((a, b) => Math.abs(b.amount) - Math.abs(a.amount));
     const biggest = expenses[0];
 
     // Budget status
-    const onTrack = budgets.filter(b => b.status === 'on_track' || b.status === 'good').length;
-    const exceeded = budgets.filter(b => b.status === 'over').length;
-    const underUsed = budgets.filter(b => b.status === 'warning').length;
+    const onTrack = budgets.filter(
+      (b) => b.status === "on_track" || b.status === "good",
+    ).length;
+    const exceeded = budgets.filter((b) => b.status === "over").length;
+    const underUsed = budgets.filter((b) => b.status === "warning").length;
 
     // Goal progress
-    const goalsOnTrack = goals.filter(g => g.status === 'on_track').length;
-    const goalsAtRisk = goals.filter(g => g.status === 'at_risk' || g.status === 'behind').length;
-    const goalsCompleted = goals.filter(g => g.status === 'achieved').length;
+    const goalsOnTrack = goals.filter((g) => g.status === "on_track").length;
+    const goalsAtRisk = goals.filter(
+      (g) => g.status === "at_risk" || g.status === "behind",
+    ).length;
+    const goalsCompleted = goals.filter((g) => g.status === "achieved").length;
 
     // Comparisons
-    const incomeDiff = prevIncome > 0 ? ((totalIncome - prevIncome) / prevIncome * 100) : 0;
-    const expenseDiff = prevExpense > 0 ? ((totalExpense - prevExpense) / prevExpense * 100) : 0;
+    const incomeDiff =
+      prevIncome > 0 ? ((totalIncome - prevIncome) / prevIncome) * 100 : 0;
+    const expenseDiff =
+      prevExpense > 0 ? ((totalExpense - prevExpense) / prevExpense) * 100 : 0;
     const prevSavings = prevIncome - prevExpense;
-    const savingsDiff = prevSavings !== 0 ? ((savings - prevSavings) / Math.abs(prevSavings) * 100) : 0;
+    const savingsDiff =
+      prevSavings !== 0
+        ? ((savings - prevSavings) / Math.abs(prevSavings)) * 100
+        : 0;
 
     return {
-      month: 'Tháng 2, 2026',
+      month: "Tháng 2, 2026",
       totalIncome,
       totalExpense,
       savings,
       savingsRate: Number(savingsRate.toFixed(1)),
       topCategory: {
-        name: topCat ? (catLookup[topCat[0]] || topCat[0]) : 'N/A',
+        name: topCat ? catLookup[topCat[0]] || topCat[0] : "N/A",
         amount: topCat ? topCat[1] : 0,
         percentage: topCatPercentage,
       },
-      biggestPurchase: biggest ? {
-        description: biggest.description,
-        amount: Math.abs(biggest.amount),
-        date: new Date(biggest.date).toLocaleDateString('vi-VN'),
-        category: biggest.category,
-      } : {
-        description: 'Chưa có dữ liệu',
-        amount: 0,
-        date: '',
-        category: '',
-      },
+      biggestPurchase: biggest
+        ? {
+            description: biggest.description,
+            amount: Math.abs(biggest.amount),
+            date: new Date(biggest.date).toLocaleDateString("vi-VN"),
+            category: biggest.category,
+          }
+        : {
+            description: "Chưa có dữ liệu",
+            amount: 0,
+            date: "",
+            category: "",
+          },
       budgetStatus: {
         total: budgets.length,
         onTrack,
@@ -120,7 +158,7 @@ export default function MonthlyRecap() {
     } else if (recapData.comparison.expenseDiff < 0) {
       return `Tuyệt vời! Chi tiêu tháng này giảm ${Math.abs(recapData.comparison.expenseDiff)}% so với tháng trước. Hãy tiếp tục duy trì thói quen tốt này!`;
     }
-    return 'Chi tiêu tháng này ổn định so với tháng trước. Hãy tiếp tục theo dõi để đạt mục tiêu tài chính.';
+    return "Chi tiêu tháng này ổn định so với tháng trước. Hãy tiếp tục theo dõi để đạt mục tiêu tài chính.";
   }, [recapData]);
 
   const handleShare = () => {
@@ -128,7 +166,7 @@ export default function MonthlyRecap() {
     if (navigator.clipboard) {
       navigator.clipboard.writeText(text);
     }
-    toast.success('Đã sao chép tổng kết tháng vào clipboard');
+    toast.success("Đã sao chép tổng kết tháng vào clipboard");
   };
 
   const handleExport = () => {
@@ -145,18 +183,18 @@ export default function MonthlyRecap() {
       ``,
       `NGÂN SÁCH: ${recapData.budgetStatus.onTrack} đúng mức, ${recapData.budgetStatus.exceeded} vượt mức`,
       `MỤC TIÊU: ${recapData.goalProgress.completed} hoàn thành, ${recapData.goalProgress.onTrack} đúng tiến độ`,
-    ].join('\n');
+    ].join("\n");
 
-    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+    const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
     a.download = `tong-ket-thang-2-2026.txt`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    toast.success('Đã xuất báo cáo tổng kết tháng');
+    toast.success("Đã xuất báo cáo tổng kết tháng");
   };
 
   return (
@@ -207,14 +245,16 @@ export default function MonthlyRecap() {
                   <div className="w-8 h-8 bg-[var(--success)] rounded-[var(--radius-md)] flex items-center justify-center">
                     <TrendingUp className="w-5 h-5 text-white" />
                   </div>
-                  <span className="text-sm font-medium text-[var(--text-secondary)]">Thu nhập</span>
+                  <span className="text-sm font-medium text-[var(--text-secondary)]">
+                    Thu nhập
+                  </span>
                 </div>
                 <p className="text-2xl font-bold text-[var(--text-primary)] tabular-nums mb-1">
                   {formatCurrency(recapData.totalIncome)}₫
                 </p>
                 {recapData.comparison.incomeDiff !== 0 && (
                   <p className="text-xs text-[var(--text-secondary)]">
-                    {recapData.comparison.incomeDiff >= 0 ? '+' : ''}
+                    {recapData.comparison.incomeDiff >= 0 ? "+" : ""}
                     {recapData.comparison.incomeDiff}% so với tháng trước
                   </p>
                 )}
@@ -226,14 +266,16 @@ export default function MonthlyRecap() {
                   <div className="w-8 h-8 bg-[var(--danger)] rounded-[var(--radius-md)] flex items-center justify-center">
                     <TrendingDown className="w-5 h-5 text-white" />
                   </div>
-                  <span className="text-sm font-medium text-[var(--text-secondary)]">Chi tiêu</span>
+                  <span className="text-sm font-medium text-[var(--text-secondary)]">
+                    Chi tiêu
+                  </span>
                 </div>
                 <p className="text-2xl font-bold text-[var(--text-primary)] tabular-nums mb-1">
                   {formatCurrency(recapData.totalExpense)}₫
                 </p>
                 {recapData.comparison.expenseDiff !== 0 && (
                   <p className="text-xs text-[var(--text-secondary)]">
-                    {recapData.comparison.expenseDiff >= 0 ? '+' : ''}
+                    {recapData.comparison.expenseDiff >= 0 ? "+" : ""}
                     {recapData.comparison.expenseDiff}% so với tháng trước
                   </p>
                 )}
@@ -246,7 +288,7 @@ export default function MonthlyRecap() {
                     <DollarSign className="w-5 h-5 text-white" />
                   </div>
                   <span className="text-sm font-medium text-[var(--text-secondary)]">
-                    {recapData.savings >= 0 ? 'Tiết kiệm' : 'Vượt chi'}
+                    {recapData.savings >= 0 ? "Tiết kiệm" : "Vượt chi"}
                   </span>
                 </div>
                 <p className="text-2xl font-bold text-[var(--text-primary)] tabular-nums mb-1">
@@ -261,7 +303,9 @@ export default function MonthlyRecap() {
             {/* Top Category */}
             <Card className="bg-[var(--surface)]">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold text-[var(--text-primary)]">Danh mục chi nhiều nhất</h3>
+                <h3 className="font-semibold text-[var(--text-primary)]">
+                  Danh mục chi nhiều nhất
+                </h3>
               </div>
               <div className="flex items-center gap-4">
                 <div className="w-16 h-16 bg-[var(--card)] rounded-[var(--radius-lg)] flex items-center justify-center text-3xl">
@@ -286,7 +330,9 @@ export default function MonthlyRecap() {
             {/* Biggest Purchase */}
             <Card className="bg-[var(--surface)]">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold text-[var(--text-primary)]">Khoản chi lớn nhất</h3>
+                <h3 className="font-semibold text-[var(--text-primary)]">
+                  Khoản chi lớn nhất
+                </h3>
               </div>
               <div className="flex items-center gap-4">
                 <div className="w-16 h-16 bg-[var(--warning-light)] rounded-[var(--radius-lg)] flex items-center justify-center">
@@ -297,7 +343,10 @@ export default function MonthlyRecap() {
                     {recapData.biggestPurchase.description}
                   </p>
                   <p className="text-sm text-[var(--text-secondary)]">
-                    {recapData.biggestPurchase.category}{recapData.biggestPurchase.date ? ` \u2022 ${recapData.biggestPurchase.date}` : ''}
+                    {recapData.biggestPurchase.category}
+                    {recapData.biggestPurchase.date
+                      ? ` \u2022 ${recapData.biggestPurchase.date}`
+                      : ""}
                   </p>
                 </div>
                 <div className="text-right flex-shrink-0">
@@ -311,7 +360,9 @@ export default function MonthlyRecap() {
             {/* Budget Status */}
             <Card className="bg-[var(--surface)]">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold text-[var(--text-primary)]">Tình trạng ngân sách</h3>
+                <h3 className="font-semibold text-[var(--text-primary)]">
+                  Tình trạng ngân sách
+                </h3>
                 <span className="text-sm text-[var(--text-secondary)]">
                   {recapData.budgetStatus.total} ngân sách
                 </span>
@@ -323,7 +374,9 @@ export default function MonthlyRecap() {
                       {recapData.budgetStatus.onTrack}
                     </span>
                   </div>
-                  <p className="text-xs text-[var(--text-secondary)]">Đúng mức</p>
+                  <p className="text-xs text-[var(--text-secondary)]">
+                    Đúng mức
+                  </p>
                 </div>
                 <div className="text-center">
                   <div className="w-12 h-12 bg-[var(--danger-light)] rounded-full flex items-center justify-center mx-auto mb-2">
@@ -331,7 +384,9 @@ export default function MonthlyRecap() {
                       {recapData.budgetStatus.exceeded}
                     </span>
                   </div>
-                  <p className="text-xs text-[var(--text-secondary)]">Vượt mức</p>
+                  <p className="text-xs text-[var(--text-secondary)]">
+                    Vượt mức
+                  </p>
                 </div>
                 <div className="text-center">
                   <div className="w-12 h-12 bg-[var(--info-light)] rounded-full flex items-center justify-center mx-auto mb-2">
@@ -339,7 +394,9 @@ export default function MonthlyRecap() {
                       {recapData.budgetStatus.underUsed}
                     </span>
                   </div>
-                  <p className="text-xs text-[var(--text-secondary)]">Tiết kiệm</p>
+                  <p className="text-xs text-[var(--text-secondary)]">
+                    Tiết kiệm
+                  </p>
                 </div>
               </div>
             </Card>
@@ -347,7 +404,9 @@ export default function MonthlyRecap() {
             {/* Goal Progress */}
             <Card className="bg-[var(--surface)]">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold text-[var(--text-primary)]">Tiến độ mục tiêu</h3>
+                <h3 className="font-semibold text-[var(--text-primary)]">
+                  Tiến độ mục tiêu
+                </h3>
                 <span className="text-sm text-[var(--text-secondary)]">
                   {recapData.goalProgress.total} mục tiêu
                 </span>
@@ -359,7 +418,9 @@ export default function MonthlyRecap() {
                       {recapData.goalProgress.onTrack}
                     </span>
                   </div>
-                  <p className="text-xs text-[var(--text-secondary)]">Đúng tiến độ</p>
+                  <p className="text-xs text-[var(--text-secondary)]">
+                    Đúng tiến độ
+                  </p>
                 </div>
                 <div className="text-center">
                   <div className="w-12 h-12 bg-[var(--warning-light)] rounded-full flex items-center justify-center mx-auto mb-2">
@@ -367,7 +428,9 @@ export default function MonthlyRecap() {
                       {recapData.goalProgress.atRisk}
                     </span>
                   </div>
-                  <p className="text-xs text-[var(--text-secondary)]">Cần tăng tốc</p>
+                  <p className="text-xs text-[var(--text-secondary)]">
+                    Cần tăng tốc
+                  </p>
                 </div>
                 <div className="text-center">
                   <div className="w-12 h-12 bg-[var(--success-light)] rounded-full flex items-center justify-center mx-auto mb-2">
@@ -375,7 +438,9 @@ export default function MonthlyRecap() {
                       {recapData.goalProgress.completed}
                     </span>
                   </div>
-                  <p className="text-xs text-[var(--text-secondary)]">Hoàn thành</p>
+                  <p className="text-xs text-[var(--text-secondary)]">
+                    Hoàn thành
+                  </p>
                 </div>
               </div>
             </Card>
@@ -386,7 +451,9 @@ export default function MonthlyRecap() {
                 <div className="inline-flex items-center justify-center w-12 h-12 bg-[var(--primary)] rounded-full mb-3">
                   <Target className="w-6 h-6 text-white" />
                 </div>
-                <h3 className="font-semibold text-[var(--text-primary)] mb-2">Nhận xét chung</h3>
+                <h3 className="font-semibold text-[var(--text-primary)] mb-2">
+                  Nhận xét chung
+                </h3>
                 <p className="text-sm text-[var(--text-secondary)] mb-4">
                   {summaryMessage}
                 </p>
@@ -394,8 +461,12 @@ export default function MonthlyRecap() {
                   <span className="text-xs text-[var(--text-tertiary)]">
                     Tạo bởi Quản lý tài chính
                   </span>
-                  <span className="text-xs text-[var(--text-tertiary)]">&bull;</span>
-                  <span className="text-xs text-[var(--text-tertiary)]">23/02/2026</span>
+                  <span className="text-xs text-[var(--text-tertiary)]">
+                    &bull;
+                  </span>
+                  <span className="text-xs text-[var(--text-tertiary)]">
+                    23/02/2026
+                  </span>
                 </div>
               </div>
             </Card>

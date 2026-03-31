@@ -1,10 +1,10 @@
-import type { AuthSession } from '../types/auth';
+import type { AuthSession } from "../types/auth";
 
-const AUTH_STORAGE_KEY = 'finance-app.auth.session';
-export const AUTH_SESSION_EVENT = 'finance-app:auth-session-changed';
+const AUTH_STORAGE_KEY = "finance-app.auth.session";
+export const AUTH_SESSION_EVENT = "finance-app:auth-session-changed";
 
 function canUseStorage() {
-  return typeof window !== 'undefined';
+  return typeof window !== "undefined";
 }
 
 function safeParse(value: string | null): AuthSession | null {
@@ -18,9 +18,11 @@ function safeParse(value: string | null): AuthSession | null {
 
 function notify(session: AuthSession | null) {
   if (!canUseStorage()) return;
-  window.dispatchEvent(new CustomEvent<AuthSession | null>(AUTH_SESSION_EVENT, {
-    detail: session,
-  }));
+  window.dispatchEvent(
+    new CustomEvent<AuthSession | null>(AUTH_SESSION_EVENT, {
+      detail: session,
+    }),
+  );
 }
 
 export function getStoredSession(): AuthSession | null {
@@ -38,7 +40,9 @@ export function setStoredSession(session: AuthSession) {
   window.localStorage.removeItem(AUTH_STORAGE_KEY);
   window.sessionStorage.removeItem(AUTH_STORAGE_KEY);
 
-  const target = session.rememberMe ? window.localStorage : window.sessionStorage;
+  const target = session.rememberMe
+    ? window.localStorage
+    : window.sessionStorage;
   target.setItem(AUTH_STORAGE_KEY, JSON.stringify(session));
   notify(session);
 }

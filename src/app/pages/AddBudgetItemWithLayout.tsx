@@ -1,6 +1,6 @@
-import React from 'react';
-import { Layout } from '../components/Layout';
-import AddBudgetItem from './AddBudgetItem';
+import React from "react";
+import { Layout } from "../components/Layout";
+import AddBudgetItem from "./AddBudgetItem";
 
 export default function AddBudgetItemWithLayout() {
   return (

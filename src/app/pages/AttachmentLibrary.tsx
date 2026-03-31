@@ -1,11 +1,25 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo } from "react";
 import {
-  Search, Filter, X, Cloud, Crown, Paperclip, FileText, Image as ImageIcon,
-  ExternalLink, Download, ChevronDown, ChevronLeft, ChevronRight, Eye, Calendar, Files
-} from 'lucide-react';
-import { useDemoData, type CloudAttachment } from '../contexts/DemoDataContext';
-import { useAppNavigation } from '../hooks/useAppNavigation';
-import { Button } from '../components/Button';
+  Search,
+  Filter,
+  X,
+  Cloud,
+  Crown,
+  Paperclip,
+  FileText,
+  Image as ImageIcon,
+  ExternalLink,
+  Download,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  Eye,
+  Calendar,
+  Files,
+} from "lucide-react";
+import { useDemoData, type CloudAttachment } from "../contexts/DemoDataContext";
+import { useAppNavigation } from "../hooks/useAppNavigation";
+import { Button } from "../components/Button";
 
 interface GalleryItem {
   attachment: CloudAttachment;
@@ -19,31 +33,36 @@ interface GalleryItem {
   isCloud: boolean;
 }
 
-type QuickFilter = 'all' | 'image' | 'pdf' | 'other' | 'pro';
+type QuickFilter = "all" | "image" | "pdf" | "other" | "pro";
 
 export default function AttachmentLibrary() {
   const { transactions, accounts, isPro } = useDemoData();
   const { goTransactionDetail, goCreateTransaction } = useAppNavigation();
 
   // State
-  const [searchQuery, setSearchQuery] = useState('');
-  const [quickFilter, setQuickFilter] = useState<QuickFilter>('all');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [quickFilter, setQuickFilter] = useState<QuickFilter>("all");
   const [filterSheetOpen, setFilterSheetOpen] = useState(false);
-  const [lightboxState, setLightboxState] = useState<{ items: GalleryItem[]; index: number } | null>(null);
+  const [lightboxState, setLightboxState] = useState<{
+    items: GalleryItem[];
+    index: number;
+  } | null>(null);
 
   // Advanced filters
-  const [filterDateStart, setFilterDateStart] = useState('');
-  const [filterDateEnd, setFilterDateEnd] = useState('');
+  const [filterDateStart, setFilterDateStart] = useState("");
+  const [filterDateEnd, setFilterDateEnd] = useState("");
   const [filterAccounts, setFilterAccounts] = useState<string[]>([]);
-  const [filterFileTypes, setFilterFileTypes] = useState<Set<string>>(new Set());
+  const [filterFileTypes, setFilterFileTypes] = useState<Set<string>>(
+    new Set(),
+  );
   const [filterProOnly, setFilterProOnly] = useState(false);
 
   // Aggregate all attachments from transactions
   const allItems: GalleryItem[] = useMemo(() => {
     const items: GalleryItem[] = [];
-    transactions.forEach(txn => {
+    transactions.forEach((txn) => {
       if (txn.attachments && txn.attachments.length > 0) {
-        txn.attachments.forEach(att => {
+        txn.attachments.forEach((att) => {
           items.push({
             attachment: att,
             transactionId: txn.id,
@@ -59,21 +78,30 @@ export default function AttachmentLibrary() {
       }
     });
     // Sort by upload date descending
-    items.sort((a, b) => new Date(b.attachment.uploadedAt).getTime() - new Date(a.attachment.uploadedAt).getTime());
+    items.sort(
+      (a, b) =>
+        new Date(b.attachment.uploadedAt).getTime() -
+        new Date(a.attachment.uploadedAt).getTime(),
+    );
     return items;
   }, [transactions]);
 
   // Check if any cloud files exist for showing PRO chip
-  const hasCloudFiles = allItems.some(i => i.isCloud);
+  const hasCloudFiles = allItems.some((i) => i.isCloud);
 
   // Apply filters
   const filteredItems = useMemo(() => {
-    return allItems.filter(item => {
+    return allItems.filter((item) => {
       // Quick filter
-      if (quickFilter === 'image' && item.attachment.type !== 'image') return false;
-      if (quickFilter === 'pdf' && item.attachment.type !== 'pdf') return false;
-      if (quickFilter === 'other' && (item.attachment.type === 'image' || item.attachment.type === 'pdf')) return false;
-      if (quickFilter === 'pro' && !item.isCloud) return false;
+      if (quickFilter === "image" && item.attachment.type !== "image")
+        return false;
+      if (quickFilter === "pdf" && item.attachment.type !== "pdf") return false;
+      if (
+        quickFilter === "other" &&
+        (item.attachment.type === "image" || item.attachment.type === "pdf")
+      )
+        return false;
+      if (quickFilter === "pro" && !item.isCloud) return false;
 
       // Search
       if (searchQuery) {
@@ -85,26 +113,44 @@ export default function AttachmentLibrary() {
       }
 
       // Advanced: date range
-      if (filterDateStart && item.transactionDate < filterDateStart) return false;
+      if (filterDateStart && item.transactionDate < filterDateStart)
+        return false;
       if (filterDateEnd && item.transactionDate > filterDateEnd) return false;
 
       // Advanced: accounts
-      if (filterAccounts.length > 0 && !filterAccounts.includes(item.transactionAccount)) return false;
+      if (
+        filterAccounts.length > 0 &&
+        !filterAccounts.includes(item.transactionAccount)
+      )
+        return false;
 
       // Advanced: file types
-      if (filterFileTypes.size > 0 && !filterFileTypes.has(item.attachment.type)) return false;
+      if (
+        filterFileTypes.size > 0 &&
+        !filterFileTypes.has(item.attachment.type)
+      )
+        return false;
 
       // Advanced: pro only
       if (filterProOnly && !item.isCloud) return false;
 
       return true;
     });
-  }, [allItems, quickFilter, searchQuery, filterDateStart, filterDateEnd, filterAccounts, filterFileTypes, filterProOnly]);
+  }, [
+    allItems,
+    quickFilter,
+    searchQuery,
+    filterDateStart,
+    filterDateEnd,
+    filterAccounts,
+    filterFileTypes,
+    filterProOnly,
+  ]);
 
   // Group by month
   const groupedByMonth = useMemo(() => {
     const groups: Record<string, GalleryItem[]> = {};
-    filteredItems.forEach(item => {
+    filteredItems.forEach((item) => {
       const monthKey = item.transactionDate.substring(0, 7); // "2026-03"
       if (!groups[monthKey]) groups[monthKey] = [];
       groups[monthKey].push(item);
@@ -115,12 +161,14 @@ export default function AttachmentLibrary() {
 
   // Stats
   const totalSize = allItems.reduce((sum, i) => sum + i.attachment.size, 0);
-  const imageCount = allItems.filter(i => i.attachment.type === 'image').length;
-  const pdfCount = allItems.filter(i => i.attachment.type === 'pdf').length;
+  const imageCount = allItems.filter(
+    (i) => i.attachment.type === "image",
+  ).length;
+  const pdfCount = allItems.filter((i) => i.attachment.type === "pdf").length;
 
   const formatMonthHeader = (monthKey: string) => {
-    const [year, month] = monthKey.split('-');
-    return `Tháng ${parseInt(month, 10).toString().padStart(2, '0')}/${year}`;
+    const [year, month] = monthKey.split("-");
+    return `Tháng ${parseInt(month, 10).toString().padStart(2, "0")}/${year}`;
   };
 
   const formatFileSize = (bytes: number) => {
@@ -134,11 +182,16 @@ export default function AttachmentLibrary() {
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   };
 
-  const hasAdvancedFilters = filterDateStart || filterDateEnd || filterAccounts.length > 0 || filterFileTypes.size > 0 || filterProOnly;
+  const hasAdvancedFilters =
+    filterDateStart ||
+    filterDateEnd ||
+    filterAccounts.length > 0 ||
+    filterFileTypes.size > 0 ||
+    filterProOnly;
 
   const clearAdvancedFilters = () => {
-    setFilterDateStart('');
-    setFilterDateEnd('');
+    setFilterDateStart("");
+    setFilterDateEnd("");
     setFilterAccounts([]);
     setFilterFileTypes(new Set());
     setFilterProOnly(false);
@@ -151,16 +204,16 @@ export default function AttachmentLibrary() {
 
   // Quick filter chips config
   const quickFilters: { key: QuickFilter; label: string; show: boolean }[] = [
-    { key: 'all', label: 'Tất cả', show: true },
-    { key: 'image', label: 'Ảnh', show: true },
-    { key: 'pdf', label: 'PDF', show: true },
-    { key: 'other', label: 'Khác', show: true },
-    { key: 'pro', label: 'Chỉ PRO', show: hasCloudFiles },
+    { key: "all", label: "Tất cả", show: true },
+    { key: "image", label: "Ảnh", show: true },
+    { key: "pdf", label: "PDF", show: true },
+    { key: "other", label: "Khác", show: true },
+    { key: "pro", label: "Chỉ PRO", show: hasCloudFiles },
   ];
 
   // Unique accounts that have attachments
   const accountsWithAttachments = useMemo(() => {
-    const set = new Set(allItems.map(i => i.transactionAccount));
+    const set = new Set(allItems.map((i) => i.transactionAccount));
     return Array.from(set);
   }, [allItems]);
 
@@ -171,7 +224,9 @@ export default function AttachmentLibrary() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between mb-1">
             <div>
-              <h1 className="text-2xl font-semibold text-[var(--text-primary)]">Đính kèm</h1>
+              <h1 className="text-2xl font-semibold text-[var(--text-primary)]">
+                Đính kèm
+              </h1>
               <p className="text-sm text-[var(--text-tertiary)] mt-0.5">
                 Tất cả ảnh & file bạn đã lưu
               </p>
@@ -181,8 +236,8 @@ export default function AttachmentLibrary() {
                 onClick={() => setFilterSheetOpen(true)}
                 className={`p-2.5 rounded-[var(--radius-lg)] border transition-colors ${
                   hasAdvancedFilters
-                    ? 'bg-[var(--primary-light)] border-[var(--primary)] text-[var(--primary)]'
-                    : 'border-[var(--border)] text-[var(--text-secondary)] hover:bg-[var(--surface)]'
+                    ? "bg-[var(--primary-light)] border-[var(--primary)] text-[var(--primary)]"
+                    : "border-[var(--border)] text-[var(--text-secondary)] hover:bg-[var(--surface)]"
                 }`}
                 title="Bộ lọc nâng cao"
               >
@@ -198,32 +253,40 @@ export default function AttachmentLibrary() {
               type="text"
               placeholder="Tìm tên file, giao dịch..."
               value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
+              onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-10 pr-4 py-2.5 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-lg)] text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-[var(--focus-ring)]"
             />
           </div>
 
           {/* Quick Filter Chips */}
           <div className="flex gap-2 mt-3 overflow-x-auto pb-1">
-            {quickFilters.filter(f => f.show).map(f => (
-              <button
-                key={f.key}
-                onClick={() => setQuickFilter(f.key)}
-                className={`flex-shrink-0 px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
-                  quickFilter === f.key
-                    ? f.key === 'pro'
-                      ? 'bg-amber-500 text-white'
-                      : 'bg-[var(--primary)] text-white'
-                    : 'bg-[var(--surface)] text-[var(--text-secondary)] hover:bg-[var(--border)]'
-                }`}
-              >
-                {f.key === 'pro' && <Crown className="w-3 h-3 inline mr-1" />}
-                {f.label}
-                {f.key === 'all' && <span className="ml-1 opacity-70">{allItems.length}</span>}
-                {f.key === 'image' && <span className="ml-1 opacity-70">{imageCount}</span>}
-                {f.key === 'pdf' && <span className="ml-1 opacity-70">{pdfCount}</span>}
-              </button>
-            ))}
+            {quickFilters
+              .filter((f) => f.show)
+              .map((f) => (
+                <button
+                  key={f.key}
+                  onClick={() => setQuickFilter(f.key)}
+                  className={`flex-shrink-0 px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                    quickFilter === f.key
+                      ? f.key === "pro"
+                        ? "bg-amber-500 text-white"
+                        : "bg-[var(--primary)] text-white"
+                      : "bg-[var(--surface)] text-[var(--text-secondary)] hover:bg-[var(--border)]"
+                  }`}
+                >
+                  {f.key === "pro" && <Crown className="w-3 h-3 inline mr-1" />}
+                  {f.label}
+                  {f.key === "all" && (
+                    <span className="ml-1 opacity-70">{allItems.length}</span>
+                  )}
+                  {f.key === "image" && (
+                    <span className="ml-1 opacity-70">{imageCount}</span>
+                  )}
+                  {f.key === "pdf" && (
+                    <span className="ml-1 opacity-70">{pdfCount}</span>
+                  )}
+                </button>
+              ))}
           </div>
 
           {/* Stats bar */}
@@ -234,7 +297,10 @@ export default function AttachmentLibrary() {
             </span>
             <span>{formatTotalSize(totalSize)} tổng</span>
             {hasAdvancedFilters && (
-              <button onClick={clearAdvancedFilters} className="text-[var(--danger)] font-medium hover:underline ml-auto">
+              <button
+                onClick={clearAdvancedFilters}
+                className="text-[var(--danger)] font-medium hover:underline ml-auto"
+              >
                 Xoá bộ lọc
               </button>
             )}
@@ -256,9 +322,8 @@ export default function AttachmentLibrary() {
               </h3>
               <p className="text-sm text-[var(--text-tertiary)] max-w-xs mb-6">
                 {allItems.length === 0
-                  ? 'Thêm ảnh hoá đơn hoặc file vào giao dịch để xem ở đây.'
-                  : 'Không tìm thấy đính kèm phù hợp bộ lọc.'
-                }
+                  ? "Thêm ảnh hoá đơn hoặc file vào giao dịch để xem ở đây."
+                  : "Không tìm thấy đính kèm phù hợp bộ lọc."}
               </p>
               {allItems.length === 0 && (
                 <Button onClick={goCreateTransaction}>
@@ -288,16 +353,16 @@ export default function AttachmentLibrary() {
                       <button
                         key={`${item.transactionId}-${item.attachment.id}`}
                         onClick={() => {
-                          if (item.attachment.type === 'image') {
+                          if (item.attachment.type === "image") {
                             openLightbox(item, filteredItems);
                           } else {
-                            window.open(item.attachment.url, '_blank');
+                            window.open(item.attachment.url, "_blank");
                           }
                         }}
                         className="group relative aspect-square rounded-[var(--radius-lg)] overflow-hidden bg-[var(--surface)] border border-[var(--border)] hover:ring-2 hover:ring-[var(--primary)] transition-all focus:outline-none focus:ring-2 focus:ring-[var(--focus-ring)]"
                       >
                         {/* Thumbnail */}
-                        {item.attachment.type === 'image' ? (
+                        {item.attachment.type === "image" ? (
                           <img
                             src={item.attachment.url}
                             alt={item.attachment.name}
@@ -308,7 +373,10 @@ export default function AttachmentLibrary() {
                           <div className="w-full h-full flex flex-col items-center justify-center gap-2 bg-gradient-to-br from-blue-50 to-indigo-50">
                             <FileText className="w-8 h-8 text-[var(--primary)]" />
                             <span className="text-[10px] font-medium text-[var(--text-secondary)] px-2 text-center truncate max-w-full">
-                              {item.attachment.name.split('.').pop()?.toUpperCase()}
+                              {item.attachment.name
+                                .split(".")
+                                .pop()
+                                ?.toUpperCase()}
                             </span>
                           </div>
                         )}
@@ -348,9 +416,16 @@ export default function AttachmentLibrary() {
                   {/* File names below tiles (visible on mobile without hover) */}
                   <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 mt-1 md:hidden">
                     {items.map((item) => (
-                      <div key={`label-${item.transactionId}-${item.attachment.id}`} className="min-w-0">
-                        <p className="text-[10px] text-[var(--text-secondary)] truncate">{item.attachment.name}</p>
-                        <p className="text-[9px] text-[var(--text-tertiary)]">{formatFileSize(item.attachment.size)}</p>
+                      <div
+                        key={`label-${item.transactionId}-${item.attachment.id}`}
+                        className="min-w-0"
+                      >
+                        <p className="text-[10px] text-[var(--text-secondary)] truncate">
+                          {item.attachment.name}
+                        </p>
+                        <p className="text-[9px] text-[var(--text-tertiary)]">
+                          {formatFileSize(item.attachment.size)}
+                        </p>
                       </div>
                     ))}
                   </div>
@@ -363,15 +438,23 @@ export default function AttachmentLibrary() {
 
       {/* Filter Bottom Sheet */}
       {filterSheetOpen && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center" onClick={() => setFilterSheetOpen(false)}>
+        <div
+          className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center"
+          onClick={() => setFilterSheetOpen(false)}
+        >
           <div
             className="bg-[var(--card)] w-full max-w-lg rounded-t-[var(--radius-xl)] sm:rounded-[var(--radius-xl)] max-h-[80vh] overflow-hidden"
-            onClick={e => e.stopPropagation()}
+            onClick={(e) => e.stopPropagation()}
           >
             {/* Sheet header */}
             <div className="flex items-center justify-between p-4 border-b border-[var(--border)]">
-              <h3 className="font-semibold text-[var(--text-primary)]">Bộ lọc nâng cao</h3>
-              <button onClick={() => setFilterSheetOpen(false)} className="p-1 rounded-[var(--radius-md)] hover:bg-[var(--surface)]">
+              <h3 className="font-semibold text-[var(--text-primary)]">
+                Bộ lọc nâng cao
+              </h3>
+              <button
+                onClick={() => setFilterSheetOpen(false)}
+                className="p-1 rounded-[var(--radius-md)] hover:bg-[var(--surface)]"
+              >
                 <X className="w-5 h-5 text-[var(--text-tertiary)]" />
               </button>
             </div>
@@ -379,20 +462,42 @@ export default function AttachmentLibrary() {
             <div className="overflow-y-auto max-h-[60vh] p-4 space-y-5">
               {/* Date Range */}
               <div>
-                <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">Khoảng thời gian</label>
+                <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
+                  Khoảng thời gian
+                </label>
                 <div className="flex gap-2 mb-2">
                   {[
-                    { label: '30 ngày', start: (() => { const d = new Date(); d.setDate(d.getDate() - 30); return d.toISOString().split('T')[0]; })(), end: new Date().toISOString().split('T')[0] },
-                    { label: 'Tháng này', start: '2026-03-01', end: '2026-03-31' },
-                    { label: 'Tháng trước', start: '2026-02-01', end: '2026-02-28' },
-                  ].map(preset => (
+                    {
+                      label: "30 ngày",
+                      start: (() => {
+                        const d = new Date();
+                        d.setDate(d.getDate() - 30);
+                        return d.toISOString().split("T")[0];
+                      })(),
+                      end: new Date().toISOString().split("T")[0],
+                    },
+                    {
+                      label: "Tháng này",
+                      start: "2026-03-01",
+                      end: "2026-03-31",
+                    },
+                    {
+                      label: "Tháng trước",
+                      start: "2026-02-01",
+                      end: "2026-02-28",
+                    },
+                  ].map((preset) => (
                     <button
                       key={preset.label}
-                      onClick={() => { setFilterDateStart(preset.start); setFilterDateEnd(preset.end); }}
+                      onClick={() => {
+                        setFilterDateStart(preset.start);
+                        setFilterDateEnd(preset.end);
+                      }}
                       className={`px-3 py-1.5 rounded-[var(--radius-md)] text-xs font-medium border transition-colors ${
-                        filterDateStart === preset.start && filterDateEnd === preset.end
-                          ? 'bg-[var(--primary-light)] border-[var(--primary)] text-[var(--primary)]'
-                          : 'border-[var(--border)] text-[var(--text-secondary)] hover:bg-[var(--surface)]'
+                        filterDateStart === preset.start &&
+                        filterDateEnd === preset.end
+                          ? "bg-[var(--primary-light)] border-[var(--primary)] text-[var(--primary)]"
+                          : "border-[var(--border)] text-[var(--text-secondary)] hover:bg-[var(--surface)]"
                       }`}
                     >
                       {preset.label}
@@ -403,13 +508,13 @@ export default function AttachmentLibrary() {
                   <input
                     type="date"
                     value={filterDateStart}
-                    onChange={e => setFilterDateStart(e.target.value)}
+                    onChange={(e) => setFilterDateStart(e.target.value)}
                     className="w-full px-3 py-2 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-md)] text-sm text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--focus-ring)]"
                   />
                   <input
                     type="date"
                     value={filterDateEnd}
-                    onChange={e => setFilterDateEnd(e.target.value)}
+                    onChange={(e) => setFilterDateEnd(e.target.value)}
                     className="w-full px-3 py-2 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-md)] text-sm text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--focus-ring)]"
                   />
                 </div>
@@ -417,23 +522,26 @@ export default function AttachmentLibrary() {
 
               {/* Account filter */}
               <div>
-                <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">Tài khoản</label>
+                <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
+                  Tài khoản
+                </label>
                 <div className="flex flex-wrap gap-2">
-                  {accountsWithAttachments.map(acc => {
+                  {accountsWithAttachments.map((acc) => {
                     const selected = filterAccounts.includes(acc);
                     return (
                       <button
                         key={acc}
                         onClick={() => {
-                          setFilterAccounts(selected
-                            ? filterAccounts.filter(a => a !== acc)
-                            : [...filterAccounts, acc]
+                          setFilterAccounts(
+                            selected
+                              ? filterAccounts.filter((a) => a !== acc)
+                              : [...filterAccounts, acc],
                           );
                         }}
                         className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
                           selected
-                            ? 'bg-[var(--primary)] border-[var(--primary)] text-white'
-                            : 'border-[var(--border)] text-[var(--text-secondary)] hover:bg-[var(--surface)]'
+                            ? "bg-[var(--primary)] border-[var(--primary)] text-white"
+                            : "border-[var(--border)] text-[var(--text-secondary)] hover:bg-[var(--surface)]"
                         }`}
                       >
                         {acc}
@@ -441,27 +549,31 @@ export default function AttachmentLibrary() {
                     );
                   })}
                   {accountsWithAttachments.length === 0 && (
-                    <p className="text-xs text-[var(--text-tertiary)]">Chưa có tài khoản nào có đính kèm</p>
+                    <p className="text-xs text-[var(--text-tertiary)]">
+                      Chưa có tài khoản nào có đính kèm
+                    </p>
                   )}
                 </div>
               </div>
 
               {/* File Type */}
               <div>
-                <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">Loại tệp</label>
+                <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
+                  Loại tệp
+                </label>
                 <div className="flex gap-3">
                   {[
-                    { key: 'image', label: 'Hình ảnh', icon: ImageIcon },
-                    { key: 'pdf', label: 'PDF', icon: FileText },
-                  ].map(ft => {
+                    { key: "image", label: "Hình ảnh", icon: ImageIcon },
+                    { key: "pdf", label: "PDF", icon: FileText },
+                  ].map((ft) => {
                     const checked = filterFileTypes.has(ft.key);
                     return (
                       <label
                         key={ft.key}
                         className={`flex items-center gap-2 px-3 py-2 rounded-[var(--radius-md)] border cursor-pointer transition-colors ${
                           checked
-                            ? 'bg-[var(--primary-light)] border-[var(--primary)] text-[var(--primary)]'
-                            : 'border-[var(--border)] text-[var(--text-secondary)] hover:bg-[var(--surface)]'
+                            ? "bg-[var(--primary-light)] border-[var(--primary)] text-[var(--primary)]"
+                            : "border-[var(--border)] text-[var(--text-secondary)] hover:bg-[var(--surface)]"
                         }`}
                       >
                         <input
@@ -487,17 +599,21 @@ export default function AttachmentLibrary() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Crown className="w-4 h-4 text-amber-500" />
-                  <span className="text-sm font-medium text-[var(--text-primary)]">Chỉ PRO</span>
+                  <span className="text-sm font-medium text-[var(--text-primary)]">
+                    Chỉ PRO
+                  </span>
                 </div>
                 <button
                   onClick={() => setFilterProOnly(!filterProOnly)}
                   className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                    filterProOnly ? 'bg-amber-500' : 'bg-[var(--border)]'
+                    filterProOnly ? "bg-amber-500" : "bg-[var(--border)]"
                   }`}
                 >
-                  <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                    filterProOnly ? 'translate-x-6' : 'translate-x-1'
-                  }`} />
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      filterProOnly ? "translate-x-6" : "translate-x-1"
+                    }`}
+                  />
                 </button>
               </div>
             </div>
@@ -525,108 +641,138 @@ export default function AttachmentLibrary() {
       )}
 
       {/* Lightbox */}
-      {lightboxState && (() => {
-        const currentItem = lightboxState.items[lightboxState.index];
-        const att = currentItem.attachment;
-        return (
-          <div className="fixed inset-0 bg-black/90 flex flex-col z-[60]" onClick={() => setLightboxState(null)}>
-            {/* Top bar */}
-            <div className="flex-shrink-0 flex items-center justify-between px-4 py-3" onClick={e => e.stopPropagation()}>
-              <div className="flex items-center gap-3">
-                <span className="px-2.5 py-1 rounded-full bg-white/15 text-white text-xs font-medium tabular-nums">
-                  {lightboxState.index + 1} / {lightboxState.items.length}
-                </span>
-                {currentItem.isCloud && (
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-[10px] font-semibold">
-                    <Crown className="w-2.5 h-2.5" /> PRO
+      {lightboxState &&
+        (() => {
+          const currentItem = lightboxState.items[lightboxState.index];
+          const att = currentItem.attachment;
+          return (
+            <div
+              className="fixed inset-0 bg-black/90 flex flex-col z-[60]"
+              onClick={() => setLightboxState(null)}
+            >
+              {/* Top bar */}
+              <div
+                className="flex-shrink-0 flex items-center justify-between px-4 py-3"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="flex items-center gap-3">
+                  <span className="px-2.5 py-1 rounded-full bg-white/15 text-white text-xs font-medium tabular-nums">
+                    {lightboxState.index + 1} / {lightboxState.items.length}
                   </span>
-                )}
-              </div>
-              <div className="flex items-center gap-2">
-                <a
-                  href={att.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="p-2 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
-                  title="Mở trong trình duyệt"
-                >
-                  <ExternalLink className="w-5 h-5" />
-                </a>
-                <a
-                  href={att.url}
-                  download={att.name}
-                  className="p-2 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
-                  title="Tải về"
-                >
-                  <Download className="w-5 h-5" />
-                </a>
-                <button
-                  onClick={() => setLightboxState(null)}
-                  className="p-2 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-            </div>
-
-            {/* Image area */}
-            <div className="flex-1 relative flex items-center justify-center overflow-hidden" onClick={e => e.stopPropagation()}>
-              <img
-                src={att.url}
-                alt={att.name}
-                className="max-w-full max-h-full object-contain px-4"
-              />
-
-              {/* Navigation arrows */}
-              {lightboxState.items.length > 1 && (
-                <>
-                  <button
-                    onClick={() => setLightboxState(prev => prev ? ({
-                      ...prev,
-                      index: (prev.index - 1 + prev.items.length) % prev.items.length,
-                    }) : null)}
-                    className="absolute left-2 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-black/60 text-white hover:bg-black/80 transition-colors"
+                  {currentItem.isCloud && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-[10px] font-semibold">
+                      <Crown className="w-2.5 h-2.5" /> PRO
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center gap-2">
+                  <a
+                    href={att.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-2 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
+                    title="Mở trong trình duyệt"
                   >
-                    <ChevronLeft className="w-6 h-6" />
-                  </button>
-                  <button
-                    onClick={() => setLightboxState(prev => prev ? ({
-                      ...prev,
-                      index: (prev.index + 1) % prev.items.length,
-                    }) : null)}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-black/60 text-white hover:bg-black/80 transition-colors"
+                    <ExternalLink className="w-5 h-5" />
+                  </a>
+                  <a
+                    href={att.url}
+                    download={att.name}
+                    className="p-2 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
+                    title="Tải về"
                   >
-                    <ChevronRight className="w-6 h-6" />
-                  </button>
-                </>
-              )}
-            </div>
-
-            {/* Bottom info bar */}
-            <div className="flex-shrink-0 bg-black/60 backdrop-blur-sm" onClick={e => e.stopPropagation()}>
-              <div className="max-w-2xl mx-auto px-4 py-3">
-                <div className="flex items-center justify-between gap-4">
-                  <div className="min-w-0">
-                    <p className="text-sm font-medium text-white truncate">{att.name}</p>
-                    <p className="text-xs text-white/60 mt-0.5">
-                      {formatFileSize(att.size)} &bull; {currentItem.transactionDescription}
-                    </p>
-                  </div>
+                    <Download className="w-5 h-5" />
+                  </a>
                   <button
-                    onClick={() => {
-                      setLightboxState(null);
-                      goTransactionDetail(currentItem.transactionId);
-                    }}
-                    className="flex-shrink-0 px-4 py-2 bg-white text-black rounded-[var(--radius-lg)] text-sm font-medium hover:bg-white/90 transition-colors"
+                    onClick={() => setLightboxState(null)}
+                    className="p-2 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
                   >
-                    Xem giao dịch
+                    <X className="w-5 h-5" />
                   </button>
                 </div>
               </div>
+
+              {/* Image area */}
+              <div
+                className="flex-1 relative flex items-center justify-center overflow-hidden"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <img
+                  src={att.url}
+                  alt={att.name}
+                  className="max-w-full max-h-full object-contain px-4"
+                />
+
+                {/* Navigation arrows */}
+                {lightboxState.items.length > 1 && (
+                  <>
+                    <button
+                      onClick={() =>
+                        setLightboxState((prev) =>
+                          prev
+                            ? {
+                                ...prev,
+                                index:
+                                  (prev.index - 1 + prev.items.length) %
+                                  prev.items.length,
+                              }
+                            : null,
+                        )
+                      }
+                      className="absolute left-2 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-black/60 text-white hover:bg-black/80 transition-colors"
+                    >
+                      <ChevronLeft className="w-6 h-6" />
+                    </button>
+                    <button
+                      onClick={() =>
+                        setLightboxState((prev) =>
+                          prev
+                            ? {
+                                ...prev,
+                                index: (prev.index + 1) % prev.items.length,
+                              }
+                            : null,
+                        )
+                      }
+                      className="absolute right-2 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-black/60 text-white hover:bg-black/80 transition-colors"
+                    >
+                      <ChevronRight className="w-6 h-6" />
+                    </button>
+                  </>
+                )}
+              </div>
+
+              {/* Bottom info bar */}
+              <div
+                className="flex-shrink-0 bg-black/60 backdrop-blur-sm"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="max-w-2xl mx-auto px-4 py-3">
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-white truncate">
+                        {att.name}
+                      </p>
+                      <p className="text-xs text-white/60 mt-0.5">
+                        {formatFileSize(att.size)} &bull;{" "}
+                        {currentItem.transactionDescription}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => {
+                        setLightboxState(null);
+                        goTransactionDetail(currentItem.transactionId);
+                      }}
+                      className="flex-shrink-0 px-4 py-2 bg-white text-black rounded-[var(--radius-lg)] text-sm font-medium hover:bg-white/90 transition-colors"
+                    >
+                      Xem giao dịch
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
-        );
-      })()}
+          );
+        })()}
     </div>
   );
 }

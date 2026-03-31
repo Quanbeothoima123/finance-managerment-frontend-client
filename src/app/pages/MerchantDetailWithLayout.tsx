@@ -1,6 +1,6 @@
-import React from 'react';
-import { Layout } from '../components/Layout';
-import MerchantDetail from './MerchantDetail';
+import React from "react";
+import { Layout } from "../components/Layout";
+import MerchantDetail from "./MerchantDetail";
 
 export default function MerchantDetailWithLayout() {
   return (

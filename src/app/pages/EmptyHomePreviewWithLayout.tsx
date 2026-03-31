@@ -1,6 +1,6 @@
-import React from 'react';
-import { Layout } from '../components/Layout';
-import EmptyHomePreview from './EmptyHomePreview';
+import React from "react";
+import { Layout } from "../components/Layout";
+import EmptyHomePreview from "./EmptyHomePreview";
 
 export default function EmptyHomePreviewWithLayout() {
   return (

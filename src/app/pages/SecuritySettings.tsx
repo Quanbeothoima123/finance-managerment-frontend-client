@@ -1,10 +1,18 @@
-import React, { useState } from 'react';
-import { ArrowLeft, Shield, Lock, Eye, EyeOff, Fingerprint, CreditCard } from 'lucide-react';
-import { Card } from '../components/Card';
-import { Button } from '../components/Button';
-import { useAppNavigation } from '../hooks/useAppNavigation';
-import { useToast } from '../contexts/ToastContext';
-import { useDemoData } from '../contexts/DemoDataContext';
+import React, { useState } from "react";
+import {
+  ArrowLeft,
+  Shield,
+  Lock,
+  Eye,
+  EyeOff,
+  Fingerprint,
+  CreditCard,
+} from "lucide-react";
+import { Card } from "../components/Card";
+import { Button } from "../components/Button";
+import { useAppNavigation } from "../hooks/useAppNavigation";
+import { useToast } from "../contexts/ToastContext";
+import { useDemoData } from "../contexts/DemoDataContext";
 
 export default function SecuritySettings() {
   const nav = useAppNavigation();
@@ -20,7 +28,7 @@ export default function SecuritySettings() {
   };
 
   const handleSave = () => {
-    toast.success('Đã lưu cài đặt bảo mật');
+    toast.success("Đã lưu cài đặt bảo mật");
     nav.goSettings();
   };
 
@@ -45,7 +53,9 @@ export default function SecuritySettings() {
             <span className="font-medium">Quay lại</span>
           </button>
 
-          <h1 className="text-2xl font-semibold text-[var(--text-primary)]">Bảo mật</h1>
+          <h1 className="text-2xl font-semibold text-[var(--text-primary)]">
+            Bảo mật
+          </h1>
           <p className="text-sm text-[var(--text-secondary)] mt-1">
             Bảo vệ dữ liệu tài chính của bạn
           </p>
@@ -72,12 +82,12 @@ export default function SecuritySettings() {
                 <button
                   onClick={handleEnablePin}
                   className={`flex-shrink-0 relative w-12 h-6 rounded-full transition-colors ${
-                    pinEnabled ? 'bg-[var(--success)]' : 'bg-[var(--border)]'
+                    pinEnabled ? "bg-[var(--success)]" : "bg-[var(--border)]"
                   }`}
                 >
                   <span
                     className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform ${
-                      pinEnabled ? 'translate-x-6' : 'translate-x-0'
+                      pinEnabled ? "translate-x-6" : "translate-x-0"
                     }`}
                   />
                 </button>
@@ -171,13 +181,15 @@ export default function SecuritySettings() {
                 <button
                   onClick={() => setBiometricsEnabled(!biometricsEnabled)}
                   className={`flex-shrink-0 relative w-12 h-6 rounded-full transition-colors ${
-                    biometricsEnabled ? 'bg-[var(--success)]' : 'bg-[var(--border)]'
+                    biometricsEnabled
+                      ? "bg-[var(--success)]"
+                      : "bg-[var(--border)]"
                   }`}
                   disabled={!pinEnabled}
                 >
                   <span
                     className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform ${
-                      biometricsEnabled ? 'translate-x-6' : 'translate-x-0'
+                      biometricsEnabled ? "translate-x-6" : "translate-x-0"
                     }`}
                   />
                 </button>
@@ -196,7 +208,11 @@ export default function SecuritySettings() {
         <Card>
           <div className="flex items-start gap-4">
             <div className="flex-shrink-0 w-12 h-12 bg-[var(--warning-light)] text-[var(--warning)] rounded-[var(--radius-lg)] flex items-center justify-center">
-              {privacyMode ? <EyeOff className="w-6 h-6" /> : <Eye className="w-6 h-6" />}
+              {privacyMode ? (
+                <EyeOff className="w-6 h-6" />
+              ) : (
+                <Eye className="w-6 h-6" />
+              )}
             </div>
 
             <div className="flex-1">
@@ -218,12 +234,12 @@ export default function SecuritySettings() {
                 <button
                   onClick={() => setPrivacyMode(!privacyMode)}
                   className={`flex-shrink-0 relative w-12 h-6 rounded-full transition-colors ${
-                    privacyMode ? 'bg-[var(--warning)]' : 'bg-[var(--border)]'
+                    privacyMode ? "bg-[var(--warning)]" : "bg-[var(--border)]"
                   }`}
                 >
                   <span
                     className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform ${
-                      privacyMode ? 'translate-x-6' : 'translate-x-0'
+                      privacyMode ? "translate-x-6" : "translate-x-0"
                     }`}
                   />
                 </button>
@@ -236,7 +252,11 @@ export default function SecuritySettings() {
         <Card>
           <div className="flex items-start gap-4">
             <div className="flex-shrink-0 w-12 h-12 bg-[var(--warning-light)] text-[var(--warning)] rounded-[var(--radius-lg)] flex items-center justify-center">
-              {hideAccountNumbers ? <CreditCard className="w-6 h-6" /> : <CreditCard className="w-6 h-6" />}
+              {hideAccountNumbers ? (
+                <CreditCard className="w-6 h-6" />
+              ) : (
+                <CreditCard className="w-6 h-6" />
+              )}
             </div>
 
             <div className="flex-1">
@@ -258,12 +278,14 @@ export default function SecuritySettings() {
                 <button
                   onClick={() => setHideAccountNumbers(!hideAccountNumbers)}
                   className={`flex-shrink-0 relative w-12 h-6 rounded-full transition-colors ${
-                    hideAccountNumbers ? 'bg-[var(--warning)]' : 'bg-[var(--border)]'
+                    hideAccountNumbers
+                      ? "bg-[var(--warning)]"
+                      : "bg-[var(--border)]"
                   }`}
                 >
                   <span
                     className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform ${
-                      hideAccountNumbers ? 'translate-x-6' : 'translate-x-0'
+                      hideAccountNumbers ? "translate-x-6" : "translate-x-0"
                     }`}
                   />
                 </button>
@@ -280,14 +302,18 @@ export default function SecuritySettings() {
 
           <div className="grid grid-cols-2 gap-4">
             <div className="p-4 bg-[var(--card)] rounded-[var(--radius-lg)] border border-[var(--border)]">
-              <p className="text-xs text-[var(--text-secondary)] mb-1">Bình thường</p>
+              <p className="text-xs text-[var(--text-secondary)] mb-1">
+                Bình thường
+              </p>
               <p className="text-xl font-bold text-[var(--text-primary)] tabular-nums">
                 98,500,000₫
               </p>
             </div>
 
             <div className="p-4 bg-[var(--card)] rounded-[var(--radius-lg)] border border-[var(--border)]">
-              <p className="text-xs text-[var(--text-secondary)] mb-1">Riêng tư</p>
+              <p className="text-xs text-[var(--text-secondary)] mb-1">
+                Riêng tư
+              </p>
               <p className="text-xl font-bold text-[var(--text-primary)] tabular-nums">
                 ***,***,***₫
               </p>
@@ -306,8 +332,8 @@ export default function SecuritySettings() {
                 Bảo mật dữ liệu
               </h4>
               <p className="text-sm text-[var(--text-secondary)]">
-                Mã PIN và dữ liệu sinh trắc học được lưu trữ an toàn trên thiết bị của bạn. Chúng
-                tôi không có quyền truy cập vào thông tin này.
+                Mã PIN và dữ liệu sinh trắc học được lưu trữ an toàn trên thiết
+                bị của bạn. Chúng tôi không có quyền truy cập vào thông tin này.
               </p>
             </div>
           </div>
@@ -315,7 +341,11 @@ export default function SecuritySettings() {
 
         {/* Save Button */}
         <div className="flex flex-col-reverse md:flex-row gap-3">
-          <Button onClick={handleBack} variant="secondary" className="flex-1 md:flex-initial">
+          <Button
+            onClick={handleBack}
+            variant="secondary"
+            className="flex-1 md:flex-initial"
+          >
             Huỷ
           </Button>
           <Button onClick={handleSave} className="flex-1 md:flex-initial">

@@ -1,6 +1,6 @@
-import React from 'react';
-import { Layout } from '../components/Layout';
-import CreateEditBudget from './CreateEditBudget';
+import React from "react";
+import { Layout } from "../components/Layout";
+import CreateEditBudget from "./CreateEditBudget";
 
 export default function CreateBudgetWithLayout() {
   return (
