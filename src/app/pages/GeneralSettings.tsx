@@ -151,7 +151,7 @@ export default function GeneralSettings() {
   }, [dateFormat, showDayOfWeek]);
 
   // ── Save ──
-  const handleSave = () => {
+  const handleSave = async () => {
     save(STORAGE_KEYS.decimals, decimals);
     save(STORAGE_KEYS.thousandsSep, thousandsSep);
     save(STORAGE_KEYS.symbolPosition, symbolPosition);
@@ -160,7 +160,15 @@ export default function GeneralSettings() {
     save(STORAGE_KEYS.autoTimezone, autoTimezone);
     save(STORAGE_KEYS.timezone, timezone);
 
-    toast.success("Đã lưu cài đặt");
+    try {
+      await onboardingService.saveCurrencyDate({
+        baseCurrencyCode: selectedCurrency,
+        trackingStartDate: new Date().toISOString().split("T")[0],
+      });
+      toast.success("Đã lưu cài đặt");
+    } catch {
+      toast.error("Lưu thất bại, vui lòng thử lại");
+    }
   };
 
   const handleCurrencyChange = (code: string) => {
@@ -176,13 +184,6 @@ export default function GeneralSettings() {
       setDecimals(2);
       setSymbolPosition("before");
     }
-    // Persist to backend
-    onboardingService
-      .saveCurrencyDate({
-        baseCurrencyCode: code,
-        trackingStartDate: new Date().toISOString().split("T")[0],
-      })
-      .catch(() => {});
     toast.warning("Chỉ áp dụng cho giao dịch mới.");
   };
 
@@ -204,6 +205,12 @@ export default function GeneralSettings() {
         localStorage.removeItem(k);
       } catch {}
     });
+    onboardingService
+      .saveCurrencyDate({
+        baseCurrencyCode: "VND",
+        trackingStartDate: new Date().toISOString().split("T")[0],
+      })
+      .catch(() => {});
     toast.success("Đã khôi phục cài đặt mặc định");
   };
 
