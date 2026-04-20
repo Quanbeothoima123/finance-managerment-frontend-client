@@ -234,7 +234,7 @@ export interface RecurringExecutionLog {
 // CONTEXT TYPE
 // ============================================================================
 
-interface DemoDataContextType {
+interface AppDataContextType {
   // Data
   transactions: Transaction[];
   accounts: Account[];
@@ -929,9 +929,7 @@ const INITIAL_RECURRING_RULES: RecurringRule[] = [
 // CONTEXT
 // ============================================================================
 
-const DemoDataContext = createContext<DemoDataContextType | undefined>(
-  undefined,
-);
+const AppDataContext = createContext<AppDataContextType | undefined>(undefined);
 
 const STORAGE_KEY = "finance-manager-demo-data";
 
@@ -1826,7 +1824,7 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const value: DemoDataContextType = {
+  const value: AppDataContextType = {
     // Data
     transactions: data.transactions,
     accounts: accountsWithComputedBalance,
@@ -1892,14 +1890,12 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <DemoDataContext.Provider value={value}>
-      {children}
-    </DemoDataContext.Provider>
+    <AppDataContext.Provider value={value}>{children}</AppDataContext.Provider>
   );
 }
 
 export function useAppData() {
-  const context = useContext(DemoDataContext);
+  const context = useContext(AppDataContext);
   if (!context) {
     throw new Error("useAppData must be used within AppDataProvider");
   }
