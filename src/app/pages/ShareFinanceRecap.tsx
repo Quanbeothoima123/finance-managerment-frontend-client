@@ -3,7 +3,7 @@ import { useNavigate } from "react-router";
 import { ChevronLeft, Eye, EyeOff, ShieldCheck } from "lucide-react";
 import { useMyProfile } from "../hooks/useMyProfile";
 import { communityPostsService } from "../services/communityPostsService";
-import { useDemoData } from "../contexts/DemoDataContext";
+import { useAppData } from "../contexts/AppDataContext";
 import { FinanceRecapCard } from "../components/social/FinanceRecapCard";
 import type { RecapCardData } from "../components/social/FinanceRecapCard";
 import { AudienceSelector } from "../components/social/AudienceSelector";
@@ -14,7 +14,7 @@ import type { PostAudience, RecapType } from "../types/community";
 export default function ShareFinanceRecap() {
   const navigate = useNavigate();
   const { data: myProfile } = useMyProfile();
-  const { transactions, budgets, goals } = useDemoData();
+  const { transactions, budgets, goals } = useAppData();
   const toast = useToast();
 
   const [selectedType, setSelectedType] = useState<RecapType>("weekly");

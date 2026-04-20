@@ -14,7 +14,7 @@ import { Card } from "../components/Card";
 import { Button } from "../components/Button";
 import { useAppNavigation } from "../hooks/useAppNavigation";
 import { useToast } from "../contexts/ToastContext";
-import { useDemoData } from "../contexts/DemoDataContext";
+import { useAppData } from "../contexts/AppDataContext";
 import { CSVImportModal } from "../components/CSVImportModal";
 
 export default function DataBackupSettings() {
@@ -32,7 +32,7 @@ export default function DataBackupSettings() {
     goals,
     autoRules,
     recurringRules,
-  } = useDemoData();
+  } = useAppData();
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [confirmText, setConfirmText] = useState("");
   const [csvImportOpen, setCSVImportOpen] = useState(false);

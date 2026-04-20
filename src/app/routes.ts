@@ -94,10 +94,8 @@ import CreateAutoRuleWithLayout from "./pages/CreateAutoRuleWithLayout";
 import RecurringRulesListWithLayout from "./pages/RecurringRulesListWithLayout";
 import RecurringRuleDetailWithLayout from "./pages/RecurringRuleDetailWithLayout";
 import CreateRecurringRuleWithLayout from "./pages/CreateRecurringRuleWithLayout";
-import GeneratePreviewDemoWithLayout from "./pages/GeneratePreviewDemoWithLayout";
 
 // Attachments & Export
-import AttachmentsGalleryWithLayout from "./pages/AttachmentsGalleryWithLayout";
 import AttachmentLibraryWithLayout from "./pages/AttachmentLibraryWithLayout";
 import ExportCenterWithLayout from "./pages/ExportCenterWithLayout";
 
@@ -110,24 +108,6 @@ import SettingsHomeWithLayout from "./pages/SettingsHomeWithLayout";
 import NotificationSettingsWithLayout from "./pages/NotificationSettingsWithLayout";
 import NotificationsInboxWithLayout from "./pages/NotificationsInboxWithLayout";
 import AboutPageWithLayout from "./pages/AboutPageWithLayout";
-
-// Showcase & Demo
-import DemoApp from "./DemoApp";
-import DemoHubWithLayout from "./pages/DemoHubWithLayout";
-import NavigationDemo from "./pages/NavigationDemo";
-import SplashShowcase from "./pages/SplashShowcase";
-import HomeShowcase from "./pages/HomeShowcase";
-import AccountsShowcase from "./pages/AccountsShowcase";
-import CategoriesShowcase from "./pages/CategoriesShowcase";
-import BudgetsShowcase from "./pages/BudgetsShowcase";
-import GoalsShowcase from "./pages/GoalsShowcase";
-import InsightsShowcase from "./pages/InsightsShowcase";
-import RulesShowcase from "./pages/RulesShowcase";
-import SettingsShowcase from "./pages/SettingsShowcase";
-import StatesShowcase from "./pages/StatesShowcase";
-
-// Empty Home Preview
-import EmptyHomePreviewWithLayout from "./pages/EmptyHomePreviewWithLayout";
 
 // Community & Social
 import CommunityFeedWithLayout from "./pages/CommunityFeedWithLayout";
@@ -158,8 +138,7 @@ export type RouteGroup =
   | "insights"
   | "rules"
   | "settings"
-  | "community"
-  | "showcase";
+  | "community";
 
 export interface RouteConfig {
   path: string;
@@ -584,13 +563,6 @@ export const routeConfigs: RouteConfig[] = [
     group: "rules",
     showInSidebar: false,
   },
-  {
-    path: "/rules/generate-preview",
-    Component: GeneratePreviewDemoWithLayout,
-    label: "Tạo giao dịch preview",
-    group: "rules",
-    showInSidebar: false,
-  },
 
   // Attachments & Export
   {
@@ -600,14 +572,6 @@ export const routeConfigs: RouteConfig[] = [
     icon: Paperclip,
     group: "settings",
     showInSidebar: true,
-  },
-  {
-    path: "/attachments/showcase",
-    Component: AttachmentsGalleryWithLayout,
-    label: "Hoá đơn (Showcase)",
-    icon: Paperclip,
-    group: "showcase",
-    showInSidebar: false,
   },
   {
     path: "/export",
@@ -683,106 +647,6 @@ export const routeConfigs: RouteConfig[] = [
     Component: NotificationsInboxWithLayout,
     label: "Hộp thư thông báo",
     group: "settings",
-    showInSidebar: false,
-  },
-
-  // Demo & Showcase
-  {
-    path: "/demo",
-    Component: DemoApp,
-    label: "Demo App",
-    group: "showcase",
-    showInSidebar: false,
-  },
-  {
-    path: "/demo/navigation",
-    Component: NavigationDemo,
-    label: "Navigation Demo",
-    group: "showcase",
-    showInSidebar: false,
-  },
-  {
-    path: "/demo/hub",
-    Component: DemoHubWithLayout,
-    label: "Demo Hub",
-    group: "showcase",
-    showInSidebar: false,
-  },
-  {
-    path: "/showcase",
-    Component: SplashShowcase,
-    label: "Splash Showcase",
-    group: "showcase",
-    showInSidebar: false,
-  },
-  {
-    path: "/showcase-home",
-    Component: HomeShowcase,
-    label: "Home Showcase",
-    group: "showcase",
-    showInSidebar: false,
-  },
-  {
-    path: "/showcase-accounts",
-    Component: AccountsShowcase,
-    label: "Accounts Showcase",
-    group: "showcase",
-    showInSidebar: false,
-  },
-  {
-    path: "/showcase-categories",
-    Component: CategoriesShowcase,
-    label: "Categories Showcase",
-    group: "showcase",
-    showInSidebar: false,
-  },
-  {
-    path: "/showcase-budgets",
-    Component: BudgetsShowcase,
-    label: "Budgets Showcase",
-    group: "showcase",
-    showInSidebar: false,
-  },
-  {
-    path: "/showcase-goals",
-    Component: GoalsShowcase,
-    label: "Goals Showcase",
-    group: "showcase",
-    showInSidebar: false,
-  },
-  {
-    path: "/showcase-insights",
-    Component: InsightsShowcase,
-    label: "Insights Showcase",
-    group: "showcase",
-    showInSidebar: false,
-  },
-  {
-    path: "/showcase-rules",
-    Component: RulesShowcase,
-    label: "Rules Showcase",
-    group: "showcase",
-    showInSidebar: false,
-  },
-  {
-    path: "/showcase-settings",
-    Component: SettingsShowcase,
-    label: "Settings Showcase",
-    group: "showcase",
-    showInSidebar: false,
-  },
-  {
-    path: "/showcase-states",
-    Component: StatesShowcase,
-    label: "States Showcase",
-    group: "showcase",
-    showInSidebar: false,
-  },
-  {
-    path: "/demo/empty-home",
-    Component: EmptyHomePreviewWithLayout,
-    label: "Preview Empty Home",
-    group: "showcase",
     showInSidebar: false,
   },
 

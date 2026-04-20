@@ -1,6 +1,6 @@
-import { useRef, useCallback } from 'react';
-import { useDemoData, Transaction } from '../contexts/DemoDataContext';
-import { useToast } from '../contexts/ToastContext';
+import { useRef, useCallback } from "react";
+import { useAppData, Transaction } from "../contexts/AppDataContext";
+import { useToast } from "../contexts/ToastContext";
 
 const UNDO_TIMEOUT_MS = 6000; // 6 seconds
 
@@ -16,7 +16,7 @@ const UNDO_TIMEOUT_MS = 6000; // 6 seconds
  * Only the most-recent deletion is undoable.
  */
 export function useTransactionUndoDelete() {
-  const { transactions, deleteTransaction, restoreTransactions } = useDemoData();
+  const { transactions, deleteTransaction, restoreTransactions } = useAppData();
   const toast = useToast();
 
   // Stores the full transactions array snapshot before the deletion
@@ -38,7 +38,7 @@ export function useTransactionUndoDelete() {
   const undoDelete = useCallback(() => {
     if (snapshotRef.current) {
       restoreTransactions(snapshotRef.current);
-      toast.success('Đã khôi phục giao dịch.');
+      toast.success("Đã khôi phục giao dịch.");
     }
     commitPending();
   }, [restoreTransactions, toast, commitPending]);
@@ -56,19 +56,19 @@ export function useTransactionUndoDelete() {
       snapshotRef.current = [...transactions];
 
       // Check for linked transaction info for toast message
-      const txn = transactions.find(t => t.id === txnId);
+      const txn = transactions.find((t) => t.id === txnId);
       const hasLinked =
         options?.deleteLinked &&
         txn?.linkedTransactionId &&
-        transactions.some(t => t.id === txn.linkedTransactionId);
+        transactions.some((t) => t.id === txn.linkedTransactionId);
 
       // Actually delete
       deleteTransaction(txnId, options?.deleteLinked);
 
       // Build toast message
       const message = hasLinked
-        ? 'Đã xoá giao dịch và phí liên kết.'
-        : 'Đã xoá giao dịch.';
+        ? "Đã xoá giao dịch và phí liên kết."
+        : "Đã xoá giao dịch.";
 
       // Show undo toast
       const id = toast.showUndoToast(message, undoDelete, UNDO_TIMEOUT_MS);
@@ -94,9 +94,11 @@ export function useTransactionUndoDelete() {
       snapshotRef.current = [...transactions];
 
       // Delete each (including linked for transfers with fees)
-      txnIds.forEach(id => {
-        const txn = transactions.find(t => t.id === id);
-        const hasLinked = txn?.linkedTransactionId && transactions.some(t => t.id === txn.linkedTransactionId);
+      txnIds.forEach((id) => {
+        const txn = transactions.find((t) => t.id === id);
+        const hasLinked =
+          txn?.linkedTransactionId &&
+          transactions.some((t) => t.id === txn.linkedTransactionId);
         deleteTransaction(id, !!hasLinked);
       });
 

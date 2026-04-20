@@ -1,6 +1,6 @@
-import { useEffect, useRef } from 'react';
-import { useDemoData } from '../contexts/DemoDataContext';
-import { useToast } from '../contexts/ToastContext';
+import { useEffect, useRef } from "react";
+import { useAppData } from "../contexts/AppDataContext";
+import { useToast } from "../contexts/ToastContext";
 
 /**
  * Hook that auto-generates goal contributions based on each goal's
@@ -8,7 +8,7 @@ import { useToast } from '../contexts/ToastContext';
  * current month's contribution has already been made.
  */
 export function useAutoGoalContributions() {
-  const { goals, addGoalContribution, updateGoal } = useDemoData();
+  const { goals, addGoalContribution, updateGoal } = useAppData();
   const toast = useToast();
   const hasRun = useRef(false);
 
@@ -17,13 +17,13 @@ export function useAutoGoalContributions() {
     hasRun.current = true;
 
     const today = new Date();
-    const currentMonth = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
+    const currentMonth = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}`;
     const todayDay = today.getDate();
 
-    goals.forEach(goal => {
+    goals.forEach((goal) => {
       if (!goal.autoContributeEnabled) return;
       if (!goal.autoContributeAmount || goal.autoContributeAmount <= 0) return;
-      if (goal.status === 'achieved') return;
+      if (goal.status === "achieved") return;
 
       // Check if already contributed this month
       if (goal.lastAutoContributeDate === currentMonth) return;
@@ -34,7 +34,7 @@ export function useAutoGoalContributions() {
 
       // Generate auto-contribution
       const amount = goal.autoContributeAmount;
-      const dateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(contributeDay).padStart(2, '0')}`;
+      const dateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(contributeDay).padStart(2, "0")}`;
 
       addGoalContribution(goal.id, {
         amount,
@@ -48,7 +48,7 @@ export function useAutoGoalContributions() {
       });
 
       toast.success(
-        `Đã tự động đóng góp ${new Intl.NumberFormat('vi-VN').format(amount)}₫ vào "${goal.name}"`,
+        `Đã tự động đóng góp ${new Intl.NumberFormat("vi-VN").format(amount)}₫ vào "${goal.name}"`,
       );
     });
   }, [goals, addGoalContribution, updateGoal, toast]);

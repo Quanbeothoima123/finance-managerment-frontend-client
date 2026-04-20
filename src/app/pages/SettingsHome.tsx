@@ -18,7 +18,7 @@ import {
 import { Card } from "../components/Card";
 import { useAppNavigation } from "../hooks/useAppNavigation";
 import { useToast } from "../contexts/ToastContext";
-import { useDemoData } from "../contexts/DemoDataContext";
+import { useAppData } from "../contexts/AppDataContext";
 import { useNavigate } from "react-router";
 import { useAuth } from "../hooks/useAuth";
 import { authService } from "../services/authService";
@@ -54,7 +54,7 @@ export default function SettingsHome() {
   const nav = useAppNavigation();
   const toast = useToast();
   const navigate = useNavigate();
-  const { isPro, setIsPro } = useDemoData();
+  const { isPro, setIsPro } = useAppData();
   const { user, setSession, accessToken } = useAuth();
 
   const [displayName, setDisplayName] = useState(user?.displayName ?? "");

@@ -1,8 +1,8 @@
-import { useEffect, useRef } from 'react';
-import { useDemoData } from '../contexts/DemoDataContext';
-import { useNotifications } from '../contexts/NotificationContext';
+import { useEffect, useRef } from "react";
+import { useAppData } from "../contexts/AppDataContext";
+import { useNotifications } from "../contexts/NotificationContext";
 
-const STORAGE_KEY = 'finance-budget-alert-triggered';
+const STORAGE_KEY = "finance-budget-alert-triggered";
 
 /**
  * Auto-generate budget-alert notifications when a budget's spending crosses
@@ -12,9 +12,9 @@ const STORAGE_KEY = 'finance-budget-alert-triggered';
  * Tracked in localStorage keyed by `{budgetId}:{threshold}:{startDate}`.
  */
 export function useAutoBudgetNotifications() {
-  const { budgets, transactions } = useDemoData();
+  const { budgets, transactions } = useAppData();
   const { addNotification, settings } = useNotifications();
-  const prevRef = useRef<string>('');
+  const prevRef = useRef<string>("");
 
   useEffect(() => {
     // Respect global budgetAlerts toggle
@@ -45,10 +45,11 @@ export function useAutoBudgetNotifications() {
       // Compute real spent
       const catSet = new Set(budget.categories);
       const spent = transactions
-        .filter(t => {
-          if (t.type !== 'expense') return false;
+        .filter((t) => {
+          if (t.type !== "expense") return false;
           if (!t.categoryId || !catSet.has(t.categoryId)) return false;
-          if (t.date < budget.startDate || t.date > budget.endDate) return false;
+          if (t.date < budget.startDate || t.date > budget.endDate)
+            return false;
           return true;
         })
         .reduce((sum, t) => sum + Math.abs(t.amount), 0);
@@ -63,14 +64,15 @@ export function useAutoBudgetNotifications() {
         if (triggered.has(key)) continue;
 
         // Fire notification
-        const title = threshold >= 100
-          ? `Vượt ngân sách ${budget.name}`
-          : `Sắp vượt ngân sách ${budget.name}`;
+        const title =
+          threshold >= 100
+            ? `Vượt ngân sách ${budget.name}`
+            : `Sắp vượt ngân sách ${budget.name}`;
 
         addNotification({
-          type: 'budget-alert',
+          type: "budget-alert",
           title,
-          subtitle: `Đã dùng ${Math.round(percentage)}% • còn ${new Intl.NumberFormat('vi-VN').format(Math.max(0, remaining))}₫`,
+          subtitle: `Đã dùng ${Math.round(percentage)}% • còn ${new Intl.NumberFormat("vi-VN").format(Math.max(0, remaining))}₫`,
           budgetId: budget.id,
           percentUsed: Math.round(percentage),
           remaining: Math.max(0, remaining),

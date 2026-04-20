@@ -25,7 +25,7 @@ import {
 } from "lucide-react";
 import { Card } from "../components/Card";
 import { useAppNavigation } from "../hooks/useAppNavigation";
-import { useDemoData } from "../contexts/DemoDataContext";
+import { useAppData } from "../contexts/AppDataContext";
 import { useToast } from "../contexts/ToastContext";
 
 const APP_VERSION = "1.0";
@@ -78,7 +78,7 @@ export default function RestoreData() {
     goals,
     autoRules,
     recurringRules,
-  } = useDemoData();
+  } = useAppData();
   const fileRef = useRef<HTMLInputElement>(null);
 
   const [step, setStep] = useState(0);

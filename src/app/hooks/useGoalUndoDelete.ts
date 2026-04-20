@@ -1,6 +1,6 @@
-import { useRef, useCallback } from 'react';
-import { useDemoData, Goal } from '../contexts/DemoDataContext';
-import { useToast } from '../contexts/ToastContext';
+import { useRef, useCallback } from "react";
+import { useAppData, Goal } from "../contexts/AppDataContext";
+import { useToast } from "../contexts/ToastContext";
 
 const UNDO_TIMEOUT_MS = 6000;
 
@@ -9,7 +9,7 @@ const UNDO_TIMEOUT_MS = 6000;
  * Same pattern as useTransactionUndoDelete.
  */
 export function useGoalUndoDelete() {
-  const { goals, deleteGoal, restoreGoals } = useDemoData();
+  const { goals, deleteGoal, restoreGoals } = useAppData();
   const toast = useToast();
 
   const snapshotRef = useRef<Goal[] | null>(null);
@@ -26,7 +26,7 @@ export function useGoalUndoDelete() {
   const undoDelete = useCallback(() => {
     if (snapshotRef.current) {
       restoreGoals(snapshotRef.current);
-      toast.success('Đã khôi phục mục tiêu.');
+      toast.success("Đã khôi phục mục tiêu.");
     }
     commitPending();
   }, [restoreGoals, toast, commitPending]);
@@ -38,8 +38,8 @@ export function useGoalUndoDelete() {
       // Snapshot before deleting
       snapshotRef.current = [...goals];
 
-      const goal = goals.find(g => g.id === goalId);
-      const goalName = goal?.name || 'Mục tiêu';
+      const goal = goals.find((g) => g.id === goalId);
+      const goalName = goal?.name || "Mục tiêu";
 
       deleteGoal(goalId);
 

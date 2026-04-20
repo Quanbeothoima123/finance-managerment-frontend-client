@@ -1,7 +1,19 @@
-import React, { useState, useRef } from 'react';
-import { Paperclip, Plus, X, Lock, Image, FileText, Loader2, ExternalLink, Download, Crown, Cloud } from 'lucide-react';
-import { useDemoData, type CloudAttachment } from '../contexts/DemoDataContext';
-import { useToast } from '../contexts/ToastContext';
+import React, { useState, useRef } from "react";
+import {
+  Paperclip,
+  Plus,
+  X,
+  Lock,
+  Image,
+  FileText,
+  Loader2,
+  ExternalLink,
+  Download,
+  Crown,
+  Cloud,
+} from "lucide-react";
+import { useAppData, type CloudAttachment } from "../contexts/AppDataContext";
+import { useToast } from "../contexts/ToastContext";
 
 const MAX_FILES = 10;
 const MAX_SIZE_BYTES = 10 * 1024 * 1024; // 10MB
@@ -12,7 +24,7 @@ interface Props {
 }
 
 export function CloudAttachmentSection({ attachments, onChange }: Props) {
-  const { isPro, setIsPro } = useDemoData();
+  const { isPro, setIsPro } = useAppData();
   const toast = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState<string | null>(null);
@@ -24,7 +36,7 @@ export function CloudAttachmentSection({ attachments, onChange }: Props) {
     if (!files?.length) return;
 
     if (attachments.length >= MAX_FILES) {
-      toast.error('Tài khoản Pro chỉ hỗ trợ tối đa 10 tệp.');
+      toast.error("Tài khoản Pro chỉ hỗ trợ tối đa 10 tệp.");
       return;
     }
 
@@ -35,10 +47,10 @@ export function CloudAttachmentSection({ attachments, onChange }: Props) {
       return;
     }
 
-    const isImage = file.type.startsWith('image/');
-    const isPdf = file.type === 'application/pdf';
+    const isImage = file.type.startsWith("image/");
+    const isPdf = file.type === "application/pdf";
     if (!isImage && !isPdf) {
-      toast.error('Chỉ hỗ trợ hình ảnh và PDF.');
+      toast.error("Chỉ hỗ trợ hình ảnh và PDF.");
       return;
     }
 
@@ -51,7 +63,7 @@ export function CloudAttachmentSection({ attachments, onChange }: Props) {
         const newAttachment: CloudAttachment = {
           id: `att-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`,
           name: file.name,
-          type: isImage ? 'image' : 'pdf',
+          type: isImage ? "image" : "pdf",
           size: file.size,
           url: reader.result as string,
           publicId: `demo/${Date.now()}`,
@@ -59,21 +71,21 @@ export function CloudAttachmentSection({ attachments, onChange }: Props) {
         };
         onChange([...attachments, newAttachment]);
         setUploading(null);
-        toast.success('Đã tải tệp lên đám mây thành công.');
+        toast.success("Đã tải tệp lên đám mây thành công.");
       }, 1500);
     };
     reader.onerror = () => {
       setUploading(null);
-      toast.error('Lỗi tải lên máy chủ. Thử lại sau.');
+      toast.error("Lỗi tải lên máy chủ. Thử lại sau.");
     };
     reader.readAsDataURL(file);
 
-    if (fileInputRef.current) fileInputRef.current.value = '';
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const handleRemove = (id: string) => {
-    onChange(attachments.filter(a => a.id !== id));
-    toast.info('Đã xóa tệp khỏi đám mây.');
+    onChange(attachments.filter((a) => a.id !== id));
+    toast.info("Đã xóa tệp khỏi đám mây.");
   };
 
   const formatSize = (bytes: number) => {
@@ -102,22 +114,33 @@ export function CloudAttachmentSection({ attachments, onChange }: Props) {
           <div className="w-10 h-10 rounded-full bg-amber-50 flex items-center justify-center">
             <Lock className="w-5 h-5 text-amber-500" />
           </div>
-          <p className="text-sm text-[var(--text-secondary)]">Chưa có đính kèm. Chỉ dành cho tài khoản Pro.</p>
+          <p className="text-sm text-[var(--text-secondary)]">
+            Chưa có đính kèm. Chỉ dành cho tài khoản Pro.
+          </p>
           <p className="text-xs text-amber-600 font-medium">Nhấn để nâng cấp</p>
         </button>
 
         {/* Upgrade Modal */}
         {showUpgradeModal && (
-          <div className="fixed inset-0 bg-black/50 flex items-end sm:items-center justify-center z-50" onClick={() => setShowUpgradeModal(false)}>
-            <div className="bg-[var(--card)] w-full max-w-md rounded-t-[var(--radius-xl)] sm:rounded-[var(--radius-xl)] p-6" onClick={e => e.stopPropagation()}>
+          <div
+            className="fixed inset-0 bg-black/50 flex items-end sm:items-center justify-center z-50"
+            onClick={() => setShowUpgradeModal(false)}
+          >
+            <div
+              className="bg-[var(--card)] w-full max-w-md rounded-t-[var(--radius-xl)] sm:rounded-[var(--radius-xl)] p-6"
+              onClick={(e) => e.stopPropagation()}
+            >
               <div className="flex justify-center mb-4">
                 <div className="w-16 h-16 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center">
                   <Crown className="w-8 h-8 text-white" />
                 </div>
               </div>
-              <h3 className="text-lg font-semibold text-[var(--text-primary)] text-center mb-2">Nâng cấp Pro</h3>
+              <h3 className="text-lg font-semibold text-[var(--text-primary)] text-center mb-2">
+                Nâng cấp Pro
+              </h3>
               <p className="text-sm text-[var(--text-secondary)] text-center mb-6">
-                Nâng cấp Pro để đính kèm hóa đơn & đồng bộ đám mây. Lưu trữ tối đa 10 tệp mỗi giao dịch.
+                Nâng cấp Pro để đính kèm hóa đơn & đồng bộ đám mây. Lưu trữ tối
+                đa 10 tệp mỗi giao dịch.
               </p>
               <div className="flex gap-3">
                 <button
@@ -130,7 +153,7 @@ export function CloudAttachmentSection({ attachments, onChange }: Props) {
                   onClick={() => {
                     setIsPro(true);
                     setShowUpgradeModal(false);
-                    toast.success('Đã kích hoạt tài khoản Pro! (Demo)');
+                    toast.success("Đã kích hoạt tài khoản Pro! (Demo)");
                   }}
                   className="flex-1 px-4 py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-[var(--radius-lg)] font-medium transition-colors"
                 >
@@ -168,12 +191,12 @@ export function CloudAttachmentSection({ attachments, onChange }: Props) {
       {/* Existing attachments */}
       {attachments.length > 0 && (
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-3">
-          {attachments.map(att => (
+          {attachments.map((att) => (
             <div
               key={att.id}
               className="relative group rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)] overflow-hidden"
             >
-              {att.type === 'image' ? (
+              {att.type === "image" ? (
                 <button
                   type="button"
                   onClick={() => setLightboxUrl(att.url)}
@@ -188,11 +211,13 @@ export function CloudAttachmentSection({ attachments, onChange }: Props) {
               ) : (
                 <button
                   type="button"
-                  onClick={() => window.open(att.url, '_blank')}
+                  onClick={() => window.open(att.url, "_blank")}
                   className="w-full aspect-square flex flex-col items-center justify-center gap-2 p-3"
                 >
                   <FileText className="w-8 h-8 text-[var(--primary)]" />
-                  <span className="text-xs text-[var(--text-secondary)] truncate w-full text-center">{att.name}</span>
+                  <span className="text-xs text-[var(--text-secondary)] truncate w-full text-center">
+                    {att.name}
+                  </span>
                 </button>
               )}
               {/* Size badge */}
@@ -214,7 +239,9 @@ export function CloudAttachmentSection({ attachments, onChange }: Props) {
           {uploading && (
             <div className="rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)] aspect-square flex flex-col items-center justify-center gap-2 p-3">
               <Loader2 className="w-8 h-8 text-[var(--primary)] animate-spin" />
-              <span className="text-xs text-[var(--text-secondary)] truncate w-full text-center">Đang tải lên...</span>
+              <span className="text-xs text-[var(--text-secondary)] truncate w-full text-center">
+                Đang tải lên...
+              </span>
             </div>
           )}
         </div>
@@ -225,7 +252,9 @@ export function CloudAttachmentSection({ attachments, onChange }: Props) {
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-3">
           <div className="rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)] aspect-square flex flex-col items-center justify-center gap-2 p-3">
             <Loader2 className="w-8 h-8 text-[var(--primary)] animate-spin" />
-            <span className="text-xs text-[var(--text-secondary)] truncate w-full text-center">Đang tải lên...</span>
+            <span className="text-xs text-[var(--text-secondary)] truncate w-full text-center">
+              Đang tải lên...
+            </span>
           </div>
         </div>
       )}
@@ -252,9 +281,19 @@ export function CloudAttachmentSection({ attachments, onChange }: Props) {
 
       {/* Lightbox */}
       {lightboxUrl && (
-        <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50" onClick={() => setLightboxUrl(null)}>
-          <div className="relative max-w-4xl max-h-[90vh] w-full mx-4" onClick={e => e.stopPropagation()}>
-            <img src={lightboxUrl} alt="Preview" className="w-full h-full object-contain rounded-lg" />
+        <div
+          className="fixed inset-0 bg-black/90 flex items-center justify-center z-50"
+          onClick={() => setLightboxUrl(null)}
+        >
+          <div
+            className="relative max-w-4xl max-h-[90vh] w-full mx-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <img
+              src={lightboxUrl}
+              alt="Preview"
+              className="w-full h-full object-contain rounded-lg"
+            />
             <div className="absolute top-3 right-3 flex gap-2">
               <a
                 href={lightboxUrl}

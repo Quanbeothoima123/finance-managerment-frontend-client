@@ -234,7 +234,7 @@ export default function CreateEditGoal({
     if (!validateForm()) return;
 
     if (standalonePreview) {
-      toast.info("Đây là chế độ preview cho GoalsShowcase, không gửi API.");
+      toast.info("Đây là chế độ preview, không gửi lên API.");
       return;
     }
 

@@ -1,7 +1,7 @@
-import React, { useState, useMemo } from 'react';
-import { X, Search, Plus, Check, Clock, TrendingUp } from 'lucide-react';
-import { useDemoData, Tag } from '../contexts/DemoDataContext';
-import { useToast } from '../contexts/ToastContext';
+import React, { useState, useMemo } from "react";
+import { X, Search, Plus, Check, Clock, TrendingUp } from "lucide-react";
+import { useAppData, Tag } from "../contexts/AppDataContext";
+import { useToast } from "../contexts/ToastContext";
 
 interface TagPickerModalProps {
   isOpen: boolean;
@@ -11,27 +11,40 @@ interface TagPickerModalProps {
 }
 
 const TAG_COLORS = [
-  '#EF4444', '#F97316', '#F59E0B', '#10B981', '#14B8A6',
-  '#3B82F6', '#6366F1', '#8B5CF6', '#EC4899', '#DC2626',
+  "#EF4444",
+  "#F97316",
+  "#F59E0B",
+  "#10B981",
+  "#14B8A6",
+  "#3B82F6",
+  "#6366F1",
+  "#8B5CF6",
+  "#EC4899",
+  "#DC2626",
 ];
 
-export function TagPickerModal({ isOpen, onClose, selectedTagIds, onApply }: TagPickerModalProps) {
-  const { tags, transactions, addTag } = useDemoData();
+export function TagPickerModal({
+  isOpen,
+  onClose,
+  selectedTagIds,
+  onApply,
+}: TagPickerModalProps) {
+  const { tags, transactions, addTag } = useAppData();
   const toast = useToast();
 
   const [localSelected, setLocalSelected] = useState<string[]>(selectedTagIds);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [showCreateForm, setShowCreateForm] = useState(false);
-  const [newTagName, setNewTagName] = useState('');
+  const [newTagName, setNewTagName] = useState("");
   const [newTagColor, setNewTagColor] = useState(TAG_COLORS[0]);
 
   // Reset local state when modal opens
   React.useEffect(() => {
     if (isOpen) {
       setLocalSelected(selectedTagIds);
-      setSearchQuery('');
+      setSearchQuery("");
       setShowCreateForm(false);
-      setNewTagName('');
+      setNewTagName("");
     }
   }, [isOpen, selectedTagIds]);
 
@@ -43,7 +56,7 @@ export function TagPickerModal({ isOpen, onClose, selectedTagIds, onApply }: Tag
     const seen = new Set<string>();
     const result: string[] = [];
     for (const t of sorted) {
-      for (const tagId of (t.tags || [])) {
+      for (const tagId of t.tags || []) {
         if (!seen.has(tagId)) {
           seen.add(tagId);
           result.push(tagId);
@@ -57,7 +70,7 @@ export function TagPickerModal({ isOpen, onClose, selectedTagIds, onApply }: Tag
   const popularTagIds = useMemo(() => {
     const countMap: Record<string, number> = {};
     for (const t of transactions) {
-      for (const tagId of (t.tags || [])) {
+      for (const tagId of t.tags || []) {
         countMap[tagId] = (countMap[tagId] || 0) + 1;
       }
     }
@@ -71,12 +84,14 @@ export function TagPickerModal({ isOpen, onClose, selectedTagIds, onApply }: Tag
   const filteredTags = useMemo(() => {
     if (!searchQuery) return tags;
     const q = searchQuery.toLowerCase();
-    return tags.filter(t => t.name.toLowerCase().includes(q));
+    return tags.filter((t) => t.name.toLowerCase().includes(q));
   }, [tags, searchQuery]);
 
   const toggleTag = (tagId: string) => {
-    setLocalSelected(prev =>
-      prev.includes(tagId) ? prev.filter(id => id !== tagId) : [...prev, tagId]
+    setLocalSelected((prev) =>
+      prev.includes(tagId)
+        ? prev.filter((id) => id !== tagId)
+        : [...prev, tagId],
     );
   };
 
@@ -88,13 +103,13 @@ export function TagPickerModal({ isOpen, onClose, selectedTagIds, onApply }: Tag
   const handleCreateTag = () => {
     if (!newTagName.trim()) return;
     const newTag = addTag({ name: newTagName.trim(), color: newTagColor });
-    setLocalSelected(prev => [...prev, newTag.id]);
+    setLocalSelected((prev) => [...prev, newTag.id]);
     toast.success(`Đã tạo nhãn "${newTag.name}"`);
-    setNewTagName('');
+    setNewTagName("");
     setShowCreateForm(false);
   };
 
-  const getTag = (id: string) => tags.find(t => t.id === id);
+  const getTag = (id: string) => tags.find((t) => t.id === id);
 
   const renderTagChip = (tag: Tag, isSelected: boolean) => (
     <button
@@ -103,14 +118,14 @@ export function TagPickerModal({ isOpen, onClose, selectedTagIds, onApply }: Tag
       onClick={() => toggleTag(tag.id)}
       className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[var(--radius-full)] border text-sm font-medium transition-all ${
         isSelected
-          ? 'border-transparent text-white shadow-sm'
-          : 'border-[var(--border)] text-[var(--text-primary)] bg-[var(--surface)] hover:border-[var(--text-tertiary)]'
+          ? "border-transparent text-white shadow-sm"
+          : "border-[var(--border)] text-[var(--text-primary)] bg-[var(--surface)] hover:border-[var(--text-tertiary)]"
       }`}
       style={isSelected ? { backgroundColor: tag.color } : {}}
     >
       {isSelected && <Check className="w-3 h-3" />}
       <span
-        className={`w-2 h-2 rounded-full flex-shrink-0 ${isSelected ? 'hidden' : ''}`}
+        className={`w-2 h-2 rounded-full flex-shrink-0 ${isSelected ? "hidden" : ""}`}
         style={{ backgroundColor: tag.color }}
       />
       {tag.name}
@@ -183,7 +198,7 @@ export function TagPickerModal({ isOpen, onClose, selectedTagIds, onApply }: Tag
                 </span>
               </div>
               <div className="flex flex-wrap gap-2">
-                {recentTagIds.map(id => {
+                {recentTagIds.map((id) => {
                   const tag = getTag(id);
                   if (!tag) return null;
                   return renderTagChip(tag, localSelected.includes(id));
@@ -202,7 +217,7 @@ export function TagPickerModal({ isOpen, onClose, selectedTagIds, onApply }: Tag
                 </span>
               </div>
               <div className="flex flex-wrap gap-2">
-                {popularTagIds.map(id => {
+                {popularTagIds.map((id) => {
                   const tag = getTag(id);
                   if (!tag) return null;
                   return renderTagChip(tag, localSelected.includes(id));
@@ -213,13 +228,16 @@ export function TagPickerModal({ isOpen, onClose, selectedTagIds, onApply }: Tag
 
           {/* All tags */}
           <div>
-            {(searchQuery || (!recentTagIds.length && !popularTagIds.length)) ? null : (
+            {searchQuery ||
+            (!recentTagIds.length && !popularTagIds.length) ? null : (
               <span className="text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider mb-2 block">
                 Tất cả nhãn
               </span>
             )}
             <div className="flex flex-wrap gap-2">
-              {filteredTags.map(tag => renderTagChip(tag, localSelected.includes(tag.id)))}
+              {filteredTags.map((tag) =>
+                renderTagChip(tag, localSelected.includes(tag.id)),
+              )}
             </div>
             {filteredTags.length === 0 && searchQuery && (
               <p className="text-sm text-[var(--text-tertiary)] text-center py-4">
@@ -241,7 +259,9 @@ export function TagPickerModal({ isOpen, onClose, selectedTagIds, onApply }: Tag
           ) : (
             <div className="p-4 bg-[var(--surface)] rounded-[var(--radius-lg)] border border-[var(--border)] space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-[var(--text-primary)]">Tạo nhãn mới</span>
+                <span className="text-sm font-medium text-[var(--text-primary)]">
+                  Tạo nhãn mới
+                </span>
                 <button
                   onClick={() => setShowCreateForm(false)}
                   className="p-1 rounded-[var(--radius-sm)] hover:bg-[var(--border)] transition-colors"
@@ -254,18 +274,22 @@ export function TagPickerModal({ isOpen, onClose, selectedTagIds, onApply }: Tag
                 placeholder="Tên nhãn"
                 value={newTagName}
                 onChange={(e) => setNewTagName(e.target.value)}
-                onKeyDown={(e) => { if (e.key === 'Enter') handleCreateTag(); }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleCreateTag();
+                }}
                 className="w-full px-3 py-2 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-md)] text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-[var(--focus-ring)]"
                 autoFocus
               />
               <div className="flex flex-wrap gap-2">
-                {TAG_COLORS.map(color => (
+                {TAG_COLORS.map((color) => (
                   <button
                     key={color}
                     type="button"
                     onClick={() => setNewTagColor(color)}
                     className={`w-7 h-7 rounded-full border-2 transition-all ${
-                      newTagColor === color ? 'border-[var(--text-primary)] scale-110' : 'border-transparent'
+                      newTagColor === color
+                        ? "border-[var(--text-primary)] scale-110"
+                        : "border-transparent"
                     }`}
                     style={{ backgroundColor: color }}
                   />
@@ -297,7 +321,8 @@ export function TagPickerModal({ isOpen, onClose, selectedTagIds, onApply }: Tag
             onClick={handleApply}
             className="px-4 py-2 text-sm font-medium text-white bg-[var(--primary)] hover:bg-[var(--primary-hover)] rounded-[var(--radius-lg)] transition-colors shadow-sm"
           >
-            Áp dụng{localSelected.length > 0 ? ` (${localSelected.length})` : ''}
+            Áp dụng
+            {localSelected.length > 0 ? ` (${localSelected.length})` : ""}
           </button>
         </div>
       </div>

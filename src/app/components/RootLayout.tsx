@@ -1,13 +1,13 @@
 import React from "react";
 import { Outlet } from "react-router";
-import { DemoDataProvider } from "../contexts/DemoDataContext";
+import { AppDataProvider } from "../contexts/AppDataContext";
 import { ToastProvider } from "../contexts/ToastContext";
 import { NotificationProvider } from "../contexts/NotificationContext";
 import { AuthProvider } from "../contexts/AuthContext";
 
 export default function RootLayout() {
   return (
-    <DemoDataProvider>
+    <AppDataProvider>
       <NotificationProvider>
         <ToastProvider>
           <AuthProvider>
@@ -15,6 +15,6 @@ export default function RootLayout() {
           </AuthProvider>
         </ToastProvider>
       </NotificationProvider>
-    </DemoDataProvider>
+    </AppDataProvider>
   );
 }
