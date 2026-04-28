@@ -10,6 +10,7 @@ import {
   Store,
   Save,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Card } from "../components/Card";
 import { Button } from "../components/Button";
 import {
@@ -44,7 +45,7 @@ function getStatusStyles(progressPercent: number) {
       text: "text-[var(--danger)]",
       bg: "bg-[var(--danger-light)]",
       bar: "var(--danger)",
-      label: "Vượt ngân sách",
+      status: "over",
     };
   }
   if (progressPercent >= 80) {
@@ -52,14 +53,14 @@ function getStatusStyles(progressPercent: number) {
       text: "text-[var(--warning)]",
       bg: "bg-[var(--warning-light)]",
       bar: "var(--warning)",
-      label: "Sắp vượt",
+      status: "warning",
     };
   }
   return {
     text: "text-[var(--success)]",
     bg: "bg-[var(--success-light)]",
     bar: "var(--success)",
-    label: "Đúng kế hoạch",
+    status: "on_track",
   };
 }
 
@@ -67,6 +68,7 @@ export default function BudgetDetail() {
   const { id } = useParams<{ id: string }>();
   const nav = useAppNavigation();
   const toast = useToast();
+  const { t } = useTranslation("budgets");
 
   const { data, loading, error, reload } = useBudgetDetail(id);
 
@@ -103,11 +105,13 @@ export default function BudgetDetail() {
     try {
       setDeletingBudget(true);
       await budgetsService.deleteBudget(data.budget.id);
-      toast.success(`Đã xoá ngân sách "${data.budget.name}"`);
+      toast.success(t("detail.delete_budget_modal.success"));
       nav.goBudgets();
     } catch (err) {
       toast.error(
-        err instanceof Error ? err.message : "Không thể xoá ngân sách",
+        err instanceof Error
+          ? err.message
+          : t("detail.delete_budget_modal.failed"),
       );
     } finally {
       setDeletingBudget(false);
@@ -124,12 +128,14 @@ export default function BudgetDetail() {
         data.budget.id,
         deleteItemTarget.id,
       );
-      toast.success("Đã xoá hạng mục ngân sách");
+      toast.success(t("detail.delete_item_modal.success"));
       setDeleteItemTarget(null);
       await reload();
     } catch (err) {
       toast.error(
-        err instanceof Error ? err.message : "Không thể xoá hạng mục ngân sách",
+        err instanceof Error
+          ? err.message
+          : t("detail.delete_item_modal.failed"),
       );
     } finally {
       setDeletingItem(false);
@@ -147,7 +153,7 @@ export default function BudgetDetail() {
   const handleSaveItem = async () => {
     if (!data?.budget || !editItemTarget) return;
     if (!editingItemLimit || Number(editingItemLimit) <= 0) {
-      toast.error("Giới hạn hạng mục phải lớn hơn 0");
+      toast.error(t("detail.edit_item_modal.invalid_limit"));
       return;
     }
 
@@ -157,12 +163,12 @@ export default function BudgetDetail() {
         limitAmountMinor: Number(editingItemLimit),
         alertThresholds: editingItemThresholds,
       });
-      toast.success("Đã cập nhật hạng mục ngân sách");
+      toast.success(t("detail.edit_item_modal.success"));
       setEditItemTarget(null);
       await reload();
     } catch (err) {
       toast.error(
-        err instanceof Error ? err.message : "Không thể cập nhật hạng mục",
+        err instanceof Error ? err.message : t("detail.edit_item_modal.failed"),
       );
     } finally {
       setSavingItem(false);
@@ -174,7 +180,7 @@ export default function BudgetDetail() {
       <div className="min-h-screen bg-[var(--background)] p-4 md:p-6">
         <Card>
           <p className="text-sm text-[var(--text-secondary)]">
-            Đang tải chi tiết ngân sách...
+            {t("detail.loading")}
           </p>
         </Card>
       </div>
@@ -186,7 +192,7 @@ export default function BudgetDetail() {
       <div className="min-h-screen bg-[var(--background)] p-4 md:p-6">
         <Card>
           <p className="text-sm text-[var(--danger)]">
-            {error || "Không tìm thấy ngân sách"}
+            {error || t("detail.not_found")}
           </p>
         </Card>
       </div>
@@ -205,7 +211,7 @@ export default function BudgetDetail() {
             className="flex items-center gap-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] mb-4 transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
-            <span className="font-medium">Quay lại</span>
+            <span className="font-medium">{t("detail.back")}</span>
           </button>
 
           <div className="flex items-center gap-4">
@@ -239,7 +245,7 @@ export default function BudgetDetail() {
                 onClick={() => nav.goAddBudgetItem(budget.id)}
               >
                 <Plus className="w-4 h-4" />
-                <span className="hidden md:inline">Thêm hạng mục</span>
+                <span className="hidden md:inline">{t("detail.add_item")}</span>
               </Button>
 
               <Button
@@ -247,12 +253,12 @@ export default function BudgetDetail() {
                 onClick={() => nav.goEditBudget(budget.id)}
               >
                 <Edit2 className="w-4 h-4" />
-                <span className="hidden md:inline">Chỉnh sửa</span>
+                <span className="hidden md:inline">{t("detail.edit")}</span>
               </Button>
 
               <Button variant="danger" onClick={() => setDeleteModalOpen(true)}>
                 <Trash2 className="w-4 h-4" />
-                <span className="hidden md:inline">Xoá</span>
+                <span className="hidden md:inline">{t("detail.delete")}</span>
               </Button>
             </div>
           </div>
@@ -262,7 +268,7 @@ export default function BudgetDetail() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-start">
             <div>
               <p className="text-sm text-[var(--text-secondary)] mb-1">
-                Tổng giới hạn
+                {t("detail.summary.total_limit")}
               </p>
               <p className="text-2xl font-semibold text-[var(--text-primary)] tabular-nums">
                 {formatMoney(data.summary.totalLimitMinor)}₫
@@ -271,7 +277,7 @@ export default function BudgetDetail() {
 
             <div>
               <p className="text-sm text-[var(--text-secondary)] mb-1">
-                Đã chi
+                {t("detail.summary.spent")}
               </p>
               <p className="text-2xl font-semibold text-[var(--text-primary)] tabular-nums">
                 {formatMoney(data.summary.spentMinor)}₫
@@ -280,7 +286,7 @@ export default function BudgetDetail() {
 
             <div>
               <p className="text-sm text-[var(--text-secondary)] mb-1">
-                Còn lại
+                {t("detail.summary.remaining")}
               </p>
               <p className="text-2xl font-semibold text-[var(--text-primary)] tabular-nums">
                 {formatMoney(data.summary.remainingMinor)}₫
@@ -289,12 +295,12 @@ export default function BudgetDetail() {
 
             <div>
               <p className="text-sm text-[var(--text-secondary)] mb-1">
-                Trạng thái
+                {t("detail.summary.status")}
               </p>
               <div
                 className={`inline-flex px-3 py-1.5 rounded-full text-sm font-medium ${budgetStatus.bg} ${budgetStatus.text}`}
               >
-                {budgetStatus.label}
+                {t(`overview.card.status.${budgetStatus.status}`)}
               </div>
             </div>
           </div>
@@ -314,7 +320,9 @@ export default function BudgetDetail() {
                 {Math.round(budget.progressPercent)}%
               </span>
               <span className="text-[var(--text-secondary)]">
-                {stats.safe} ổn · {stats.warning} cảnh báo · {stats.over} vượt
+                {t("overview.stats.safe", { count: stats.safe })} ·{" "}
+                {t("overview.stats.warning", { count: stats.warning })} ·{" "}
+                {t("overview.stats.over", { count: stats.over })}
               </span>
             </div>
           </div>
@@ -325,16 +333,16 @@ export default function BudgetDetail() {
             <Card>
               <div className="flex items-center justify-between gap-3 mb-4">
                 <h3 className="font-semibold text-[var(--text-primary)]">
-                  Hạng mục ngân sách
+                  {t("detail.items_section")}
                 </h3>
                 <span className="text-sm text-[var(--text-secondary)]">
-                  {data.items.length} hạng mục
+                  {t("detail.items_count", { count: data.items.length })}
                 </span>
               </div>
 
               {data.items.length === 0 ? (
                 <p className="text-sm text-[var(--text-secondary)]">
-                  Chưa có hạng mục ngân sách nào.
+                  {t("detail.items_empty")}
                 </p>
               ) : (
                 <div className="space-y-3">
@@ -359,18 +367,20 @@ export default function BudgetDetail() {
                               >
                                 {item.category?.name ||
                                   item.categoryName ||
-                                  "Danh mục"}
+                                  t("detail.item_card.default_category")}
                               </button>
                             ) : (
                               <p className="font-medium text-[var(--text-primary)]">
                                 {item.category?.name ||
                                   item.categoryName ||
-                                  "Danh mục"}
+                                  t("detail.item_card.default_category")}
                               </p>
                             )}
 
                             <p className="text-xs text-[var(--text-secondary)] mt-1">
-                              {item.transactionCount} giao dịch
+                              {t("detail.item_card.transaction_count", {
+                                count: item.transactionCount,
+                              })}
                             </p>
                           </div>
 
@@ -394,7 +404,7 @@ export default function BudgetDetail() {
                         <div className="grid grid-cols-3 gap-3 text-sm mb-3">
                           <div>
                             <p className="text-[var(--text-secondary)] mb-1">
-                              Giới hạn
+                              {t("detail.item_card.limit")}
                             </p>
                             <p className="font-semibold text-[var(--text-primary)] tabular-nums">
                               {formatMoney(item.limitAmountMinor)}₫
@@ -402,7 +412,7 @@ export default function BudgetDetail() {
                           </div>
                           <div>
                             <p className="text-[var(--text-secondary)] mb-1">
-                              Đã chi
+                              {t("detail.item_card.spent")}
                             </p>
                             <p className="font-semibold text-[var(--text-primary)] tabular-nums">
                               {formatMoney(item.spentMinor)}₫
@@ -410,7 +420,7 @@ export default function BudgetDetail() {
                           </div>
                           <div>
                             <p className="text-[var(--text-secondary)] mb-1">
-                              Còn lại
+                              {t("detail.item_card.remaining")}
                             </p>
                             <p className="font-semibold text-[var(--text-primary)] tabular-nums">
                               {formatMoney(item.remainingMinor)}₫
@@ -430,7 +440,7 @@ export default function BudgetDetail() {
 
                         <div className="flex items-center justify-between mt-2 text-xs">
                           <span className={`${itemStatus.text} font-medium`}>
-                            {itemStatus.label}
+                            {t(`overview.card.status.${itemStatus.status}`)}
                           </span>
 
                           <div className="flex items-center gap-2">
@@ -456,7 +466,7 @@ export default function BudgetDetail() {
             <Card>
               <div className="flex items-center justify-between gap-3 mb-4">
                 <h3 className="font-semibold text-[var(--text-primary)]">
-                  Giao dịch gần đây
+                  {t("detail.recent_transactions")}
                 </h3>
 
                 <button
@@ -469,13 +479,13 @@ export default function BudgetDetail() {
                   }
                   className="text-sm font-medium text-[var(--primary)] hover:underline"
                 >
-                  Xem thêm
+                  {t("detail.see_more")}
                 </button>
               </div>
 
               {data.recentTransactions.length === 0 ? (
                 <p className="text-sm text-[var(--text-secondary)]">
-                  Chưa có giao dịch nào trong khoảng ngân sách.
+                  {t("detail.transactions_empty")}
                 </p>
               ) : (
                 <div className="space-y-3">
@@ -488,7 +498,8 @@ export default function BudgetDetail() {
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium text-[var(--text-primary)] truncate">
-                            {transaction.description || "Giao dịch"}
+                            {transaction.description ||
+                              t("detail.transaction_default")}
                           </p>
 
                           <div className="flex flex-wrap items-center gap-2 mt-1">
@@ -592,14 +603,23 @@ export default function BudgetDetail() {
         isOpen={Boolean(deleteItemTarget)}
         onClose={() => setDeleteItemTarget(null)}
         onConfirm={() => void handleDeleteItem()}
-        title="Xoá hạng mục ngân sách?"
+        title={t("detail.delete_item_modal.title")}
         description={
           deleteItemTarget
-            ? `Bạn có chắc muốn xoá hạng mục "${deleteItemTarget.category?.name || deleteItemTarget.categoryName || "Danh mục"}"?`
+            ? t("detail.delete_item_modal.description", {
+                name:
+                  deleteItemTarget.category?.name ||
+                  deleteItemTarget.categoryName ||
+                  t("detail.item_card.default_category"),
+              })
             : ""
         }
-        confirmLabel={deletingItem ? "Đang xoá..." : "Xoá"}
-        cancelLabel="Huỷ"
+        confirmLabel={
+          deletingItem
+            ? t("detail.delete_item_modal.deleting")
+            : t("detail.delete_item_modal.confirm")
+        }
+        cancelLabel={t("common:actions.cancel")}
         isDangerous
       />
 
@@ -607,19 +627,28 @@ export default function BudgetDetail() {
         isOpen={Boolean(editItemTarget)}
         onClose={() => setEditItemTarget(null)}
         onConfirm={() => void handleSaveItem()}
-        title="Chỉnh sửa hạng mục"
+        title={t("detail.edit_item_modal.title")}
         description={
           editItemTarget
-            ? `Cập nhật giới hạn cho "${editItemTarget.category?.name || editItemTarget.categoryName || "Danh mục"}".`
+            ? t("detail.edit_item_modal.description", {
+                name:
+                  editItemTarget.category?.name ||
+                  editItemTarget.categoryName ||
+                  t("detail.item_card.default_category"),
+              })
             : ""
         }
-        confirmLabel={savingItem ? "Đang lưu..." : "Lưu"}
-        cancelLabel="Huỷ"
+        confirmLabel={
+          savingItem
+            ? t("detail.edit_item_modal.saving")
+            : t("detail.edit_item_modal.confirm")
+        }
+        cancelLabel={t("common:actions.cancel")}
       >
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-              Giới hạn
+              {t("detail.edit_item_modal.limit_label")}
             </label>
             <input
               type="number"
@@ -632,7 +661,7 @@ export default function BudgetDetail() {
 
           <div>
             <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-              Ngưỡng cảnh báo
+              {t("detail.edit_item_modal.threshold_label")}
             </label>
             <div className="flex flex-wrap gap-2">
               {[50, 80, 100].map((threshold) => {

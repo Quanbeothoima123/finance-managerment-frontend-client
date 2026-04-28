@@ -1,1 +1,217 @@
-{}
+{
+  "overview": {
+    "title": "Ngân sách",
+    "create_button": "Tạo ngân sách",
+    "total_budget": "Tổng ngân sách",
+    "spent": "Đã chi",
+    "remaining": "Còn lại",
+    "status_label": "Trạng thái",
+    "search_placeholder": "Tìm theo tên ngân sách...",
+    "loading": "Đang tải danh sách ngân sách...",
+    "budget_subtitle": "Tổng quan ngân sách theo dữ liệu thật từ backend",
+    "item_count": "{{count}} hạng mục",
+    "remaining_label": "còn lại",
+    "empty": {
+      "title": "Chưa có ngân sách nào",
+      "description": "Tạo ngân sách đầu tiên để theo dõi chi tiêu theo nhóm danh mục.",
+      "create_button": "Tạo ngân sách"
+    },
+    "status_filter": {
+      "all": "Tất cả",
+      "active": "Đang hoạt động",
+      "inactive": "Tạm dừng",
+      "archived": "Đã lưu trữ"
+    },
+    "sort": {
+      "by_name": "Theo tên",
+      "by_date_created": "Theo ngày tạo",
+      "by_date_start": "Theo ngày bắt đầu",
+      "by_progress": "Theo tiến độ",
+      "by_spent": "Theo đã chi",
+      "asc": "Tăng dần",
+      "desc": "Giảm dần"
+    },
+    "card": {
+      "spent": "Đã chi",
+      "remaining": "Còn lại",
+      "progress_label": "Tiến độ",
+      "status": {
+        "safe": "Đúng kế hoạch",
+        "warning": "Sắp vượt",
+        "over": "Vượt ngân sách"
+      }
+    },
+    "stats": {
+      "safe": "{{count}} ổn",
+      "warning": "{{count}} cảnh báo",
+      "over": "{{count}} vượt"
+    },
+    "delete_modal": {
+      "title": "Xoá ngân sách?",
+      "description": "Bạn có chắc muốn xoá ngân sách \"{{name}}\"? Hành động này không thể hoàn tác.",
+      "confirm": "Xoá",
+      "cancel": "Huỷ",
+      "deleting": "Đang xoá...",
+      "success": "Đã xoá ngân sách",
+      "failed": "Không thể xoá ngân sách"
+    }
+  },
+
+  "detail": {
+    "title": "Chi tiết ngân sách",
+    "loading": "Đang tải chi tiết ngân sách...",
+    "not_found": "Không tìm thấy ngân sách",
+    "back": "Quay lại",
+    "add_item": "Thêm hạng mục",
+    "edit": "Chỉnh sửa",
+    "delete": "Xoá",
+    "summary": {
+      "total_limit": "Tổng giới hạn",
+      "spent": "Đã chi",
+      "remaining": "Còn lại",
+      "status": "Trạng thái"
+    },
+    "items_section": "Hạng mục ngân sách",
+    "items_count": "{{count}} hạng mục",
+    "items_empty": "Chưa có hạng mục ngân sách nào.",
+    "item_card": {
+      "default_category": "Danh mục",
+      "limit": "Giới hạn",
+      "spent": "Đã chi",
+      "remaining": "Còn lại",
+      "transaction_count": "{{count}} giao dịch",
+      "view_more": "Xem thêm"
+    },
+    "item_status": {
+      "safe": "Đúng kế hoạch",
+      "warning": "Sắp vượt",
+      "over": "Vượt ngân sách"
+    },
+    "recent_transactions": "Giao dịch gần đây",
+    "see_more": "Xem thêm",
+    "transactions_empty": "Chưa có giao dịch nào trong khoảng ngân sách.",
+    "transaction_default": "Giao dịch",
+    "transaction_fallback": "Giao dịch",
+    "edit_item_modal": {
+      "title": "Chỉnh sửa hạng mục",
+      "description": "Cập nhật giới hạn cho \"{{name}}\".",
+      "category_label": "Danh mục",
+      "limit_label": "Giới hạn",
+      "threshold_label": "Ngưỡng cảnh báo",
+      "confirm": "Lưu",
+      "save": "Lưu",
+      "saving": "Đang lưu...",
+      "cancel": "Huỷ",
+      "invalid_limit": "Giới hạn hạng mục phải lớn hơn 0",
+      "limit_error": "Giới hạn hạng mục phải lớn hơn 0",
+      "success": "Đã cập nhật hạng mục ngân sách",
+      "failed": "Không thể cập nhật hạng mục"
+    },
+    "delete_item_modal": {
+      "title": "Xoá hạng mục ngân sách?",
+      "description": "Bạn có chắc muốn xoá hạng mục \"{{name}}\"?",
+      "confirm": "Xoá",
+      "cancel": "Huỷ",
+      "deleting": "Đang xoá...",
+      "success": "Đã xoá hạng mục ngân sách",
+      "failed": "Không thể xoá hạng mục ngân sách"
+    },
+    "delete_budget_modal": {
+      "title": "Xoá ngân sách?",
+      "description": "Bạn có chắc muốn xoá ngân sách \"{{name}}\"? Hành động này không thể hoàn tác.",
+      "confirm": "Xoá",
+      "cancel": "Huỷ",
+      "success": "Đã xoá ngân sách",
+      "failed": "Không thể xoá ngân sách"
+    }
+  },
+
+  "form": {
+    "title_create": "Tạo ngân sách",
+    "title_edit": "Chỉnh sửa ngân sách",
+    "subtitle": "Quản lý giới hạn theo danh mục và cảnh báo tiến độ ngân sách.",
+    "loading": "Đang tải dữ liệu ngân sách...",
+    "load_error": "Không thể tải dữ liệu ngân sách",
+    "back": "Quay lại",
+    "basic_info_section": "Thông tin cơ bản",
+    "name_label": "Tên ngân sách",
+    "name_placeholder": "Ví dụ: Ngân sách chi tiêu tháng 3",
+    "period_label": "Kỳ ngân sách",
+    "period_options": {
+      "weekly": "Hàng tuần",
+      "monthly": "Hàng tháng",
+      "yearly": "Hàng năm",
+      "custom": "Tùy chỉnh"
+    },
+    "start_date_label": "Ngày bắt đầu",
+    "end_date_label": "Ngày kết thúc",
+    "rollover_label": "Chuyển phần dư",
+    "rollover_hint": "Nếu bật, phần dư sẽ được giữ lại sang kỳ tiếp theo.",
+    "alerts_label": "Bật cảnh báo",
+    "alerts_hint": "Nhắc khi chi tiêu chạm các ngưỡng đã chọn.",
+    "type_label": "Loại giao dịch áp dụng",
+    "type_options": {
+      "expense": "Chi tiêu",
+      "income": "Thu nhập",
+      "both": "Chi tiêu / Thu nhập"
+    },
+    "items_section": "Hạng mục ngân sách",
+    "items_hint": "Chọn các danh mục chi tiêu cần theo dõi và đặt giới hạn riêng.",
+    "items_empty": "Chưa có hạng mục nào trong ngân sách này.",
+    "total_limit_label": "Tổng giới hạn",
+    "item_category_label": "Danh mục",
+    "item_category_placeholder": "Chọn danh mục để thêm",
+    "item_limit_label": "Giới hạn",
+    "item_limit_placeholder": "Giới hạn",
+    "add_item_button": "Thêm",
+    "remove_item_button": "Xoá hạng mục",
+    "alerts_section": "Ngưỡng cảnh báo",
+    "alerts_enabled_label": "Bật cảnh báo ngân sách",
+    "alert_threshold_label": "Ngưỡng cảnh báo",
+    "submit_create": "Tạo ngân sách",
+    "submit_edit": "Lưu thay đổi",
+    "submitting": "Đang lưu...",
+    "cancel": "Huỷ",
+    "success_create": "Đã tạo ngân sách",
+    "success_edit": "Đã cập nhật ngân sách",
+    "failed": "Không thể lưu ngân sách",
+    "errors": {
+      "name_required": "Vui lòng nhập tên ngân sách",
+      "start_date_required": "Vui lòng chọn ngày bắt đầu",
+      "end_date_required": "Ngân sách custom cần ngày kết thúc",
+      "end_date_before_start": "Ngày kết thúc phải sau hoặc bằng ngày bắt đầu",
+      "items_required": "Cần ít nhất 1 hạng mục ngân sách",
+      "item_limit_zero": "Mỗi hạng mục phải có giới hạn lớn hơn 0",
+      "item_limit_invalid": "Giới hạn phải lớn hơn 0",
+      "item_category_required": "Vui lòng chọn danh mục",
+      "alert_threshold_required": "Chọn ít nhất 1 ngưỡng cảnh báo",
+      "save_failed": "Không thể lưu ngân sách",
+      "load_failed": "Không thể tải dữ liệu ngân sách"
+    }
+  },
+
+  "add_item": {
+    "title": "Thêm hạng mục",
+    "subtitle": "Chọn danh mục chi tiêu và giới hạn cho ngân sách hiện tại.",
+    "back": "Quay lại",
+    "loading": "Đang tải dữ liệu...",
+    "item_info_section": "Thông tin hạng mục",
+    "category_label": "Danh mục",
+    "category_placeholder": "Chọn danh mục",
+    "limit_label": "Giới hạn",
+    "limit_placeholder": "Ví dụ: 2000000",
+    "alert_threshold_label": "Ngưỡng cảnh báo",
+    "submit": "Thêm hạng mục",
+    "submitting": "Đang lưu...",
+    "cancel": "Huỷ",
+    "success": "Đã thêm hạng mục ngân sách",
+    "errors": {
+      "category_required": "Vui lòng chọn danh mục",
+      "limit_invalid": "Giới hạn phải lớn hơn 0",
+      "alert_threshold_required": "Chọn ít nhất 1 ngưỡng cảnh báo",
+      "missing_budget_id": "Thiếu budget id",
+      "load_failed": "Không thể tải dữ liệu",
+      "save_failed": "Không thể thêm hạng mục ngân sách"
+    }
+  }
+}

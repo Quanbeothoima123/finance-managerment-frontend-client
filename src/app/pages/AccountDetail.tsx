@@ -21,6 +21,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { useTranslation } from "react-i18next";
 import { Card } from "../components/Card";
 import { Button } from "../components/Button";
 import { TagChip } from "../components/TagChip";
@@ -87,6 +88,7 @@ function ReconcileModal({
     note?: string;
   }) => Promise<void>;
 }) {
+  const { t } = useTranslation("accounts");
   const [actualBalance, setActualBalance] = useState("");
   const [reason, setReason] = useState("");
   const [note, setNote] = useState("");
@@ -105,7 +107,7 @@ function ReconcileModal({
         onClick={(event) => event.stopPropagation()}
       >
         <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-4">
-          Điều chỉnh số dư
+          {t("overview.adjust_balance.title")}
         </h3>
 
         <div className="space-y-4">
@@ -114,50 +116,64 @@ function ReconcileModal({
               {account.name}
             </p>
             <p className="text-sm font-semibold text-[var(--text-primary)] mt-1">
-              Số dư hiện tại: {formatMoney(account.currentBalanceMinor)} ₫
+              {t("overview.adjust_balance.current_balance_hint", {
+                amount: `${formatMoney(account.currentBalanceMinor)} ₫`,
+              })}
             </p>
           </div>
 
           <div>
             <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-              Số dư thực tế
+              {t("overview.adjust_balance.actual_balance_label")}
             </label>
             <input
               type="number"
               value={actualBalance}
               onChange={(event) => setActualBalance(event.target.value)}
               className="w-full px-4 py-3 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-lg)]"
-              placeholder="Nhập số dư thực tế"
+              placeholder={t(
+                "overview.adjust_balance.actual_balance_placeholder",
+              )}
             />
           </div>
 
           <div>
             <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-              Lý do
+              {t("overview.adjust_balance.reason_label")}
             </label>
             <select
               value={reason}
               onChange={(event) => setReason(event.target.value)}
               className="w-full px-4 py-3 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-lg)]"
             >
-              <option value="">Chọn lý do (tuỳ chọn)</option>
-              <option value="data-entry">Nhập liệu sai</option>
-              <option value="forgot-txn">Quên ghi giao dịch</option>
-              <option value="bank-fees">Phí ngân hàng</option>
-              <option value="other">Khác</option>
+              <option value="">
+                {t("overview.adjust_balance.reason_default")}
+              </option>
+              <option value="data-entry">
+                {t("overview.adjust_balance.reason_options.data_entry")}
+              </option>
+              <option value="forgot-txn">
+                {t("overview.adjust_balance.reason_options.forgot_txn")}
+              </option>
+              <option value="bank-fees">
+                {t("overview.adjust_balance.reason_options.bank_fees")}
+              </option>
+              <option value="other">
+                {t("overview.adjust_balance.reason_options.other")}
+              </option>
             </select>
           </div>
 
           <div>
             <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-              Ghi chú
+              {t("overview.adjust_balance.note_label")}
             </label>
             <input
               type="text"
               value={note}
               onChange={(event) => setNote(event.target.value)}
               className="w-full px-4 py-3 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-lg)]"
-              placeholder="Ví dụ: đối chiếu sao kê ngân hàng"
+              placeholder={t("overview.adjust_balance.reason_placeholder")}
             />
           </div>
         </div>
@@ -173,7 +189,7 @@ function ReconcileModal({
             }`}
           >
             <p className="text-sm text-[var(--text-secondary)]">
-              Chênh lệch:{" "}
+              {t("overview.adjust_balance.difference")}:{" "}
               <span
                 className={
                   difference >= 0
@@ -195,7 +211,7 @@ function ReconcileModal({
             onClick={onClose}
             disabled={pending}
           >
-            Huỷ
+            {t("overview.adjust_balance.cancel_button")}
           </Button>
           <Button
             className="flex-1"
@@ -208,7 +224,9 @@ function ReconcileModal({
               })
             }
           >
-            {pending ? "Đang xử lý..." : "Xác nhận"}
+            {pending
+              ? t("overview.adjust_balance.processing")
+              : t("overview.adjust_balance.confirm_button")}
           </Button>
         </div>
       </div>
@@ -221,6 +239,7 @@ export default function AccountDetail() {
   const navigate = useNavigate();
   const nav = useAppNavigation();
   const toast = useToast();
+  const { t } = useTranslation("accounts");
   const { data, loading, error, reload } = useAccountDetail(id);
 
   const [showMenu, setShowMenu] = useState(false);
@@ -244,7 +263,7 @@ export default function AccountDetail() {
       <div className="min-h-screen bg-[var(--background)] p-4 md:p-6">
         <Card>
           <p className="text-sm text-[var(--text-secondary)]">
-            Đang tải chi tiết tài khoản...
+            {t("detail.loading")}
           </p>
         </Card>
       </div>
@@ -256,7 +275,7 @@ export default function AccountDetail() {
       <div className="min-h-screen bg-[var(--background)] p-4 md:p-6">
         <Card>
           <p className="text-sm text-[var(--danger)]">
-            {error || "Không thể tải chi tiết tài khoản"}
+            {error || t("detail.load_failed")}
           </p>
         </Card>
       </div>
@@ -272,11 +291,13 @@ export default function AccountDetail() {
     try {
       setPendingAction(true);
       await accountsService.deleteAccount(account.id);
-      toast.success("Đã xoá tài khoản");
+      toast.success(t("overview.delete_modal.success"));
       navigate("/accounts", { replace: true });
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Không thể xoá tài khoản",
+        error instanceof Error
+          ? error.message
+          : t("overview.delete_modal.failed"),
       );
     } finally {
       setPendingAction(false);
@@ -292,12 +313,14 @@ export default function AccountDetail() {
     try {
       setPendingAction(true);
       await accountsService.reconcileAccount(account.id, payload);
-      toast.success("Đã điều chỉnh số dư");
+      toast.success(t("overview.adjust_balance.success"));
       setShowReconcile(false);
       await reload();
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Không thể điều chỉnh số dư",
+        error instanceof Error
+          ? error.message
+          : t("overview.adjust_balance.failed"),
       );
     } finally {
       setPendingAction(false);
@@ -313,7 +336,7 @@ export default function AccountDetail() {
             className="flex items-center gap-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] mb-4 transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
-            <span className="font-medium">Quay lại</span>
+            <span className="font-medium">{t("detail.back")}</span>
           </button>
 
           <Card>
@@ -335,7 +358,7 @@ export default function AccountDetail() {
                     {formatMoney(data.stats.currentBalanceMinor)} ₫
                   </p>
                   <p className="text-sm text-[var(--text-secondary)] mt-1">
-                    Số dư hiện tại
+                    {t("detail.fields.current_balance")}
                   </p>
                 </div>
               </div>
@@ -355,16 +378,16 @@ export default function AccountDetail() {
                       className="w-full flex items-center gap-3 px-4 py-3 text-[var(--text-primary)] hover:bg-[var(--surface)] transition-colors"
                     >
                       <Edit2 className="w-4 h-4" />
-                      <span className="text-sm font-medium">Chỉnh sửa</span>
+                      <span className="text-sm font-medium">
+                        {t("detail.actions.edit")}
+                      </span>
                     </button>
 
                     <button
                       onClick={() => {
                         setShowMenu(false);
                         if (!canDelete) {
-                          toast.error(
-                            "Tài khoản đã phát sinh dữ liệu hoặc đang được tham chiếu, không thể xoá",
-                          );
+                          toast.error(t("detail.cannot_delete"));
                           return;
                         }
                         setShowDeleteModal(true);
@@ -372,7 +395,9 @@ export default function AccountDetail() {
                       className="w-full flex items-center gap-3 px-4 py-3 text-[var(--danger)] hover:bg-[var(--danger-light)] transition-colors"
                     >
                       <Trash2 className="w-4 h-4" />
-                      <span className="text-sm font-medium">Xoá tài khoản</span>
+                      <span className="text-sm font-medium">
+                        {t("detail.actions.delete")}
+                      </span>
                     </button>
                   </div>
                 )}
@@ -408,7 +433,7 @@ export default function AccountDetail() {
                 onClick={() => setShowReconcile(true)}
               >
                 <Wrench className="w-4 h-4" />
-                Điều chỉnh số dư
+                {t("detail.actions.adjust_balance")}
               </Button>
 
               <Button
@@ -418,12 +443,12 @@ export default function AccountDetail() {
                 }
               >
                 <ArrowRightLeft className="w-4 h-4" />
-                Chuyển tiền
+                {t("detail.actions.transfer")}
               </Button>
 
               <Button onClick={() => nav.goCreateTransaction(account.id)}>
                 <Plus className="w-4 h-4" />
-                Thêm giao dịch
+                {t("detail.actions.add_transaction")}
               </Button>
             </div>
           </Card>
@@ -431,11 +456,11 @@ export default function AccountDetail() {
 
         <Card>
           <h3 className="font-semibold text-[var(--text-primary)] mb-4">
-            Thông tin tài khoản
+            {t("detail.info_section")}
           </h3>
           <div className="space-y-3">
             <InfoRow
-              label="Loại tài khoản"
+              label={t("detail.fields.account_type")}
               value={
                 account.accountTypeLabel ||
                 getAccountTypeLabel(account.accountType)
@@ -445,7 +470,7 @@ export default function AccountDetail() {
             {account.accountNumber && (
               <div className="flex items-center justify-between py-2 border-b border-[var(--divider)]">
                 <span className="text-sm text-[var(--text-secondary)]">
-                  Số tài khoản
+                  {t("detail.fields.account_number")}
                 </span>
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-medium text-[var(--text-primary)] tabular-nums">
@@ -471,20 +496,29 @@ export default function AccountDetail() {
             )}
 
             {account.accountOwnerName && (
-              <InfoRow label="Chủ tài khoản" value={account.accountOwnerName} />
+              <InfoRow
+                label={t("detail.fields.account_owner")}
+                value={account.accountOwnerName}
+              />
             )}
 
             {account.providerName && (
-              <InfoRow label="Tổ chức" value={account.providerName} />
+              <InfoRow
+                label={t("detail.fields.institution")}
+                value={account.providerName}
+              />
             )}
 
-            <InfoRow label="Tiền tệ" value={account.currencyCode} />
             <InfoRow
-              label="Số dư đầu kỳ"
+              label={t("detail.fields.currency")}
+              value={account.currencyCode}
+            />
+            <InfoRow
+              label={t("detail.fields.opening_balance")}
               value={`${formatMoney(data.stats.openingBalanceMinor)} ₫`}
             />
             <InfoRow
-              label="Cập nhật gần nhất"
+              label={t("detail.fields.last_updated")}
               value={formatDateTime(account.updatedAt)}
             />
           </div>
@@ -493,7 +527,7 @@ export default function AccountDetail() {
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           <Card>
             <p className="text-sm text-[var(--text-secondary)] mb-1">
-              Tổng thu
+              {t("detail.stats.total_income")}
             </p>
             <p className="text-xl font-semibold text-[var(--success)] tabular-nums">
               +{formatMoney(data.stats.incomeMinor)} ₫
@@ -502,7 +536,7 @@ export default function AccountDetail() {
 
           <Card>
             <p className="text-sm text-[var(--text-secondary)] mb-1">
-              Tổng chi
+              {t("detail.stats.total_expense")}
             </p>
             <p className="text-xl font-semibold text-[var(--danger)] tabular-nums">
               -{formatMoney(data.stats.expenseMinor)} ₫
@@ -511,7 +545,7 @@ export default function AccountDetail() {
 
           <Card className="col-span-2 md:col-span-1">
             <p className="text-sm text-[var(--text-secondary)] mb-1">
-              Giao dịch
+              {t("detail.stats.transactions")}
             </p>
             <p className="text-xl font-semibold text-[var(--text-primary)] tabular-nums">
               {data.stats.transactionCount}
@@ -529,7 +563,7 @@ export default function AccountDetail() {
                   : "text-[var(--text-secondary)]"
               }`}
             >
-              Giao dịch
+              {t("detail.tabs.transactions")}
               {activeTab === "transactions" && (
                 <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[var(--primary)]" />
               )}
@@ -543,7 +577,7 @@ export default function AccountDetail() {
                   : "text-[var(--text-secondary)]"
               }`}
             >
-              Thống kê
+              {t("detail.tabs.insights")}
               {activeTab === "insights" && (
                 <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[var(--primary)]" />
               )}
@@ -555,20 +589,20 @@ export default function AccountDetail() {
           <Card>
             <div className="flex items-center justify-between gap-3 mb-4">
               <h4 className="font-medium text-[var(--text-primary)]">
-                Giao dịch gần đây
+                {t("detail.recent_transactions")}
               </h4>
 
               <button
                 onClick={() => nav.goTransactionsByAccount(account.id)}
                 className="text-sm font-medium text-[var(--primary)] hover:underline"
               >
-                Xem tất cả
+                {t("detail.actions.view_all")}
               </button>
             </div>
 
             {data.recentTransactions.length === 0 ? (
               <p className="text-sm text-[var(--text-secondary)] text-center py-8">
-                Chưa có giao dịch nào cho tài khoản này.
+                {t("detail.empty_transactions")}
               </p>
             ) : (
               <div className="space-y-2">
@@ -588,7 +622,7 @@ export default function AccountDetail() {
                         <p className="font-medium text-[var(--text-primary)] truncate">
                           {transaction.description ||
                             transaction.category?.name ||
-                            "Giao dịch"}
+                            t("detail.transaction_fallback")}
                         </p>
 
                         <div className="flex flex-wrap items-center gap-2 mt-1">
@@ -667,24 +701,34 @@ export default function AccountDetail() {
           <div className="space-y-4">
             <Card>
               <h4 className="font-medium text-[var(--text-primary)] mb-2">
-                Tăng trưởng số dư
+                {t("detail.balance_growth")}
               </h4>
               <p className="text-sm text-[var(--text-secondary)]">
-                Số dư hiện tại là {formatMoney(data.stats.currentBalanceMinor)}{" "}
-                ₫, chênh lệch{" "}
-                {Number(data.stats.netMinor) >= 0 ? "dương" : "âm"}{" "}
-                {formatMoney(Math.abs(Number(data.stats.netMinor)))} ₫ so với
-                luồng tiền gần đây.
+                {Number(data.stats.netMinor) >= 0
+                  ? t("detail.balance_growth_positive", {
+                      balance: formatMoney(data.stats.currentBalanceMinor),
+                      amount: formatMoney(
+                        Math.abs(Number(data.stats.netMinor)),
+                      ),
+                    })
+                  : t("detail.balance_growth_negative", {
+                      balance: formatMoney(data.stats.currentBalanceMinor),
+                      amount: formatMoney(
+                        Math.abs(Number(data.stats.netMinor)),
+                      ),
+                    })}
               </p>
             </Card>
 
             <Card>
               <h4 className="font-medium text-[var(--text-primary)] mb-2">
-                Mức độ sử dụng
+                {t("detail.usage_section")}
               </h4>
               <p className="text-sm text-[var(--text-secondary)]">
-                Tài khoản này đã phát sinh {data.stats.transactionCount} giao
-                dịch và {account.reconciliationCount} lần đối soát.
+                {t("detail.usage_description", {
+                  txnCount: data.stats.transactionCount,
+                  reconcileCount: account.reconciliationCount,
+                })}
               </p>
             </Card>
           </div>
@@ -695,10 +739,12 @@ export default function AccountDetail() {
         isOpen={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}
         onConfirm={() => void handleDelete()}
-        title="Xoá tài khoản?"
-        description={`Bạn có chắc muốn xoá tài khoản "${account.name}"? Hành động này không thể hoàn tác.`}
-        confirmLabel="Xoá"
-        cancelLabel="Huỷ"
+        title={t("overview.delete_modal.title")}
+        description={t("overview.delete_modal.description", {
+          name: account.name,
+        })}
+        confirmLabel={t("overview.delete_modal.confirm")}
+        cancelLabel={t("overview.delete_modal.cancel")}
         isDangerous
       />
 

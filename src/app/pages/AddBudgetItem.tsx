@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { useParams } from "react-router";
 import { ArrowLeft, Plus, Save } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Card } from "../components/Card";
 import { Button } from "../components/Button";
 import { useAppNavigation } from "../hooks/useAppNavigation";
@@ -27,6 +28,7 @@ export default function AddBudgetItem({
   const { id } = useParams<{ id: string }>();
   const nav = useAppNavigation();
   const toast = useToast();
+  const { t } = useTranslation("budgets");
 
   const {
     data: metaData,
@@ -63,15 +65,17 @@ export default function AddBudgetItem({
     const nextErrors: Record<string, string> = {};
 
     if (!categoryId) {
-      nextErrors.categoryId = "Vui lòng chọn danh mục";
+      nextErrors.categoryId = t("add_item.errors.category_required");
     }
 
     if (!limitAmountMinor || Number(limitAmountMinor) <= 0) {
-      nextErrors.limitAmountMinor = "Giới hạn phải lớn hơn 0";
+      nextErrors.limitAmountMinor = t("add_item.errors.limit_invalid");
     }
 
     if (alertThresholds.length === 0) {
-      nextErrors.alertThresholds = "Chọn ít nhất 1 ngưỡng cảnh báo";
+      nextErrors.alertThresholds = t(
+        "add_item.errors.alert_threshold_required",
+      );
     }
 
     setErrors(nextErrors);
@@ -95,14 +99,14 @@ export default function AddBudgetItem({
     }
 
     if (!id) {
-      toast.error("Thiếu budget id");
+      toast.error(t("add_item.errors.missing_budget_id"));
       return;
     }
 
     try {
       setSubmitting(true);
       await budgetsService.addBudgetItem(id, payload);
-      toast.success("Đã thêm hạng mục ngân sách");
+      toast.success(t("add_item.success"));
       if (isModal) {
         onClose?.();
       } else {
@@ -110,9 +114,7 @@ export default function AddBudgetItem({
       }
     } catch (err) {
       toast.error(
-        err instanceof Error
-          ? err.message
-          : "Không thể thêm hạng mục ngân sách",
+        err instanceof Error ? err.message : t("add_item.errors.save_failed"),
       );
     } finally {
       setSubmitting(false);
@@ -131,14 +133,14 @@ export default function AddBudgetItem({
               className="flex items-center gap-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] mb-4 transition-colors"
             >
               <ArrowLeft className="w-5 h-5" />
-              <span className="font-medium">Quay lại</span>
+              <span className="font-medium">{t("add_item.back")}</span>
             </button>
 
             <h1 className="text-2xl font-semibold text-[var(--text-primary)]">
-              Thêm hạng mục ngân sách
+              {t("add_item.title")}
             </h1>
             <p className="text-sm text-[var(--text-secondary)] mt-1">
-              Chọn danh mục chi tiêu và giới hạn cho ngân sách hiện tại.
+              {t("add_item.subtitle")}
             </p>
           </div>
         )}
@@ -146,7 +148,7 @@ export default function AddBudgetItem({
         {(metaLoading || detailLoading) && (
           <Card>
             <p className="text-sm text-[var(--text-secondary)]">
-              Đang tải dữ liệu...
+              {t("add_item.loading")}
             </p>
           </Card>
         )}
@@ -154,7 +156,7 @@ export default function AddBudgetItem({
         {(metaError || detailError) && (
           <Card>
             <p className="text-sm text-[var(--danger)]">
-              {metaError || detailError || "Không thể tải dữ liệu"}
+              {metaError || detailError || t("add_item.errors.load_failed")}
             </p>
           </Card>
         )}
@@ -163,20 +165,22 @@ export default function AddBudgetItem({
           <form onSubmit={handleSubmit} className="space-y-6">
             <Card>
               <h3 className="font-semibold text-[var(--text-primary)] mb-4">
-                Thông tin hạng mục
+                {t("add_item.item_info_section")}
               </h3>
 
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-                    Danh mục
+                    {t("add_item.category_label")}
                   </label>
                   <select
                     value={categoryId}
                     onChange={(event) => setCategoryId(event.target.value)}
                     className="w-full px-4 py-2.5 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-lg)]"
                   >
-                    <option value="">Chọn danh mục</option>
+                    <option value="">
+                      {t("add_item.category_placeholder")}
+                    </option>
                     {availableCategories.map((category) => (
                       <option key={category.id} value={category.id}>
                         {category.name}
@@ -192,7 +196,7 @@ export default function AddBudgetItem({
 
                 <div>
                   <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-                    Giới hạn
+                    {t("add_item.limit_label")}
                   </label>
                   <input
                     type="number"
@@ -201,7 +205,7 @@ export default function AddBudgetItem({
                     onChange={(event) =>
                       setLimitAmountMinor(event.target.value)
                     }
-                    placeholder="Ví dụ: 2000000"
+                    placeholder={t("add_item.limit_placeholder")}
                     className="w-full px-4 py-2.5 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-lg)]"
                   />
                   {errors.limitAmountMinor && (
@@ -213,7 +217,7 @@ export default function AddBudgetItem({
 
                 <div>
                   <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-                    Ngưỡng cảnh báo
+                    {t("add_item.alert_threshold_label")}
                   </label>
                   <div className="flex flex-wrap gap-2">
                     {[50, 80, 100].map((threshold) => {
@@ -262,7 +266,7 @@ export default function AddBudgetItem({
                   else nav.goBack();
                 }}
               >
-                Huỷ
+                {t("add_item.cancel")}
               </Button>
 
               <Button type="submit" disabled={submitting}>
@@ -271,7 +275,7 @@ export default function AddBudgetItem({
                 ) : (
                   <Plus className="w-4 h-4" />
                 )}
-                {submitting ? "Đang lưu..." : "Thêm hạng mục"}
+                {submitting ? t("add_item.submitting") : t("add_item.submit")}
               </Button>
             </div>
           </form>

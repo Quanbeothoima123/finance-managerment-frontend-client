@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { ArrowLeft, Banknote, Building2, Save, Smartphone } from "lucide-react";
 import { useNavigate, useParams } from "react-router";
+import { useTranslation } from "react-i18next";
 import { Card } from "../components/Card";
 import { Input } from "../components/Input";
 import { Button } from "../components/Button";
@@ -8,15 +9,6 @@ import { useToast } from "../contexts/ToastContext";
 import { useAccountDetail } from "../hooks/useAccountDetail";
 import { accountsService } from "../services/accountsService";
 import { normalizeFrontendAccountType } from "../utils/accountHelpers";
-
-const accountTypes = [
-  { value: "cash", label: "Tiền mặt", icon: Banknote },
-  { value: "ewallet", label: "Ví điện tử", icon: Smartphone },
-  { value: "bank", label: "Ngân hàng", icon: Building2 },
-  { value: "credit", label: "Thẻ tín dụng", icon: Building2 },
-  { value: "investment", label: "Đầu tư", icon: Building2 },
-  { value: "savings", label: "Tiết kiệm", icon: Building2 },
-] as const;
 
 const institutions: Record<string, Array<{ value: string; label: string }>> = {
   ewallet: [
@@ -48,10 +40,32 @@ export default function CreateEditAccount({
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const toast = useToast();
+  const { t } = useTranslation("accounts");
   const { data: detailData, loading: loadingDetail } = useAccountDetail(
     mode === "edit" ? id : undefined,
   );
   const account = detailData?.account;
+
+  const accountTypes = [
+    { value: "cash", label: t("form.account_types.cash"), icon: Banknote },
+    {
+      value: "ewallet",
+      label: t("form.account_types.ewallet"),
+      icon: Smartphone,
+    },
+    { value: "bank", label: t("form.account_types.bank"), icon: Building2 },
+    { value: "credit", label: t("form.account_types.credit"), icon: Building2 },
+    {
+      value: "investment",
+      label: t("form.account_types.investment"),
+      icon: Building2,
+    },
+    {
+      value: "savings",
+      label: t("form.account_types.savings"),
+      icon: Building2,
+    },
+  ] as const;
 
   const [formData, setFormData] = useState({
     name: "",
@@ -95,23 +109,22 @@ export default function CreateEditAccount({
     const nextErrors: Record<string, string> = {};
 
     if (!formData.name.trim()) {
-      nextErrors.name = "Vui lòng nhập tên tài khoản";
+      nextErrors.name = t("form.errors.name_required");
     }
 
     if (
       (formData.type === "bank" || formData.type === "ewallet") &&
       !formData.institution
     ) {
-      nextErrors.institution = "Vui lòng chọn tổ chức";
+      nextErrors.institution = t("form.errors.institution_required");
     }
 
     if (Number(formData.openingBalance) < 0) {
-      nextErrors.openingBalance = "Số dư ban đầu không thể âm";
+      nextErrors.openingBalance = t("form.errors.opening_balance_negative");
     }
 
     if (formData.type === "bank" && !formData.accountNumber.trim()) {
-      nextErrors.accountNumber =
-        "Vui lòng nhập số tài khoản cho tài khoản ngân hàng";
+      nextErrors.accountNumber = t("form.errors.account_number_required");
     }
 
     setErrors(nextErrors);
@@ -144,16 +157,16 @@ export default function CreateEditAccount({
 
       if (mode === "create") {
         await accountsService.createAccount(payload);
-        toast.success("Đã tạo tài khoản mới");
+        toast.success(t("form.success_create"));
       } else if (id) {
         await accountsService.updateAccount(id, payload);
-        toast.success("Đã cập nhật tài khoản");
+        toast.success(t("form.success_edit"));
       }
 
       navigate("/accounts");
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Không thể lưu tài khoản",
+        error instanceof Error ? error.message : t("form.errors.save_failed"),
       );
     } finally {
       setSubmitting(false);
@@ -165,7 +178,7 @@ export default function CreateEditAccount({
       <div className="min-h-screen bg-[var(--background)] p-4 md:p-6">
         <Card>
           <p className="text-sm text-[var(--text-secondary)]">
-            Đang tải thông tin tài khoản...
+            {t("form.loading")}
           </p>
         </Card>
       </div>
@@ -181,17 +194,17 @@ export default function CreateEditAccount({
             className="flex items-center gap-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] mb-4 transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
-            <span className="font-medium">Quay lại</span>
+            <span className="font-medium">{t("form.back")}</span>
           </button>
 
           <h1 className="text-2xl font-semibold text-[var(--text-primary)]">
-            {mode === "create" ? "Tạo tài khoản mới" : "Chỉnh sửa tài khoản"}
+            {mode === "create" ? t("form.title_create") : t("form.title_edit")}
           </h1>
 
           <p className="text-sm text-[var(--text-secondary)] mt-1">
             {mode === "create"
-              ? "Thêm tài khoản mới để quản lý tài chính của bạn"
-              : "Cập nhật thông tin tài khoản"}
+              ? t("form.subtitle_create")
+              : t("form.subtitle_edit")}
           </p>
         </div>
 
@@ -200,13 +213,13 @@ export default function CreateEditAccount({
             <div className="space-y-6">
               <Card>
                 <h3 className="font-semibold text-[var(--text-primary)] mb-4">
-                  Thông tin cơ bản
+                  {t("form.section_basic")}
                 </h3>
 
                 <div className="space-y-4">
                   <Input
-                    label="Tên tài khoản"
-                    placeholder="VD: Tiền mặt, Vietcombank..."
+                    label={t("form.account_name_label")}
+                    placeholder={t("form.account_name_placeholder")}
                     value={formData.name}
                     onChange={(event) =>
                       handleInputChange("name", event.target.value)
@@ -216,7 +229,7 @@ export default function CreateEditAccount({
 
                   <div>
                     <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-                      Loại tài khoản
+                      {t("form.account_type_label")}
                     </label>
                     <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
                       {accountTypes.map((type) => {
@@ -262,7 +275,7 @@ export default function CreateEditAccount({
                     formData.type === "ewallet") && (
                     <div>
                       <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-                        Tổ chức
+                        {t("form.institution_label")}
                       </label>
                       <select
                         value={formData.institution}
@@ -271,7 +284,9 @@ export default function CreateEditAccount({
                         }
                         className="w-full px-4 py-3 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-lg)]"
                       >
-                        <option value="">Chọn tổ chức</option>
+                        <option value="">
+                          {t("form.institution_placeholder")}
+                        </option>
                         {institutionOptions.map((option) => (
                           <option key={option.value} value={option.value}>
                             {option.label}
@@ -287,8 +302,8 @@ export default function CreateEditAccount({
                   )}
 
                   <Input
-                    label="Số tài khoản / số ví"
-                    placeholder="Nhập số tài khoản hoặc số điện thoại ví"
+                    label={t("form.account_number_label")}
+                    placeholder={t("form.account_number_placeholder")}
                     value={formData.accountNumber}
                     onChange={(event) =>
                       handleInputChange("accountNumber", event.target.value)
@@ -297,8 +312,8 @@ export default function CreateEditAccount({
                   />
 
                   <Input
-                    label="Chủ tài khoản"
-                    placeholder="Tên chủ tài khoản"
+                    label={t("form.account_owner_label")}
+                    placeholder={t("form.account_owner_placeholder")}
                     value={formData.accountOwnerName}
                     onChange={(event) =>
                       handleInputChange("accountOwnerName", event.target.value)
@@ -311,12 +326,12 @@ export default function CreateEditAccount({
             <div className="space-y-6">
               <Card>
                 <h3 className="font-semibold text-[var(--text-primary)] mb-4">
-                  Số dư
+                  {t("form.section_balance")}
                 </h3>
 
                 <div className="space-y-4">
                   <Input
-                    label="Số dư ban đầu"
+                    label={t("form.opening_balance_label")}
                     type="number"
                     value={formData.openingBalance}
                     onChange={(event) =>
@@ -327,7 +342,7 @@ export default function CreateEditAccount({
 
                   <div>
                     <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-                      Đơn vị tiền tệ
+                      {t("form.currency_label")}
                     </label>
                     <select
                       value={formData.currency}
@@ -346,13 +361,13 @@ export default function CreateEditAccount({
 
               <Card>
                 <h3 className="font-semibold text-[var(--text-primary)] mb-4">
-                  Thông tin thêm
+                  {t("form.section_extra")}
                 </h3>
 
                 <label className="flex items-center justify-between gap-4 cursor-pointer">
                   <div>
                     <p className="font-medium text-[var(--text-primary)]">
-                      Trạng thái hoạt động
+                      {t("form.active_status_label")}
                     </p>
                     <p className="text-sm text-[var(--text-secondary)]">
                       Tài khoản đang sử dụng
@@ -378,16 +393,16 @@ export default function CreateEditAccount({
               variant="secondary"
               onClick={() => navigate(-1)}
             >
-              Huỷ
+              {t("form.cancel")}
             </Button>
 
             <Button type="submit" disabled={submitting}>
               <Save className="w-4 h-4" />
               {submitting
-                ? "Đang lưu..."
+                ? t("form.submitting")
                 : mode === "create"
-                  ? "Tạo tài khoản"
-                  : "Lưu thay đổi"}
+                  ? t("form.submit_create")
+                  : t("form.submit_edit")}
             </Button>
           </div>
         </form>

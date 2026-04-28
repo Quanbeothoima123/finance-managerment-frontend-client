@@ -8,6 +8,7 @@ import {
   Wallet,
 } from "lucide-react";
 import { useNavigate } from "react-router";
+import { useTranslation } from "react-i18next";
 import { Card } from "../components/Card";
 import { Button } from "../components/Button";
 import { ConfirmationModal } from "../components/ConfirmationModals";
@@ -50,6 +51,7 @@ function ActionMenu({
   onDelete: () => void;
 }) {
   const [open, setOpen] = useState(false);
+  const { t } = useTranslation("accounts");
 
   return (
     <div className="relative" onClick={(event) => event.stopPropagation()}>
@@ -69,7 +71,7 @@ function ActionMenu({
             }}
             className="w-full px-4 py-3 text-left text-sm text-[var(--text-primary)] hover:bg-[var(--surface)] transition-colors"
           >
-            Xem chi tiết
+            {t("overview.actions.view")}
           </button>
 
           <button
@@ -79,7 +81,7 @@ function ActionMenu({
             }}
             className="w-full px-4 py-3 text-left text-sm text-[var(--text-primary)] hover:bg-[var(--surface)] transition-colors"
           >
-            Chỉnh sửa
+            {t("overview.actions.edit")}
           </button>
 
           {account.status === "active" && (
@@ -90,7 +92,7 @@ function ActionMenu({
               }}
               className="w-full px-4 py-3 text-left text-sm text-[var(--text-primary)] hover:bg-[var(--surface)] transition-colors"
             >
-              Điều chỉnh số dư
+              {t("overview.actions.adjust")}
             </button>
           )}
 
@@ -101,7 +103,9 @@ function ActionMenu({
             }}
             className="w-full px-4 py-3 text-left text-sm text-[var(--text-primary)] hover:bg-[var(--surface)] transition-colors"
           >
-            {account.status === "active" ? "Lưu trữ" : "Khôi phục"}
+            {account.status === "active"
+              ? t("overview.actions.archive")
+              : t("overview.actions.restore")}
           </button>
 
           <button
@@ -111,7 +115,7 @@ function ActionMenu({
             }}
             className="w-full px-4 py-3 text-left text-sm text-[var(--danger)] hover:bg-[var(--danger-light)] transition-colors"
           >
-            Xoá tài khoản
+            {t("overview.actions.delete")}
           </button>
         </div>
       )}
@@ -134,6 +138,7 @@ function ReconcileModal({
   }) => Promise<void>;
   pending: boolean;
 }) {
+  const { t } = useTranslation("accounts");
   const [actualBalance, setActualBalance] = useState("");
   const [reason, setReason] = useState("");
   const [note, setNote] = useState("");
@@ -153,7 +158,7 @@ function ReconcileModal({
         onClick={(event) => event.stopPropagation()}
       >
         <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-4">
-          Điều chỉnh số dư
+          {t("overview.adjust_balance.title")}
         </h3>
 
         <div className="space-y-4">
@@ -162,50 +167,64 @@ function ReconcileModal({
               {account.name}
             </p>
             <p className="text-sm font-semibold text-[var(--text-primary)] mt-1">
-              Số dư hiện tại: {formatMoney(account.currentBalanceMinor)} ₫
+              {t("overview.adjust_balance.current_balance_hint", {
+                amount: `${formatMoney(account.currentBalanceMinor)} ₫`,
+              })}
             </p>
           </div>
 
           <div>
             <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-              Số dư thực tế
+              {t("overview.adjust_balance.actual_balance_label")}
             </label>
             <input
               type="number"
               value={actualBalance}
               onChange={(event) => setActualBalance(event.target.value)}
               className="w-full px-4 py-3 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-lg)]"
-              placeholder="Nhập số dư thực tế"
+              placeholder={t(
+                "overview.adjust_balance.actual_balance_placeholder",
+              )}
             />
           </div>
 
           <div>
             <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-              Lý do
+              {t("overview.adjust_balance.reason_label")}
             </label>
             <select
               value={reason}
               onChange={(event) => setReason(event.target.value)}
               className="w-full px-4 py-3 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-lg)]"
             >
-              <option value="">Chọn lý do (tuỳ chọn)</option>
-              <option value="data-entry">Nhập liệu sai</option>
-              <option value="forgot-txn">Quên ghi giao dịch</option>
-              <option value="bank-fees">Phí ngân hàng</option>
-              <option value="other">Khác</option>
+              <option value="">
+                {t("overview.adjust_balance.reason_default")}
+              </option>
+              <option value="data-entry">
+                {t("overview.adjust_balance.reason_options.data_entry")}
+              </option>
+              <option value="forgot-txn">
+                {t("overview.adjust_balance.reason_options.forgot_txn")}
+              </option>
+              <option value="bank-fees">
+                {t("overview.adjust_balance.reason_options.bank_fees")}
+              </option>
+              <option value="other">
+                {t("overview.adjust_balance.reason_options.other")}
+              </option>
             </select>
           </div>
 
           <div>
             <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-              Ghi chú
+              {t("overview.adjust_balance.note_label")}
             </label>
             <input
               type="text"
               value={note}
               onChange={(event) => setNote(event.target.value)}
               className="w-full px-4 py-3 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-lg)]"
-              placeholder="Ví dụ: đối chiếu sao kê ngân hàng"
+              placeholder={t("overview.adjust_balance.reason_placeholder")}
             />
           </div>
         </div>
@@ -221,7 +240,7 @@ function ReconcileModal({
             }`}
           >
             <p className="text-sm text-[var(--text-secondary)]">
-              Chênh lệch:{" "}
+              {t("overview.adjust_balance.difference")}:{" "}
               <span
                 className={
                   difference >= 0
@@ -243,7 +262,7 @@ function ReconcileModal({
             onClick={onClose}
             disabled={pending}
           >
-            Huỷ
+            {t("overview.adjust_balance.cancel_button")}
           </Button>
           <Button
             className="flex-1"
@@ -256,7 +275,9 @@ function ReconcileModal({
               })
             }
           >
-            {pending ? "Đang xử lý..." : "Xác nhận"}
+            {pending
+              ? t("overview.adjust_balance.processing")
+              : t("overview.adjust_balance.confirm_button")}
           </Button>
         </div>
       </div>
@@ -267,6 +288,7 @@ function ReconcileModal({
 export default function AccountsOverview() {
   const navigate = useNavigate();
   const toast = useToast();
+  const { t } = useTranslation("accounts");
   const { data, loading, error, reload } = useAccountsOverview();
 
   const [search, setSearch] = useState("");
@@ -306,14 +328,14 @@ export default function AccountsOverview() {
       const archived = account.status === "active";
       await accountsService.archiveAccount(account.id, archived);
       toast.success(
-        archived ? "Đã lưu trữ tài khoản" : "Đã khôi phục tài khoản",
+        archived ? t("overview.toast.archived") : t("overview.toast.restored"),
       );
       await reload();
     } catch (error) {
       toast.error(
         error instanceof Error
           ? error.message
-          : "Không thể cập nhật trạng thái tài khoản",
+          : t("overview.toast.status_failed"),
       );
     } finally {
       setPendingAccountId(null);
@@ -326,17 +348,17 @@ export default function AccountsOverview() {
     try {
       setPendingAccountId(deleteTarget.id);
       await accountsService.deleteAccount(deleteTarget.id);
-      toast.success("Đã xoá tài khoản");
+      toast.success(t("overview.delete_modal.success"));
       setDeleteTarget(null);
       await reload();
     } catch (error) {
       if (error instanceof ApiError && error.status === 409) {
-        toast.error(
-          "Tài khoản đã phát sinh dữ liệu hoặc đang được tham chiếu, không thể xoá",
-        );
+        toast.error(t("overview.cannot_delete"));
       } else {
         toast.error(
-          error instanceof Error ? error.message : "Không thể xoá tài khoản",
+          error instanceof Error
+            ? error.message
+            : t("overview.delete_modal.failed"),
         );
       }
     } finally {
@@ -354,12 +376,14 @@ export default function AccountsOverview() {
     try {
       setPendingAccountId(reconcileTarget.id);
       await accountsService.reconcileAccount(reconcileTarget.id, payload);
-      toast.success("Đã điều chỉnh số dư");
+      toast.success(t("overview.adjust_balance.success"));
       setReconcileTarget(null);
       await reload();
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Không thể điều chỉnh số dư",
+        error instanceof Error
+          ? error.message
+          : t("overview.adjust_balance.failed"),
       );
     } finally {
       setPendingAccountId(null);
@@ -371,7 +395,7 @@ export default function AccountsOverview() {
       <div className="min-h-screen bg-[var(--background)] p-4 md:p-6">
         <Card>
           <p className="text-sm text-[var(--text-secondary)]">
-            Đang tải danh sách tài khoản...
+            {t("overview.loading")}
           </p>
         </Card>
       </div>
@@ -383,7 +407,7 @@ export default function AccountsOverview() {
       <div className="min-h-screen bg-[var(--background)] p-4 md:p-6">
         <Card>
           <p className="text-sm text-[var(--danger)]">
-            {error || "Không thể tải danh sách tài khoản"}
+            {error || t("overview.toast.load_failed")}
           </p>
         </Card>
       </div>
@@ -395,7 +419,9 @@ export default function AccountsOverview() {
       <div className="max-w-6xl mx-auto p-4 md:p-6 space-y-6 pb-20 md:pb-6">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
-            <p className="text-sm text-[var(--text-secondary)]">Tổng tài sản</p>
+            <p className="text-sm text-[var(--text-secondary)]">
+              {t("overview.total_assets")}
+            </p>
             <h1 className="text-4xl font-bold text-[var(--primary)] tabular-nums mt-1">
               {formatMoney(data.summary.totalBalanceMinor)} ₫
             </h1>
@@ -403,7 +429,7 @@ export default function AccountsOverview() {
 
           <Button onClick={() => navigate("/accounts/create")}>
             <Plus className="w-4 h-4" />
-            Tạo tài khoản
+            {t("overview.create_button")}
           </Button>
         </div>
 
@@ -417,7 +443,7 @@ export default function AccountsOverview() {
                 {formatMoney(group.totalBalanceMinor)} ₫
               </p>
               <p className="text-xs text-[var(--text-tertiary)] mt-1">
-                {group.count} tài khoản
+                {t("overview.account_count", { count: group.count })}
               </p>
             </Card>
           ))}
@@ -430,7 +456,7 @@ export default function AccountsOverview() {
               <input
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
-                placeholder="Tìm kiếm tài khoản..."
+                placeholder={t("overview.search_placeholder")}
                 className="w-full bg-transparent outline-none text-sm text-[var(--text-primary)]"
               />
             </div>
@@ -444,7 +470,8 @@ export default function AccountsOverview() {
                     : "bg-transparent text-[var(--text-secondary)]"
                 }`}
               >
-                Đang dùng ({data.summary.activeAccountCount})
+                {t("overview.status_filter.active")} (
+                {data.summary.activeAccountCount})
               </button>
               <button
                 onClick={() => setStatusTab("archived")}
@@ -454,7 +481,8 @@ export default function AccountsOverview() {
                     : "bg-transparent text-[var(--text-secondary)]"
                 }`}
               >
-                Đã lưu trữ ({data.summary.archivedAccountCount})
+                {t("overview.status_filter.archived")} (
+                {data.summary.archivedAccountCount})
               </button>
             </div>
           </div>
@@ -487,7 +515,7 @@ export default function AccountsOverview() {
                         </p>
                         {account.status === "archived" && (
                           <span className="text-[10px] px-2 py-0.5 rounded-full bg-[var(--surface)] text-[var(--text-tertiary)] border border-[var(--border)]">
-                            Đã lưu trữ
+                            {t("overview.status_filter.archived")}
                           </span>
                         )}
                       </div>
@@ -501,8 +529,9 @@ export default function AccountsOverview() {
                       </p>
 
                       <p className="text-sm text-[var(--text-secondary)] mt-1">
-                        {account.transactionCount} giao dịch •{" "}
-                        {account.reconciliationCount} lần đối soát
+                        {account.transactionCount}{" "}
+                        {t("detail.tabs.transactions").toLowerCase()} •{" "}
+                        {account.reconciliationCount}
                       </p>
                     </div>
                   </div>
@@ -525,9 +554,7 @@ export default function AccountsOverview() {
                       onArchiveToggle={() => void handleArchiveToggle(account)}
                       onDelete={() => {
                         if (!canDelete) {
-                          toast.error(
-                            "Tài khoản đã phát sinh dữ liệu hoặc đang được tham chiếu, không thể xoá",
-                          );
+                          toast.error(t("overview.cannot_delete"));
                           return;
                         }
                         setDeleteTarget(account);
@@ -544,7 +571,7 @@ export default function AccountsOverview() {
                   </p>
                   {isPending && (
                     <p className="text-xs text-[var(--text-tertiary)]">
-                      Đang xử lý...
+                      {t("overview.adjust_balance.processing")}
                     </p>
                   )}
                 </div>
@@ -555,7 +582,7 @@ export default function AccountsOverview() {
           {filteredAccounts.length === 0 && (
             <Card>
               <p className="text-sm text-[var(--text-secondary)] text-center py-6">
-                Không có tài khoản nào phù hợp.
+                {t("overview.empty.no_match")}
               </p>
             </Card>
           )}
@@ -566,10 +593,12 @@ export default function AccountsOverview() {
         isOpen={Boolean(deleteTarget)}
         onClose={() => setDeleteTarget(null)}
         onConfirm={() => void handleDelete()}
-        title="Xoá tài khoản?"
-        description={`Bạn có chắc muốn xoá tài khoản "${deleteTarget?.name || ""}"? Hành động này không thể hoàn tác.`}
-        confirmLabel="Xoá"
-        cancelLabel="Huỷ"
+        title={t("overview.delete_modal.title")}
+        description={t("overview.delete_modal.description", {
+          name: deleteTarget?.name || "",
+        })}
+        confirmLabel={t("overview.delete_modal.confirm")}
+        cancelLabel={t("overview.delete_modal.cancel")}
         isDangerous
       />
 

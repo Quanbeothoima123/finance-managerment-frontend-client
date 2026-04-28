@@ -1,1 +1,204 @@
-{}
+{
+  "overview": {
+    "title": "Accounts",
+    "total_assets": "Total Assets",
+    "search_placeholder": "Search accounts...",
+    "create_button": "Create Account",
+    "account_count": "{{count}} account(s)",
+    "empty": {
+      "no_accounts": "No accounts yet",
+      "no_match": "No accounts match your search.",
+      "create_first": "Create your first account"
+    },
+    "loading": "Loading accounts...",
+    "status_filter": {
+      "active": "Active",
+      "archived": "Archived",
+      "all": "All"
+    },
+    "actions": {
+      "view": "View Details",
+      "archive": "Archive",
+      "restore": "Restore",
+      "delete": "Delete Account",
+      "adjust": "Adjust Balance",
+      "edit": "Edit"
+    },
+    "cannot_delete": "This account has data or is referenced by other records and cannot be deleted",
+    "adjust_balance": {
+      "title": "Adjust Balance",
+      "current_balance_hint": "Current balance: {{amount}}",
+      "actual_balance_label": "Actual balance",
+      "actual_balance_placeholder": "Enter actual balance",
+      "reason_label": "Reason",
+      "reason_default": "Select reason (optional)",
+      "reason_options": {
+        "data_entry": "Data entry error",
+        "forgot_txn": "Forgot to record a transaction",
+        "bank_fees": "Bank fees",
+        "other": "Other"
+      },
+      "note_label": "Note",
+      "reason_placeholder": "E.g. reconciling bank statement",
+      "difference": "Difference",
+      "confirm_button": "Confirm",
+      "cancel_button": "Cancel",
+      "processing": "Processing...",
+      "success": "Balance adjusted",
+      "failed": "Could not adjust balance"
+    },
+    "delete_modal": {
+      "title": "Delete account?",
+      "description": "Are you sure you want to delete \"{{name}}\"? This cannot be undone.",
+      "confirm": "Delete",
+      "cancel": "Cancel",
+      "success": "Account deleted",
+      "failed": "Could not delete account"
+    },
+    "toast": {
+      "archived": "Account archived",
+      "restored": "Account restored",
+      "status_failed": "Could not update account status",
+      "load_failed": "Could not load accounts"
+    }
+  },
+
+  "detail": {
+    "title": "Account Detail",
+    "back": "Back",
+    "tabs": {
+      "transactions": "Transactions",
+      "insights": "Insights"
+    },
+    "fields": {
+      "account_type": "Account Type",
+      "account_number": "Account Number",
+      "opening_balance": "Opening Balance",
+      "current_balance": "Current Balance",
+      "actual_balance": "Actual Balance",
+      "currency": "Currency",
+      "institution": "Institution",
+      "account_owner": "Account Owner",
+      "last_updated": "Last Updated"
+    },
+    "stats": {
+      "total_income": "Total Income",
+      "total_expense": "Total Expense",
+      "transactions": "Transactions"
+    },
+    "actions": {
+      "adjust_balance": "Adjust Balance",
+      "transfer": "Transfer",
+      "add_transaction": "Add Transaction",
+      "edit": "Edit",
+      "delete": "Delete Account",
+      "view_all": "View all"
+    },
+    "recent_transactions": "Recent Transactions",
+    "balance_growth": "Balance Growth",
+    "cannot_delete": "This account has data or is referenced and cannot be deleted",
+    "archived_badge": "Archived",
+    "transaction_fallback": "Transaction",
+    "empty_transactions": "No transactions for this account yet.",
+    "no_note": "--",
+    "info_section": "Account Information",
+    "usage_section": "Usage",
+    "usage_description": "This account has {{txnCount}} transaction(s) and {{reconcileCount}} reconciliation(s).",
+    "balance_growth_positive": "Current balance is {{balance}} ₫, a positive difference of {{amount}} ₫ versus recent cash flow.",
+    "balance_growth_negative": "Current balance is {{balance}} ₫, a negative difference of {{amount}} ₫ versus recent cash flow.",
+    "load_failed": "Could not load account details",
+    "loading": "Loading account details..."
+  },
+
+  "breakdown": {
+    "title": "Account Breakdown",
+    "subtitle": "Compare balances and changes across accounts",
+    "back": "Back",
+    "total_balance": "Total Current Balance",
+    "change": "Change",
+    "account_count": "Accounts",
+    "growth_up": "{{up}} growing, {{down}} declining",
+    "balance_comparison": "Balance Comparison",
+    "chart_subtitle": "Balance distribution across accounts",
+    "account_list": "Account Details ({{count}})",
+    "distribution_by_type": "Distribution by Type",
+    "balance_increased": "Your total balance has increased",
+    "balance_decreased": "Your total balance has decreased",
+    "growth_good": "Growing well",
+    "growth_body": "Your total balance has grown {{amount}} this period. Keep it up!",
+    "decline_note": "Heads up",
+    "decline_body": "{{count}} account(s) are declining. Check them to ensure financial stability.",
+    "truncation_warning": "Showing {{shown}}/{{total}} transactions. Data may be incomplete.",
+    "retry": "Retry",
+    "load_failed": "Could not load data",
+    "empty": "No accounts yet",
+    "period_label": "Time Period",
+    "period_options": {
+      "this_month": "This Month",
+      "last_month": "Last Month",
+      "last_3_months": "Last 3 Months",
+      "last_6_months": "Last 6 Months",
+      "this_year": "This Year"
+    },
+    "chart": {
+      "balance_label": "Balance",
+      "income_label": "Income",
+      "expense_label": "Expense"
+    },
+    "account_types": {
+      "bank": "Bank",
+      "cash": "Cash",
+      "ewallet": "E-Wallet",
+      "savings": "Savings",
+      "investment": "Investment",
+      "credit": "Credit",
+      "credit_card": "Credit",
+      "e_wallet": "E-Wallet"
+    }
+  },
+
+  "form": {
+    "title_create": "Create New Account",
+    "title_edit": "Edit Account",
+    "subtitle_create": "Add a new account to manage your finances",
+    "subtitle_edit": "Update account information",
+    "back": "Back",
+    "section_basic": "Basic Information",
+    "section_balance": "Balance",
+    "section_extra": "Additional Info",
+    "account_name_label": "Account Name",
+    "account_name_placeholder": "E.g. Cash, Vietcombank...",
+    "account_type_label": "Account Type",
+    "account_types": {
+      "cash": "Cash",
+      "bank": "Bank",
+      "ewallet": "E-Wallet",
+      "savings": "Savings",
+      "investment": "Investment",
+      "credit": "Credit Card"
+    },
+    "institution_label": "Institution",
+    "institution_placeholder": "Select institution",
+    "account_number_label": "Account Number / Wallet ID",
+    "account_number_placeholder": "Enter account number or wallet phone number",
+    "account_owner_label": "Account Owner",
+    "account_owner_placeholder": "Account holder name",
+    "currency_label": "Currency",
+    "opening_balance_label": "Opening Balance",
+    "active_status_label": "Active Status",
+    "submit_create": "Create Account",
+    "submit_edit": "Save Changes",
+    "submitting": "Saving...",
+    "cancel": "Cancel",
+    "loading": "Loading account information...",
+    "success_create": "Account created",
+    "success_edit": "Account updated",
+    "errors": {
+      "name_required": "Please enter an account name",
+      "institution_required": "Please select an institution",
+      "account_number_required": "Please enter account number for bank accounts",
+      "opening_balance_negative": "Opening balance cannot be negative",
+      "save_failed": "Could not save account"
+    }
+  }
+}

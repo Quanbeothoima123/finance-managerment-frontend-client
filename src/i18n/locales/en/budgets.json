@@ -1,1 +1,217 @@
-{}
+{
+  "overview": {
+    "title": "Budgets",
+    "create_button": "Create Budget",
+    "total_budget": "Total Budget",
+    "spent": "Spent",
+    "remaining": "Remaining",
+    "status_label": "Status",
+    "search_placeholder": "Search by budget name...",
+    "loading": "Loading budgets...",
+    "budget_subtitle": "Budget overview with live backend data",
+    "item_count": "{{count}} item(s)",
+    "remaining_label": "remaining",
+    "empty": {
+      "title": "No budgets yet",
+      "description": "Create your first budget to track spending by category group.",
+      "create_button": "Create Budget"
+    },
+    "status_filter": {
+      "all": "All",
+      "active": "Active",
+      "inactive": "Paused",
+      "archived": "Archived"
+    },
+    "sort": {
+      "by_name": "By name",
+      "by_date_created": "By date created",
+      "by_date_start": "By start date",
+      "by_progress": "By progress",
+      "by_spent": "By amount spent",
+      "asc": "Ascending",
+      "desc": "Descending"
+    },
+    "card": {
+      "spent": "Spent",
+      "remaining": "Remaining",
+      "progress_label": "Progress",
+      "status": {
+        "safe": "On track",
+        "warning": "Near limit",
+        "over": "Over budget"
+      }
+    },
+    "stats": {
+      "safe": "{{count}} on track",
+      "warning": "{{count}} warning",
+      "over": "{{count}} over"
+    },
+    "delete_modal": {
+      "title": "Delete budget?",
+      "description": "Are you sure you want to delete \"{{name}}\"? This cannot be undone.",
+      "confirm": "Delete",
+      "cancel": "Cancel",
+      "deleting": "Deleting...",
+      "success": "Budget deleted",
+      "failed": "Could not delete budget"
+    }
+  },
+
+  "detail": {
+    "title": "Budget Detail",
+    "loading": "Loading budget details...",
+    "not_found": "Budget not found",
+    "back": "Back",
+    "add_item": "Add Item",
+    "edit": "Edit",
+    "delete": "Delete",
+    "summary": {
+      "total_limit": "Total Limit",
+      "spent": "Spent",
+      "remaining": "Remaining",
+      "status": "Status"
+    },
+    "items_section": "Budget Items",
+    "items_count": "{{count}} items",
+    "items_empty": "No budget items yet.",
+    "item_card": {
+      "default_category": "Category",
+      "limit": "Limit",
+      "spent": "Spent",
+      "remaining": "Remaining",
+      "transaction_count": "{{count}} transaction(s)",
+      "view_more": "View more"
+    },
+    "item_status": {
+      "safe": "On track",
+      "warning": "Near limit",
+      "over": "Over budget"
+    },
+    "recent_transactions": "Recent Transactions",
+    "see_more": "See more",
+    "transactions_empty": "No transactions in this budget period.",
+    "transaction_default": "Transaction",
+    "transaction_fallback": "Transaction",
+    "edit_item_modal": {
+      "title": "Edit Item",
+      "description": "Update limit for \"{{name}}\".",
+      "category_label": "Category",
+      "limit_label": "Limit",
+      "threshold_label": "Alert Thresholds",
+      "confirm": "Save",
+      "save": "Save",
+      "saving": "Saving...",
+      "cancel": "Cancel",
+      "invalid_limit": "Item limit must be greater than 0",
+      "limit_error": "Item limit must be greater than 0",
+      "success": "Budget item updated",
+      "failed": "Could not update item"
+    },
+    "delete_item_modal": {
+      "title": "Delete budget item?",
+      "description": "Are you sure you want to delete \"{{name}}\"?",
+      "confirm": "Delete",
+      "cancel": "Cancel",
+      "deleting": "Deleting...",
+      "success": "Budget item deleted",
+      "failed": "Could not delete budget item"
+    },
+    "delete_budget_modal": {
+      "title": "Delete budget?",
+      "description": "Are you sure you want to delete \"{{name}}\"? This cannot be undone.",
+      "confirm": "Delete",
+      "cancel": "Cancel",
+      "success": "Budget deleted",
+      "failed": "Could not delete budget"
+    }
+  },
+
+  "form": {
+    "title_create": "Create Budget",
+    "title_edit": "Edit Budget",
+    "subtitle": "Manage spending limits by category and track progress alerts.",
+    "loading": "Loading budget data...",
+    "load_error": "Could not load budget data",
+    "back": "Back",
+    "basic_info_section": "Basic Information",
+    "name_label": "Budget Name",
+    "name_placeholder": "E.g. March spending budget",
+    "period_label": "Budget Period",
+    "period_options": {
+      "weekly": "Weekly",
+      "monthly": "Monthly",
+      "yearly": "Yearly",
+      "custom": "Custom"
+    },
+    "start_date_label": "Start Date",
+    "end_date_label": "End Date",
+    "rollover_label": "Rollover Remaining",
+    "rollover_hint": "If enabled, unused balance carries over to the next period.",
+    "alerts_label": "Enable Alerts",
+    "alerts_hint": "Notify when spending reaches selected thresholds.",
+    "type_label": "Transaction Type",
+    "type_options": {
+      "expense": "Expense",
+      "income": "Income",
+      "both": "Expense & Income"
+    },
+    "items_section": "Budget Items",
+    "items_hint": "Select expense categories to track and set individual limits.",
+    "items_empty": "No items added to this budget yet.",
+    "total_limit_label": "Total Limit",
+    "item_category_label": "Category",
+    "item_category_placeholder": "Select category to add",
+    "item_limit_label": "Limit",
+    "item_limit_placeholder": "Limit amount",
+    "add_item_button": "Add",
+    "remove_item_button": "Remove Item",
+    "alerts_section": "Alert Thresholds",
+    "alerts_enabled_label": "Enable budget alerts",
+    "alert_threshold_label": "Alert threshold",
+    "submit_create": "Create Budget",
+    "submit_edit": "Save Changes",
+    "submitting": "Saving...",
+    "cancel": "Cancel",
+    "success_create": "Budget created",
+    "success_edit": "Budget updated",
+    "failed": "Could not save budget",
+    "errors": {
+      "name_required": "Please enter a budget name",
+      "start_date_required": "Please select a start date",
+      "end_date_required": "Custom budget requires an end date",
+      "end_date_before_start": "End date must be on or after the start date",
+      "items_required": "At least 1 budget item is required",
+      "item_limit_zero": "Each item must have a limit greater than 0",
+      "item_limit_invalid": "Limit must be greater than 0",
+      "item_category_required": "Please select a category",
+      "alert_threshold_required": "Select at least 1 alert threshold",
+      "save_failed": "Could not save budget",
+      "load_failed": "Could not load budget data"
+    }
+  },
+
+  "add_item": {
+    "title": "Add Budget Item",
+    "subtitle": "Select a spending category and set a limit for the current budget.",
+    "back": "Back",
+    "loading": "Loading data...",
+    "item_info_section": "Item Information",
+    "category_label": "Category",
+    "category_placeholder": "Select category",
+    "limit_label": "Limit",
+    "limit_placeholder": "E.g. 2000000",
+    "alert_threshold_label": "Alert threshold",
+    "submit": "Add Item",
+    "submitting": "Saving...",
+    "cancel": "Cancel",
+    "success": "Budget item added",
+    "errors": {
+      "category_required": "Please select a category",
+      "limit_invalid": "Limit must be greater than 0",
+      "alert_threshold_required": "Select at least 1 alert threshold",
+      "missing_budget_id": "Missing budget ID",
+      "load_failed": "Could not load data",
+      "save_failed": "Could not add budget item"
+    }
+  }
+}

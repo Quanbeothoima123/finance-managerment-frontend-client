@@ -1,1 +1,204 @@
-{}
+{
+  "overview": {
+    "title": "Tài khoản",
+    "total_assets": "Tổng tài sản",
+    "search_placeholder": "Tìm kiếm tài khoản...",
+    "create_button": "Tạo tài khoản",
+    "account_count": "{{count}} tài khoản",
+    "empty": {
+      "no_accounts": "Chưa có tài khoản nào",
+      "no_match": "Không có tài khoản nào phù hợp.",
+      "create_first": "Tạo tài khoản đầu tiên"
+    },
+    "loading": "Đang tải danh sách tài khoản...",
+    "status_filter": {
+      "active": "Đang dùng",
+      "archived": "Đã lưu trữ",
+      "all": "Tất cả"
+    },
+    "actions": {
+      "view": "Xem chi tiết",
+      "archive": "Lưu trữ",
+      "restore": "Khôi phục",
+      "delete": "Xoá tài khoản",
+      "adjust": "Điều chỉnh số dư",
+      "edit": "Chỉnh sửa"
+    },
+    "cannot_delete": "Tài khoản đã phát sinh dữ liệu hoặc đang được tham chiếu, không thể xoá",
+    "adjust_balance": {
+      "title": "Điều chỉnh số dư",
+      "current_balance_hint": "Số dư hiện tại: {{amount}}",
+      "actual_balance_label": "Số dư thực tế",
+      "actual_balance_placeholder": "Nhập số dư thực tế",
+      "reason_label": "Lý do",
+      "reason_default": "Chọn lý do (tuỳ chọn)",
+      "reason_options": {
+        "data_entry": "Nhập liệu sai",
+        "forgot_txn": "Quên ghi giao dịch",
+        "bank_fees": "Phí ngân hàng",
+        "other": "Khác"
+      },
+      "note_label": "Ghi chú",
+      "reason_placeholder": "Ví dụ: đối chiếu sao kê ngân hàng",
+      "difference": "Chênh lệch",
+      "confirm_button": "Xác nhận",
+      "cancel_button": "Huỷ",
+      "processing": "Đang xử lý...",
+      "success": "Đã điều chỉnh số dư",
+      "failed": "Không thể điều chỉnh số dư"
+    },
+    "delete_modal": {
+      "title": "Xoá tài khoản?",
+      "description": "Bạn có chắc muốn xoá tài khoản \"{{name}}\"? Hành động này không thể hoàn tác.",
+      "confirm": "Xoá",
+      "cancel": "Huỷ",
+      "success": "Đã xoá tài khoản",
+      "failed": "Không thể xoá tài khoản"
+    },
+    "toast": {
+      "archived": "Đã lưu trữ tài khoản",
+      "restored": "Đã khôi phục tài khoản",
+      "status_failed": "Không thể cập nhật trạng thái tài khoản",
+      "load_failed": "Không thể tải danh sách tài khoản"
+    }
+  },
+
+  "detail": {
+    "title": "Chi tiết tài khoản",
+    "back": "Quay lại",
+    "tabs": {
+      "transactions": "Giao dịch",
+      "insights": "Thống kê"
+    },
+    "fields": {
+      "account_type": "Loại tài khoản",
+      "account_number": "Số tài khoản",
+      "opening_balance": "Số dư đầu kỳ",
+      "current_balance": "Số dư hiện tại",
+      "actual_balance": "Số dư thực tế",
+      "currency": "Tiền tệ",
+      "institution": "Tổ chức",
+      "account_owner": "Chủ tài khoản",
+      "last_updated": "Cập nhật gần nhất"
+    },
+    "stats": {
+      "total_income": "Tổng thu",
+      "total_expense": "Tổng chi",
+      "transactions": "Giao dịch"
+    },
+    "actions": {
+      "adjust_balance": "Điều chỉnh số dư",
+      "transfer": "Chuyển tiền",
+      "add_transaction": "Thêm giao dịch",
+      "edit": "Chỉnh sửa",
+      "delete": "Xoá tài khoản",
+      "view_all": "Xem tất cả"
+    },
+    "recent_transactions": "Giao dịch gần đây",
+    "balance_growth": "Tăng trưởng số dư",
+    "cannot_delete": "Tài khoản đã phát sinh dữ liệu hoặc đang được tham chiếu, không thể xoá",
+    "archived_badge": "Đã lưu trữ",
+    "transaction_fallback": "Giao dịch",
+    "empty_transactions": "Chưa có giao dịch nào cho tài khoản này.",
+    "no_note": "--",
+    "info_section": "Thông tin tài khoản",
+    "usage_section": "Mức độ sử dụng",
+    "usage_description": "Tài khoản này đã phát sinh {{txnCount}} giao dịch và {{reconcileCount}} lần đối soát.",
+    "balance_growth_positive": "Số dư hiện tại là {{balance}} ₫, chênh lệch dương {{amount}} ₫ so với luồng tiền gần đây.",
+    "balance_growth_negative": "Số dư hiện tại là {{balance}} ₫, chênh lệch âm {{amount}} ₫ so với luồng tiền gần đây.",
+    "load_failed": "Không thể tải chi tiết tài khoản",
+    "loading": "Đang tải chi tiết tài khoản..."
+  },
+
+  "breakdown": {
+    "title": "Phân tích tài khoản",
+    "subtitle": "So sánh số dư và biến động của các tài khoản",
+    "back": "Quay lại",
+    "total_balance": "Tổng số dư hiện tại",
+    "change": "Thay đổi",
+    "account_count": "Số tài khoản",
+    "growth_up": "{{up}} tăng, {{down}} giảm",
+    "balance_comparison": "So sánh số dư",
+    "chart_subtitle": "Phân bổ số dư giữa các tài khoản",
+    "account_list": "Chi tiết tài khoản ({{count}})",
+    "distribution_by_type": "Phân bổ theo loại",
+    "balance_increased": "Tổng số dư của bạn đã tăng",
+    "balance_decreased": "Tổng số dư của bạn đã giảm",
+    "growth_good": "Tăng trưởng tốt",
+    "growth_body": "Tổng số dư của bạn đã tăng {{amount}} trong kỳ này. Tiếp tục duy trì!",
+    "decline_note": "Lưu ý",
+    "decline_body": "Có {{count}} tài khoản đang giảm số dư. Hãy kiểm tra để đảm bảo tài chính ổn định.",
+    "truncation_warning": "Đang hiển thị {{shown}}/{{total}} giao dịch. Số liệu có thể chưa đầy đủ.",
+    "retry": "Thử lại",
+    "load_failed": "Không thể tải dữ liệu",
+    "empty": "Chưa có tài khoản nào",
+    "period_label": "Khoảng thời gian",
+    "period_options": {
+      "this_month": "Tháng này",
+      "last_month": "Tháng trước",
+      "last_3_months": "3 tháng qua",
+      "last_6_months": "6 tháng qua",
+      "this_year": "Năm nay"
+    },
+    "chart": {
+      "balance_label": "Số dư",
+      "income_label": "Thu nhập",
+      "expense_label": "Chi tiêu"
+    },
+    "account_types": {
+      "bank": "Ngân hàng",
+      "cash": "Tiền mặt",
+      "ewallet": "Ví điện tử",
+      "savings": "Tiết kiệm",
+      "investment": "Đầu tư",
+      "credit": "Tín dụng",
+      "credit_card": "Tín dụng",
+      "e_wallet": "Ví điện tử"
+    }
+  },
+
+  "form": {
+    "title_create": "Tạo tài khoản mới",
+    "title_edit": "Chỉnh sửa tài khoản",
+    "subtitle_create": "Thêm tài khoản mới để quản lý tài chính của bạn",
+    "subtitle_edit": "Cập nhật thông tin tài khoản",
+    "back": "Quay lại",
+    "section_basic": "Thông tin cơ bản",
+    "section_balance": "Số dư",
+    "section_extra": "Thông tin thêm",
+    "account_name_label": "Tên tài khoản",
+    "account_name_placeholder": "VD: Tiền mặt, Vietcombank...",
+    "account_type_label": "Loại tài khoản",
+    "account_types": {
+      "cash": "Tiền mặt",
+      "bank": "Ngân hàng",
+      "ewallet": "Ví điện tử",
+      "savings": "Tiết kiệm",
+      "investment": "Đầu tư",
+      "credit": "Thẻ tín dụng"
+    },
+    "institution_label": "Tổ chức",
+    "institution_placeholder": "Chọn tổ chức",
+    "account_number_label": "Số tài khoản / số ví",
+    "account_number_placeholder": "Nhập số tài khoản hoặc số điện thoại ví",
+    "account_owner_label": "Chủ tài khoản",
+    "account_owner_placeholder": "Tên chủ tài khoản",
+    "currency_label": "Đơn vị tiền tệ",
+    "opening_balance_label": "Số dư ban đầu",
+    "active_status_label": "Trạng thái hoạt động",
+    "submit_create": "Tạo tài khoản",
+    "submit_edit": "Lưu thay đổi",
+    "submitting": "Đang lưu...",
+    "cancel": "Huỷ",
+    "loading": "Đang tải thông tin tài khoản...",
+    "success_create": "Đã tạo tài khoản mới",
+    "success_edit": "Đã cập nhật tài khoản",
+    "errors": {
+      "name_required": "Vui lòng nhập tên tài khoản",
+      "institution_required": "Vui lòng chọn tổ chức",
+      "account_number_required": "Vui lòng nhập số tài khoản cho tài khoản ngân hàng",
+      "opening_balance_negative": "Số dư ban đầu không thể âm",
+      "save_failed": "Không thể lưu tài khoản"
+    }
+  }
+}

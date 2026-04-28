@@ -9,6 +9,7 @@ import {
   PiggyBank,
 } from "lucide-react";
 import { useParams } from "react-router";
+import { useTranslation } from "react-i18next";
 import { Card } from "../components/Card";
 import { Button } from "../components/Button";
 import { Input } from "../components/Input";
@@ -89,6 +90,7 @@ export default function CreateEditBudget({
   const { id } = useParams<{ id: string }>();
   const nav = useAppNavigation();
   const toast = useToast();
+  const { t } = useTranslation("budgets");
   const isEditMode = mode === "edit";
 
   const {
@@ -189,11 +191,11 @@ export default function CreateEditBudget({
     const nextErrors: Record<string, string> = {};
 
     if (!newItemCategoryId) {
-      nextErrors.newItemCategoryId = "Vui lòng chọn danh mục";
+      nextErrors.newItemCategoryId = t("form.errors.item_category_required");
     }
 
     if (!newItemLimit || Number(newItemLimit) <= 0) {
-      nextErrors.newItemLimit = "Giới hạn phải lớn hơn 0";
+      nextErrors.newItemLimit = t("form.errors.item_limit_invalid");
     }
 
     if (Object.keys(nextErrors).length > 0) {
@@ -246,15 +248,15 @@ export default function CreateEditBudget({
     const nextErrors: Record<string, string> = {};
 
     if (!formData.name.trim()) {
-      nextErrors.name = "Vui lòng nhập tên ngân sách";
+      nextErrors.name = t("form.errors.name_required");
     }
 
     if (!formData.startDate) {
-      nextErrors.startDate = "Vui lòng chọn ngày bắt đầu";
+      nextErrors.startDate = t("form.errors.start_date_required");
     }
 
     if (formData.periodType === "custom" && !formData.endDate) {
-      nextErrors.endDate = "Ngân sách custom cần ngày kết thúc";
+      nextErrors.endDate = t("form.errors.end_date_required");
     }
 
     if (
@@ -262,19 +264,19 @@ export default function CreateEditBudget({
       formData.startDate &&
       new Date(formData.endDate) < new Date(formData.startDate)
     ) {
-      nextErrors.endDate = "Ngày kết thúc phải sau hoặc bằng ngày bắt đầu";
+      nextErrors.endDate = t("form.errors.end_date_before_start");
     }
 
     if (items.length === 0) {
-      nextErrors.items = "Cần ít nhất 1 hạng mục ngân sách";
+      nextErrors.items = t("form.errors.items_required");
     }
 
     if (items.some((item) => Number(item.limitAmountMinor || 0) <= 0)) {
-      nextErrors.items = "Mỗi hạng mục phải có giới hạn lớn hơn 0";
+      nextErrors.items = t("form.errors.item_limit_zero");
     }
 
     if (formData.alertsEnabled && alertThresholds.length === 0) {
-      nextErrors.alertThresholds = "Chọn ít nhất 1 ngưỡng cảnh báo";
+      nextErrors.alertThresholds = t("form.errors.alert_threshold_required");
     }
 
     setErrors(nextErrors);
@@ -307,16 +309,16 @@ export default function CreateEditBudget({
 
       if (isEditMode && id) {
         const result = await budgetsService.updateBudget(id, payload);
-        toast.success("Đã cập nhật ngân sách");
+        toast.success(t("form.success_edit"));
         nav.goBudgetDetail(result.budget.id);
       } else {
         const result = await budgetsService.createBudget(payload);
-        toast.success("Đã tạo ngân sách");
+        toast.success(t("form.success_create"));
         nav.goBudgetDetail(result.budget.id);
       }
     } catch (err) {
       toast.error(
-        err instanceof Error ? err.message : "Không thể lưu ngân sách",
+        err instanceof Error ? err.message : t("form.errors.save_failed"),
       );
     } finally {
       setSubmitting(false);
@@ -328,7 +330,7 @@ export default function CreateEditBudget({
       <div className="min-h-screen bg-[var(--background)] p-4 md:p-6">
         <Card>
           <p className="text-sm text-[var(--text-secondary)]">
-            Đang tải dữ liệu ngân sách...
+            {t("form.loading")}
           </p>
         </Card>
       </div>
@@ -340,7 +342,7 @@ export default function CreateEditBudget({
       <div className="min-h-screen bg-[var(--background)] p-4 md:p-6">
         <Card>
           <p className="text-sm text-[var(--danger)]">
-            {metaError || detailError || "Không thể tải dữ liệu ngân sách"}
+            {metaError || detailError || t("form.load_error")}
           </p>
         </Card>
       </div>
@@ -356,27 +358,27 @@ export default function CreateEditBudget({
             className="flex items-center gap-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] mb-4 transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
-            <span className="font-medium">Quay lại</span>
+            <span className="font-medium">{t("form.back")}</span>
           </button>
 
           <h1 className="text-2xl font-semibold text-[var(--text-primary)]">
-            {isEditMode ? "Chỉnh sửa ngân sách" : "Tạo ngân sách"}
+            {isEditMode ? t("form.title_edit") : t("form.title_create")}
           </h1>
           <p className="text-sm text-[var(--text-secondary)] mt-1">
-            Quản lý giới hạn theo danh mục và cảnh báo tiến độ ngân sách.
+            {t("form.subtitle")}
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <Card>
             <h3 className="font-semibold text-[var(--text-primary)] mb-4">
-              Thông tin cơ bản
+              {t("form.basic_info_section")}
             </h3>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Input
-                label="Tên ngân sách"
-                placeholder="Ví dụ: Ngân sách chi tiêu tháng 3"
+                label={t("form.name_label")}
+                placeholder={t("form.name_placeholder")}
                 value={formData.name}
                 onChange={(event) =>
                   setFormData((prev) => ({ ...prev, name: event.target.value }))
@@ -386,7 +388,7 @@ export default function CreateEditBudget({
 
               <div>
                 <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-                  Kỳ ngân sách
+                  {t("form.period_label")}
                 </label>
                 <select
                   value={formData.periodType}
@@ -397,16 +399,24 @@ export default function CreateEditBudget({
                   }
                   className="w-full px-4 py-2.5 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-lg)]"
                 >
-                  <option value="monthly">Hàng tháng</option>
-                  <option value="weekly">Hàng tuần</option>
-                  <option value="yearly">Hàng năm</option>
-                  <option value="custom">Tùy chỉnh</option>
+                  <option value="monthly">
+                    {t("form.period_options.monthly")}
+                  </option>
+                  <option value="weekly">
+                    {t("form.period_options.weekly")}
+                  </option>
+                  <option value="yearly">
+                    {t("form.period_options.yearly")}
+                  </option>
+                  <option value="custom">
+                    {t("form.period_options.custom")}
+                  </option>
                 </select>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-                  Ngày bắt đầu
+                  {t("form.start_date_label")}
                 </label>
                 <input
                   type="date"
@@ -428,7 +438,7 @@ export default function CreateEditBudget({
 
               <div>
                 <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-                  Ngày kết thúc
+                  {t("form.end_date_label")}
                 </label>
                 <input
                   type="date"
@@ -453,10 +463,10 @@ export default function CreateEditBudget({
               <label className="flex items-center justify-between gap-4 cursor-pointer p-4 rounded-[var(--radius-lg)] bg-[var(--surface)]">
                 <div>
                   <p className="font-medium text-[var(--text-primary)]">
-                    Chuyển phần dư
+                    {t("form.rollover_label")}
                   </p>
                   <p className="text-sm text-[var(--text-secondary)]">
-                    Nếu bật, phần dư sẽ được giữ lại sang kỳ tiếp theo.
+                    {t("form.rollover_hint")}
                   </p>
                 </div>
 
@@ -482,10 +492,10 @@ export default function CreateEditBudget({
                   )}
                   <div>
                     <p className="font-medium text-[var(--text-primary)]">
-                      Bật cảnh báo
+                      {t("form.alerts_label")}
                     </p>
                     <p className="text-sm text-[var(--text-secondary)]">
-                      Nhắc khi chi tiêu chạm các ngưỡng đã chọn.
+                      {t("form.alerts_hint")}
                     </p>
                   </div>
                 </div>
@@ -507,7 +517,7 @@ export default function CreateEditBudget({
             {formData.alertsEnabled && (
               <div className="mt-4">
                 <p className="text-sm font-medium text-[var(--text-primary)] mb-2">
-                  Ngưỡng cảnh báo
+                  {t("form.alerts_section")}
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {THRESHOLDS.map((threshold) => {
@@ -541,16 +551,16 @@ export default function CreateEditBudget({
             <div className="flex items-center justify-between gap-3 mb-4">
               <div>
                 <h3 className="font-semibold text-[var(--text-primary)]">
-                  Hạng mục ngân sách
+                  {t("form.items_section")}
                 </h3>
                 <p className="text-sm text-[var(--text-secondary)] mt-1">
-                  Chọn các danh mục chi tiêu cần theo dõi và đặt giới hạn riêng.
+                  {t("form.items_hint")}
                 </p>
               </div>
 
               <div className="text-right">
                 <p className="text-xs text-[var(--text-secondary)]">
-                  Tổng giới hạn
+                  {t("form.total_limit_label")}
                 </p>
                 <p className="font-semibold text-[var(--text-primary)] tabular-nums">
                   {formatMoney(totalLimit)}₫
@@ -565,7 +575,9 @@ export default function CreateEditBudget({
                   onChange={(event) => setNewItemCategoryId(event.target.value)}
                   className="w-full px-4 py-2.5 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-lg)]"
                 >
-                  <option value="">Chọn danh mục để thêm</option>
+                  <option value="">
+                    {t("form.item_category_placeholder")}
+                  </option>
                   {availableCategories.map((category) => (
                     <option key={category.id} value={category.id}>
                       {category.name}
@@ -585,7 +597,7 @@ export default function CreateEditBudget({
                   min="0"
                   value={newItemLimit}
                   onChange={(event) => setNewItemLimit(event.target.value)}
-                  placeholder="Giới hạn"
+                  placeholder={t("form.item_limit_placeholder")}
                   className="w-full px-4 py-2.5 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-lg)]"
                 />
                 {errors.newItemLimit && (
@@ -602,7 +614,7 @@ export default function CreateEditBudget({
                   onClick={handleAddItem}
                 >
                   <Plus className="w-4 h-4" />
-                  Thêm
+                  {t("form.add_item_button")}
                 </Button>
               </div>
             </div>
@@ -618,7 +630,7 @@ export default function CreateEditBudget({
                 <div className="rounded-[var(--radius-lg)] border border-dashed border-[var(--border)] p-6 text-center">
                   <PiggyBank className="w-8 h-8 text-[var(--text-tertiary)] mx-auto mb-2" />
                   <p className="text-sm text-[var(--text-secondary)]">
-                    Chưa có hạng mục nào trong ngân sách này.
+                    {t("form.items_empty")}
                   </p>
                 </div>
               ) : (
@@ -629,14 +641,15 @@ export default function CreateEditBudget({
                   >
                     <div className="md:col-span-7 min-w-0">
                       <p className="font-medium text-[var(--text-primary)] truncate">
-                        {item.category?.name || "Danh mục"}
+                        {item.category?.name ||
+                          t("detail.item_card.default_category")}
                       </p>
                       <p className="text-xs text-[var(--text-secondary)] mt-1">
                         {item.category?.categoryType === "both"
-                          ? "Chi tiêu / Thu nhập"
+                          ? t("form.type_options.both")
                           : item.category?.categoryType === "income"
-                            ? "Thu nhập"
-                            : "Chi tiêu"}
+                            ? t("form.type_options.income")
+                            : t("form.type_options.expense")}
                       </p>
                     </div>
 
@@ -669,16 +682,16 @@ export default function CreateEditBudget({
 
           <div className="flex flex-col-reverse md:flex-row gap-3">
             <Button type="button" variant="secondary" onClick={nav.goBack}>
-              Huỷ
+              {t("form.cancel")}
             </Button>
 
             <Button type="submit" disabled={submitting}>
               <Save className="w-4 h-4" />
               {submitting
-                ? "Đang lưu..."
+                ? t("form.submitting")
                 : isEditMode
-                  ? "Lưu thay đổi"
-                  : "Tạo ngân sách"}
+                  ? t("form.submit_edit")
+                  : t("form.submit_create")}
             </Button>
           </div>
         </form>

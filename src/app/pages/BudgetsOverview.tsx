@@ -12,6 +12,7 @@ import {
   CheckCircle2,
   TrendingUp,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Card } from "../components/Card";
 import { Button } from "../components/Button";
 import { DeleteBudgetModal } from "../components/ConfirmationModals";
@@ -48,13 +49,6 @@ function getBudgetStatus(item: BudgetSummaryItem) {
   if (item.progressPercent > 100) return "over";
   if (item.progressPercent >= 80) return "warning";
   return "safe";
-}
-
-function getStatusText(item: BudgetSummaryItem) {
-  const status = getBudgetStatus(item);
-  if (status === "over") return "Vượt ngân sách";
-  if (status === "warning") return "Sắp vượt";
-  return "Đúng kế hoạch";
 }
 
 function getStatusStyles(item: BudgetSummaryItem) {
@@ -94,9 +88,15 @@ function BudgetCard({
   onEdit: () => void;
   onDelete: () => void;
 }) {
+  const { t } = useTranslation("budgets");
   const previewCategory = item.itemsPreview[0]?.category || null;
   const styles = getStatusStyles(item);
   const Icon = styles.Icon;
+
+  const getStatusText = (item: BudgetSummaryItem) => {
+    const status = getBudgetStatus(item);
+    return t(`overview.card.status.${status}`);
+  };
 
   return (
     <Card
@@ -122,7 +122,7 @@ function BudgetCard({
               {item.name}
             </p>
             <p className="text-xs text-[var(--text-secondary)] mt-0.5">
-              {item.itemCount} hạng mục
+              {t("overview.item_count", { count: item.itemCount })}
             </p>
           </div>
         </div>
@@ -161,7 +161,9 @@ function BudgetCard({
       <div className="flex items-center justify-between pt-3 border-t border-[var(--divider)]">
         <div className="flex items-center gap-2 text-xs text-[var(--text-tertiary)]">
           <Icon className={`w-4 h-4 ${styles.text}`} />
-          <span>{formatMoney(item.remainingMinor)}₫ còn lại</span>
+          <span>
+            {formatMoney(item.remainingMinor)}₫ {t("overview.remaining_label")}
+          </span>
         </div>
 
         <div className="flex items-center gap-1">
@@ -193,6 +195,7 @@ function BudgetCard({
 export default function BudgetsOverview() {
   const nav = useAppNavigation();
   const toast = useToast();
+  const { t } = useTranslation("budgets");
 
   const [month, setMonth] = useState(getCurrentMonthKey());
   const [status, setStatus] = useState<
@@ -239,12 +242,12 @@ export default function BudgetsOverview() {
     try {
       setDeleting(true);
       await budgetsService.deleteBudget(deleteTarget.id);
-      toast.success(`Đã xoá ngân sách "${deleteTarget.name}"`);
+      toast.success(t("overview.delete_modal.success"));
       setDeleteTarget(null);
       await reload();
     } catch (err) {
       toast.error(
-        err instanceof Error ? err.message : "Không thể xoá ngân sách",
+        err instanceof Error ? err.message : t("overview.delete_modal.failed"),
       );
     } finally {
       setDeleting(false);
@@ -268,7 +271,7 @@ export default function BudgetsOverview() {
                 {formatMonthLabel(month)}
               </h1>
               <p className="text-sm text-[var(--text-secondary)] mt-1">
-                Tổng quan ngân sách theo dữ liệu thật từ backend
+                {t("overview.budget_subtitle")}
               </p>
             </div>
 
@@ -282,14 +285,14 @@ export default function BudgetsOverview() {
 
           <Button onClick={nav.goCreateBudget}>
             <Plus className="w-4 h-4" />
-            Tạo ngân sách
+            {t("overview.create_button")}
           </Button>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card>
             <p className="text-sm text-[var(--text-secondary)] mb-1">
-              Tổng ngân sách
+              {t("overview.total_budget")}
             </p>
             <p className="text-2xl font-semibold text-[var(--text-primary)] tabular-nums">
               {formatMoney(data?.summary.totalLimitMinor || 0)}₫
@@ -297,14 +300,18 @@ export default function BudgetsOverview() {
           </Card>
 
           <Card>
-            <p className="text-sm text-[var(--text-secondary)] mb-1">Đã chi</p>
+            <p className="text-sm text-[var(--text-secondary)] mb-1">
+              {t("overview.spent")}
+            </p>
             <p className="text-2xl font-semibold text-[var(--text-primary)] tabular-nums">
               {formatMoney(data?.summary.spentMinor || 0)}₫
             </p>
           </Card>
 
           <Card>
-            <p className="text-sm text-[var(--text-secondary)] mb-1">Còn lại</p>
+            <p className="text-sm text-[var(--text-secondary)] mb-1">
+              {t("overview.remaining")}
+            </p>
             <p className="text-2xl font-semibold text-[var(--text-primary)] tabular-nums">
               {formatMoney(data?.summary.remainingMinor || 0)}₫
             </p>
@@ -312,17 +319,17 @@ export default function BudgetsOverview() {
 
           <Card>
             <p className="text-sm text-[var(--text-secondary)] mb-1">
-              Trạng thái
+              {t("overview.status_label")}
             </p>
             <div className="flex items-center gap-3 mt-2 text-sm">
               <span className="text-[var(--success)] font-medium">
-                {stats.safe} ổn
+                {t("overview.stats.safe", { count: stats.safe })}
               </span>
               <span className="text-[var(--warning)] font-medium">
-                {stats.warning} cảnh báo
+                {t("overview.stats.warning", { count: stats.warning })}
               </span>
               <span className="text-[var(--danger)] font-medium">
-                {stats.over} vượt
+                {t("overview.stats.over", { count: stats.over })}
               </span>
             </div>
           </Card>
@@ -334,7 +341,7 @@ export default function BudgetsOverview() {
               <Search className="w-4 h-4 text-[var(--text-tertiary)] absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
-                placeholder="Tìm theo tên ngân sách..."
+                placeholder={t("overview.search_placeholder")}
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
                 className="w-full pl-10 pr-4 py-2.5 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-lg)]"
@@ -355,10 +362,16 @@ export default function BudgetsOverview() {
                 }
                 className="w-full px-4 py-2.5 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-lg)]"
               >
-                <option value="active">Đang hoạt động</option>
-                <option value="inactive">Tạm dừng</option>
-                <option value="archived">Đã lưu trữ</option>
-                <option value="all">Tất cả</option>
+                <option value="active">
+                  {t("overview.status_filter.active")}
+                </option>
+                <option value="inactive">
+                  {t("overview.status_filter.inactive")}
+                </option>
+                <option value="archived">
+                  {t("overview.status_filter.archived")}
+                </option>
+                <option value="all">{t("overview.status_filter.all")}</option>
               </select>
             </div>
 
@@ -377,11 +390,17 @@ export default function BudgetsOverview() {
                 }
                 className="w-full px-4 py-2.5 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-lg)]"
               >
-                <option value="progress">Theo tiến độ</option>
-                <option value="spent">Theo đã chi</option>
-                <option value="name">Theo tên</option>
-                <option value="startDate">Theo ngày bắt đầu</option>
-                <option value="createdAt">Theo ngày tạo</option>
+                <option value="progress">
+                  {t("overview.sort.by_progress")}
+                </option>
+                <option value="spent">{t("overview.sort.by_spent")}</option>
+                <option value="name">{t("overview.sort.by_name")}</option>
+                <option value="startDate">
+                  {t("overview.sort.by_date_start")}
+                </option>
+                <option value="createdAt">
+                  {t("overview.sort.by_date_created")}
+                </option>
               </select>
             </div>
 
@@ -393,8 +412,8 @@ export default function BudgetsOverview() {
                 }
                 className="w-full px-4 py-2.5 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-lg)]"
               >
-                <option value="desc">Giảm dần</option>
-                <option value="asc">Tăng dần</option>
+                <option value="desc">{t("overview.sort.desc")}</option>
+                <option value="asc">{t("overview.sort.asc")}</option>
               </select>
             </div>
           </div>
@@ -403,7 +422,7 @@ export default function BudgetsOverview() {
         {loading && (
           <Card>
             <p className="text-sm text-[var(--text-secondary)]">
-              Đang tải danh sách ngân sách...
+              {t("overview.loading")}
             </p>
           </Card>
         )}
@@ -421,14 +440,14 @@ export default function BudgetsOverview() {
                 <PiggyBank className="w-6 h-6 text-[var(--text-tertiary)]" />
               </div>
               <h3 className="text-lg font-semibold text-[var(--text-primary)]">
-                Chưa có ngân sách nào
+                {t("overview.empty.title")}
               </h3>
               <p className="text-sm text-[var(--text-secondary)] mt-2 mb-5">
-                Tạo ngân sách đầu tiên để theo dõi chi tiêu theo nhóm danh mục.
+                {t("overview.empty.description")}
               </p>
               <Button onClick={nav.goCreateBudget}>
                 <Plus className="w-4 h-4" />
-                Tạo ngân sách
+                {t("overview.empty.create_button")}
               </Button>
             </div>
           </Card>

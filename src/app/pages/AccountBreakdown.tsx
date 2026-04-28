@@ -8,6 +8,7 @@ import {
   Loader2,
   AlertTriangle,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Card } from "../components/Card";
 import {
   BarChart,
@@ -31,23 +32,6 @@ const ACCOUNT_TYPE_COLORS: Record<string, string> = {
   savings: "#8b5cf6",
 };
 
-const ACCOUNT_TYPE_LABELS: Record<string, string> = {
-  bank: "Ngân hàng",
-  cash: "Tiền mặt",
-  credit_card: "Tín dụng",
-  e_wallet: "Ví điện tử",
-  investment: "Đầu tư",
-  savings: "Tiết kiệm",
-};
-
-const dateRangeOptions = [
-  { id: "this-month", name: "Tháng này" },
-  { id: "last-month", name: "Tháng trước" },
-  { id: "last-3-months", name: "3 tháng qua" },
-  { id: "last-6-months", name: "6 tháng qua" },
-  { id: "this-year", name: "Năm nay" },
-];
-
 interface AccountDisplayData {
   id: string;
   name: string;
@@ -63,6 +47,7 @@ interface AccountItemProps {
 }
 
 function AccountItem({ account }: AccountItemProps) {
+  const { t } = useTranslation("accounts");
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("vi-VN").format(amount);
   };
@@ -81,7 +66,9 @@ function AccountItem({ account }: AccountItemProps) {
             {account.name}
           </p>
           <p className="text-xs text-[var(--text-secondary)]">
-            {ACCOUNT_TYPE_LABELS[account.type] || account.type}
+            {t(`breakdown.account_types.${account.type}`, {
+              defaultValue: account.type,
+            })}
           </p>
         </div>
       </div>
@@ -117,6 +104,24 @@ function AccountItem({ account }: AccountItemProps) {
 export default function AccountBreakdown() {
   const [dateRange, setDateRange] = useState("this-month");
   const nav = useAppNavigation();
+  const { t } = useTranslation("accounts");
+
+  const ACCOUNT_TYPE_LABELS: Record<string, string> = {
+    bank: t("breakdown.account_types.bank"),
+    cash: t("breakdown.account_types.cash"),
+    credit_card: t("breakdown.account_types.credit_card"),
+    e_wallet: t("breakdown.account_types.e_wallet"),
+    investment: t("breakdown.account_types.investment"),
+    savings: t("breakdown.account_types.savings"),
+  };
+
+  const dateRangeOptions = [
+    { id: "this-month", name: t("breakdown.period_options.this_month") },
+    { id: "last-month", name: t("breakdown.period_options.last_month") },
+    { id: "last-3-months", name: t("breakdown.period_options.last_3_months") },
+    { id: "last-6-months", name: t("breakdown.period_options.last_6_months") },
+    { id: "this-year", name: t("breakdown.period_options.this_year") },
+  ];
 
   // ── Data fetching ──
   const { data: accData, loading: accLoading } = useAccountsOverview();
@@ -176,7 +181,8 @@ export default function AccountBreakdown() {
     reload: reloadTxn,
   } = useTransactionsList(txnQuery);
   const transactions = txnData?.items ?? [];
-  const isTruncated = (txnData?.pagination?.total ?? 0) > (txnData?.items?.length ?? 0);
+  const isTruncated =
+    (txnData?.pagination?.total ?? 0) > (txnData?.items?.length ?? 0);
 
   // Compute account data with change from transactions
   const accountData: AccountDisplayData[] = useMemo(() => {
@@ -226,24 +232,22 @@ export default function AccountBreakdown() {
   // Group accounts by type for distribution
   const typeGroups = useMemo(() => {
     const typeSet = new Set(accountData.map((a) => a.type));
-    return [...typeSet]
-      .map((type) => {
-        const accs = accountData.filter((a) => a.type === type);
-        const totalBalance = accs.reduce((s, a) => s + a.currentBalance, 0);
-        return {
-          type,
-          label: ACCOUNT_TYPE_LABELS[type] || type,
-          accounts: accs,
-          color: ACCOUNT_TYPE_COLORS[type] || "#6b7280",
-          totalBalance,
-          percentage:
-            totalCurrentBalance > 0
-              ? (totalBalance / totalCurrentBalance) * 100
-              : 0,
-        };
-      })
-      .sort((a, b) => b.totalBalance - a.totalBalance);
-  }, [accountData, totalCurrentBalance]);
+    return [...typeSet].map((type) => {
+      const accs = accountData.filter((a) => a.type === type);
+      const totalBalance = accs.reduce((s, a) => s + a.currentBalance, 0);
+      return {
+        type,
+        label: ACCOUNT_TYPE_LABELS[type] || type,
+        accounts: accs,
+        color: ACCOUNT_TYPE_COLORS[type] || "#6b7280",
+        totalBalance,
+        percentage:
+          totalCurrentBalance > 0
+            ? (totalBalance / totalCurrentBalance) * 100
+            : 0,
+      };
+    });
+  }, [accountData, totalCurrentBalance, ACCOUNT_TYPE_LABELS]);
 
   if (accLoading || txnLoading) {
     return (
@@ -259,7 +263,7 @@ export default function AccountBreakdown() {
         <div className="text-center">
           <AlertTriangle className="w-10 h-10 text-[var(--danger)] mx-auto mb-3" />
           <p className="text-[var(--text-primary)] font-medium mb-1">
-            Không thể tải dữ liệu
+            {t("breakdown.load_failed")}
           </p>
           <p className="text-sm text-[var(--text-secondary)] mb-4">
             {txnError}
@@ -268,7 +272,7 @@ export default function AccountBreakdown() {
             onClick={reloadTxn}
             className="px-4 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white rounded-[var(--radius-lg)] text-sm font-medium transition-colors"
           >
-            Thử lại
+            {t("breakdown.retry")}
           </button>
         </div>
       </div>
@@ -285,14 +289,14 @@ export default function AccountBreakdown() {
             className="flex items-center gap-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] mb-4 transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
-            <span className="font-medium">Quay lại</span>
+            <span className="font-medium">{t("breakdown.back")}</span>
           </button>
 
           <h1 className="text-2xl font-semibold text-[var(--text-primary)]">
-            Phân tích tài khoản
+            {t("breakdown.title")}
           </h1>
           <p className="text-sm text-[var(--text-secondary)] mt-1">
-            So sánh số dư và biến động của các tài khoản
+            {t("breakdown.subtitle")}
           </p>
         </div>
 
@@ -301,8 +305,10 @@ export default function AccountBreakdown() {
           <div className="flex items-center gap-2 px-4 py-2.5 bg-[var(--warning-light)] border border-[var(--warning)] text-[var(--warning)] rounded-[var(--radius-lg)] text-sm">
             <AlertTriangle className="w-4 h-4 shrink-0" />
             <span>
-              Đang hiển thị {txnData?.items?.length}/{txnData?.pagination?.total} giao dịch.
-              Số liệu có thể chưa đầy đủ.
+              {t("breakdown.truncation_warning", {
+                shown: txnData?.items?.length,
+                total: txnData?.pagination?.total,
+              })}
             </span>
           </div>
         )}
@@ -312,7 +318,7 @@ export default function AccountBreakdown() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-                Khoảng thời gian
+                {t("breakdown.period_label")}
               </label>
               <div className="relative">
                 <select
@@ -336,7 +342,7 @@ export default function AccountBreakdown() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Card>
             <p className="text-sm text-[var(--text-secondary)] mb-2">
-              Tổng số dư hiện tại
+              {t("breakdown.total_balance")}
             </p>
             <p className="text-2xl font-bold text-[var(--text-primary)] tabular-nums">
               {formatCurrency(totalCurrentBalance)}₫
@@ -345,7 +351,7 @@ export default function AccountBreakdown() {
 
           <Card>
             <p className="text-sm text-[var(--text-secondary)] mb-2">
-              Thay đổi
+              {t("breakdown.change")}
             </p>
             <p
               className={`text-2xl font-bold tabular-nums ${
@@ -371,13 +377,16 @@ export default function AccountBreakdown() {
 
           <Card>
             <p className="text-sm text-[var(--text-secondary)] mb-2">
-              Số tài khoản
+              {t("breakdown.account_count")}
             </p>
             <p className="text-2xl font-bold text-[var(--text-primary)] tabular-nums">
               {accountData.length}
             </p>
             <p className="text-xs text-[var(--text-secondary)] mt-1">
-              {accountsWithGrowth} tăng, {accountsWithDecline} giảm
+              {t("breakdown.growth_up", {
+                up: accountsWithGrowth,
+                down: accountsWithDecline,
+              })}
             </p>
           </Card>
         </div>
@@ -386,10 +395,10 @@ export default function AccountBreakdown() {
         <Card>
           <div className="mb-4">
             <h3 className="font-semibold text-[var(--text-primary)]">
-              So sánh số dư
+              {t("breakdown.balance_comparison")}
             </h3>
             <p className="text-sm text-[var(--text-secondary)] mt-1">
-              Phân bổ số dư giữa các tài khoản
+              {t("breakdown.chart_subtitle")}
             </p>
           </div>
 
@@ -423,7 +432,7 @@ export default function AccountBreakdown() {
                     }}
                     formatter={(value: number) => [
                       `${formatCurrency(value)}₫`,
-                      "Số dư",
+                      t("breakdown.chart.balance_label"),
                     ]}
                   />
                   <Bar dataKey="currentBalance" radius={[0, 8, 8, 0]}>
@@ -437,7 +446,7 @@ export default function AccountBreakdown() {
           ) : (
             <div className="h-96 flex items-center justify-center">
               <p className="text-sm text-[var(--text-tertiary)]">
-                Chưa có tài khoản nào
+                {t("breakdown.empty")}
               </p>
             </div>
           )}
@@ -446,7 +455,7 @@ export default function AccountBreakdown() {
         {/* Account List */}
         <Card>
           <h3 className="font-semibold text-[var(--text-primary)] mb-4">
-            Chi tiết tài khoản ({accountData.length})
+            {t("breakdown.account_list", { count: accountData.length })}
           </h3>
           <div className="space-y-0">
             {accountData
@@ -467,14 +476,12 @@ export default function AccountBreakdown() {
                 </div>
                 <div className="flex-1">
                   <h4 className="font-semibold text-[var(--text-primary)] mb-1">
-                    Tăng trưởng tốt
+                    {t("breakdown.growth_good")}
                   </h4>
                   <p className="text-sm text-[var(--text-secondary)]">
-                    Tổng số dư của bạn đã tăng{" "}
-                    <span className="font-semibold text-[var(--text-primary)]">
-                      {formatCurrency(totalChange)}₫
-                    </span>{" "}
-                    trong kỳ này. Tiếp tục duy trì!
+                    {t("breakdown.growth_body", {
+                      amount: `${formatCurrency(totalChange)}₫`,
+                    })}
                   </p>
                 </div>
               </div>
@@ -489,11 +496,12 @@ export default function AccountBreakdown() {
                 </div>
                 <div className="flex-1">
                   <h4 className="font-semibold text-[var(--text-primary)] mb-1">
-                    Lưu ý
+                    {t("breakdown.decline_note")}
                   </h4>
                   <p className="text-sm text-[var(--text-secondary)]">
-                    Có {accountsWithDecline} tài khoản đang giảm số dư. Hãy kiểm
-                    tra để đảm bảo tài chính ổn định.
+                    {t("breakdown.decline_body", {
+                      count: accountsWithDecline,
+                    })}
                   </p>
                 </div>
               </div>
@@ -504,7 +512,7 @@ export default function AccountBreakdown() {
         {/* Distribution Breakdown */}
         <Card>
           <h3 className="font-semibold text-[var(--text-primary)] mb-4">
-            Phân bổ theo loại
+            {t("breakdown.distribution_by_type")}
           </h3>
           <div className="space-y-4">
             {typeGroups.map((group) => (
@@ -519,7 +527,9 @@ export default function AccountBreakdown() {
                       {group.label}
                     </span>
                     <span className="text-xs text-[var(--text-secondary)]">
-                      ({group.accounts.length} tài khoản)
+                      {t("overview.account_count", {
+                        count: group.accounts.length,
+                      })}
                     </span>
                   </div>
                   <div className="text-right">
