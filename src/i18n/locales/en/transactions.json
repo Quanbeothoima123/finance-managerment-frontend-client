@@ -1,0 +1,308 @@
+{
+  "list": {
+    "title": "Transactions",
+    "search_placeholder": "Description, merchant, account...",
+    "filter_button": "Filter",
+    "sort_button": "Sort",
+    "add_transaction": "Add Transaction",
+    "add_transfer": "Transfer",
+    "empty": {
+      "no_transactions": "No transactions yet",
+      "no_match": "No transactions match your current filters.",
+      "add_first": "Add your first transaction"
+    },
+    "filter": {
+      "title": "Filters",
+      "type_label": "Transaction Type",
+      "account_label": "Account",
+      "category_label": "Category",
+      "merchant_label": "Merchant",
+      "tag_label": "Filter by tag",
+      "tag_placeholder": "No tag selected",
+      "date_from": "From date",
+      "date_to": "To date",
+      "logic_and": "AND",
+      "logic_or": "OR",
+      "tags_selected": "{{count}} tag(s) selected",
+      "mode": "Mode: {{mode}}",
+      "clear": "Clear filters",
+      "apply": "Apply"
+    },
+    "sort": {
+      "title": "Sort by",
+      "date_desc": "Newest first",
+      "date_asc": "Oldest first",
+      "amount_desc": "Amount: High to Low",
+      "amount_asc": "Amount: Low to High",
+      "count": "Count"
+    },
+    "group_count": "{{count}} transaction(s)",
+    "summary": {
+      "total_income": "Total Income",
+      "total_expense": "Total Expense"
+    },
+    "delete": {
+      "title": "Delete transaction?",
+      "description": "Are you sure you want to delete \"{{name}}\"? This cannot be undone.",
+      "confirm": "Delete",
+      "cancel": "Cancel",
+      "deleting": "Deleting...",
+      "success": "Transaction deleted",
+      "failed": "Could not delete transaction"
+    }
+  },
+
+  "form": {
+    "title_create": "Add Transaction",
+    "title_edit": "Edit Transaction",
+    "title_duplicate": "Duplicate Transaction",
+    "type_expense": "Expense",
+    "type_income": "Income",
+    "amount_label": "Amount",
+    "date_label": "Date",
+    "account_label": "Account",
+    "account_placeholder": "Select account",
+    "description_label": "Description",
+    "description_placeholder": "E.g. Coffee with client",
+    "category_label": "Category",
+    "category_placeholder": "Select category",
+    "category_split_hint": "Category is selected per split line",
+    "merchant_label": "Merchant",
+    "merchant_placeholder": "E.g. Highlands Coffee",
+    "merchant_no_list": "Don't select from list",
+    "merchant_create": "Create new merchant",
+    "tag_label": "Tags",
+    "tag_create": "Create new tag",
+    "note_label": "Note",
+    "note_placeholder": "Additional note for this transaction",
+    "options_section": "Options",
+    "image_section": "Attach Image",
+    "image_delete": "Remove image",
+    "image_preview_alt": "Attached image",
+    "submit_create": "Create Transaction",
+    "submit_edit": "Save Changes",
+    "submitting": "Saving...",
+    "success_create": "Transaction created",
+    "success_edit": "Transaction updated",
+    "image_upload_warning": "Transaction saved but image upload failed. Please try again.",
+    "image_pick": "Choose image (optional)",
+    "merchant_custom_hint": "Or enter a merchant name if not in the list.",
+    "merchant_default_hint": "This merchant has a default category and will be suggested when applicable.",
+    "is_transfer_title": "This is a transfer transaction",
+    "is_transfer_body": "Please use the Transfer screen to edit or duplicate this transfer.",
+    "go_transfer_screen": "Open transfer screen",
+    "errors": {
+      "amount_invalid": "Please enter a valid amount",
+      "account_required": "Please select an account",
+      "description_required": "Please enter a description",
+      "date_required": "Please select a date",
+      "category_required": "Please select a category",
+      "split_category_required": "All split lines must have a category",
+      "split_amount_required": "All split lines must have an amount greater than 0",
+      "split_total_mismatch": "Split total must equal the transaction total",
+      "save_failed": "Could not save transaction",
+      "load_failed": "Could not load transaction data"
+    }
+  },
+
+  "split": {
+    "toggle_label": "Split Transaction",
+    "add_line": "Add line",
+    "remove_line": "Remove line",
+    "line_label": "Line {{index}}",
+    "category_placeholder": "Select category",
+    "note_label": "Split line note",
+    "note_placeholder": "Optional",
+    "remaining": "Remaining",
+    "matched": "Matched",
+    "total_hint": "Total must equal {{amount}}",
+    "section_title": "Split categories"
+  },
+
+  "detail": {
+    "title": "Transaction Detail",
+    "fallback_name": "Transaction",
+    "not_found": "This transaction may have been deleted or does not exist.",
+    "fields": {
+      "date": "Transaction Date",
+      "type": "Type",
+      "account": "Account",
+      "from_account": "From Account",
+      "to_account": "To Account",
+      "category": "Category",
+      "merchant": "Merchant",
+      "note": "Note",
+      "split": "Split ({{count}} lines)",
+      "tags": "Tags",
+      "source": "Source"
+    },
+    "source_types": {
+      "manual": "Manual",
+      "auto": "Automatic",
+      "csv": "CSV Import",
+      "rule": "Auto Rule"
+    },
+    "type_labels": {
+      "income": "Income",
+      "expense": "Expense",
+      "transfer": "Transfer",
+      "adjustment": "Adjustment"
+    },
+    "image_alt": "Transaction image",
+    "split_details": "Split Details",
+    "no_note": "--",
+    "delete": {
+      "title": "Delete transaction?",
+      "description": "Are you sure you want to delete \"{{name}}\"? This cannot be undone.",
+      "confirm": "Delete",
+      "cancel": "Cancel",
+      "deleting": "Deleting...",
+      "success": "Transaction deleted",
+      "failed": "Could not delete transaction"
+    }
+  },
+
+  "transfer": {
+    "title_create": "New Transfer",
+    "title_edit": "Edit Transfer",
+    "title_duplicate": "Duplicate Transfer",
+    "amount_label": "Amount",
+    "date_label": "Date",
+    "from_account_label": "From Account",
+    "from_account_placeholder": "Select source account",
+    "to_account_label": "To Account",
+    "to_account_placeholder": "Select destination account",
+    "description_label": "Description",
+    "description_placeholder": "E.g. Transfer to savings account",
+    "note_label": "Note",
+    "note_placeholder": "Additional note (optional)",
+    "options_section": "Options",
+    "submit_create": "Create Transfer",
+    "submit_edit": "Save Changes",
+    "submitting": "Saving...",
+    "success_create": "Transfer created",
+    "success_edit": "Transfer updated",
+    "errors": {
+      "amount_invalid": "Please enter a valid amount",
+      "from_account_required": "Please select a source account",
+      "to_account_required": "Please select a destination account",
+      "same_account": "Destination account must differ from source account",
+      "description_required": "Please enter a description",
+      "date_required": "Please select a date",
+      "insufficient_balance": "Source account does not have enough balance",
+      "different_currency": "Cross-currency transfers are not yet supported",
+      "save_failed": "Could not save transfer",
+      "load_failed": "Could not load transfer data"
+    },
+    "service_fee_label": "Service Fee",
+    "deduction_preview": "Expected deduction from {{account}}: {{amount}}",
+    "wrong_type_title": "Wrong transaction type",
+    "wrong_type_body": "This transaction is not a transfer and cannot be opened with the transfer form."
+  },
+
+  "csv_import": {
+    "trigger_button": "Import from CSV",
+    "modal_title": "Import CSV File",
+    "steps": {
+      "upload": "Select a CSV file containing transactions",
+      "mapping": "Map column data",
+      "preview": "Preview {{count}} transactions"
+    },
+    "upload": {
+      "drop_hint": "Drag & drop a CSV file here",
+      "or": "or",
+      "browse_button": "Browse files",
+      "click_hint": "or click to select file",
+      "format_guide_title": "Supported CSV Format",
+      "format_guide_body": "Your CSV must have a header row as the first line. The following columns are auto-detected:"
+    },
+    "mapping": {
+      "title": "Column Mapping",
+      "description": "Review and adjust the mapping between CSV columns and data fields:",
+      "file_info": "{{rows}} rows, {{cols}} columns",
+      "skip_option": "— Skip —",
+      "invalid_rows": "{{count}} rows with errors (will be skipped)",
+      "first_row_preview": "First row (sample):",
+      "total": "Total",
+      "valid": "Valid",
+      "invalid": "Error",
+      "fields": {
+        "date": "Date",
+        "amount": "Amount",
+        "type": "Type",
+        "description": "Description",
+        "category": "Category",
+        "account": "Account",
+        "merchant": "Merchant",
+        "note": "Note"
+      }
+    },
+    "preview": {
+      "title": "Preview ({{count}} rows)",
+      "show_limit": "Showing 50 of {{total}} rows",
+      "submit": "Import {{count}} transactions",
+      "col_num": "#",
+      "col_type": "Type",
+      "col_description": "Description",
+      "col_amount": "Amount",
+      "col_date": "Date",
+      "col_status": "Status",
+      "row_num": "Row {{n}}",
+      "type_income": "Inc",
+      "type_expense": "Exp",
+      "type_transfer": "Transfer"
+    },
+    "footer_choose_again": "Choose file again",
+    "footer_back": "Back",
+    "date_format_error": "Invalid date format",
+    "default_description": "Transaction from CSV",
+    "default_category": "Other",
+    "default_account": "Main account",
+    "errors": {
+      "invalid_amount": "Invalid amount",
+      "missing_date": "Missing date, using today",
+      "missing_description": "Missing description"
+    }
+  },
+
+  "chat_parser": {
+    "tab_label": "Quick Input (chat)",
+    "input_placeholder": "E.g. \"coffee 45k momo\"",
+    "examples_label": "Quick input examples:",
+    "examples": [
+      "coffee 45k momo",
+      "salary oct vcb 15 million",
+      "shopping 200k cash"
+    ],
+    "analyze_button": "Analyze",
+    "apply_button": "Apply to form",
+    "edit_before_apply": "Edit before applying",
+    "merchant_available": "Available merchant",
+    "merchant_custom": "New merchant",
+    "merchant_none": "None",
+    "default_income_description": "Income",
+    "default_expense_description": "Expense",
+    "result": {
+      "type_label": "Type",
+      "amount_label": "Amount",
+      "account_label": "Account",
+      "category_label": "Category",
+      "description_label": "Description",
+      "amount_found": "Amount = {{value}}",
+      "type_found": "Type = {{value}}",
+      "account_found": "Account = {{account}}",
+      "merchant_found": "Merchant = {{merchant}}",
+      "category_found": "Category = {{category}}"
+    },
+    "errors": {
+      "account_required": "Please select an account",
+      "description_required": "Please enter a description",
+      "amount_required": "Please enter a valid amount",
+      "amount_not_found": "Could not find an amount.",
+      "account_not_found": "Could not identify an account.",
+      "account_ambiguous": "Multiple accounts matched, please select one.",
+      "unclear_input": "Input unclear. Try example: \"coffee 45k momo\""
+    },
+    "success_apply": "Data applied to form"
+  }
+}

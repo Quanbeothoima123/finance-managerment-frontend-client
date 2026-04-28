@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
+import { useTranslation } from "react-i18next";
 import {
   ArrowLeft,
   Wallet,
@@ -41,11 +42,11 @@ interface OnboardingWallet {
 
 const WALLET_TYPE_META: Record<
   WalletType,
-  { label: string; icon: typeof Wallet; color: string }
+  { icon: typeof Wallet; color: string }
 > = {
-  cash: { label: "Tiền mặt", icon: Banknote, color: "#10B981" },
-  ewallet: { label: "Ví điện tử", icon: Smartphone, color: "#8B5CF6" },
-  bank: { label: "Ngân hàng", icon: Landmark, color: "#3B82F6" },
+  cash: { icon: Banknote, color: "#10B981" },
+  ewallet: { icon: Smartphone, color: "#8B5CF6" },
+  bank: { icon: Landmark, color: "#3B82F6" },
 };
 
 const QUICK_SUGGESTIONS = [
@@ -86,7 +87,7 @@ const EWALLET_PROVIDERS = [
   "ZaloPay",
   "ShopeePay",
   "Viettel Money",
-  "Khác",
+  "__other__",
 ];
 const BANK_SUGGESTIONS = ["Vietcombank", "Techcombank", "MB", "ACB"];
 
@@ -99,12 +100,13 @@ export default function OnboardingWalletBalance() {
   const navigate = useNavigate();
   const toast = useToast();
   const { isAuthenticated, isHydrated } = useAuth();
+  const { t } = useTranslation("onboarding");
 
   const [currency, setCurrency] = useState("VND");
   const [wallets, setWallets] = useState<OnboardingWallet[]>([
     {
       id: genId(),
-      name: "Tiền mặt",
+      name: t("wallet_balance.account_types.cash"),
       type: "cash",
       balance: "0",
       icon: "banknote",
@@ -145,7 +147,7 @@ export default function OnboardingWalletBalance() {
       } catch (error) {
         if (!isMounted) return;
         toast.error(
-          getApiErrorMessage(error, "Không thể tải dữ liệu onboarding."),
+          getApiErrorMessage(error, t("wallet_balance.errors.load_failed")),
         );
       } finally {
         if (isMounted) setIsBootstrapping(false);
@@ -156,7 +158,7 @@ export default function OnboardingWalletBalance() {
     return () => {
       isMounted = false;
     };
-  }, [isAuthenticated, isHydrated, navigate, toast]);
+  }, [isAuthenticated, isHydrated, navigate, t, toast]);
 
   const availableSuggestions = useMemo(
     () =>
@@ -187,7 +189,7 @@ export default function OnboardingWalletBalance() {
 
   const deleteWallet = (id: string) => {
     if (wallets.length <= 1) {
-      toast.error("Cần ít nhất 1 ví để tiếp tục.");
+      toast.error(t("wallet_balance.min_wallet_error"));
       return;
     }
     setWallets((prev) => prev.filter((wallet) => wallet.id !== id));
@@ -228,19 +230,19 @@ export default function OnboardingWalletBalance() {
 
   const handleCreateWallet = () => {
     if (!createName.trim()) {
-      setCreateError("Vui lòng nhập tên ví.");
+      setCreateError(t("wallet_balance.wallet_name_required"));
       return;
     }
 
     if (createType === "bank" && !createAccountNumber.trim()) {
-      setCreateError("Vui lòng nhập số tài khoản cho ví ngân hàng.");
+      setCreateError(t("wallet_balance.account_number_required"));
       return;
     }
 
     const provider =
       createType === "cash"
         ? undefined
-        : createProvider === "Khác"
+        : createProvider === "__other__"
           ? createProviderOther.trim() || undefined
           : createProvider.trim() || undefined;
 
@@ -265,7 +267,7 @@ export default function OnboardingWalletBalance() {
     ]);
     setShowCreateSheet(false);
     resetCreateForm(createType);
-    toast.success("Đã thêm ví mới.");
+    toast.success(t("wallet_balance.wallet_added"));
   };
 
   const persistWallets = async (
@@ -290,12 +292,14 @@ export default function OnboardingWalletBalance() {
 
       toast.success(
         skipMode
-          ? "Đã tạo ví mặc định."
-          : `Đã tạo ${result.count} ví thành công!`,
+          ? t("wallet_balance.success_skip")
+          : t("wallet_balance.success_wallets", { count: result.count }),
       );
       navigate(resolveOnboardingPath(result.nextStep), { replace: true });
     } catch (error) {
-      toast.error(getApiErrorMessage(error, "Không thể lưu danh sách ví."));
+      toast.error(
+        getApiErrorMessage(error, t("wallet_balance.errors.save_failed")),
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -306,7 +310,7 @@ export default function OnboardingWalletBalance() {
       [
         {
           id: genId(),
-          name: "Tiền mặt",
+          name: t("wallet_balance.account_types.cash"),
           type: "cash",
           balance: "0",
           icon: "wallet",
@@ -319,7 +323,7 @@ export default function OnboardingWalletBalance() {
 
   const handleContinue = () => {
     if (!wallets.length) {
-      toast.error("Cần ít nhất 1 ví để tiếp tục.");
+      toast.error(t("wallet_balance.min_wallet_error"));
       return;
     }
     void persistWallets(wallets, false);
@@ -342,7 +346,9 @@ export default function OnboardingWalletBalance() {
         </button>
 
         <div className="flex flex-col items-center gap-1">
-          <span className="text-xs text-[var(--text-tertiary)]">Bước 2/3</span>
+          <span className="text-xs text-[var(--text-tertiary)]">
+            {t("wallet_balance.step")}
+          </span>
           <div className="w-24 h-1 bg-[var(--surface)] rounded-full overflow-hidden">
             <motion.div
               className="h-full bg-[var(--primary)] rounded-full"
@@ -358,7 +364,7 @@ export default function OnboardingWalletBalance() {
           disabled={isSubmitting || isBootstrapping}
           className="text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors px-2 py-1 disabled:opacity-50"
         >
-          Bỏ qua
+          {t("wallet_balance.skip")}
         </button>
       </motion.header>
 
@@ -370,18 +376,17 @@ export default function OnboardingWalletBalance() {
           className="mt-4 mb-5"
         >
           <h1 className="text-2xl font-semibold text-[var(--text-primary)] mb-2">
-            Tạo ví ban đầu
+            {t("wallet_balance.title")}
           </h1>
           <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-            Thêm ít nhất 1 ví để bắt đầu nhập giao dịch. Nếu chưa chắc số dư, cứ
-            để 0 — bạn chỉnh lại sau.
+            {t("wallet_balance.quick_subtitle")}
           </p>
         </motion.div>
 
         {isBootstrapping && (
           <div className="flex items-center gap-2 text-sm text-[var(--text-secondary)] mb-4">
             <Loader2 className="w-4 h-4 animate-spin" />
-            Đang đồng bộ thông tin ví mặc định...
+            {t("wallet_balance.loading")}
           </div>
         )}
 
@@ -393,7 +398,7 @@ export default function OnboardingWalletBalance() {
         >
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-sm font-medium text-[var(--text-primary)]">
-              Danh sách ví
+              {t("wallet_balance.wallet_list_title")}
             </h2>
             <button
               onClick={() => {
@@ -403,7 +408,7 @@ export default function OnboardingWalletBalance() {
               className="inline-flex items-center gap-1.5 px-3 py-2 rounded-[var(--radius-md)] bg-[var(--primary)] text-white text-sm"
             >
               <Plus className="w-4 h-4" />
-              Thêm ví
+              {t("wallet_balance.add_wallet")}
             </button>
           </div>
 
@@ -448,7 +453,7 @@ export default function OnboardingWalletBalance() {
                         </button>
                       </div>
                       <p className="text-[11px] text-[var(--text-tertiary)]">
-                        {meta.label}
+                        {t(`wallet_balance.account_types.${wallet.type}`)}
                       </p>
                     </div>
                   </div>
@@ -456,7 +461,7 @@ export default function OnboardingWalletBalance() {
                   <div className="grid gap-3">
                     <div>
                       <label className="block text-xs text-[var(--text-tertiary)] mb-1">
-                        Số dư ban đầu ({currency})
+                        {t("wallet_balance.balance_initial", { currency })}
                       </label>
                       <input
                         value={formatWithDots(wallet.balance || "0")}
@@ -467,7 +472,7 @@ export default function OnboardingWalletBalance() {
                         className="w-full px-3 py-2.5 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-md)] text-[var(--text-primary)] outline-none"
                       />
                       <p className="text-[11px] text-[var(--text-tertiary)] mt-1">
-                        {amountInWords || "Không đồng"}
+                        {amountInWords || t("wallet_balance.balance_zero")}
                       </p>
                     </div>
 
@@ -475,7 +480,7 @@ export default function OnboardingWalletBalance() {
                       <>
                         <div>
                           <label className="block text-xs text-[var(--text-tertiary)] mb-1">
-                            Nhà cung cấp / ngân hàng
+                            {t("wallet_balance.provider_label")}
                           </label>
                           <input
                             value={wallet.provider || ""}
@@ -490,7 +495,7 @@ export default function OnboardingWalletBalance() {
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                           <div>
                             <label className="block text-xs text-[var(--text-tertiary)] mb-1">
-                              Số tài khoản / mã ví
+                              {t("wallet_balance.account_number_label")}
                             </label>
                             <input
                               value={wallet.accountNumber || ""}
@@ -509,7 +514,7 @@ export default function OnboardingWalletBalance() {
                           </div>
                           <div>
                             <label className="block text-xs text-[var(--text-tertiary)] mb-1">
-                              Tên chủ tài khoản
+                              {t("wallet_balance.account_holder_label")}
                             </label>
                             <input
                               value={wallet.accountOwnerName || ""}
@@ -538,7 +543,7 @@ export default function OnboardingWalletBalance() {
           className="bg-[var(--surface-elevated)] border border-[var(--border)] rounded-[var(--radius-xl)] p-4 mb-4 shadow-[var(--shadow-sm)]"
         >
           <h2 className="text-sm font-medium text-[var(--text-primary)] mb-3">
-            Gợi ý nhanh
+            {t("wallet_balance.quick_suggestions_title")}
           </h2>
           <div className="flex flex-wrap gap-2">
             {availableSuggestions.map((item) => (
@@ -566,10 +571,12 @@ export default function OnboardingWalletBalance() {
             disabled={!canContinue}
             className={`w-full py-3.5 rounded-[var(--radius-lg)] font-medium text-base transition-all shadow-[var(--shadow-sm)] ${canContinue ? "bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--primary-hover)] active:scale-[0.98]" : "bg-[var(--border)] text-[var(--text-tertiary)] cursor-not-allowed"}`}
           >
-            {isSubmitting ? "Đang lưu..." : "Tiếp tục"}
+            {isSubmitting
+              ? t("wallet_balance.saving")
+              : t("wallet_balance.submit")}
           </button>
           <p className="text-center text-xs text-[var(--text-tertiary)] mt-3">
-            Bạn có thể chỉnh lại ví trong phần Accounts sau khi vào app.
+            {t("wallet_balance.settings_hint")}
           </p>
         </motion.div>
       </div>
@@ -597,7 +604,7 @@ export default function OnboardingWalletBalance() {
               <div className="px-5 pb-6">
                 <div className="flex items-center justify-between pb-4">
                   <h3 className="text-lg font-semibold text-[var(--text-primary)]">
-                    Thêm ví mới
+                    {t("wallet_balance.add_wallet_sheet_title")}
                   </h3>
                   <button
                     onClick={() => setShowCreateSheet(false)}
@@ -614,7 +621,7 @@ export default function OnboardingWalletBalance() {
                       onClick={() => resetCreateForm(type)}
                       className={`px-3 py-2 rounded-full border text-sm ${createType === type ? "border-[var(--primary)] bg-[var(--primary-light)] text-[var(--primary)]" : "border-[var(--border)] text-[var(--text-secondary)]"}`}
                     >
-                      {WALLET_TYPE_META[type].label}
+                      {t(`wallet_balance.account_types.${type}`)}
                     </button>
                   ))}
                 </div>
@@ -622,7 +629,7 @@ export default function OnboardingWalletBalance() {
                 <div className="space-y-3">
                   <div>
                     <label className="block text-xs text-[var(--text-tertiary)] mb-1">
-                      Tên ví
+                      {t("wallet_balance.wallet_name_label")}
                     </label>
                     <input
                       value={createName}
@@ -632,7 +639,7 @@ export default function OnboardingWalletBalance() {
                   </div>
                   <div>
                     <label className="block text-xs text-[var(--text-tertiary)] mb-1">
-                      Số dư ban đầu
+                      {t("wallet_balance.balance_label")}
                     </label>
                     <input
                       value={formatWithDots(createBalance || "0")}
@@ -648,45 +655,51 @@ export default function OnboardingWalletBalance() {
                       <div>
                         <label className="block text-xs text-[var(--text-tertiary)] mb-1">
                           {createType === "bank"
-                            ? "Ngân hàng"
-                            : "Nhà cung cấp ví điện tử"}
+                            ? t("wallet_balance.bank_provider_label")
+                            : t("wallet_balance.ewallet_provider_label")}
                         </label>
                         <select
                           value={createProvider}
                           onChange={(e) => setCreateProvider(e.target.value)}
                           className="w-full px-3 py-2.5 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-md)] outline-none"
                         >
-                          <option value="">Chọn...</option>
+                          <option value="">
+                            {t("wallet_balance.select_placeholder")}
+                          </option>
                           {(createType === "bank"
                             ? BANK_SUGGESTIONS
                             : EWALLET_PROVIDERS
                           ).map((option) => (
                             <option key={option} value={option}>
-                              {option}
+                              {option === "__other__"
+                                ? t("common:misc.other")
+                                : option}
                             </option>
                           ))}
                         </select>
                       </div>
-                      {createProvider === "Khác" && (
+                      {createProvider === "__other__" && (
                         <input
                           value={createProviderOther}
                           onChange={(e) =>
                             setCreateProviderOther(e.target.value)
                           }
-                          placeholder="Nhập tên nhà cung cấp"
+                          placeholder={t(
+                            "wallet_balance.custom_provider_placeholder",
+                          )}
                           className="w-full px-3 py-2.5 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-md)] outline-none"
                         />
                       )}
                       <input
                         value={createAccountNumber}
                         onChange={(e) => setCreateAccountNumber(e.target.value)}
-                        placeholder="Số tài khoản / mã ví"
+                        placeholder={t("wallet_balance.account_number_label")}
                         className="w-full px-3 py-2.5 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-md)] outline-none"
                       />
                       <input
                         value={createOwnerName}
                         onChange={(e) => setCreateOwnerName(e.target.value)}
-                        placeholder="Tên chủ tài khoản"
+                        placeholder={t("wallet_balance.account_holder_label")}
                         className="w-full px-3 py-2.5 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-md)] outline-none"
                       />
                     </>
@@ -704,7 +717,7 @@ export default function OnboardingWalletBalance() {
                   className="w-full mt-5 py-3 rounded-[var(--radius-lg)] bg-[var(--primary)] text-white font-medium inline-flex items-center justify-center gap-2"
                 >
                   <Check className="w-4 h-4" />
-                  Lưu ví
+                  {t("wallet_balance.save_wallet")}
                 </button>
               </div>
             </motion.div>

@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate, useParams, useSearchParams } from "react-router";
 import {
   ArrowLeft,
@@ -11,6 +12,7 @@ import {
   Tag,
   X,
 } from "lucide-react";
+import i18n from "../../i18n";
 import { AmountInput } from "../components/AmountInput";
 import { Button } from "../components/Button";
 import { Card } from "../components/Card";
@@ -50,11 +52,16 @@ function todayString() {
   return new Date().toISOString().slice(0, 10);
 }
 
+function getLocale() {
+  return i18n.language === "en" ? "en-US" : "vi-VN";
+}
+
 function formatMoney(value?: string | number | null) {
-  return new Intl.NumberFormat("vi-VN").format(Number(value || 0));
+  return new Intl.NumberFormat(getLocale()).format(Number(value || 0));
 }
 
 export default function AddEditTransaction() {
+  const { t } = useTranslation("transactions");
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const toast = useToast();
@@ -157,7 +164,6 @@ export default function AddEditTransaction() {
       );
       setNotes(sourceTransaction.note || "");
       setSelectedTagIds(sourceTransaction.tags.map((item) => item.id));
-      // preserve existing image when editing (not duplicating)
       if (isEditMode && sourceTransaction.imageUrl) {
         setImagePreview(sourceTransaction.imageUrl);
       }
@@ -295,13 +301,14 @@ export default function AddEditTransaction() {
     const numericAmount = Number(amount || 0);
 
     if (!amount || numericAmount <= 0)
-      nextErrors.amount = "Vui lòng nhập số tiền hợp lệ";
-    if (!accountId) nextErrors.accountId = "Vui lòng chọn tài khoản";
-    if (!description.trim()) nextErrors.description = "Vui lòng nhập mô tả";
-    if (!date) nextErrors.date = "Vui lòng chọn ngày";
+      nextErrors.amount = t("form.errors.amount_invalid");
+    if (!accountId) nextErrors.accountId = t("form.errors.account_required");
+    if (!description.trim())
+      nextErrors.description = t("form.errors.description_required");
+    if (!date) nextErrors.date = t("form.errors.date_required");
 
     if (!isSplit && !categoryId) {
-      nextErrors.categoryId = "Vui lòng chọn danh mục";
+      nextErrors.categoryId = t("form.errors.category_required");
     }
 
     if (isSplit) {
@@ -311,11 +318,11 @@ export default function AddEditTransaction() {
       );
 
       if (hasMissingCategory)
-        nextErrors.splitCategory = "Tất cả dòng split phải có danh mục";
+        nextErrors.splitCategory = t("form.errors.split_category_required");
       if (hasInvalidAmount)
-        nextErrors.splitAmount = "Tất cả dòng split phải có số tiền > 0";
+        nextErrors.splitAmount = t("form.errors.split_amount_required");
       if (remaining !== 0)
-        nextErrors.splitTotal = "Tổng split phải bằng tổng giao dịch";
+        nextErrors.splitTotal = t("form.errors.split_total_mismatch");
     }
 
     setErrors(nextErrors);
@@ -360,7 +367,6 @@ export default function AddEditTransaction() {
           ? await transactionsService.updateTransaction(id, payload)
           : await transactionsService.createTransaction(payload);
 
-      // upload image if one was selected
       if (imageFile) {
         try {
           await transactionsService.uploadTransactionImage(
@@ -368,17 +374,17 @@ export default function AddEditTransaction() {
             imageFile,
           );
         } catch {
-          toast.error(
-            "Giao dịch đã được lưu nhưng không thể tải ảnh. Hãy thử lại.",
-          );
+          toast.error(t("form.image_upload_warning"));
         }
       }
 
-      toast.success(isEditMode ? "Đã cập nhật giao dịch" : "Đã tạo giao dịch");
+      toast.success(
+        isEditMode ? t("form.success_edit") : t("form.success_create"),
+      );
       navigate(`/transactions/${result.id}`);
     } catch (err) {
       toast.error(
-        err instanceof Error ? err.message : "Không thể lưu giao dịch",
+        err instanceof Error ? err.message : t("form.errors.save_failed"),
       );
     } finally {
       setSubmitting(false);
@@ -390,7 +396,7 @@ export default function AddEditTransaction() {
       <div className="min-h-screen bg-[var(--background)] p-4 md:p-6">
         <Card>
           <p className="text-sm text-[var(--text-secondary)]">
-            Đang tải dữ liệu giao dịch...
+            {t("common:status.loading")}
           </p>
         </Card>
       </div>
@@ -402,7 +408,7 @@ export default function AddEditTransaction() {
       <div className="min-h-screen bg-[var(--background)] p-4 md:p-6">
         <Card>
           <p className="text-sm text-[var(--danger)]">
-            {metaError || sourceError || "Không thể tải dữ liệu giao dịch"}
+            {metaError || sourceError || t("form.errors.load_failed")}
           </p>
         </Card>
       </div>
@@ -414,16 +420,15 @@ export default function AddEditTransaction() {
       <div className="min-h-screen bg-[var(--background)] p-4 md:p-6">
         <Card>
           <h2 className="text-lg font-semibold text-[var(--text-primary)]">
-            Giao dịch này là chuyển tiền
+            {t("form.is_transfer_title")}
           </h2>
           <p className="text-sm text-[var(--text-secondary)] mt-2">
-            Vui lòng dùng màn hình Chuyển tiền để chỉnh sửa hoặc nhân bản giao
-            dịch transfer.
+            {t("form.is_transfer_body")}
           </p>
           <div className="mt-4 flex gap-3">
             <Button variant="secondary" onClick={() => navigate(-1)}>
               <ArrowLeft className="w-4 h-4" />
-              Quay lại
+              {t("common:actions.back")}
             </Button>
             <Button
               onClick={() =>
@@ -432,7 +437,7 @@ export default function AddEditTransaction() {
                 )
               }
             >
-              Mở màn hình chuyển tiền
+              {t("form.go_transfer_screen")}
             </Button>
           </div>
         </Card>
@@ -451,19 +456,13 @@ export default function AddEditTransaction() {
             >
               <ArrowLeft className="w-5 h-5 text-[var(--text-primary)]" />
             </button>
-            <div>
-              <h1 className="text-2xl font-semibold text-[var(--text-primary)]">
-                {isEditMode
-                  ? "Chỉnh sửa giao dịch"
-                  : isDuplicateMode
-                    ? "Nhân bản giao dịch"
-                    : "Thêm giao dịch"}
-              </h1>
-              <p className="text-sm text-[var(--text-secondary)] mt-1">
-                Tạo giao dịch thu/chi với merchant và tag lấy trực tiếp từ
-                backend.
-              </p>
-            </div>
+            <h1 className="text-2xl font-semibold text-[var(--text-primary)]">
+              {isEditMode
+                ? t("form.title_edit")
+                : isDuplicateMode
+                  ? t("form.title_duplicate")
+                  : t("form.title_create")}
+            </h1>
           </div>
 
           <Button
@@ -472,7 +471,7 @@ export default function AddEditTransaction() {
             onClick={() => setShowChatParser(true)}
           >
             <Sparkles className="w-4 h-4" />
-            Nhập nhanh (chat)
+            {t("chat_parser.tab_label")}
           </Button>
         </div>
 
@@ -491,7 +490,9 @@ export default function AddEditTransaction() {
                         : "bg-[var(--surface)] text-[var(--text-secondary)] border-[var(--border)]"
                     }`}
                   >
-                    {item === "expense" ? "Chi tiêu" : "Thu nhập"}
+                    {item === "expense"
+                      ? t("form.type_expense")
+                      : t("form.type_income")}
                   </button>
                 ),
               )}
@@ -508,7 +509,8 @@ export default function AddEditTransaction() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-                  Tài khoản <span className="text-[var(--danger)]">*</span>
+                  {t("form.account_label")}{" "}
+                  <span className="text-[var(--danger)]">*</span>
                 </label>
                 <select
                   value={accountId}
@@ -518,7 +520,7 @@ export default function AddEditTransaction() {
                   }}
                   className="w-full px-4 py-2.5 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-lg)]"
                 >
-                  <option value="">Chọn tài khoản</option>
+                  <option value="">{t("form.account_placeholder")}</option>
                   {(metaData?.accounts || []).map((account) => (
                     <option key={account.id} value={account.id}>
                       {account.name} •{" "}
@@ -535,7 +537,8 @@ export default function AddEditTransaction() {
 
               <div>
                 <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-                  Ngày giao dịch <span className="text-[var(--danger)]">*</span>
+                  {t("form.date_label")}{" "}
+                  <span className="text-[var(--danger)]">*</span>
                 </label>
                 <input
                   type="date"
@@ -556,13 +559,13 @@ export default function AddEditTransaction() {
 
             <div className="mt-4">
               <Input
-                label="Mô tả"
+                label={t("form.description_label")}
                 value={description}
                 onChange={(event) => {
                   setDescription(event.target.value);
                   setErrors((prev) => ({ ...prev, description: "" }));
                 }}
-                placeholder="Ví dụ: Cafe với khách hàng"
+                placeholder={t("form.description_placeholder")}
                 error={errors.description}
               />
             </div>
@@ -572,10 +575,11 @@ export default function AddEditTransaction() {
                 <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
                   {!isSplit ? (
                     <>
-                      Danh mục <span className="text-[var(--danger)]">*</span>
+                      {t("form.category_label")}{" "}
+                      <span className="text-[var(--danger)]">*</span>
                     </>
                   ) : (
-                    "Danh mục được chọn trong từng dòng split"
+                    t("form.category_split_hint")
                   )}
                 </label>
 
@@ -588,7 +592,7 @@ export default function AddEditTransaction() {
                   disabled={isSplit}
                   className="w-full px-4 py-2.5 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-lg)] disabled:opacity-60"
                 >
-                  <option value="">Chọn danh mục</option>
+                  <option value="">{t("form.category_placeholder")}</option>
                   {categories.map((category) => (
                     <option key={category.id} value={category.id}>
                       {category.name}
@@ -605,7 +609,7 @@ export default function AddEditTransaction() {
 
               <div>
                 <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-                  Merchant
+                  {t("form.merchant_label")}
                 </label>
 
                 <div className="relative">
@@ -620,7 +624,7 @@ export default function AddEditTransaction() {
                     }}
                     className="w-full pl-10 pr-4 py-2.5 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-lg)]"
                   >
-                    <option value="">Không chọn từ danh sách</option>
+                    <option value="">{t("form.merchant_no_list")}</option>
                     {(metaData?.merchants || [])
                       .filter((merchant) => !merchant.isHidden)
                       .map((merchant) => (
@@ -633,21 +637,21 @@ export default function AddEditTransaction() {
 
                 <div className="mt-2 flex items-center justify-between gap-3">
                   <p className="text-xs text-[var(--text-tertiary)]">
-                    Hoặc nhập merchant mới nếu chưa có sẵn.
+                    {t("form.merchant_custom_hint")}
                   </p>
                   <button
                     type="button"
                     onClick={() => navigate("/merchants/create")}
                     className="text-xs font-medium text-[var(--primary)] hover:underline"
                   >
-                    Tạo merchant
+                    {t("form.merchant_create")}
                   </button>
                 </div>
 
                 {!selectedMerchantId && (
                   <div className="mt-2">
                     <Input
-                      placeholder="Ví dụ: Highlands Coffee"
+                      placeholder={t("form.merchant_placeholder")}
                       value={customMerchantName}
                       onChange={(event) =>
                         setCustomMerchantName(event.target.value)
@@ -658,8 +662,7 @@ export default function AddEditTransaction() {
 
                 {selectedMerchant?.defaultCategoryId && !isSplit && (
                   <p className="mt-2 text-xs text-[var(--text-secondary)]">
-                    Merchant này có danh mục mặc định và sẽ tự gợi ý khi phù
-                    hợp.
+                    {t("form.merchant_default_hint")}
                   </p>
                 )}
               </div>
@@ -675,7 +678,7 @@ export default function AddEditTransaction() {
                 />
                 <span className="text-sm font-medium text-[var(--text-primary)] inline-flex items-center gap-2">
                   <SplitSquareHorizontal className="w-4 h-4" />
-                  Bật phân chia nhiều danh mục
+                  {t("split.toggle_label")}
                 </span>
               </label>
             </div>
@@ -686,10 +689,12 @@ export default function AddEditTransaction() {
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <h2 className="text-lg font-semibold text-[var(--text-primary)]">
-                    Split danh mục
+                    {t("split.section_title")}
                   </h2>
                   <p className="text-sm text-[var(--text-secondary)] mt-1">
-                    Tổng split phải bằng {formatMoney(amount || 0)} ₫
+                    {t("split.total_hint", {
+                      amount: `${formatMoney(amount || 0)} ₫`,
+                    })}
                   </p>
                 </div>
 
@@ -699,7 +704,7 @@ export default function AddEditTransaction() {
                   onClick={addSplitLine}
                 >
                   <Plus className="w-4 h-4" />
-                  Thêm dòng
+                  {t("split.add_line")}
                 </Button>
               </div>
 
@@ -711,7 +716,7 @@ export default function AddEditTransaction() {
                   >
                     <div className="flex items-center justify-between gap-3 mb-4">
                       <p className="font-medium text-[var(--text-primary)]">
-                        Dòng {index + 1}
+                        {t("split.line_label", { index: index + 1 })}
                       </p>
 
                       <button
@@ -719,14 +724,14 @@ export default function AddEditTransaction() {
                         onClick={() => removeSplitLine(line.id)}
                         className="text-sm text-[var(--danger)] hover:underline"
                       >
-                        Xoá dòng
+                        {t("split.remove_line")}
                       </button>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-                          Danh mục
+                          {t("form.category_label")}
                         </label>
                         <select
                           value={line.categoryId}
@@ -737,7 +742,9 @@ export default function AddEditTransaction() {
                           }
                           className="w-full px-4 py-2.5 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-lg)]"
                         >
-                          <option value="">Chọn danh mục</option>
+                          <option value="">
+                            {t("split.category_placeholder")}
+                          </option>
                           {categories.map((category) => (
                             <option key={category.id} value={category.id}>
                               {category.name}
@@ -748,7 +755,7 @@ export default function AddEditTransaction() {
 
                       <div>
                         <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-                          Số tiền
+                          {t("form.amount_label")}
                         </label>
                         <input
                           type="number"
@@ -766,12 +773,12 @@ export default function AddEditTransaction() {
 
                     <div className="mt-4">
                       <Input
-                        label="Ghi chú dòng split"
+                        label={t("split.note_label")}
                         value={line.note}
                         onChange={(event) =>
                           updateSplitLine(line.id, { note: event.target.value })
                         }
-                        placeholder="Tuỳ chọn"
+                        placeholder={t("split.note_placeholder")}
                       />
                     </div>
                   </div>
@@ -789,7 +796,7 @@ export default function AddEditTransaction() {
               )}
 
               <div className="mt-4 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface)] p-3 text-sm text-[var(--text-secondary)]">
-                Còn lại:{" "}
+                {t("split.remaining")}:{" "}
                 <span
                   className={
                     remaining === 0
@@ -809,7 +816,7 @@ export default function AddEditTransaction() {
                 <div className="flex items-center gap-2">
                   <Tag className="w-5 h-5 text-[var(--text-tertiary)]" />
                   <h2 className="text-lg font-semibold text-[var(--text-primary)]">
-                    Thẻ
+                    {t("form.tag_label")}
                   </h2>
                 </div>
 
@@ -818,7 +825,7 @@ export default function AddEditTransaction() {
                   onClick={() => navigate("/tags/create")}
                   className="text-sm font-medium text-[var(--primary)] hover:underline"
                 >
-                  Tạo nhãn mới
+                  {t("form.tag_create")}
                 </button>
               </div>
 
@@ -847,25 +854,24 @@ export default function AddEditTransaction() {
 
           <Card>
             <Input
-              label="Ghi chú"
+              label={t("form.note_label")}
               value={notes}
               onChange={(event) => setNotes(event.target.value)}
-              placeholder="Ghi chú thêm cho giao dịch"
+              placeholder={t("form.note_placeholder")}
             />
           </Card>
 
-          {/* Image upload card */}
           <Card>
             <h2 className="text-base font-semibold text-[var(--text-primary)] mb-3 flex items-center gap-2">
               <Camera className="w-4 h-4 text-[var(--text-tertiary)]" />
-              Hình ảnh
+              {t("form.image_section")}
             </h2>
 
             {imagePreview ? (
               <div className="relative inline-block">
                 <img
                   src={imagePreview}
-                  alt="Preview"
+                  alt={t("form.image_preview_alt")}
                   className="max-h-48 rounded-[var(--radius-lg)] border border-[var(--border)] object-contain"
                 />
                 <button
@@ -876,7 +882,7 @@ export default function AddEditTransaction() {
                     if (imageInputRef.current) imageInputRef.current.value = "";
                   }}
                   className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-[var(--danger)] text-white flex items-center justify-center hover:opacity-80 transition-opacity"
-                  title="Xóa ảnh"
+                  title={t("form.image_delete")}
                 >
                   <X className="w-3.5 h-3.5" />
                 </button>
@@ -888,7 +894,7 @@ export default function AddEditTransaction() {
                 className="flex items-center gap-2 px-4 py-2.5 border border-dashed border-[var(--border)] rounded-[var(--radius-lg)] text-sm text-[var(--text-secondary)] hover:bg-[var(--surface)] transition-colors"
               >
                 <Camera className="w-4 h-4" />
-                Chọn ảnh (tùy chọn)
+                {t("form.image_pick")}
               </button>
             )}
 
@@ -915,7 +921,7 @@ export default function AddEditTransaction() {
               variant="secondary"
               onClick={() => navigate(-1)}
             >
-              Huỷ
+              {t("common:actions.cancel")}
             </Button>
 
             <Button type="submit" disabled={submitting}>
@@ -925,10 +931,10 @@ export default function AddEditTransaction() {
                 <Plus className="w-4 h-4" />
               )}
               {submitting
-                ? "Đang lưu..."
+                ? t("form.submitting")
                 : isEditMode
-                  ? "Lưu thay đổi"
-                  : "Tạo giao dịch"}
+                  ? t("form.submit_edit")
+                  : t("form.submit_create")}
             </Button>
           </div>
         </form>

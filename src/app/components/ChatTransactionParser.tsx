@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   AlertTriangle,
   Check,
@@ -7,6 +8,7 @@ import {
   Sparkles,
   X,
 } from "lucide-react";
+import i18n from "../../i18n";
 import { useToast } from "../contexts/ToastContext";
 
 export interface QuickParserAccount {
@@ -80,7 +82,7 @@ function normalizeText(value: string) {
   return value
     .toLowerCase()
     .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[̀-ͯ]/g, "")
     .replace(/\s+/g, " ")
     .trim();
 }
@@ -198,10 +200,7 @@ function findMerchant(text: string, merchants: QuickParserMerchant[]) {
     (merchant) => normalizeText(merchant.name) === normalized,
   );
   if (exact) {
-    return {
-      merchant: exact,
-      remaining: "",
-    };
+    return { merchant: exact, remaining: "" };
   }
 
   let best: QuickParserMerchant | null = null;
@@ -224,10 +223,7 @@ function findMerchant(text: string, merchants: QuickParserMerchant[]) {
     };
   }
 
-  return {
-    merchant: null,
-    remaining: text,
-  };
+  return { merchant: null, remaining: text };
 }
 
 function findCategory(
@@ -296,16 +292,25 @@ function parseTransactionText(
   if (amountResult) {
     result.amount = amountResult.amount;
     result.confidence.push(
-      `Số tiền = ${new Intl.NumberFormat("vi-VN").format(amountResult.amount)}đ`,
+      i18n.t("transactions:chat_parser.result.amount_found", {
+        value: new Intl.NumberFormat(
+          i18n.language === "en" ? "en-US" : "vi-VN",
+        ).format(amountResult.amount),
+      }),
     );
     text = amountResult.remaining;
   } else {
-    result.errors.push("Không tìm thấy số tiền.");
+    result.errors.push(i18n.t("transactions:chat_parser.errors.amount_not_found"));
   }
 
   result.type = detectType(rawText);
   result.confidence.push(
-    `Loại = ${result.type === "income" ? "Thu nhập" : "Chi tiêu"}`,
+    i18n.t("transactions:chat_parser.result.type_found", {
+      value:
+        result.type === "income"
+          ? i18n.t("transactions:chat_parser.default_income_description")
+          : i18n.t("transactions:chat_parser.default_expense_description"),
+    }),
   );
 
   const activeAccounts = accounts.filter(
@@ -314,14 +319,18 @@ function parseTransactionText(
   const accountResult = findAccount(text, activeAccounts);
   if (accountResult.exact) {
     result.accountId = accountResult.exact.id;
-    result.confidence.push(`Tài khoản = ${accountResult.exact.name}`);
+    result.confidence.push(
+      i18n.t("transactions:chat_parser.result.account_found", {
+        account: accountResult.exact.name,
+      }),
+    );
     text = accountResult.remaining;
   } else if (accountResult.matches.length > 1) {
     result.accountMatches = accountResult.matches;
-    result.errors.push("Có nhiều tài khoản khớp, vui lòng chọn.");
+    result.errors.push(i18n.t("transactions:chat_parser.errors.account_ambiguous"));
     text = accountResult.remaining;
   } else {
-    result.errors.push("Chưa nhận diện được tài khoản.");
+    result.errors.push(i18n.t("transactions:chat_parser.errors.account_not_found"));
   }
 
   const merchantResult = findMerchant(
@@ -330,14 +339,22 @@ function parseTransactionText(
   );
   if (merchantResult.merchant) {
     result.merchantId = merchantResult.merchant.id;
-    result.confidence.push(`Merchant = ${merchantResult.merchant.name}`);
+    result.confidence.push(
+      i18n.t("transactions:chat_parser.result.merchant_found", {
+        merchant: merchantResult.merchant.name,
+      }),
+    );
     text = merchantResult.remaining;
   }
 
   const categoryFromText = findCategory(text, categories, result.type);
   if (categoryFromText) {
     result.categoryId = categoryFromText.id;
-    result.confidence.push(`Danh mục = ${categoryFromText.name}`);
+    result.confidence.push(
+      i18n.t("transactions:chat_parser.result.category_found", {
+        category: categoryFromText.name,
+      }),
+    );
     text = text
       .replace(new RegExp(categoryFromText.name, "i"), "")
       .replace(/\s+/g, " ")
@@ -348,7 +365,10 @@ function parseTransactionText(
 
   result.description = text.replace(/\s+/g, " ").trim();
   if (!result.description) {
-    result.description = result.type === "income" ? "Khoản thu" : "Khoản chi";
+    result.description =
+      result.type === "income"
+        ? i18n.t("transactions:chat_parser.default_income_description")
+        : i18n.t("transactions:chat_parser.default_expense_description");
   }
 
   if (!result.merchantId) {
@@ -369,6 +389,7 @@ export function ChatTransactionParser({
   merchants,
   onApply,
 }: ChatTransactionParserProps) {
+  const { t } = useTranslation("transactions");
   const toast = useToast();
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -431,24 +452,24 @@ export function ChatTransactionParser({
     setParsed(result);
 
     if (result.errors.length > 0 && result.amount === 0) {
-      toast.warning('Chưa hiểu rõ nội dung, thử ví dụ: "cafe 45k momo"');
+      toast.warning(t("chat_parser.errors.unclear_input"));
     }
   };
 
   const handleApply = () => {
     const amount = Number(editAmount || 0);
     if (amount <= 0) {
-      toast.error("Vui lòng nhập số tiền hợp lệ");
+      toast.error(t("chat_parser.errors.amount_required"));
       return;
     }
 
     if (!editAccountId) {
-      toast.error("Vui lòng chọn tài khoản");
+      toast.error(t("chat_parser.errors.account_required"));
       return;
     }
 
     if (!editDescription.trim()) {
-      toast.error("Vui lòng nhập mô tả");
+      toast.error(t("chat_parser.errors.description_required"));
       return;
     }
 
@@ -465,7 +486,7 @@ export function ChatTransactionParser({
           : {}),
     });
 
-    toast.success("Đã áp dụng dữ liệu vào form");
+    toast.success(t("chat_parser.success_apply"));
     onClose();
   };
 
@@ -475,6 +496,10 @@ export function ChatTransactionParser({
       handleParse();
     }
   };
+
+  const examples = t("chat_parser.examples", {
+    returnObjects: true,
+  }) as string[];
 
   if (!isOpen) return null;
 
@@ -491,7 +516,7 @@ export function ChatTransactionParser({
           <div className="flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-[var(--primary)]" />
             <h3 className="text-lg font-semibold text-[var(--text-primary)]">
-              Nhập nhanh (chat)
+              {t("chat_parser.tab_label")}
             </h3>
           </div>
 
@@ -515,13 +540,12 @@ export function ChatTransactionParser({
           {showHelp && (
             <div className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface)] p-4 text-sm text-[var(--text-secondary)]">
               <p className="font-medium text-[var(--text-primary)] mb-2">
-                Ví dụ nhập nhanh:
+                {t("chat_parser.examples_label")}
               </p>
               <div className="space-y-1">
-                <p>• cafe 45k momo</p>
-                <p>• lương 15tr vcb</p>
-                <p>• ăn tối 120k tiền mặt</p>
-                <p>• mua sách 250k techcombank</p>
+                {examples.map((example) => (
+                  <p key={example}>• {example}</p>
+                ))}
               </div>
             </div>
           )}
@@ -533,7 +557,7 @@ export function ChatTransactionParser({
               value={inputText}
               onChange={(event) => setInputText(event.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder='Ví dụ: "cafe 45k momo"'
+              placeholder={t("chat_parser.input_placeholder")}
               className="flex-1 px-4 py-3 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-lg)]"
             />
             <button
@@ -541,7 +565,7 @@ export function ChatTransactionParser({
               onClick={handleParse}
               className="px-4 py-3 rounded-[var(--radius-lg)] bg-[var(--primary)] text-white font-medium hover:opacity-90"
             >
-              Phân tích
+              {t("chat_parser.analyze_button")}
             </button>
           </div>
 
@@ -587,14 +611,14 @@ export function ChatTransactionParser({
                 <div className="flex items-center gap-2">
                   <ChevronRight className="w-4 h-4 text-[var(--text-tertiary)]" />
                   <h4 className="font-medium text-[var(--text-primary)]">
-                    Chỉnh lại trước khi áp dụng
+                    {t("chat_parser.edit_before_apply")}
                   </h4>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-                      Loại
+                      {t("chat_parser.result.type_label")}
                     </label>
                     <select
                       value={editType}
@@ -603,14 +627,14 @@ export function ChatTransactionParser({
                       }
                       className="w-full px-4 py-2.5 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-lg)]"
                     >
-                      <option value="expense">Chi tiêu</option>
-                      <option value="income">Thu nhập</option>
+                      <option value="expense">{t("form.type_expense")}</option>
+                      <option value="income">{t("form.type_income")}</option>
                     </select>
                   </div>
 
                   <div>
                     <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-                      Số tiền
+                      {t("chat_parser.result.amount_label")}
                     </label>
                     <input
                       type="number"
@@ -623,14 +647,16 @@ export function ChatTransactionParser({
 
                   <div>
                     <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-                      Tài khoản
+                      {t("chat_parser.result.account_label")}
                     </label>
                     <select
                       value={editAccountId}
                       onChange={(event) => setEditAccountId(event.target.value)}
                       className="w-full px-4 py-2.5 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-lg)]"
                     >
-                      <option value="">Chọn tài khoản</option>
+                      <option value="">
+                        {t("form.account_placeholder")}
+                      </option>
                       {accounts
                         .filter((account) => account.status !== "archived")
                         .map((account) => (
@@ -643,7 +669,7 @@ export function ChatTransactionParser({
 
                   <div>
                     <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-                      Danh mục
+                      {t("chat_parser.result.category_label")}
                     </label>
                     <select
                       value={editCategoryId}
@@ -652,7 +678,9 @@ export function ChatTransactionParser({
                       }
                       className="w-full px-4 py-2.5 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-lg)]"
                     >
-                      <option value="">Chọn danh mục</option>
+                      <option value="">
+                        {t("form.category_placeholder")}
+                      </option>
                       {filteredCategories.map((category) => (
                         <option key={category.id} value={category.id}>
                           {category.name}
@@ -663,7 +691,7 @@ export function ChatTransactionParser({
 
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-                      Mô tả
+                      {t("chat_parser.result.description_label")}
                     </label>
                     <input
                       type="text"
@@ -677,7 +705,7 @@ export function ChatTransactionParser({
 
                   <div>
                     <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-                      Merchant có sẵn
+                      {t("chat_parser.merchant_available")}
                     </label>
                     <select
                       value={editMerchantId}
@@ -689,7 +717,7 @@ export function ChatTransactionParser({
                       }}
                       className="w-full px-4 py-2.5 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-lg)]"
                     >
-                      <option value="">Không chọn</option>
+                      <option value="">{t("chat_parser.merchant_none")}</option>
                       {visibleMerchants.map((merchant) => (
                         <option key={merchant.id} value={merchant.id}>
                           {merchant.name}
@@ -701,7 +729,7 @@ export function ChatTransactionParser({
                   {!editMerchantId && (
                     <div>
                       <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-                        Merchant mới
+                        {t("chat_parser.merchant_custom")}
                       </label>
                       <input
                         type="text"
@@ -709,7 +737,7 @@ export function ChatTransactionParser({
                         onChange={(event) =>
                           setEditMerchantName(event.target.value)
                         }
-                        placeholder="Ví dụ: Highlands Coffee"
+                        placeholder={t("form.merchant_placeholder")}
                         className="w-full px-4 py-2.5 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-lg)]"
                       />
                     </div>
@@ -723,14 +751,14 @@ export function ChatTransactionParser({
                   onClick={onClose}
                   className="px-4 py-2.5 rounded-[var(--radius-lg)] border border-[var(--border)] text-[var(--text-primary)]"
                 >
-                  Huỷ
+                  {t("common:actions.cancel")}
                 </button>
                 <button
                   type="button"
                   onClick={handleApply}
                   className="px-4 py-2.5 rounded-[var(--radius-lg)] bg-[var(--primary)] text-white font-medium"
                 >
-                  Áp dụng vào form
+                  {t("chat_parser.apply_button")}
                 </button>
               </div>
             </div>

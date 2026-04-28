@@ -1,7 +1,9 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
 import { motion } from "motion/react";
+import { useTranslation } from "react-i18next";
 import { ThemeSwitcher } from "../components/ThemeSwitcher";
+import { LanguageSwitcher } from "../components/LanguageSwitcher";
 import { useAuth } from "../hooks/useAuth";
 import { appService } from "../services/appService";
 import { ApiError } from "../services/apiClient";
@@ -10,7 +12,8 @@ import { resolveOnboardingPath } from "../types/onboarding";
 export default function Splash() {
   const navigate = useNavigate();
   const { isHydrated, isAuthenticated, clearSession } = useAuth();
-  const [statusText, setStatusText] = useState("Đang khởi tạo ứng dụng...");
+  const { t } = useTranslation("onboarding");
+  const [statusText, setStatusText] = useState(t("splash.initializing"));
 
   const fallbackRoute = useMemo(
     () => (isAuthenticated ? "/home" : "/welcome"),
@@ -32,14 +35,14 @@ export default function Splash() {
           return;
         }
 
-        setStatusText("Đang đồng bộ phiên đăng nhập...");
+        setStatusText(t("splash.syncing"));
         const bootstrap = await appService.getBootstrap();
         if (!isMounted) return;
 
         const targetRoute =
           bootstrap.redirectTo ||
           resolveOnboardingPath(bootstrap.onboarding.currentStep);
-        setStatusText("Đang chuyển hướng...");
+        setStatusText(t("splash.redirecting"));
         navigate(
           targetRoute === "/onboarding/completed" ? "/home" : targetRoute,
           {
@@ -64,11 +67,12 @@ export default function Splash() {
     return () => {
       isMounted = false;
     };
-  }, [clearSession, fallbackRoute, isAuthenticated, isHydrated, navigate]);
+  }, [clearSession, fallbackRoute, isAuthenticated, isHydrated, navigate, t]);
 
   return (
     <div className="min-h-screen w-full relative overflow-hidden flex items-center justify-center bg-gradient-to-br from-[var(--background)] via-[var(--primary-light)] to-[var(--background)]">
-      <div className="absolute top-4 right-4 z-20">
+      <div className="absolute top-4 right-4 z-20 flex items-center gap-2">
+        <LanguageSwitcher />
         <ThemeSwitcher />
       </div>
 
@@ -127,10 +131,10 @@ export default function Splash() {
           className="text-center mb-8"
         >
           <h1 className="text-2xl md:text-3xl font-semibold text-[var(--text-primary)] mb-2">
-            Quản lý tài chính cá nhân
+            {t("splash.app_name")}
           </h1>
           <p className="text-sm md:text-base text-[var(--text-secondary)]">
-            Kiểm soát chi tiêu thông minh
+            {t("splash.tagline")}
           </p>
         </motion.div>
 

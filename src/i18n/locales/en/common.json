@@ -1,0 +1,126 @@
+{
+  "nav": {
+    "home": "Home",
+    "transactions": "Transactions",
+    "add": "Add",
+    "budgets": "Budgets",
+    "more": "More"
+  },
+  "actions": {
+    "save": "Save",
+    "save_changes": "Save Changes",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "confirm": "Confirm",
+    "back": "Back",
+    "continue": "Continue",
+    "done": "Done",
+    "close": "Close",
+    "retry": "Retry",
+    "search": "Search",
+    "filter": "Filter",
+    "sort": "Sort",
+    "create": "Create",
+    "add": "Add",
+    "select": "Select",
+    "upload": "Upload",
+    "download": "Download",
+    "share": "Share",
+    "copy": "Copy",
+    "preview": "Preview",
+    "view_all": "View All",
+    "deleting": "Deleting...",
+    "or": "or",
+    "duplicate": "Duplicate"
+  },
+  "pagination": {
+    "page_of": "Page {{page}} of {{total}}",
+    "prev": "Previous",
+    "next": "Next"
+  },
+  "status": {
+    "loading": "Loading...",
+    "saving": "Saving...",
+    "saved": "Saved",
+    "error": "Error",
+    "success": "Success",
+    "active": "Active",
+    "paused": "Paused",
+    "archived": "Archived",
+    "all": "All",
+    "coming_soon": "Coming soon"
+  },
+  "time": {
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "tomorrow": "Tomorrow",
+    "days_from_now": "In {{count}} days",
+    "this_month": "This month",
+    "last_month": "Last month",
+    "this_year": "This year",
+    "last_3_months": "Last 3 months",
+    "last_6_months": "Last 6 months",
+    "just_now": "Just now",
+    "earlier": "Earlier"
+  },
+  "sort": {
+    "newest": "Newest",
+    "oldest": "Oldest",
+    "amount_asc": "Amount: Low to High",
+    "amount_desc": "Amount: High to Low",
+    "name_asc": "Name A→Z",
+    "name_desc": "Name Z→A",
+    "by_name": "By name",
+    "by_date_created": "By date created",
+    "by_date_start": "By start date",
+    "by_progress": "By progress",
+    "asc": "Ascending",
+    "desc": "Descending"
+  },
+  "transaction_type": {
+    "expense": "Expense",
+    "income": "Income",
+    "transfer": "Transfer",
+    "all": "All"
+  },
+  "errors": {
+    "generic": "Something went wrong. Please try again.",
+    "network": "Cannot connect. Check your internet connection.",
+    "not_found": "Data not found.",
+    "load_failed": "Failed to load data.",
+    "save_failed": "Failed to save. Please try again.",
+    "delete_failed": "Could not delete.",
+    "unauthorized": "You don't have permission to do this."
+  },
+  "confirm_delete": {
+    "title": "Confirm delete?",
+    "cannot_undo": "This action cannot be undone.",
+    "action": "Delete"
+  },
+  "empty": {
+    "no_data": "No data yet",
+    "no_results": "No results found"
+  },
+  "currency": {
+    "vnd": "VND",
+    "usd": "USD",
+    "eur": "EUR"
+  },
+  "misc": {
+    "optional": "Optional",
+    "required": "Required",
+    "note": "Note",
+    "description": "Description",
+    "name": "Name",
+    "amount": "Amount",
+    "date": "Date",
+    "account": "Account",
+    "category": "Category",
+    "tag": "Tag",
+    "merchant": "Merchant",
+    "none_selected": "None selected",
+    "other": "Other",
+    "not_available": "N/A"
+  }
+}

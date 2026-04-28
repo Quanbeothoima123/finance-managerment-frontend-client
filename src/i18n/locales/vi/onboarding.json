@@ -1,0 +1,171 @@
+{
+  "splash": {
+    "loading": "Đang tải...",
+    "app_name": "Quản lý tài chính cá nhân",
+    "tagline": "Kiểm soát chi tiêu thông minh",
+    "initializing": "Đang khởi tạo ứng dụng...",
+    "syncing": "Đang đồng bộ phiên đăng nhập...",
+    "redirecting": "Đang chuyển hướng..."
+  },
+  "welcome": {
+    "headline": "Quản lý tài chính\nthông minh hơn",
+    "subtitle": "Theo dõi thu chi, lập kế hoạch ngân sách\nvà đạt mục tiêu tài chính của bạn.",
+    "feature_currency": "Tiền tệ mặc định",
+    "feature_wallet": "Ví ban đầu",
+    "feature_categories": "Preset danh mục",
+    "feature_start_date": "Ngày bắt đầu theo dõi",
+    "current_account": "tài khoản hiện tại",
+    "get_started": "Bắt đầu",
+    "already_have_account": "Đã có tài khoản?",
+    "login": "Đăng nhập"
+  },
+  "currency_date": {
+    "title": "Thiết lập cơ bản",
+    "subtitle": "Chọn tiền tệ và ngày bắt đầu kỳ báo cáo",
+    "step": "Bước 1/3",
+    "quick_setup": "Thiết lập nhanh",
+    "quick_setup_subtitle": "Chỉ mất ~15 giây. Bạn có thể thay đổi lại trong Cài đặt.",
+    "skip": "Bỏ qua",
+    "saving": "Đang lưu...",
+    "currency_label": "Tiền tệ mặc định",
+    "currency_hint": "(mặc định VND)",
+    "currency_applies_to_new": "Áp dụng cho giao dịch mới. Giao dịch cũ giữ nguyên.",
+    "start_date_label": "Ngày bắt đầu kỳ báo cáo",
+    "start_tracking_from_label": "Bắt đầu theo dõi từ",
+    "start_date_today": "Hôm nay",
+    "start_date_start_of_month": "Đầu tháng này",
+    "start_date_custom": "Tuỳ chọn",
+    "reports_from_hint": "Báo cáo/insight sẽ tính từ ngày này.",
+    "date_required": "Vui lòng chọn ngày bắt đầu.",
+    "data_from": "Dữ liệu sẽ được tính từ",
+    "loading": "Đang tải thiết lập hiện tại...",
+    "submit": "Tiếp tục",
+    "settings_hint": "Bạn có thể chỉnh lại trong Settings → General.",
+    "success": "Đã lưu thiết lập cơ bản. Tiếp tục tạo ví ban đầu.",
+    "success_selected": "Đã chọn {{currency}}, bắt đầu theo dõi từ {{date}}",
+    "errors": {
+      "save_failed": "Không thể lưu bước thiết lập này.",
+      "load_failed": "Không thể tải dữ liệu onboarding."
+    }
+  },
+  "wallet_balance": {
+    "title": "Tạo ví đầu tiên",
+    "subtitle": "Thêm các tài khoản bạn đang sử dụng",
+    "quick_subtitle": "Thêm ít nhất 1 ví để bắt đầu nhập giao dịch. Nếu chưa chắc số dư, cứ để 0 — bạn chỉnh lại sau.",
+    "step": "Bước 2/3",
+    "skip": "Bỏ qua",
+    "saving": "Đang lưu...",
+    "loading": "Đang đồng bộ thông tin ví mặc định...",
+    "account_types": {
+      "cash": "Tiền mặt",
+      "bank": "Ngân hàng",
+      "ewallet": "Ví điện tử"
+    },
+    "wallet_name_label": "Tên ví",
+    "wallet_name_placeholder": "VD: Ví Techcombank",
+    "account_number_label": "Số tài khoản / mã ví",
+    "account_holder_label": "Tên chủ tài khoản",
+    "balance_label": "Số dư hiện tại",
+    "balance_initial": "Số dư ban đầu ({{currency}})",
+    "balance_zero": "Không đồng",
+    "bank_provider_label": "Ngân hàng",
+    "ewallet_provider_label": "Nhà cung cấp ví điện tử",
+    "provider_label": "Nhà cung cấp / ngân hàng",
+    "custom_provider_placeholder": "Nhập tên nhà cung cấp",
+    "select_placeholder": "Chọn...",
+    "add_wallet": "Thêm ví",
+    "wallet_list_title": "Danh sách ví",
+    "quick_suggestions_title": "Gợi ý nhanh",
+    "add_wallet_sheet_title": "Thêm ví mới",
+    "save_wallet": "Lưu ví",
+    "wallet_added": "Đã thêm ví mới.",
+    "success_wallets": "Đã tạo {{count}} ví thành công!",
+    "success_skip": "Đã tạo ví mặc định.",
+    "settings_hint": "Bạn có thể chỉnh lại ví trong phần Accounts sau khi vào app.",
+    "wallet_name_required": "Vui lòng nhập tên ví.",
+    "account_number_required": "Vui lòng nhập số tài khoản cho ví ngân hàng.",
+    "submit": "Tiếp tục",
+    "min_wallet_error": "Cần ít nhất 1 ví để tiếp tục.",
+    "popular_banks": {
+      "techcombank": "Techcombank",
+      "acb": "ACB",
+      "momo": "MoMo",
+      "shopeepay": "ShopeePay"
+    },
+    "errors": {
+      "save_failed": "Không thể lưu danh sách ví.",
+      "load_failed": "Không thể tải dữ liệu onboarding."
+    }
+  },
+  "categories_setup": {
+    "title": "Thiết lập danh mục",
+    "subtitle": "Chọn bộ danh mục có sẵn để xem báo cáo đẹp ngay. Bạn có thể chỉnh sửa lại trong Categories.",
+    "step": "Bước 3/3",
+    "submit": "Hoàn tất",
+    "skip": "Bỏ qua",
+    "saving": "Đang lưu...",
+    "loading": "Đang đồng bộ dữ liệu onboarding...",
+    "select_preset_title": "Chọn preset",
+    "recommended": "Gợi ý",
+    "preview_title": "Xem trước danh mục",
+    "quick_edit": "Chỉnh nhanh",
+    "select_groups_title": "Chọn nhóm danh mục",
+    "summary_title": "Tóm tắt thiết lập",
+    "summary_currency": "Tiền tệ",
+    "summary_wallets": "Ví",
+    "summary_categories": "Danh mục",
+    "wallets_count": "{{count}} ví",
+    "groups_count": "{{groups}} nhóm ({{sub}} danh mục con)",
+    "groups_summary": "{{groups}} nhóm · {{sub}} danh mục con",
+    "settings_hint": "Bạn có thể chỉnh trong Settings/Categories sau.",
+    "ready_title": "Bạn đã sẵn sàng!",
+    "ready_subtitle": "Bắt đầu nhập giao dịch đầu tiên của bạn.",
+    "start_button": "Bắt đầu",
+    "redirect_hint": "Sau khi hoàn tất sẽ chuyển tới {{redirectTo}}.",
+    "success_categories": "Đã tạo bộ danh mục mặc định.",
+    "success_onboarding": "Onboarding hoàn tất",
+    "presets": {
+      "student": {
+        "title": "Sinh viên",
+        "subtitle": "Đủ nhóm chi tiêu phổ biến + thu nhập cơ bản."
+      },
+      "professional": {
+        "title": "Người mới đi làm",
+        "subtitle": "Tập trung Nhà ở, Đi lại, Ăn uống, Mua sắm."
+      },
+      "custom": {
+        "title": "Tự tuỳ chỉnh",
+        "subtitle": "Chọn nhóm danh mục bạn muốn tạo."
+      }
+    },
+    "preset_groups": {
+      "food": "Ăn uống",
+      "transport": "Di chuyển",
+      "entertainment": "Giải trí",
+      "health": "Sức khoẻ",
+      "education": "Học tập",
+      "shopping": "Mua sắm",
+      "utilities": "Hoá đơn",
+      "travel": "Du lịch",
+      "other": "Khác"
+    },
+    "sample_categories": {
+      "lunch": "Cơm trưa",
+      "dinner": "Cơm tối",
+      "cafe": "Cafe & Trà",
+      "grab": "Grab/Taxi",
+      "game": "Game",
+      "swimming": "Bơi lội",
+      "gym": "Gym",
+      "doctor": "Khám bệnh",
+      "course": "Khoá học",
+      "tuition": "Học phí",
+      "internet": "Internet"
+    },
+    "errors": {
+      "complete_failed": "Không thể hoàn tất onboarding.",
+      "save_failed": "Không thể lưu danh mục onboarding.",
+      "load_failed": "Không thể tải dữ liệu onboarding."
+    }
+  }
+}

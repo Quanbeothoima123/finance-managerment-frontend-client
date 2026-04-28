@@ -1,0 +1,58 @@
+{
+  "title": "Tổng quan",
+  "greeting": {
+    "morning": "Chào buổi sáng",
+    "afternoon": "Chào buổi chiều",
+    "evening": "Chào buổi tối"
+  },
+  "loading": "Đang tải trang chủ...",
+  "summary": {
+    "total_balance": "Tổng tài sản",
+    "account_count": "{{count}} tài khoản đang hoạt động",
+    "income": "Thu nhập",
+    "income_short": "Thu",
+    "expense": "Chi tiêu",
+    "expense_short": "Chi",
+    "no_comparison": "Không có dữ liệu so sánh"
+  },
+  "chart": {
+    "daily_expense": "Chi tiêu theo ngày",
+    "cumulative_expense": "Chi tiêu luỹ kế",
+    "day_label": "Ngày {{day}}"
+  },
+  "budget_section": {
+    "title": "Ngân sách",
+    "over_budget": "Vượt ngân sách",
+    "remaining": "Còn lại",
+    "remaining_amount": "Còn lại {{amount}}",
+    "no_budgets": "Bạn chưa có ngân sách nào cho kỳ này. Tạo ngân sách để theo dõi chi tiêu sát hơn.",
+    "create": "Tạo ngân sách",
+    "create_first": "Tạo ngân sách đầu tiên"
+  },
+  "recent_transactions": {
+    "title": "Giao dịch gần đây",
+    "fallback_name": "Giao dịch",
+    "no_transactions": "Chưa có giao dịch nào gần đây.",
+    "add_first": "Thêm giao dịch đầu tiên",
+    "col_date": "Ngày",
+    "col_description": "Mô tả",
+    "col_category": "Danh mục",
+    "col_account": "Tài khoản",
+    "col_amount": "Số tiền"
+  },
+  "upcoming": {
+    "title": "Giao dịch sắp tới",
+    "view_schedule": "Xem lịch"
+  },
+  "insights": {
+    "title": "Nhận xét",
+    "weekly_title": "Gợi ý tuần này"
+  },
+  "actions": {
+    "add_transaction": "Thêm giao dịch",
+    "view_all": "Xem tất cả"
+  },
+  "errors": {
+    "load_failed": "Không thể tải trang chủ"
+  }
+}

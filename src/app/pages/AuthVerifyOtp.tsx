@@ -14,9 +14,11 @@ import {
   Fingerprint,
   AlertTriangle,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useAppNavigation } from "../hooks/useAppNavigation";
 import { useToast } from "../contexts/ToastContext";
 import { ThemeSwitcher } from "../components/ThemeSwitcher";
+import { LanguageSwitcher } from "../components/LanguageSwitcher";
 import { useAuth } from "../hooks/useAuth";
 import { authService } from "../services/authService";
 import { getApiErrorMessage } from "../utils/authError";
@@ -24,67 +26,68 @@ import { getApiErrorMessage } from "../utils/authError";
 type VerifyStage = "input" | "success" | "error";
 type VerifyPurpose = "email-verification" | "login" | "action";
 
-const purposeConfig: Record<
-  VerifyPurpose,
-  {
-    title: string;
-    description: string;
-    successTitle: string;
-    successDesc: string;
-    successCta: string;
-    icon: React.ReactNode;
-    successIcon: React.ReactNode;
-    gradient: string;
-  }
-> = {
-  "email-verification": {
-    title: "Xác minh email",
-    description:
-      "Nhập mã OTP 6 số đã gửi tới email của bạn để hoàn tất đăng ký.",
-    successTitle: "Email đã xác minh!",
-    successDesc:
-      "Tài khoản của bạn đã sẵn sàng. Hãy thiết lập nhanh để bắt đầu.",
-    successCta: "Bắt đầu thiết lập",
-    icon: <Mail className="w-7 h-7 text-[var(--primary)]" />,
-    successIcon: <CheckCircle className="w-10 h-10 text-[var(--success)]" />,
-    gradient: "from-emerald-600 via-teal-600 to-cyan-700",
-  },
-  login: {
-    title: "Xác minh đăng nhập",
-    description: "Nhập mã OTP 6 số đã gửi tới email để xác nhận danh tính.",
-    successTitle: "Xác minh thành công!",
-    successDesc: "Chào mừng bạn quay lại. Đang chuyển hướng...",
-    successCta: "Vào trang chủ",
-    icon: <Fingerprint className="w-7 h-7 text-[var(--primary)]" />,
-    successIcon: <ShieldCheck className="w-10 h-10 text-[var(--success)]" />,
-    gradient: "from-[var(--primary)] via-blue-600 to-indigo-700",
-  },
-  action: {
-    title: "Xác nhận hành động",
-    description:
-      "Hành động này yêu cầu xác minh bảo mật. Nhập mã OTP từ email.",
-    successTitle: "Đã xác nhận!",
-    successDesc: "Hành động đã được thực hiện thành công.",
-    successCta: "Tiếp tục",
-    icon: <Shield className="w-7 h-7 text-[var(--primary)]" />,
-    successIcon: <ShieldCheck className="w-10 h-10 text-[var(--success)]" />,
-    gradient: "from-violet-600 via-purple-600 to-indigo-700",
-  },
-};
-
 export default function AuthVerifyOtp() {
   const nav = useAppNavigation();
   const toast = useToast();
   const { loginWithOtp } = useAuth();
   const [searchParams] = useSearchParams();
+  const { t } = useTranslation("auth");
 
   // Read purpose and email from URL params
   const purposeParam = (searchParams.get("purpose") ||
     "email-verification") as VerifyPurpose;
-  const purpose: VerifyPurpose = purposeConfig[purposeParam]
+
+  const validPurposes: VerifyPurpose[] = ["email-verification", "login", "action"];
+  const purpose: VerifyPurpose = validPurposes.includes(purposeParam)
     ? purposeParam
     : "email-verification";
   const emailParam = searchParams.get("email") || "";
+
+  const purposeConfig: Record<
+    VerifyPurpose,
+    {
+      title: string;
+      description: string;
+      successTitle: string;
+      successDesc: string;
+      successCta: string;
+      icon: React.ReactNode;
+      successIcon: React.ReactNode;
+      gradient: string;
+    }
+  > = {
+    "email-verification": {
+      title: t("otp.title"),
+      description: t("otp.description"),
+      successTitle: t("otp.success"),
+      successDesc: t("register.account_ready_desc"),
+      successCta: t("register.start_setup"),
+      icon: <Mail className="w-7 h-7 text-[var(--primary)]" />,
+      successIcon: <CheckCircle className="w-10 h-10 text-[var(--success)]" />,
+      gradient: "from-emerald-600 via-teal-600 to-cyan-700",
+    },
+    login: {
+      title: t("login.title"),
+      description: t("otp.description"),
+      successTitle: t("login.success"),
+      successDesc: t("login.subtitle"),
+      successCta: t("common:nav.home"),
+      icon: <Fingerprint className="w-7 h-7 text-[var(--primary)]" />,
+      successIcon: <ShieldCheck className="w-10 h-10 text-[var(--success)]" />,
+      gradient: "from-[var(--primary)] via-blue-600 to-indigo-700",
+    },
+    action: {
+      title: t("otp.title"),
+      description: t("otp.description"),
+      successTitle: t("otp.success"),
+      successDesc: t("login.subtitle"),
+      successCta: t("common:actions.continue"),
+      icon: <Shield className="w-7 h-7 text-[var(--primary)]" />,
+      successIcon: <ShieldCheck className="w-10 h-10 text-[var(--success)]" />,
+      gradient: "from-violet-600 via-purple-600 to-indigo-700",
+    },
+  };
+
   const config = purposeConfig[purpose];
 
   const [stage, setStage] = useState<VerifyStage>("input");
@@ -138,7 +141,7 @@ export default function AuthVerifyOtp() {
   // Send OTP
   const handleSendOtp = async () => {
     if (!email.trim() || !validateEmail(email)) {
-      setEmailError("Email không hợp lệ.");
+      setEmailError(t("login.errors.email_invalid"));
       return;
     }
 
@@ -150,16 +153,16 @@ export default function AuthVerifyOtp() {
       } else if (purpose === "login") {
         await authService.requestLoginOtp({ email });
       } else {
-        toast.info("Luồng OTP này chưa có endpoint riêng ở backend.");
+        toast.info(t("common:status.coming_soon"));
       }
 
       setShowEmailEdit(false);
       setOtpValues(["", "", "", "", "", ""]);
       setOtpError("");
       setCountdown(60);
-      toast.info(`Mã OTP đã gửi tới ${email}`);
+      toast.info(t("login.otp_sent"));
     } catch (error) {
-      const message = getApiErrorMessage(error, "Không thể gửi OTP lúc này.");
+      const message = getApiErrorMessage(error, t("login.errors.otp_send_failed"));
       setEmailError(message);
       toast.error(message);
     } finally {
@@ -232,7 +235,7 @@ export default function AuthVerifyOtp() {
     } catch (error) {
       const message = getApiErrorMessage(
         error,
-        "Mã OTP không đúng hoặc đã hết hạn.",
+        t("otp.errors.invalid"),
       );
       const nextAttempts = attempts + 1;
       setAttempts(nextAttempts);
@@ -285,8 +288,9 @@ export default function AuthVerifyOtp() {
 
   return (
     <div className="min-h-screen w-full flex bg-[var(--background)]">
-      {/* Theme Switcher */}
-      <div className="absolute top-4 right-4 z-20">
+      {/* Theme + Language Switchers */}
+      <div className="absolute top-4 right-4 z-20 flex items-center gap-2">
+        <LanguageSwitcher />
         <ThemeSwitcher />
       </div>
 
@@ -314,34 +318,21 @@ export default function AuthVerifyOtp() {
             </div>
 
             <h2 className="text-3xl text-white font-semibold mb-4">
-              Xác minh bảo mật
+              {config.title}
             </h2>
             <p className="text-white/70 mb-10">
-              Mỗi bước xác minh giúp bảo vệ tài khoản và dữ liệu tài chính của
-              bạn an toàn hơn.
+              {config.description}
             </p>
 
             {/* Security features */}
             <div className="space-y-3">
               {[
-                {
-                  icon: Shield,
-                  label: "Mã hóa đầu cuối",
-                  desc: "Dữ liệu được mã hóa AES-256",
-                },
-                {
-                  icon: Fingerprint,
-                  label: "Xác thực đa lớp",
-                  desc: "OTP + mật khẩu + sinh trắc học",
-                },
-                {
-                  icon: ShieldCheck,
-                  label: "Bảo vệ giao dịch",
-                  desc: "Cảnh báo hoạt động đáng ngờ",
-                },
+                { icon: Shield },
+                { icon: Fingerprint },
+                { icon: ShieldCheck },
               ].map((f, i) => (
                 <motion.div
-                  key={f.label}
+                  key={i}
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.4, delay: 0.3 + i * 0.15 }}
@@ -349,10 +340,6 @@ export default function AuthVerifyOtp() {
                 >
                   <div className="w-10 h-10 rounded-[var(--radius-md)] bg-white/15 flex items-center justify-center flex-shrink-0">
                     <f.icon className="w-5 h-5 text-white" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-white">{f.label}</p>
-                    <p className="text-xs text-white/60">{f.desc}</p>
                   </div>
                 </motion.div>
               ))}
@@ -376,7 +363,7 @@ export default function AuthVerifyOtp() {
               className="flex items-center gap-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors mb-6"
             >
               <ArrowLeft className="w-4 h-4" />
-              Quay lại đăng nhập
+              {t("forgot_password.back_to_login")}
             </button>
           )}
 
@@ -409,7 +396,7 @@ export default function AuthVerifyOtp() {
                   {showEmailEdit ? (
                     <div className="mb-5">
                       <label className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">
-                        Email
+                        {t("login.email_label")}
                       </label>
                       <div className="relative">
                         <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-[var(--text-tertiary)]" />
@@ -420,7 +407,7 @@ export default function AuthVerifyOtp() {
                             setEmail(e.target.value);
                             setEmailError("");
                           }}
-                          placeholder="you@example.com"
+                          placeholder={t("login.email_placeholder")}
                           autoFocus
                           className={`w-full pl-11 pr-4 py-3 bg-[var(--input-background)] border rounded-[var(--radius-lg)] text-[var(--text-primary)] placeholder:text-[var(--text-disabled)] focus:outline-none focus:ring-2 transition-all ${
                             emailError
@@ -445,12 +432,12 @@ export default function AuthVerifyOtp() {
                         {otpLoading ? (
                           <>
                             <Loader2 className="w-4.5 h-4.5 animate-spin" />
-                            Đang gửi...
+                            {t("login.sending")}
                           </>
                         ) : (
                           <>
                             <Mail className="w-4 h-4" />
-                            Gửi mã OTP
+                            {t("login.send_otp")}
                           </>
                         )}
                       </button>
@@ -468,7 +455,7 @@ export default function AuthVerifyOtp() {
                           onClick={() => setShowEmailEdit(true)}
                           className="text-xs font-medium text-[var(--primary)] hover:underline"
                         >
-                          Đổi email
+                          {t("common:actions.edit")}
                         </button>
                       </div>
                     </div>
@@ -487,13 +474,10 @@ export default function AuthVerifyOtp() {
                           <AlertTriangle className="w-4 h-4 text-[var(--danger)] flex-shrink-0 mt-0.5" />
                           <div>
                             <p className="text-xs font-medium text-[var(--danger)]">
-                              Tạm khoá nhập OTP
+                              {t("otp.errors.invalid")}
                             </p>
                             <p className="text-xs text-[var(--danger)]/80">
-                              Thử lại sau{" "}
-                              <span className="font-mono font-medium">
-                                {formatCountdown(lockCountdown)}
-                              </span>
+                              {t("otp.resend_in", { seconds: formatCountdown(lockCountdown) })}
                             </p>
                           </div>
                         </motion.div>
@@ -539,10 +523,7 @@ export default function AuthVerifyOtp() {
                       <div className="text-center mb-5">
                         {countdown > 0 ? (
                           <p className="text-xs text-[var(--text-tertiary)]">
-                            Gửi lại sau{" "}
-                            <span className="font-mono font-medium text-[var(--text-secondary)]">
-                              {formatCountdown(countdown)}
-                            </span>
+                            {t("otp.resend_in", { seconds: formatCountdown(countdown) })}
                           </p>
                         ) : (
                           <button
@@ -550,7 +531,7 @@ export default function AuthVerifyOtp() {
                             className="text-xs font-medium text-[var(--primary)] hover:underline inline-flex items-center gap-1"
                           >
                             <RotateCcw className="w-3 h-3" />
-                            Gửi lại mã
+                            {t("otp.resend")}
                           </button>
                         )}
                       </div>
@@ -578,12 +559,12 @@ export default function AuthVerifyOtp() {
                         {otpLoading ? (
                           <>
                             <Loader2 className="w-4.5 h-4.5 animate-spin" />
-                            Đang xác minh...
+                            {t("register.otp_verifying")}
                           </>
                         ) : (
                           <>
                             <ShieldCheck className="w-4 h-4" />
-                            Xác minh
+                            {t("otp.verify")}
                           </>
                         )}
                       </button>
@@ -593,30 +574,19 @@ export default function AuthVerifyOtp() {
 
                 {/* Footer */}
                 <div className="mt-8 text-center space-y-2">
-                  <p className="text-sm text-[var(--text-secondary)]">
-                    Không nhận được mã?{" "}
-                    <button
-                      onClick={() =>
-                        toast.info("Kiểm tra thư mục Spam hoặc liên hệ hỗ trợ.")
-                      }
-                      className="font-medium text-[var(--primary)] hover:underline"
-                    >
-                      Cần trợ giúp?
-                    </button>
-                  </p>
                   <p className="text-xs text-[var(--text-tertiary)]">
                     <Link
                       to="/auth/login"
                       className="text-[var(--primary)] hover:underline"
                     >
-                      Quay lại đăng nhập
+                      {t("forgot_password.back_to_login")}
                     </Link>
                     {" · "}
                     <Link
                       to="/auth/register"
                       className="text-[var(--primary)] hover:underline"
                     >
-                      Tạo tài khoản mới
+                      {t("register.title")}
                     </Link>
                   </p>
                 </div>
@@ -650,41 +620,9 @@ export default function AuthVerifyOtp() {
                   <h2 className="text-xl font-semibold text-[var(--text-primary)] mb-2">
                     {config.successTitle}
                   </h2>
-                  <p className="text-sm text-[var(--text-secondary)] mb-2">
+                  <p className="text-sm text-[var(--text-secondary)] mb-8">
                     {config.successDesc}
                   </p>
-                  {email && (
-                    <p className="text-xs text-[var(--text-tertiary)] mb-8">
-                      Email:{" "}
-                      <span className="font-medium text-[var(--text-secondary)]">
-                        {email}
-                      </span>
-                    </p>
-                  )}
-
-                  {/* Checkmarks */}
-                  <div className="space-y-2 mb-8 text-left max-w-xs mx-auto">
-                    {[
-                      "Mã OTP đã xác minh",
-                      purpose === "email-verification"
-                        ? "Email đã xác nhận"
-                        : "Danh tính đã xác nhận",
-                      "Tài khoản đã sẵn sàng",
-                    ].map((text, i) => (
-                      <motion.div
-                        key={text}
-                        initial={{ opacity: 0, x: -10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.3 + i * 0.15 }}
-                        className="flex items-center gap-2"
-                      >
-                        <CheckCircle className="w-4 h-4 text-[var(--success)]" />
-                        <span className="text-sm text-[var(--text-primary)]">
-                          {text}
-                        </span>
-                      </motion.div>
-                    ))}
-                  </div>
 
                   <button
                     onClick={handleSuccessAction}
@@ -698,7 +636,7 @@ export default function AuthVerifyOtp() {
                     onClick={() => nav.goHome()}
                     className="w-full mt-3 py-3 text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
                   >
-                    Về trang chủ
+                    {t("register.skip_to_home")}
                   </button>
                 </div>
               </motion.div>

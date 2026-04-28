@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
 import { motion } from "motion/react";
+import { useTranslation } from "react-i18next";
 import {
   Wallet,
   ChevronDown,
@@ -13,6 +14,7 @@ import { useAuth } from "../hooks/useAuth";
 import { onboardingService } from "../services/onboardingService";
 import { getApiErrorMessage } from "../utils/authError";
 import { resolveOnboardingPath } from "../types/onboarding";
+import { useLocaleFormat } from "../hooks/useLocaleFormat";
 
 type TrackingOption = "today" | "start-of-month" | "custom";
 
@@ -26,6 +28,8 @@ export default function OnboardingCurrencyDate() {
   const navigate = useNavigate();
   const toast = useToast();
   const { isAuthenticated, isHydrated } = useAuth();
+  const { t } = useTranslation("onboarding");
+  const { formatDate } = useLocaleFormat();
 
   const [currency, setCurrency] = useState("VND");
   const [trackingOption, setTrackingOption] =
@@ -88,7 +92,7 @@ export default function OnboardingCurrencyDate() {
       } catch (error) {
         if (!isMounted) return;
         toast.error(
-          getApiErrorMessage(error, "Không thể tải dữ liệu onboarding."),
+          getApiErrorMessage(error, t("currency_date.errors.load_failed")),
         );
       } finally {
         if (isMounted) setIsBootstrapping(false);
@@ -100,7 +104,7 @@ export default function OnboardingCurrencyDate() {
     return () => {
       isMounted = false;
     };
-  }, [isAuthenticated, isHydrated, navigate, toast]);
+  }, [isAuthenticated, isHydrated, navigate, t, toast]);
 
   const submitCurrencyDate = async (skipMode = false) => {
     if (!computedStartDate) {
@@ -121,8 +125,11 @@ export default function OnboardingCurrencyDate() {
 
       toast.success(
         skipMode
-          ? "Đã lưu thiết lập cơ bản. Tiếp tục tạo ví ban đầu."
-          : `Đã chọn ${selectedCurrency.label}, bắt đầu theo dõi từ ${formatDateVN(computedStartDate)}`,
+          ? t("currency_date.success")
+          : t("currency_date.success_selected", {
+              currency: selectedCurrency.label,
+              date: formatDate(computedStartDate),
+            }),
       );
 
       navigate(resolveOnboardingPath(state.onboarding.currentStep), {
@@ -130,7 +137,7 @@ export default function OnboardingCurrencyDate() {
       });
     } catch (error) {
       toast.error(
-        getApiErrorMessage(error, "Không thể lưu bước thiết lập này."),
+        getApiErrorMessage(error, t("currency_date.errors.save_failed")),
       );
     } finally {
       setIsSubmitting(false);
@@ -143,9 +150,12 @@ export default function OnboardingCurrencyDate() {
   };
 
   const trackingOptions: Array<{ value: TrackingOption; label: string }> = [
-    { value: "today", label: "Hôm nay" },
-    { value: "start-of-month", label: "Đầu tháng này" },
-    { value: "custom", label: "Tuỳ chọn" },
+    { value: "today", label: t("currency_date.start_date_today") },
+    {
+      value: "start-of-month",
+      label: t("currency_date.start_date_start_of_month"),
+    },
+    { value: "custom", label: t("currency_date.start_date_custom") },
   ];
 
   return (
@@ -163,7 +173,9 @@ export default function OnboardingCurrencyDate() {
         </div>
 
         <div className="flex flex-col items-center gap-1">
-          <span className="text-xs text-[var(--text-tertiary)]">Bước 1/3</span>
+          <span className="text-xs text-[var(--text-tertiary)]">
+            {t("currency_date.step")}
+          </span>
           <div className="w-24 h-1 bg-[var(--surface)] rounded-full overflow-hidden">
             <motion.div
               className="h-full bg-[var(--primary)] rounded-full"
@@ -179,7 +191,7 @@ export default function OnboardingCurrencyDate() {
           disabled={isBootstrapping || isSubmitting}
           className="text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors px-2 py-1 disabled:opacity-50"
         >
-          Bỏ qua
+          {t("currency_date.skip")}
         </button>
       </motion.header>
 
@@ -191,10 +203,10 @@ export default function OnboardingCurrencyDate() {
           className="mt-4 mb-6"
         >
           <h1 className="text-2xl font-semibold text-[var(--text-primary)] mb-2">
-            Thiết lập nhanh
+            {t("currency_date.quick_setup")}
           </h1>
           <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-            Chỉ mất ~15 giây. Bạn có thể thay đổi lại trong Cài đặt.
+            {t("currency_date.quick_setup_subtitle")}
           </p>
         </motion.div>
 
@@ -206,11 +218,12 @@ export default function OnboardingCurrencyDate() {
         >
           <div className="mb-1">
             <span className="text-sm font-medium text-[var(--text-primary)]">
-              Tiền tệ mặc định <span className="text-[var(--danger)]">*</span>
+              {t("currency_date.currency_label")}{" "}
+              <span className="text-[var(--danger)]">*</span>
             </span>
           </div>
           <p className="text-xs text-[var(--text-tertiary)] mb-3">
-            Áp dụng cho giao dịch mới. Giao dịch cũ giữ nguyên.
+            {t("currency_date.currency_applies_to_new")}
           </p>
 
           <div className="relative">
@@ -266,12 +279,12 @@ export default function OnboardingCurrencyDate() {
         >
           <div className="mb-1">
             <span className="text-sm font-medium text-[var(--text-primary)]">
-              Bắt đầu theo dõi từ{" "}
+              {t("currency_date.start_tracking_from_label")}{" "}
               <span className="text-[var(--danger)]">*</span>
             </span>
           </div>
           <p className="text-xs text-[var(--text-tertiary)] mb-4">
-            Báo cáo/insight sẽ tính từ ngày này.
+            {t("currency_date.reports_from_hint")}
           </p>
 
           <div className="flex bg-[var(--surface)] border border-[var(--border)] rounded-[var(--radius-lg)] p-1 mb-4">
@@ -317,7 +330,7 @@ export default function OnboardingCurrencyDate() {
                 >
                   <AlertCircle className="w-3.5 h-3.5 text-[var(--danger)]" />
                   <span className="text-xs text-[var(--danger)]">
-                    Vui lòng chọn ngày bắt đầu.
+                    {t("currency_date.date_required")}
                   </span>
                 </motion.div>
               )}
@@ -326,9 +339,9 @@ export default function OnboardingCurrencyDate() {
 
           {trackingOption !== "custom" && (
             <div className="px-3 py-3 rounded-[var(--radius-lg)] bg-[var(--surface)] text-sm text-[var(--text-secondary)]">
-              Dữ liệu sẽ được tính từ{" "}
+              {t("currency_date.data_from")}{" "}
               <span className="font-medium text-[var(--text-primary)]">
-                {formatDateVN(computedStartDate)}
+                {formatDate(computedStartDate)}
               </span>
             </div>
           )}
@@ -337,7 +350,7 @@ export default function OnboardingCurrencyDate() {
         {isBootstrapping && (
           <div className="flex items-center justify-center gap-2 text-sm text-[var(--text-secondary)] mt-2">
             <Loader2 className="w-4 h-4 animate-spin" />
-            Đang tải thiết lập hiện tại...
+            {t("currency_date.loading")}
           </div>
         )}
 
@@ -354,10 +367,10 @@ export default function OnboardingCurrencyDate() {
             disabled={!canContinue || isBootstrapping}
             className={`w-full py-3.5 rounded-[var(--radius-lg)] font-medium text-base transition-all shadow-[var(--shadow-sm)] ${canContinue && !isBootstrapping ? "bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--primary-hover)] active:scale-[0.98]" : "bg-[var(--border)] text-[var(--text-tertiary)] cursor-not-allowed"}`}
           >
-            {isSubmitting ? "Đang lưu..." : "Tiếp tục"}
+            {isSubmitting ? t("currency_date.saving") : t("currency_date.submit")}
           </button>
           <p className="text-center text-xs text-[var(--text-tertiary)] mt-3">
-            Bạn có thể chỉnh lại trong Settings → General.
+            {t("currency_date.settings_hint")}
           </p>
         </motion.div>
       </div>
@@ -400,13 +413,4 @@ function applyTrackingDate(
 
   setTrackingOption("custom");
   setCustomDate(date);
-}
-
-function formatDateVN(dateStr: string): string {
-  if (!dateStr) return "";
-  const date = new Date(`${dateStr}T00:00:00`);
-  const day = date.getDate().toString().padStart(2, "0");
-  const month = (date.getMonth() + 1).toString().padStart(2, "0");
-  const year = date.getFullYear();
-  return `${day}/${month}/${year}`;
 }

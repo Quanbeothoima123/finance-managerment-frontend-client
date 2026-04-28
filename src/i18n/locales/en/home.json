@@ -1,0 +1,58 @@
+{
+  "title": "Overview",
+  "greeting": {
+    "morning": "Good morning",
+    "afternoon": "Good afternoon",
+    "evening": "Good evening"
+  },
+  "loading": "Loading home page...",
+  "summary": {
+    "total_balance": "Total Assets",
+    "account_count": "{{count}} active account(s)",
+    "income": "Income",
+    "income_short": "Inc",
+    "expense": "Expenses",
+    "expense_short": "Exp",
+    "no_comparison": "No comparison data"
+  },
+  "chart": {
+    "daily_expense": "Daily Spending",
+    "cumulative_expense": "Cumulative Spending",
+    "day_label": "Day {{day}}"
+  },
+  "budget_section": {
+    "title": "Budgets",
+    "over_budget": "Over budget",
+    "remaining": "Remaining",
+    "remaining_amount": "Remaining {{amount}}",
+    "no_budgets": "No budgets for this period. Create a budget to better track your spending.",
+    "create": "Create Budget",
+    "create_first": "Create your first budget"
+  },
+  "recent_transactions": {
+    "title": "Recent Transactions",
+    "fallback_name": "Transaction",
+    "no_transactions": "No recent transactions.",
+    "add_first": "Add your first transaction",
+    "col_date": "Date",
+    "col_description": "Description",
+    "col_category": "Category",
+    "col_account": "Account",
+    "col_amount": "Amount"
+  },
+  "upcoming": {
+    "title": "Upcoming Transactions",
+    "view_schedule": "View Schedule"
+  },
+  "insights": {
+    "title": "Insights",
+    "weekly_title": "This Week's Insights"
+  },
+  "actions": {
+    "add_transaction": "Add Transaction",
+    "view_all": "View All"
+  },
+  "errors": {
+    "load_failed": "Could not load home page"
+  }
+}

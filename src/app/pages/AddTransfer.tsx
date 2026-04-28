@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate, useSearchParams } from "react-router";
 import {
   ArrowDown,
@@ -10,6 +11,7 @@ import {
   Save,
   Wallet,
 } from "lucide-react";
+import i18n from "../../i18n";
 import { AmountInput } from "../components/AmountInput";
 import { Button } from "../components/Button";
 import { Card } from "../components/Card";
@@ -28,8 +30,12 @@ function todayString() {
   return new Date().toISOString().slice(0, 10);
 }
 
+function getLocale() {
+  return i18n.language === "en" ? "en-US" : "vi-VN";
+}
+
 function formatMoney(value?: string | number | null) {
-  return new Intl.NumberFormat("vi-VN").format(Number(value || 0));
+  return new Intl.NumberFormat(getLocale()).format(Number(value || 0));
 }
 
 function getAccountIcon(type: string) {
@@ -40,6 +46,7 @@ function getAccountIcon(type: string) {
 }
 
 export default function AddTransfer() {
+  const { t } = useTranslation("transactions");
   const navigate = useNavigate();
   const toast = useToast();
   const [searchParams] = useSearchParams();
@@ -143,37 +150,28 @@ export default function AddTransfer() {
     const nextErrors: Record<string, string> = {};
 
     if (!amount || Number(amount || 0) <= 0) {
-      nextErrors.amount = "Vui lòng nhập số tiền hợp lệ";
+      nextErrors.amount = t("transfer.errors.amount_invalid");
     }
-
     if (!fromAccountId) {
-      nextErrors.fromAccountId = "Vui lòng chọn tài khoản nguồn";
+      nextErrors.fromAccountId = t("transfer.errors.from_account_required");
     }
-
     if (!toAccountId) {
-      nextErrors.toAccountId = "Vui lòng chọn tài khoản đích";
+      nextErrors.toAccountId = t("transfer.errors.to_account_required");
     }
-
     if (fromAccountId && toAccountId && fromAccountId === toAccountId) {
-      nextErrors.toAccountId = "Tài khoản đích phải khác tài khoản nguồn";
+      nextErrors.toAccountId = t("transfer.errors.same_account");
     }
-
     if (!description.trim()) {
-      nextErrors.description = "Vui lòng nhập mô tả";
+      nextErrors.description = t("transfer.errors.description_required");
     }
-
     if (!date) {
-      nextErrors.date = "Vui lòng chọn ngày";
+      nextErrors.date = t("transfer.errors.date_required");
     }
-
     if (hasCrossCurrency) {
-      nextErrors.currency =
-        "Chưa hỗ trợ chuyển tiền giữa 2 tài khoản khác tiền tệ";
+      nextErrors.currency = t("transfer.errors.different_currency");
     }
-
     if (insufficientBalance) {
-      nextErrors.balance =
-        "Số dư tài khoản nguồn không đủ để thực hiện giao dịch";
+      nextErrors.balance = t("transfer.errors.insufficient_balance");
     }
 
     setErrors(nextErrors);
@@ -204,14 +202,14 @@ export default function AddTransfer() {
           : await transactionsService.createTransaction(payload);
 
       toast.success(
-        isEditMode ? "Đã cập nhật chuyển tiền" : "Đã tạo giao dịch chuyển tiền",
+        isEditMode ? t("transfer.success_edit") : t("transfer.success_create"),
       );
       navigate(`/transactions/${result.id}`);
     } catch (err) {
       toast.error(
         err instanceof Error
           ? err.message
-          : "Không thể lưu giao dịch chuyển tiền",
+          : t("transfer.errors.save_failed"),
       );
     } finally {
       setSubmitting(false);
@@ -223,7 +221,7 @@ export default function AddTransfer() {
       <div className="min-h-screen bg-[var(--background)] p-4 md:p-6">
         <Card>
           <p className="text-sm text-[var(--text-secondary)]">
-            Đang tải dữ liệu chuyển tiền...
+            {t("common:status.loading")}
           </p>
         </Card>
       </div>
@@ -235,7 +233,7 @@ export default function AddTransfer() {
       <div className="min-h-screen bg-[var(--background)] p-4 md:p-6">
         <Card>
           <p className="text-sm text-[var(--danger)]">
-            {metaError || sourceError || "Không thể tải dữ liệu chuyển tiền"}
+            {metaError || sourceError || t("transfer.errors.load_failed")}
           </p>
         </Card>
       </div>
@@ -246,14 +244,16 @@ export default function AddTransfer() {
     return (
       <div className="min-h-screen bg-[var(--background)] p-4 md:p-6">
         <Card>
-          <p className="text-sm text-[var(--danger)]">
-            Giao dịch nguồn không phải là transfer, không thể mở bằng màn hình
-            chuyển tiền.
+          <h2 className="text-lg font-semibold text-[var(--text-primary)]">
+            {t("transfer.wrong_type_title")}
+          </h2>
+          <p className="text-sm text-[var(--danger)] mt-2">
+            {t("transfer.wrong_type_body")}
           </p>
           <div className="mt-4">
             <Button variant="secondary" onClick={() => navigate(-1)}>
               <ArrowLeft className="w-4 h-4" />
-              Quay lại
+              {t("common:actions.back")}
             </Button>
           </div>
         </Card>
@@ -332,18 +332,13 @@ export default function AddTransfer() {
           >
             <ArrowLeft className="w-5 h-5 text-[var(--text-primary)]" />
           </button>
-          <div>
-            <h1 className="text-2xl font-semibold text-[var(--text-primary)]">
-              {isEditMode
-                ? "Chỉnh sửa chuyển tiền"
-                : isDuplicateMode
-                  ? "Nhân bản chuyển tiền"
-                  : "Chuyển tiền"}
-            </h1>
-            <p className="text-sm text-[var(--text-secondary)] mt-1">
-              Tạo transfer giữa 2 tài khoản bằng dữ liệu thật từ backend.
-            </p>
-          </div>
+          <h1 className="text-2xl font-semibold text-[var(--text-primary)]">
+            {isEditMode
+              ? t("transfer.title_edit")
+              : isDuplicateMode
+                ? t("transfer.title_duplicate")
+                : t("transfer.title_create")}
+          </h1>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -358,7 +353,8 @@ export default function AddTransfer() {
           <Card>
             <div>
               <label className="block text-sm font-medium text-[var(--text-primary)] mb-3">
-                Từ tài khoản <span className="text-[var(--danger)]">*</span>
+                {t("transfer.from_account_label")}{" "}
+                <span className="text-[var(--danger)]">*</span>
               </label>
               <div className="space-y-2">
                 {accounts.map((account) => (
@@ -395,7 +391,8 @@ export default function AddTransfer() {
 
             <div>
               <label className="block text-sm font-medium text-[var(--text-primary)] mb-3">
-                Đến tài khoản <span className="text-[var(--danger)]">*</span>
+                {t("transfer.to_account_label")}{" "}
+                <span className="text-[var(--danger)]">*</span>
               </label>
               <div className="space-y-2">
                 {accounts
@@ -428,7 +425,7 @@ export default function AddTransfer() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-                  Phí dịch vụ
+                  {t("transfer.service_fee_label")}
                 </label>
                 <input
                   type="number"
@@ -447,7 +444,8 @@ export default function AddTransfer() {
 
               <div>
                 <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-                  Ngày giao dịch <span className="text-[var(--danger)]">*</span>
+                  {t("transfer.date_label")}{" "}
+                  <span className="text-[var(--danger)]">*</span>
                 </label>
                 <input
                   type="date"
@@ -468,23 +466,23 @@ export default function AddTransfer() {
 
             <div className="mt-4">
               <Input
-                label="Mô tả"
+                label={t("transfer.description_label")}
                 value={description}
                 onChange={(event) => {
                   setDescription(event.target.value);
                   setErrors((prev) => ({ ...prev, description: "" }));
                 }}
-                placeholder="Ví dụ: Chuyển sang tài khoản tiết kiệm"
+                placeholder={t("transfer.description_placeholder")}
                 error={errors.description}
               />
             </div>
 
             <div className="mt-4">
               <Input
-                label="Ghi chú"
+                label={t("transfer.note_label")}
                 value={notes}
                 onChange={(event) => setNotes(event.target.value)}
-                placeholder="Tuỳ chọn"
+                placeholder={t("transfer.note_placeholder")}
               />
             </div>
 
@@ -493,7 +491,7 @@ export default function AddTransfer() {
                 <div className="flex items-start gap-2">
                   <AlertCircle className="w-4 h-4 text-[var(--warning)] mt-0.5" />
                   <p className="text-sm text-[var(--text-secondary)]">
-                    Chưa hỗ trợ chuyển tiền giữa 2 tài khoản khác tiền tệ.
+                    {t("transfer.errors.different_currency")}
                   </p>
                 </div>
               </div>
@@ -504,11 +502,7 @@ export default function AddTransfer() {
                 <div className="flex items-start gap-2">
                   <AlertCircle className="w-4 h-4 text-[var(--danger)] mt-0.5" />
                   <p className="text-sm text-[var(--text-secondary)]">
-                    Tài khoản nguồn không đủ số dư để trừ{" "}
-                    <span className="font-semibold text-[var(--danger)]">
-                      {formatMoney(totalDeduction)} ₫
-                    </span>{" "}
-                    (bao gồm cả phí).
+                    {t("transfer.errors.insufficient_balance")}
                   </p>
                 </div>
               </div>
@@ -516,14 +510,10 @@ export default function AddTransfer() {
 
             {fromAccount && (
               <div className="mt-4 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface)] p-4 text-sm text-[var(--text-secondary)]">
-                Khấu trừ dự kiến từ{" "}
-                <span className="font-medium text-[var(--text-primary)]">
-                  {fromAccount.name}
-                </span>
-                :{" "}
-                <span className="font-semibold text-[var(--danger)]">
-                  {formatMoney(totalDeduction)} ₫
-                </span>
+                {t("transfer.deduction_preview", {
+                  account: fromAccount.name,
+                  amount: `${formatMoney(totalDeduction)} ₫`,
+                })}
               </div>
             )}
           </Card>
@@ -534,7 +524,7 @@ export default function AddTransfer() {
               variant="secondary"
               onClick={() => navigate(-1)}
             >
-              Huỷ
+              {t("common:actions.cancel")}
             </Button>
 
             <Button type="submit" disabled={isSubmitDisabled}>
@@ -544,10 +534,10 @@ export default function AddTransfer() {
                 <ArrowLeftRight className="w-4 h-4" />
               )}
               {submitting
-                ? "Đang lưu..."
+                ? t("transfer.submitting")
                 : isEditMode
-                  ? "Lưu thay đổi"
-                  : "Tạo chuyển tiền"}
+                  ? t("transfer.submit_edit")
+                  : t("transfer.submit_create")}
             </Button>
           </div>
         </form>

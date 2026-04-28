@@ -1,0 +1,308 @@
+{
+  "list": {
+    "title": "Giao dịch",
+    "search_placeholder": "Mô tả, merchant, tài khoản...",
+    "filter_button": "Lọc",
+    "sort_button": "Sắp xếp",
+    "add_transaction": "Thêm giao dịch",
+    "add_transfer": "Chuyển tiền",
+    "empty": {
+      "no_transactions": "Chưa có giao dịch nào",
+      "no_match": "Không có giao dịch nào phù hợp với bộ lọc hiện tại.",
+      "add_first": "Thêm giao dịch đầu tiên"
+    },
+    "filter": {
+      "title": "Bộ lọc",
+      "type_label": "Loại giao dịch",
+      "account_label": "Tài khoản",
+      "category_label": "Danh mục",
+      "merchant_label": "Merchant",
+      "tag_label": "Lọc theo thẻ",
+      "tag_placeholder": "Chưa chọn thẻ",
+      "date_from": "Từ ngày",
+      "date_to": "Đến ngày",
+      "logic_and": "AND",
+      "logic_or": "OR",
+      "tags_selected": "{{count}} thẻ đã chọn",
+      "mode": "Chế độ: {{mode}}",
+      "clear": "Xoá bộ lọc",
+      "apply": "Áp dụng"
+    },
+    "sort": {
+      "title": "Sắp xếp",
+      "date_desc": "Mới nhất",
+      "date_asc": "Cũ nhất",
+      "amount_desc": "Số tiền giảm dần",
+      "amount_asc": "Số tiền tăng dần",
+      "count": "Số lượng"
+    },
+    "group_count": "{{count}} giao dịch",
+    "summary": {
+      "total_income": "Tổng thu",
+      "total_expense": "Tổng chi"
+    },
+    "delete": {
+      "title": "Xoá giao dịch?",
+      "description": "Bạn có chắc muốn xoá \"{{name}}\"? Hành động này không thể hoàn tác.",
+      "confirm": "Xoá",
+      "cancel": "Huỷ",
+      "deleting": "Đang xoá...",
+      "success": "Đã xoá giao dịch",
+      "failed": "Không thể xoá giao dịch"
+    }
+  },
+
+  "form": {
+    "title_create": "Thêm giao dịch",
+    "title_edit": "Chỉnh sửa giao dịch",
+    "title_duplicate": "Nhân bản giao dịch",
+    "type_expense": "Chi tiêu",
+    "type_income": "Thu nhập",
+    "amount_label": "Số tiền",
+    "date_label": "Ngày",
+    "account_label": "Tài khoản",
+    "account_placeholder": "Chọn tài khoản",
+    "description_label": "Mô tả",
+    "description_placeholder": "Ví dụ: Cafe với khách hàng",
+    "category_label": "Danh mục",
+    "category_placeholder": "Chọn danh mục",
+    "category_split_hint": "Danh mục được chọn trong từng dòng split",
+    "merchant_label": "Merchant",
+    "merchant_placeholder": "Ví dụ: Highlands Coffee",
+    "merchant_no_list": "Không chọn từ danh sách",
+    "merchant_create": "Tạo merchant mới",
+    "tag_label": "Nhãn",
+    "tag_create": "Tạo nhãn mới",
+    "note_label": "Ghi chú",
+    "note_placeholder": "Ghi chú thêm cho giao dịch",
+    "options_section": "Tuỳ chọn",
+    "image_section": "Đính kèm ảnh",
+    "image_delete": "Xóa ảnh",
+    "image_preview_alt": "Ảnh đính kèm",
+    "submit_create": "Tạo giao dịch",
+    "submit_edit": "Lưu thay đổi",
+    "submitting": "Đang lưu...",
+    "success_create": "Đã tạo giao dịch",
+    "success_edit": "Đã cập nhật giao dịch",
+    "image_upload_warning": "Giao dịch đã được lưu nhưng không thể tải ảnh. Hãy thử lại.",
+    "image_pick": "Chọn ảnh (tuỳ chọn)",
+    "merchant_custom_hint": "Hoặc nhập tên merchant mới nếu chưa có sẵn.",
+    "merchant_default_hint": "Merchant này có danh mục mặc định và sẽ tự gợi ý khi phù hợp.",
+    "is_transfer_title": "Giao dịch này là chuyển tiền",
+    "is_transfer_body": "Vui lòng dùng màn hình Chuyển tiền để chỉnh sửa hoặc nhân bản.",
+    "go_transfer_screen": "Mở màn hình chuyển tiền",
+    "errors": {
+      "amount_invalid": "Vui lòng nhập số tiền hợp lệ",
+      "account_required": "Vui lòng chọn tài khoản",
+      "description_required": "Vui lòng nhập mô tả",
+      "date_required": "Vui lòng chọn ngày",
+      "category_required": "Vui lòng chọn danh mục",
+      "split_category_required": "Tất cả dòng split phải có danh mục",
+      "split_amount_required": "Tất cả dòng split phải có số tiền > 0",
+      "split_total_mismatch": "Tổng split phải bằng tổng giao dịch",
+      "save_failed": "Không thể lưu giao dịch",
+      "load_failed": "Không thể tải dữ liệu giao dịch"
+    }
+  },
+
+  "split": {
+    "toggle_label": "Phân chia giao dịch (Split)",
+    "add_line": "Thêm dòng",
+    "remove_line": "Xoá dòng",
+    "line_label": "Dòng {{index}}",
+    "category_placeholder": "Chọn danh mục",
+    "note_label": "Ghi chú dòng split",
+    "note_placeholder": "Tuỳ chọn",
+    "remaining": "Còn lại",
+    "matched": "Khớp",
+    "total_hint": "Tổng split phải bằng {{amount}}",
+    "section_title": "Phân chia danh mục"
+  },
+
+  "detail": {
+    "title": "Chi tiết giao dịch",
+    "fallback_name": "Giao dịch",
+    "not_found": "Giao dịch này có thể đã bị xoá hoặc không tồn tại.",
+    "fields": {
+      "date": "Ngày giao dịch",
+      "type": "Loại",
+      "account": "Tài khoản",
+      "from_account": "Từ tài khoản",
+      "to_account": "Tài khoản đến",
+      "category": "Danh mục",
+      "merchant": "Merchant",
+      "note": "Ghi chú",
+      "split": "Phân chia ({{count}} dòng)",
+      "tags": "Nhãn",
+      "source": "Nguồn nhập"
+    },
+    "source_types": {
+      "manual": "Thủ công",
+      "auto": "Tự động",
+      "csv": "Import CSV",
+      "rule": "Quy tắc tự động"
+    },
+    "type_labels": {
+      "income": "Thu nhập",
+      "expense": "Chi tiêu",
+      "transfer": "Chuyển tiền",
+      "adjustment": "Điều chỉnh"
+    },
+    "image_alt": "Ảnh giao dịch",
+    "split_details": "Chi tiết phân chia",
+    "no_note": "--",
+    "delete": {
+      "title": "Xoá giao dịch?",
+      "description": "Bạn có chắc muốn xoá \"{{name}}\"? Hành động này không thể hoàn tác.",
+      "confirm": "Xoá",
+      "cancel": "Huỷ",
+      "deleting": "Đang xoá...",
+      "success": "Đã xoá giao dịch",
+      "failed": "Không thể xoá giao dịch"
+    }
+  },
+
+  "transfer": {
+    "title_create": "Tạo chuyển tiền",
+    "title_edit": "Chỉnh sửa chuyển tiền",
+    "title_duplicate": "Nhân bản chuyển tiền",
+    "amount_label": "Số tiền",
+    "date_label": "Ngày",
+    "from_account_label": "Tài khoản nguồn",
+    "from_account_placeholder": "Chọn tài khoản nguồn",
+    "to_account_label": "Tài khoản đích",
+    "to_account_placeholder": "Chọn tài khoản đích",
+    "description_label": "Mô tả",
+    "description_placeholder": "Ví dụ: Chuyển sang tài khoản tiết kiệm",
+    "note_label": "Ghi chú",
+    "note_placeholder": "Ghi chú thêm (tuỳ chọn)",
+    "options_section": "Tuỳ chọn",
+    "submit_create": "Tạo chuyển tiền",
+    "submit_edit": "Lưu thay đổi",
+    "submitting": "Đang lưu...",
+    "success_create": "Đã tạo giao dịch chuyển tiền",
+    "success_edit": "Đã cập nhật chuyển tiền",
+    "errors": {
+      "amount_invalid": "Vui lòng nhập số tiền hợp lệ",
+      "from_account_required": "Vui lòng chọn tài khoản nguồn",
+      "to_account_required": "Vui lòng chọn tài khoản đích",
+      "same_account": "Tài khoản đích phải khác tài khoản nguồn",
+      "description_required": "Vui lòng nhập mô tả",
+      "date_required": "Vui lòng chọn ngày",
+      "insufficient_balance": "Số dư tài khoản nguồn không đủ để thực hiện giao dịch",
+      "different_currency": "Chưa hỗ trợ chuyển tiền giữa 2 tài khoản khác tiền tệ",
+      "save_failed": "Không thể lưu giao dịch chuyển tiền",
+      "load_failed": "Không thể tải dữ liệu chuyển tiền"
+    },
+    "service_fee_label": "Phí dịch vụ",
+    "deduction_preview": "Khấu trừ dự kiến từ {{account}}: {{amount}}",
+    "wrong_type_title": "Giao dịch không hợp lệ",
+    "wrong_type_body": "Giao dịch nguồn không phải là transfer, không thể mở bằng màn hình chuyển tiền."
+  },
+
+  "csv_import": {
+    "trigger_button": "Nhập từ CSV",
+    "modal_title": "Nhập file CSV",
+    "steps": {
+      "upload": "Chọn file CSV chứa giao dịch",
+      "mapping": "Ánh xạ cột dữ liệu",
+      "preview": "Xem trước {{count}} giao dịch"
+    },
+    "upload": {
+      "drop_hint": "Kéo thả file CSV vào đây",
+      "or": "hoặc",
+      "browse_button": "Chọn file từ thiết bị",
+      "click_hint": "hoặc nhấn để chọn file",
+      "format_guide_title": "Định dạng CSV được hỗ trợ",
+      "format_guide_body": "File CSV cần có hàng đầu tiên làm tiêu đề cột. Các cột sau được nhận dạng tự động:"
+    },
+    "mapping": {
+      "title": "Ánh xạ cột",
+      "description": "Kiểm tra và điều chỉnh ánh xạ giữa cột CSV và trường dữ liệu:",
+      "file_info": "{{rows}} dòng, {{cols}} cột",
+      "skip_option": "— Bỏ qua —",
+      "invalid_rows": "{{count}} dòng có lỗi (sẽ bị bỏ qua)",
+      "first_row_preview": "Dòng đầu tiên (mẫu):",
+      "total": "Tổng",
+      "valid": "Hợp lệ",
+      "invalid": "Lỗi",
+      "fields": {
+        "date": "Ngày",
+        "amount": "Số tiền",
+        "type": "Loại",
+        "description": "Mô tả",
+        "category": "Danh mục",
+        "account": "Tài khoản",
+        "merchant": "NCC",
+        "note": "Ghi chú"
+      }
+    },
+    "preview": {
+      "title": "Xem trước ({{count}} dòng)",
+      "show_limit": "Hiển thị 50/{{total}} dòng",
+      "submit": "Nhập {{count}} giao dịch",
+      "col_num": "#",
+      "col_type": "Loại",
+      "col_description": "Mô tả",
+      "col_amount": "Số tiền",
+      "col_date": "Ngày",
+      "col_status": "Trạng thái",
+      "row_num": "Dòng {{n}}",
+      "type_income": "Thu",
+      "type_expense": "Chi",
+      "type_transfer": "Chuyển"
+    },
+    "footer_choose_again": "Chọn lại file",
+    "footer_back": "Quay lại",
+    "date_format_error": "Định dạng ngày không hợp lệ",
+    "default_description": "Giao dịch nhập từ CSV",
+    "default_category": "Khác",
+    "default_account": "Ví chính",
+    "errors": {
+      "invalid_amount": "Số tiền không hợp lệ",
+      "missing_date": "Thiếu ngày, sẽ dùng ngày hôm nay",
+      "missing_description": "Thiếu mô tả"
+    }
+  },
+
+  "chat_parser": {
+    "tab_label": "Nhập nhanh (chat)",
+    "input_placeholder": "Ví dụ: \"cafe 45k momo\"",
+    "examples_label": "Ví dụ nhập nhanh:",
+    "examples": [
+      "cafe 45k momo",
+      "lương tháng 10 vcb 15 triệu",
+      "mua sắm 200k tiền mặt"
+    ],
+    "analyze_button": "Phân tích",
+    "apply_button": "Áp dụng vào form",
+    "edit_before_apply": "Chỉnh lại trước khi áp dụng",
+    "merchant_available": "Merchant có sẵn",
+    "merchant_custom": "Merchant mới",
+    "merchant_none": "Không chọn",
+    "default_income_description": "Khoản thu",
+    "default_expense_description": "Khoản chi",
+    "result": {
+      "type_label": "Loại",
+      "amount_label": "Số tiền",
+      "account_label": "Tài khoản",
+      "category_label": "Danh mục",
+      "description_label": "Mô tả",
+      "amount_found": "Số tiền = {{value}}",
+      "type_found": "Loại = {{value}}",
+      "account_found": "Tài khoản = {{account}}",
+      "merchant_found": "Merchant = {{merchant}}",
+      "category_found": "Danh mục = {{category}}"
+    },
+    "errors": {
+      "account_required": "Vui lòng chọn tài khoản",
+      "description_required": "Vui lòng nhập mô tả",
+      "amount_required": "Vui lòng nhập số tiền hợp lệ",
+      "amount_not_found": "Không tìm thấy số tiền.",
+      "account_not_found": "Chưa nhận diện được tài khoản.",
+      "account_ambiguous": "Có nhiều tài khoản khớp, vui lòng chọn.",
+      "unclear_input": "Chưa hiểu rõ nội dung, thử ví dụ: \"cafe 45k momo\""
+    },
+    "success_apply": "Đã áp dụng dữ liệu vào form"
+  }
+}

@@ -25,9 +25,11 @@ import {
   RotateCcw,
   ArrowLeft,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useAppNavigation } from "../hooks/useAppNavigation";
 import { useToast } from "../contexts/ToastContext";
 import { ThemeSwitcher } from "../components/ThemeSwitcher";
+import { LanguageSwitcher } from "../components/LanguageSwitcher";
 import { useAuth } from "../hooks/useAuth";
 import { authService } from "../services/authService";
 import { getApiErrorMessage } from "../utils/authError";
@@ -46,34 +48,11 @@ function getPasswordStrength(pw: string): PasswordStrength {
   return "strong";
 }
 
-const strengthConfig: Record<
-  PasswordStrength,
-  { label: string; color: string; bg: string; width: string }
-> = {
-  weak: {
-    label: "Yếu",
-    color: "text-[var(--danger)]",
-    bg: "bg-[var(--danger)]",
-    width: "w-1/3",
-  },
-  medium: {
-    label: "Trung bình",
-    color: "text-[var(--warning)]",
-    bg: "bg-[var(--warning)]",
-    width: "w-2/3",
-  },
-  strong: {
-    label: "Mạnh",
-    color: "text-[var(--success)]",
-    bg: "bg-[var(--success)]",
-    width: "w-full",
-  },
-};
-
 export default function AuthRegister() {
   const nav = useAppNavigation();
   const toast = useToast();
   const { loginWithPassword } = useAuth();
+  const { t } = useTranslation("auth");
 
   // Form
   const [displayName, setDisplayName] = useState("");
@@ -112,24 +91,45 @@ export default function AuthRegister() {
     return getPasswordStrength(password);
   }, [password]);
 
+  const strengthConfig: Record<
+    PasswordStrength,
+    { color: string; bg: string; width: string }
+  > = {
+    weak: {
+      color: "text-[var(--danger)]",
+      bg: "bg-[var(--danger)]",
+      width: "w-1/3",
+    },
+    medium: {
+      color: "text-[var(--warning)]",
+      bg: "bg-[var(--warning)]",
+      width: "w-2/3",
+    },
+    strong: {
+      color: "text-[var(--success)]",
+      bg: "bg-[var(--success)]",
+      width: "w-full",
+    },
+  };
+
   const handleRegister = async () => {
     const newErrors: Record<string, string> = {};
     if (!displayName.trim())
-      newErrors.displayName = "Vui lòng nhập tên hiển thị.";
-    if (!dob) newErrors.dob = "Vui lòng chọn ngày sinh.";
-    if (!email.trim()) newErrors.email = "Vui lòng nhập email.";
-    else if (!validateEmail(email)) newErrors.email = "Email không hợp lệ.";
-    if (!password) newErrors.password = "Vui lòng nhập mật khẩu.";
+      newErrors.displayName = t("register.errors.display_name_required");
+    if (!dob) newErrors.dob = t("register.errors.dob_required");
+    if (!email.trim()) newErrors.email = t("register.errors.email_required");
+    else if (!validateEmail(email)) newErrors.email = t("register.errors.email_invalid");
+    if (!password) newErrors.password = t("register.errors.password_required");
     else if (password.length < 8)
-      newErrors.password = "Mật khẩu phải có ít nhất 8 ký tự.";
+      newErrors.password = t("register.errors.password_min");
     else if (!/^(?=.*[A-Za-z])(?=.*\d).+$/.test(password))
-      newErrors.password = "Mật khẩu phải gồm ít nhất chữ và số.";
+      newErrors.password = t("register.errors.password_alphanumeric");
     if (!confirmPassword)
-      newErrors.confirmPassword = "Vui lòng nhập lại mật khẩu.";
+      newErrors.confirmPassword = t("register.errors.confirm_required");
     else if (confirmPassword !== password)
-      newErrors.confirmPassword = "Mật khẩu nhập lại không khớp.";
+      newErrors.confirmPassword = t("register.errors.confirm_mismatch");
     if (!agreedTerms)
-      newErrors.agreedTerms = "Bạn phải đồng ý điều khoản sử dụng.";
+      newErrors.agreedTerms = t("register.errors.terms_required");
 
     setErrors(newErrors);
     if (Object.keys(newErrors).length > 0) return;
@@ -146,18 +146,16 @@ export default function AuthRegister() {
       });
       setStep("otp");
       setCountdown(60);
-      toast.info("Mã OTP đã được gửi tới email của bạn.");
+      toast.info(t("register.otp_sent"));
     } catch (error) {
-      const message = getApiErrorMessage(error, "Đăng ký thất bại.");
+      const message = getApiErrorMessage(error, t("register.errors.register_failed"));
 
       if (message.toLowerCase().includes("chưa xác minh")) {
         try {
           await authService.requestEmailVerification({ email });
           setStep("otp");
           setCountdown(60);
-          toast.info(
-            "Email này đã đăng ký nhưng chưa xác minh. Mã OTP mới đã được gửi.",
-          );
+          toast.info(t("register.otp_sent"));
           return;
         } catch {
           // fall through to main error
@@ -217,11 +215,11 @@ export default function AuthRegister() {
       await authService.verifyEmail({ email, code });
       await loginWithPassword({ email, password }, true);
       setStep("success");
-      toast.success("Xác minh email thành công!");
+      toast.success(t("otp.success"));
     } catch (error) {
       const message = getApiErrorMessage(
         error,
-        "Mã OTP không đúng hoặc đã hết hạn.",
+        t("register.errors.otp_invalid"),
       );
       setOtpError(message);
       toast.error(message);
@@ -237,9 +235,9 @@ export default function AuthRegister() {
     try {
       await authService.requestEmailVerification({ email });
       setCountdown(60);
-      toast.info("Đã gửi lại mã OTP.");
+      toast.info(t("register.otp_resent"));
     } catch (error) {
-      const message = getApiErrorMessage(error, "Không thể gửi lại mã OTP.");
+      const message = getApiErrorMessage(error, t("register.errors.otp_resend_failed"));
       toast.error(message);
     }
   };
@@ -259,9 +257,9 @@ export default function AuthRegister() {
 
   // OAuth handler
   const handleOAuth = (provider: string) => {
-    toast.info(`Đang chuyển hướng đến ${provider}...`);
+    toast.info(t("oauth.redirecting", { provider }));
     setTimeout(() => {
-      toast.success("Đăng ký thành công!");
+      toast.success(t("register.success"));
       nav.goOnboardingCurrencyDate();
     }, 1500);
   };
@@ -277,7 +275,8 @@ export default function AuthRegister() {
   if (step === "success") {
     return (
       <div className="min-h-screen w-full flex items-center justify-center bg-[var(--background)] p-5">
-        <div className="absolute top-4 right-4 z-20">
+        <div className="absolute top-4 right-4 z-20 flex items-center gap-2">
+          <LanguageSwitcher />
           <ThemeSwitcher />
         </div>
         <motion.div
@@ -302,23 +301,23 @@ export default function AuthRegister() {
               </div>
             </motion.div>
             <h2 className="text-xl font-semibold text-[var(--text-primary)] mb-2">
-              Tài khoản đã sẵn sàng!
+              {t("register.account_ready_title")}
             </h2>
             <p className="text-sm text-[var(--text-secondary)] mb-8">
-              Hãy thiết lập nhanh để bắt đầu theo dõi tài chính.
+              {t("register.account_ready_desc")}
             </p>
             <button
               onClick={() => nav.goOnboardingCurrencyDate()}
               className="w-full py-3.5 bg-[var(--primary)] text-white rounded-[var(--radius-lg)] font-medium hover:bg-[var(--primary-hover)] transition-colors flex items-center justify-center gap-2"
             >
-              Bắt đầu thiết lập
+              {t("register.start_setup")}
               <Sparkles className="w-4 h-4" />
             </button>
             <button
               onClick={() => nav.goHome()}
               className="w-full mt-3 py-3 text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
             >
-              Bỏ qua, vào trang chính
+              {t("register.skip_to_home")}
             </button>
           </div>
         </motion.div>
@@ -328,8 +327,9 @@ export default function AuthRegister() {
 
   return (
     <div className="min-h-screen w-full flex bg-[var(--background)]">
-      {/* Theme Switcher */}
-      <div className="absolute top-4 right-4 z-20">
+      {/* Theme + Language Switchers */}
+      <div className="absolute top-4 right-4 z-20 flex items-center gap-2">
+        <LanguageSwitcher />
         <ThemeSwitcher />
       </div>
 
@@ -354,11 +354,10 @@ export default function AuthRegister() {
               </span>
             </div>
             <h2 className="text-3xl text-white font-semibold mb-4">
-              Bắt đầu hành trình quản lí tài chính thông minh
+              {t("register.hero_title")}
             </h2>
             <p className="text-white/70 mb-10">
-              Chỉ mất 1 phút để bắt đầu. Theo dõi thu chi, lập ngân sách và đạt
-              mục tiêu tiết kiệm.
+              {t("register.hero_desc")}
             </p>
 
             {/* Steps */}
@@ -366,18 +365,18 @@ export default function AuthRegister() {
               {[
                 {
                   num: "1",
-                  label: "Tạo tài khoản",
-                  desc: "Email hoặc đăng nhập qua Google",
+                  label: t("register.quick_setup_steps.step1"),
+                  desc: t("register.quick_setup_steps.step1_desc"),
                 },
                 {
                   num: "2",
-                  label: "Thiết lập nhanh",
-                  desc: "Chọn tiền tệ, tạo ví đầu tiên",
+                  label: t("register.quick_setup_steps.step2"),
+                  desc: t("register.quick_setup_steps.step2_desc"),
                 },
                 {
                   num: "3",
-                  label: "Bắt đầu ghi chép",
-                  desc: "Thêm giao dịch đầu tiên",
+                  label: t("register.quick_setup_steps.step3"),
+                  desc: t("register.quick_setup_steps.step3_desc"),
                 },
               ].map((s, i) => (
                 <motion.div
@@ -419,10 +418,10 @@ export default function AuthRegister() {
                   <Wallet className="w-8 h-8 text-white" />
                 </div>
                 <h1 className="text-2xl font-semibold text-[var(--text-primary)]">
-                  Tạo tài khoản
+                  {t("register.title")}
                 </h1>
                 <p className="text-[var(--text-secondary)] mt-1">
-                  Chỉ mất 1 phút để bắt đầu
+                  {t("register.subtitle")}
                 </p>
               </div>
 
@@ -431,7 +430,7 @@ export default function AuthRegister() {
                 {/* Display Name */}
                 <div className="mb-4">
                   <label className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">
-                    Tên hiển thị
+                    {t("register.display_name_label")}
                   </label>
                   <div className="relative">
                     <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-[var(--text-tertiary)]" />
@@ -442,7 +441,7 @@ export default function AuthRegister() {
                         setDisplayName(e.target.value);
                         clearError("displayName");
                       }}
-                      placeholder="VD: Quan Anh"
+                      placeholder={t("register.display_name_placeholder")}
                       className={`w-full pl-11 pr-4 py-3 bg-[var(--input-background)] border rounded-[var(--radius-lg)] text-[var(--text-primary)] placeholder:text-[var(--text-disabled)] focus:outline-none focus:ring-2 transition-all ${
                         errors.displayName
                           ? "border-[var(--danger)] focus:ring-[var(--danger)]/30"
@@ -456,7 +455,7 @@ export default function AuthRegister() {
                     </p>
                   ) : (
                     <p className="mt-1.5 text-xs text-[var(--text-tertiary)]">
-                      Tên này sẽ hiển thị trong hồ sơ cá nhân.
+                      {t("register.display_name_hint")}
                     </p>
                   )}
                 </div>
@@ -464,7 +463,7 @@ export default function AuthRegister() {
                 {/* Date of Birth */}
                 <div className="mb-4">
                   <label className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">
-                    Ngày tháng năm sinh
+                    {t("register.dob_label")}
                   </label>
                   <div className="relative">
                     <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-[var(--text-tertiary)]" />
@@ -489,7 +488,7 @@ export default function AuthRegister() {
                     </p>
                   ) : (
                     <p className="mt-1.5 text-xs text-[var(--text-tertiary)]">
-                      Dùng để cá nhân hóa trải nghiệm.
+                      {t("register.dob_hint")}
                     </p>
                   )}
                 </div>
@@ -497,7 +496,7 @@ export default function AuthRegister() {
                 {/* Email */}
                 <div className="mb-4">
                   <label className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">
-                    Email
+                    {t("register.email_label")}
                   </label>
                   <div className="relative">
                     <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-[var(--text-tertiary)]" />
@@ -508,7 +507,7 @@ export default function AuthRegister() {
                         setEmail(e.target.value);
                         clearError("email");
                       }}
-                      placeholder="you@example.com"
+                      placeholder={t("register.email_placeholder")}
                       className={`w-full pl-11 pr-4 py-3 bg-[var(--input-background)] border rounded-[var(--radius-lg)] text-[var(--text-primary)] placeholder:text-[var(--text-disabled)] focus:outline-none focus:ring-2 transition-all ${
                         errors.email
                           ? "border-[var(--danger)] focus:ring-[var(--danger)]/30"
@@ -526,7 +525,7 @@ export default function AuthRegister() {
                 {/* Password */}
                 <div className="mb-4">
                   <label className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">
-                    Mật khẩu
+                    {t("register.password_label")}
                   </label>
                   <div className="relative">
                     <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-[var(--text-tertiary)]" />
@@ -537,7 +536,7 @@ export default function AuthRegister() {
                         setPassword(e.target.value);
                         clearError("password");
                       }}
-                      placeholder="Tạo mật khẩu"
+                      placeholder={t("register.password_placeholder")}
                       className={`w-full pl-11 pr-12 py-3 bg-[var(--input-background)] border rounded-[var(--radius-lg)] text-[var(--text-primary)] placeholder:text-[var(--text-disabled)] focus:outline-none focus:ring-2 transition-all ${
                         errors.password
                           ? "border-[var(--danger)] focus:ring-[var(--danger)]/30"
@@ -562,7 +561,7 @@ export default function AuthRegister() {
                     </p>
                   ) : (
                     <p className="mt-1.5 text-xs text-[var(--text-tertiary)]">
-                      Tối thiểu 8 ký tự, gồm chữ và số.
+                      {t("register.password_hint")}
                     </p>
                   )}
 
@@ -577,7 +576,8 @@ export default function AuthRegister() {
                       <p
                         className={`text-xs mt-1 ${strengthConfig[passwordStrength].color}`}
                       >
-                        Độ mạnh: {strengthConfig[passwordStrength].label}
+                        {t("register.strength_label")}{" "}
+                        {t(`register.password_strength.${passwordStrength}`)}
                       </p>
                     </div>
                   )}
@@ -586,7 +586,7 @@ export default function AuthRegister() {
                 {/* Confirm Password */}
                 <div className="mb-5">
                   <label className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">
-                    Nhập lại mật khẩu
+                    {t("register.confirm_password_label")}
                   </label>
                   <div className="relative">
                     <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-[var(--text-tertiary)]" />
@@ -597,7 +597,7 @@ export default function AuthRegister() {
                         setConfirmPassword(e.target.value);
                         clearError("confirmPassword");
                       }}
-                      placeholder="Nhập lại mật khẩu"
+                      placeholder={t("register.confirm_password_placeholder")}
                       className={`w-full pl-11 pr-12 py-3 bg-[var(--input-background)] border rounded-[var(--radius-lg)] text-[var(--text-primary)] placeholder:text-[var(--text-disabled)] focus:outline-none focus:ring-2 transition-all ${
                         errors.confirmPassword
                           ? "border-[var(--danger)] focus:ring-[var(--danger)]/30"
@@ -629,7 +629,7 @@ export default function AuthRegister() {
                       <div className="flex items-center gap-1 mt-1.5">
                         <CheckCircle className="w-3.5 h-3.5 text-[var(--success)]" />
                         <p className="text-xs text-[var(--success)]">
-                          Mật khẩu khớp
+                          {t("register.password_match")}
                         </p>
                       </div>
                     )}
@@ -644,19 +644,19 @@ export default function AuthRegister() {
                     className="mt-0.5 w-4 h-4 rounded border-[var(--border)] text-[var(--primary)] accent-[var(--primary)]"
                   />
                   <span className="text-sm text-[var(--text-secondary)]">
-                    Tôi đồng ý với{" "}
+                    {t("register.terms_agree")}{" "}
                     <button
-                      onClick={() => toast.info("Trang Điều khoản sử dụng.")}
+                      onClick={() => toast.info(t("register.terms_link"))}
                       className="text-[var(--primary)] hover:underline font-medium"
                     >
-                      Điều khoản sử dụng
+                      {t("register.terms_link")}
                     </button>{" "}
-                    và{" "}
+                    {t("register.and")}{" "}
                     <button
-                      onClick={() => toast.info("Trang Chính sách bảo mật.")}
+                      onClick={() => toast.info(t("register.privacy_link"))}
                       className="text-[var(--primary)] hover:underline font-medium"
                     >
-                      Chính sách bảo mật
+                      {t("register.privacy_link")}
                     </button>
                   </span>
                 </label>
@@ -670,10 +670,10 @@ export default function AuthRegister() {
                   {loading ? (
                     <>
                       <Loader2 className="w-4.5 h-4.5 animate-spin" />
-                      Đang tạo tài khoản...
+                      {t("register.submitting")}
                     </>
                   ) : (
-                    "Tạo tài khoản"
+                    t("register.submit")
                   )}
                 </button>
               </div>
@@ -683,7 +683,7 @@ export default function AuthRegister() {
                 <div className="flex items-center gap-4 mb-5">
                   <div className="flex-1 h-px bg-[var(--border)]" />
                   <span className="text-xs text-[var(--text-tertiary)]">
-                    Hoặc đăng ký với
+                    {t("register.or_register_with")}
                   </span>
                   <div className="flex-1 h-px bg-[var(--border)]" />
                 </div>
@@ -710,7 +710,7 @@ export default function AuthRegister() {
                         d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                       />
                     </svg>
-                    Đăng ký với Google
+                    {t("oauth.register_google")}
                   </button>
                   <button
                     onClick={() => handleOAuth("Apple")}
@@ -719,7 +719,7 @@ export default function AuthRegister() {
                     <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current">
                       <path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />
                     </svg>
-                    Đăng ký với Apple
+                    {t("oauth.register_apple")}
                   </button>
                   <button
                     onClick={() => handleOAuth("Facebook")}
@@ -731,19 +731,19 @@ export default function AuthRegister() {
                         d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"
                       />
                     </svg>
-                    Đăng ký với Facebook
+                    {t("oauth.register_facebook")}
                   </button>
                 </div>
               </div>
 
               {/* Footer */}
               <p className="text-center text-sm text-[var(--text-secondary)] mt-8 pb-4">
-                Đã có tài khoản?{" "}
+                {t("register.already_have_account")}{" "}
                 <Link
                   to="/auth/login"
                   className="font-medium text-[var(--primary)] hover:underline"
                 >
-                  Đăng nhập
+                  {t("register.login_link")}
                 </Link>
               </p>
             </motion.div>
@@ -763,11 +763,10 @@ export default function AuthRegister() {
                   <Mail className="w-8 h-8 text-white" />
                 </div>
                 <h1 className="text-2xl font-semibold text-[var(--text-primary)]">
-                  Xác minh Email
+                  {t("register.otp_title")}
                 </h1>
                 <p className="text-[var(--text-secondary)] mt-2 text-sm max-w-xs mx-auto">
-                  Chúng tôi vừa gửi một mã OTP gồm 6 chữ số đến email của bạn.
-                  Vui lòng nhập mã để xác minh.
+                  {t("register.otp_desc")}
                 </p>
               </div>
 
@@ -820,20 +819,20 @@ export default function AuthRegister() {
                 <div className="text-center mb-6">
                   {countdown > 0 ? (
                     <p className="text-xs text-[var(--text-tertiary)]">
-                      Không nhận được mã?{" "}
+                      {t("register.otp_no_code")}{" "}
                       <span className="font-medium text-[var(--text-secondary)]">
-                        Gửi lại sau {formatCountdown(countdown)}
+                        {t("register.otp_resend_after")} {formatCountdown(countdown)}
                       </span>
                     </p>
                   ) : (
                     <p className="text-xs text-[var(--text-tertiary)]">
-                      Không nhận được mã?{" "}
+                      {t("register.otp_no_code")}{" "}
                       <button
                         onClick={handleResendOtp}
                         className="font-medium text-[var(--primary)] hover:underline inline-flex items-center gap-1"
                       >
                         <RotateCcw className="w-3 h-3" />
-                        Gửi lại
+                        {t("otp.resend")}
                       </button>
                     </p>
                   )}
@@ -848,10 +847,10 @@ export default function AuthRegister() {
                   {otpLoading ? (
                     <>
                       <Loader2 className="w-4.5 h-4.5 animate-spin" />
-                      Đang xác minh...
+                      {t("register.otp_verifying")}
                     </>
                   ) : (
-                    "Xác minh và Tiếp tục"
+                    t("register.otp_verify_continue")
                   )}
                 </button>
               </div>
@@ -867,7 +866,7 @@ export default function AuthRegister() {
                   className="inline-flex items-center gap-1.5 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
                 >
                   <ArrowLeft className="w-4 h-4" />
-                  Quay lại đăng ký
+                  {t("register.otp_back")}
                 </button>
               </div>
             </motion.div>

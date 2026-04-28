@@ -1,0 +1,126 @@
+{
+  "nav": {
+    "home": "Trang chủ",
+    "transactions": "Giao dịch",
+    "add": "Thêm",
+    "budgets": "Ngân sách",
+    "more": "Thêm"
+  },
+  "actions": {
+    "save": "Lưu",
+    "save_changes": "Lưu thay đổi",
+    "cancel": "Huỷ",
+    "delete": "Xoá",
+    "edit": "Sửa",
+    "confirm": "Xác nhận",
+    "back": "Quay lại",
+    "continue": "Tiếp tục",
+    "done": "Hoàn tất",
+    "close": "Đóng",
+    "retry": "Thử lại",
+    "search": "Tìm kiếm",
+    "filter": "Lọc",
+    "sort": "Sắp xếp",
+    "create": "Tạo mới",
+    "add": "Thêm",
+    "select": "Chọn",
+    "upload": "Tải lên",
+    "download": "Tải về",
+    "share": "Chia sẻ",
+    "copy": "Sao chép",
+    "preview": "Xem trước",
+    "view_all": "Xem tất cả",
+    "deleting": "Đang xoá...",
+    "or": "hoặc",
+    "duplicate": "Nhân bản"
+  },
+  "pagination": {
+    "page_of": "Trang {{page}} / {{total}}",
+    "prev": "Trang trước",
+    "next": "Trang sau"
+  },
+  "status": {
+    "loading": "Đang tải...",
+    "saving": "Đang lưu...",
+    "saved": "Đã lưu",
+    "error": "Lỗi",
+    "success": "Thành công",
+    "active": "Đang hoạt động",
+    "paused": "Tạm dừng",
+    "archived": "Đã lưu trữ",
+    "all": "Tất cả",
+    "coming_soon": "Sắp ra mắt"
+  },
+  "time": {
+    "today": "Hôm nay",
+    "yesterday": "Hôm qua",
+    "tomorrow": "Ngày mai",
+    "days_from_now": "{{count}} ngày nữa",
+    "this_month": "Tháng này",
+    "last_month": "Tháng trước",
+    "this_year": "Năm nay",
+    "last_3_months": "3 tháng qua",
+    "last_6_months": "6 tháng qua",
+    "just_now": "Vừa xong",
+    "earlier": "Trước đó"
+  },
+  "sort": {
+    "newest": "Mới nhất",
+    "oldest": "Cũ nhất",
+    "amount_asc": "Số tiền tăng dần",
+    "amount_desc": "Số tiền giảm dần",
+    "name_asc": "Tên A→Z",
+    "name_desc": "Tên Z→A",
+    "by_name": "Theo tên",
+    "by_date_created": "Theo ngày tạo",
+    "by_date_start": "Theo ngày bắt đầu",
+    "by_progress": "Theo tiến độ",
+    "asc": "Tăng dần",
+    "desc": "Giảm dần"
+  },
+  "transaction_type": {
+    "expense": "Chi tiêu",
+    "income": "Thu nhập",
+    "transfer": "Chuyển tiền",
+    "all": "Tất cả"
+  },
+  "errors": {
+    "generic": "Đã có lỗi xảy ra, vui lòng thử lại.",
+    "network": "Không thể kết nối. Kiểm tra mạng của bạn.",
+    "not_found": "Không tìm thấy dữ liệu.",
+    "load_failed": "Không thể tải dữ liệu.",
+    "save_failed": "Lưu thất bại, vui lòng thử lại.",
+    "delete_failed": "Không thể xoá.",
+    "unauthorized": "Bạn không có quyền thực hiện hành động này."
+  },
+  "confirm_delete": {
+    "title": "Xác nhận xoá?",
+    "cannot_undo": "Dữ liệu này không thể khôi phục.",
+    "action": "Xoá"
+  },
+  "empty": {
+    "no_data": "Chưa có dữ liệu",
+    "no_results": "Không tìm thấy kết quả"
+  },
+  "currency": {
+    "vnd": "VND",
+    "usd": "USD",
+    "eur": "EUR"
+  },
+  "misc": {
+    "optional": "Tuỳ chọn",
+    "required": "Bắt buộc",
+    "note": "Ghi chú",
+    "description": "Mô tả",
+    "name": "Tên",
+    "amount": "Số tiền",
+    "date": "Ngày",
+    "account": "Tài khoản",
+    "category": "Danh mục",
+    "tag": "Nhãn",
+    "merchant": "Nhà cung cấp",
+    "none_selected": "Chưa chọn",
+    "other": "Khác",
+    "not_available": "N/A"
+  }
+}

@@ -1,0 +1,171 @@
+{
+  "splash": {
+    "loading": "Loading...",
+    "app_name": "Personal Finance Manager",
+    "tagline": "Smart spending control",
+    "initializing": "Initialising app...",
+    "syncing": "Syncing session...",
+    "redirecting": "Redirecting..."
+  },
+  "welcome": {
+    "headline": "Smarter\nFinancial Management",
+    "subtitle": "Track income and expenses, plan budgets,\nand achieve your financial goals.",
+    "feature_currency": "Default currency",
+    "feature_wallet": "Initial wallet",
+    "feature_categories": "Category presets",
+    "feature_start_date": "Tracking start date",
+    "current_account": "current account",
+    "get_started": "Get Started",
+    "already_have_account": "Already have an account?",
+    "login": "Sign In"
+  },
+  "currency_date": {
+    "title": "Basic Setup",
+    "subtitle": "Choose your currency and report period start date",
+    "step": "Step 1 of 3",
+    "quick_setup": "Quick Setup",
+    "quick_setup_subtitle": "Takes ~15 seconds. You can change it later in Settings.",
+    "skip": "Skip",
+    "saving": "Saving...",
+    "currency_label": "Default Currency",
+    "currency_hint": "(default VND)",
+    "currency_applies_to_new": "Applies to new transactions. Old ones remain unchanged.",
+    "start_date_label": "Report Period Start Date",
+    "start_tracking_from_label": "Tracking starts from",
+    "start_date_today": "Today",
+    "start_date_start_of_month": "Start of this month",
+    "start_date_custom": "Custom",
+    "reports_from_hint": "Reports and insights will be calculated from this date.",
+    "date_required": "Please select a start date.",
+    "data_from": "Data will be calculated from",
+    "loading": "Loading current settings...",
+    "submit": "Continue",
+    "settings_hint": "You can adjust this in Settings → General.",
+    "success": "Basic setup saved. Continue to create your first wallet.",
+    "success_selected": "Selected {{currency}}, tracking from {{date}}",
+    "errors": {
+      "save_failed": "Could not save this setup step.",
+      "load_failed": "Could not load onboarding data."
+    }
+  },
+  "wallet_balance": {
+    "title": "Create Your First Wallet",
+    "subtitle": "Add the accounts you currently use",
+    "quick_subtitle": "Add at least 1 wallet to start logging transactions. Not sure of the balance? Just set it to 0 — you can update it later.",
+    "step": "Step 2 of 3",
+    "skip": "Skip",
+    "saving": "Saving...",
+    "loading": "Syncing default wallet info...",
+    "account_types": {
+      "cash": "Cash",
+      "bank": "Bank",
+      "ewallet": "E-Wallet"
+    },
+    "wallet_name_label": "Wallet Name",
+    "wallet_name_placeholder": "E.g. Techcombank Wallet",
+    "account_number_label": "Account Number / Wallet ID",
+    "account_holder_label": "Account Holder Name",
+    "balance_label": "Current Balance",
+    "balance_initial": "Opening Balance ({{currency}})",
+    "balance_zero": "Zero",
+    "bank_provider_label": "Bank",
+    "ewallet_provider_label": "E-Wallet Provider",
+    "provider_label": "Provider / Bank",
+    "custom_provider_placeholder": "Enter provider name",
+    "select_placeholder": "Select...",
+    "add_wallet": "Add Wallet",
+    "wallet_list_title": "Wallets",
+    "quick_suggestions_title": "Quick Suggestions",
+    "add_wallet_sheet_title": "Add New Wallet",
+    "save_wallet": "Save Wallet",
+    "wallet_added": "New wallet added.",
+    "success_wallets": "Successfully created {{count}} wallets!",
+    "success_skip": "Default wallet created.",
+    "settings_hint": "You can update your wallets in Accounts after entering the app.",
+    "wallet_name_required": "Please enter a wallet name.",
+    "account_number_required": "Please enter an account number for the bank wallet.",
+    "submit": "Continue",
+    "min_wallet_error": "At least 1 wallet is required to continue.",
+    "popular_banks": {
+      "techcombank": "Techcombank",
+      "acb": "ACB",
+      "momo": "MoMo",
+      "shopeepay": "ShopeePay"
+    },
+    "errors": {
+      "save_failed": "Could not save wallets.",
+      "load_failed": "Could not load onboarding data."
+    }
+  },
+  "categories_setup": {
+    "title": "Set Up Categories",
+    "subtitle": "Choose a preset category set to get beautiful reports right away. You can edit later in Categories.",
+    "step": "Step 3 of 3",
+    "submit": "Finish",
+    "skip": "Skip",
+    "saving": "Saving...",
+    "loading": "Syncing onboarding data...",
+    "select_preset_title": "Choose Preset",
+    "recommended": "Recommended",
+    "preview_title": "Preview Categories",
+    "quick_edit": "Quick Edit",
+    "select_groups_title": "Select Category Groups",
+    "summary_title": "Setup Summary",
+    "summary_currency": "Currency",
+    "summary_wallets": "Wallets",
+    "summary_categories": "Categories",
+    "wallets_count": "{{count}} wallet(s)",
+    "groups_count": "{{groups}} groups ({{sub}} subcategories)",
+    "groups_summary": "{{groups}} groups · {{sub}} subcategories",
+    "settings_hint": "You can edit these in Settings / Categories later.",
+    "ready_title": "You're all set!",
+    "ready_subtitle": "Start logging your first transaction.",
+    "start_button": "Get Started",
+    "redirect_hint": "After finishing you'll be taken to {{redirectTo}}.",
+    "success_categories": "Default categories created.",
+    "success_onboarding": "Onboarding complete",
+    "presets": {
+      "student": {
+        "title": "Student",
+        "subtitle": "Common spending groups + basic income."
+      },
+      "professional": {
+        "title": "Young Professional",
+        "subtitle": "Focused on Housing, Transport, Food & Shopping."
+      },
+      "custom": {
+        "title": "Custom",
+        "subtitle": "Choose the category groups you want to create."
+      }
+    },
+    "preset_groups": {
+      "food": "Food & Drink",
+      "transport": "Transport",
+      "entertainment": "Entertainment",
+      "health": "Health",
+      "education": "Education",
+      "shopping": "Shopping",
+      "utilities": "Bills & Utilities",
+      "travel": "Travel",
+      "other": "Other"
+    },
+    "sample_categories": {
+      "lunch": "Lunch",
+      "dinner": "Dinner",
+      "cafe": "Cafe & Tea",
+      "grab": "Grab/Taxi",
+      "game": "Gaming",
+      "swimming": "Swimming",
+      "gym": "Gym",
+      "doctor": "Doctor Visit",
+      "course": "Online Course",
+      "tuition": "Tuition",
+      "internet": "Internet"
+    },
+    "errors": {
+      "complete_failed": "Could not complete onboarding.",
+      "save_failed": "Could not save onboarding categories.",
+      "load_failed": "Could not load onboarding data."
+    }
+  }
+}

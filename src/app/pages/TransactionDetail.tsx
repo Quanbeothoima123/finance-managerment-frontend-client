@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useParams } from "react-router";
 import {
   ArrowDownLeft,
@@ -18,6 +19,7 @@ import {
   Trash2,
   Wallet,
 } from "lucide-react";
+import i18n from "../../i18n";
 import { Button } from "../components/Button";
 import { Card } from "../components/Card";
 import { ConfirmationModal } from "../components/ConfirmationModals";
@@ -27,15 +29,19 @@ import { useAppNavigation } from "../hooks/useAppNavigation";
 import { useTransactionDetail } from "../hooks/useTransactionDetail";
 import { transactionsService } from "../services/transactionsService";
 
+function getLocale() {
+  return i18n.language === "en" ? "en-US" : "vi-VN";
+}
+
 function formatMoney(value?: string | number | null) {
-  return new Intl.NumberFormat("vi-VN").format(Number(value || 0));
+  return new Intl.NumberFormat(getLocale()).format(Number(value || 0));
 }
 
 function formatDate(value?: string | null) {
   if (!value) return "--";
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
-  return new Intl.DateTimeFormat("vi-VN", {
+  return new Intl.DateTimeFormat(getLocale(), {
     weekday: "long",
     day: "2-digit",
     month: "long",
@@ -47,7 +53,7 @@ function formatDateTime(value?: string | null) {
   if (!value) return "--";
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
-  return new Intl.DateTimeFormat("vi-VN", {
+  return new Intl.DateTimeFormat(getLocale(), {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
@@ -72,13 +78,13 @@ function getTypeIcon(type: string) {
 function getTypeLabel(type: string) {
   switch (type) {
     case "income":
-      return "Thu nhập";
+      return i18n.t("transactions:detail.type_labels.income");
     case "expense":
-      return "Chi tiêu";
+      return i18n.t("transactions:detail.type_labels.expense");
     case "transfer":
-      return "Chuyển tiền";
+      return i18n.t("transactions:detail.type_labels.transfer");
     case "adjustment":
-      return "Điều chỉnh";
+      return i18n.t("transactions:detail.type_labels.adjustment");
     default:
       return type;
   }
@@ -98,6 +104,7 @@ function getAmountColor(type: string) {
 }
 
 export default function TransactionDetail() {
+  const { t } = useTranslation("transactions");
   const { id } = useParams<{ id: string }>();
   const toast = useToast();
   const nav = useAppNavigation();
@@ -121,7 +128,7 @@ export default function TransactionDetail() {
       <div className="min-h-screen bg-[var(--background)] flex items-center justify-center">
         <Card>
           <p className="text-sm text-[var(--text-secondary)]">
-            Đang tải chi tiết giao dịch...
+            {t("common:status.loading")}
           </p>
         </Card>
       </div>
@@ -134,14 +141,14 @@ export default function TransactionDetail() {
         <Card>
           <div className="text-center">
             <h2 className="text-xl font-semibold text-[var(--text-primary)] mb-2">
-              Không tìm thấy giao dịch
+              {t("detail.title")}
             </h2>
             <p className="text-[var(--text-secondary)] mb-6">
-              {error || "Giao dịch này có thể đã bị xoá hoặc không tồn tại."}
+              {error || t("detail.not_found")}
             </p>
             <Button onClick={nav.goBack} variant="secondary">
               <ArrowLeft className="w-5 h-5 mr-2" />
-              Quay lại
+              {t("common:actions.back")}
             </Button>
           </div>
         </Card>
@@ -153,11 +160,11 @@ export default function TransactionDetail() {
     try {
       setDeleting(true);
       await transactionsService.deleteTransaction(transaction.id);
-      toast.success("Đã xoá giao dịch");
+      toast.success(t("detail.delete.success"));
       nav.goTransactions();
     } catch (err) {
       toast.error(
-        err instanceof Error ? err.message : "Không thể xoá giao dịch",
+        err instanceof Error ? err.message : t("detail.delete.failed"),
       );
     } finally {
       setDeleting(false);
@@ -226,7 +233,7 @@ export default function TransactionDetail() {
                     className="w-full px-4 py-2 text-left text-[var(--text-primary)] hover:bg-[var(--surface)] transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <Edit className="w-4 h-4" />
-                    Chỉnh sửa
+                    {t("common:actions.edit")}
                   </button>
 
                   <button
@@ -237,7 +244,7 @@ export default function TransactionDetail() {
                     className="w-full px-4 py-2 text-left text-[var(--text-primary)] hover:bg-[var(--surface)] transition-colors flex items-center gap-2"
                   >
                     <Copy className="w-4 h-4" />
-                    Nhân bản
+                    {t("common:actions.duplicate")}
                   </button>
 
                   <button
@@ -249,7 +256,7 @@ export default function TransactionDetail() {
                     className="w-full px-4 py-2 text-left text-[var(--danger)] hover:bg-[var(--surface)] transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <Trash2 className="w-4 h-4" />
-                    Xoá
+                    {t("common:actions.delete")}
                   </button>
                 </div>
               )}
@@ -275,7 +282,7 @@ export default function TransactionDetail() {
                 {renderSignedAmount()}
               </div>
               <div className="text-lg font-medium text-[var(--text-primary)] mt-2">
-                {transaction.description || "Giao dịch"}
+                {transaction.description || t("detail.fallback_name")}
               </div>
             </div>
           </div>
@@ -286,7 +293,7 @@ export default function TransactionDetail() {
             <Calendar className="w-5 h-5 text-[var(--text-tertiary)] flex-shrink-0" />
             <div className="flex-1">
               <div className="text-sm text-[var(--text-secondary)]">
-                Ngày giao dịch
+                {t("detail.fields.date")}
               </div>
               <div className="font-medium text-[var(--text-primary)] mt-0.5">
                 {formatDate(transaction.occurredAt)}
@@ -301,13 +308,15 @@ export default function TransactionDetail() {
             <Tag className="w-5 h-5 text-[var(--text-tertiary)] flex-shrink-0" />
             <div className="flex-1">
               <div className="text-sm text-[var(--text-secondary)]">
-                Danh mục
+                {t("detail.fields.category")}
               </div>
 
               {transaction.isSplit ? (
                 <div className="font-medium text-[var(--text-primary)] mt-0.5 inline-flex items-center gap-1.5">
                   <SplitSquareHorizontal className="w-4 h-4 text-[var(--primary)]" />
-                  Phân chia ({transaction.splitItems?.length || 0} dòng)
+                  {t("detail.fields.split", {
+                    count: transaction.splitItems?.length || 0,
+                  })}
                 </div>
               ) : categoryClickable ? (
                 <button
@@ -331,8 +340,8 @@ export default function TransactionDetail() {
             <div className="flex-1">
               <div className="text-sm text-[var(--text-secondary)]">
                 {transaction.txnType === "transfer"
-                  ? "Từ tài khoản"
-                  : "Tài khoản"}
+                  ? t("detail.fields.from_account")
+                  : t("detail.fields.account")}
               </div>
 
               {accountClickable ? (
@@ -357,7 +366,7 @@ export default function TransactionDetail() {
               <Landmark className="w-5 h-5 text-[var(--text-tertiary)] flex-shrink-0" />
               <div className="flex-1">
                 <div className="text-sm text-[var(--text-secondary)]">
-                  Đến tài khoản
+                  {t("detail.fields.to_account")}
                 </div>
                 <div className="font-medium text-[var(--text-primary)] mt-0.5">
                   {transaction.toAccount.name}
@@ -371,7 +380,7 @@ export default function TransactionDetail() {
               <Store className="w-5 h-5 text-[var(--text-tertiary)] flex-shrink-0" />
               <div className="flex-1">
                 <div className="text-sm text-[var(--text-secondary)]">
-                  Merchant
+                  {t("detail.fields.merchant")}
                 </div>
 
                 {merchantClickable ? (
@@ -397,7 +406,7 @@ export default function TransactionDetail() {
               <FileText className="w-5 h-5 text-[var(--text-tertiary)] flex-shrink-0" />
               <div className="flex-1">
                 <div className="text-sm text-[var(--text-secondary)]">
-                  Ghi chú
+                  {t("detail.fields.note")}
                 </div>
                 <div className="font-medium text-[var(--text-primary)] mt-0.5 whitespace-pre-wrap">
                   {transaction.note}
@@ -409,11 +418,11 @@ export default function TransactionDetail() {
           {transaction.imageUrl && (
             <div className="p-4">
               <div className="text-sm text-[var(--text-secondary)] mb-3 flex items-center gap-1.5">
-                <Camera className="w-4 h-4" /> Hình ảnh
+                <Camera className="w-4 h-4" /> {t("detail.image_alt")}
               </div>
               <img
                 src={transaction.imageUrl}
-                alt="Transaction image"
+                alt={t("detail.image_alt")}
                 onClick={() => setImageLightboxOpen(true)}
                 className="max-h-60 rounded-[var(--radius-lg)] border border-[var(--border)] object-contain cursor-pointer hover:opacity-90 transition-opacity"
               />
@@ -423,7 +432,7 @@ export default function TransactionDetail() {
           {transaction.tags?.length > 0 && (
             <div className="p-4">
               <div className="text-sm text-[var(--text-secondary)] mb-3">
-                Thẻ
+                {t("detail.fields.tags")}
               </div>
               <div className="flex flex-wrap gap-2">
                 {transaction.tags.map((tag) => (
@@ -446,7 +455,7 @@ export default function TransactionDetail() {
           {transaction.isSplit && transaction.splitItems.length > 0 && (
             <div className="p-4">
               <div className="text-sm text-[var(--text-secondary)] mb-3">
-                Chi tiết phân chia
+                {t("detail.split_details")}
               </div>
               <div className="space-y-2">
                 {transaction.splitItems.map((split) => (
@@ -479,10 +488,14 @@ export default function TransactionDetail() {
         isOpen={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}
         onConfirm={() => void handleDelete()}
-        title="Xoá giao dịch?"
-        description={`Bạn có chắc muốn xoá "${transaction.description || "giao dịch này"}"? Hành động này không thể hoàn tác.`}
-        confirmLabel={deleting ? "Đang xoá..." : "Xoá"}
-        cancelLabel="Huỷ"
+        title={t("detail.delete.title")}
+        description={t("detail.delete.description", {
+          name: transaction.description || t("detail.fallback_name"),
+        })}
+        confirmLabel={
+          deleting ? t("detail.delete.deleting") : t("detail.delete.confirm")
+        }
+        cancelLabel={t("detail.delete.cancel")}
         isDangerous
       />
 
@@ -493,7 +506,7 @@ export default function TransactionDetail() {
         >
           <img
             src={transaction.imageUrl}
-            alt="Transaction image"
+            alt={t("detail.image_alt")}
             onClick={(e) => e.stopPropagation()}
             className="max-w-[92vw] max-h-[92vh] rounded-2xl object-contain shadow-2xl"
           />

@@ -1,5 +1,6 @@
 import React, { useMemo } from "react";
 import { useNavigate } from "react-router";
+import { useTranslation } from "react-i18next";
 import {
   AlertCircle,
   AreaChart as AreaChartIcon,
@@ -36,9 +37,14 @@ import type {
   HomeRecurringPreview,
 } from "../types/home";
 import type { TransactionListItem } from "../types/transactions";
+import i18n from "../../i18n";
+
+function getLocale() {
+  return i18n.language === "en" ? "en-US" : "vi-VN";
+}
 
 function formatMoney(value?: string | number | null) {
-  return new Intl.NumberFormat("vi-VN").format(Number(value || 0));
+  return new Intl.NumberFormat(getLocale()).format(Number(value || 0));
 }
 
 function formatCurrency(value?: string | number | null) {
@@ -47,7 +53,7 @@ function formatCurrency(value?: string | number | null) {
 
 function formatMonth(month: string) {
   const [year, monthNumber] = month.split("-").map(Number);
-  return new Intl.DateTimeFormat("vi-VN", {
+  return new Intl.DateTimeFormat(getLocale(), {
     month: "long",
     year: "numeric",
   }).format(new Date(year, monthNumber - 1, 1));
@@ -64,7 +70,7 @@ function formatShortDate(value?: string | null) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
 
-  return new Intl.DateTimeFormat("vi-VN", {
+  return new Intl.DateTimeFormat(getLocale(), {
     day: "2-digit",
     month: "2-digit",
   }).format(date);
@@ -75,7 +81,7 @@ function formatFullDate(value?: string | null) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
 
-  return new Intl.DateTimeFormat("vi-VN", {
+  return new Intl.DateTimeFormat(getLocale(), {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
@@ -91,9 +97,9 @@ function getRelativeRecurringLabel(nextRunAt: string) {
   const diffMs = target.getTime() - today.getTime();
   const daysUntil = Math.round(diffMs / (1000 * 60 * 60 * 24));
 
-  if (daysUntil <= 0) return "Hôm nay";
-  if (daysUntil === 1) return "Ngày mai";
-  return `${daysUntil} ngày nữa`;
+  if (daysUntil <= 0) return i18n.t("common:time.today");
+  if (daysUntil === 1) return i18n.t("common:time.tomorrow");
+  return i18n.t("common:time.days_from_now", { count: daysUntil });
 }
 
 function getTrendTone(
@@ -112,10 +118,11 @@ function getTrendPrefix(trend: { deltaMinor: string | null }) {
   return value >= 0 ? "+" : "-";
 }
 
-function getTrendValueText(
-  trend: { deltaPercent: number | null; deltaMinor: string | null },
-  fallback = "Không có dữ liệu so sánh",
-) {
+function getTrendValueText(trend: {
+  deltaPercent: number | null;
+  deltaMinor: string | null;
+}) {
+  const fallback = i18n.t("home:summary.no_comparison");
   if (trend.deltaPercent === null) {
     const deltaMinor = Number(trend.deltaMinor || 0);
     if (deltaMinor === 0) return fallback;
@@ -230,11 +237,11 @@ function BudgetCard({
       {budget.isOverBudget ? (
         <p className="text-xs text-[var(--danger)] mt-2 flex items-center gap-1">
           <AlertCircle className="w-3 h-3" />
-          Vượt ngân sách
+          {i18n.t("home:budget_section.over_budget")}
         </p>
       ) : (
         <p className="text-xs text-[var(--text-tertiary)] mt-2">
-          Còn lại{" "}
+          {i18n.t("home:budget_section.remaining")}{" "}
           {formatCurrency(Math.max(Number(budget.remainingMinor || 0), 0))}
         </p>
       )}
@@ -334,6 +341,7 @@ function UpcomingRecurringCard({ item }: { item: HomeRecurringPreview }) {
 export default function Home() {
   const navigate = useNavigate();
   const nav = useAppNavigation();
+  const { t } = useTranslation("home");
   const { data, loading, error, month, setMonth } = useHomeOverview();
 
   const chartData = useMemo(() => {
@@ -348,7 +356,7 @@ export default function Home() {
       <div className="min-h-screen bg-[var(--background)] p-4 md:p-6">
         <Card>
           <p className="text-sm text-[var(--text-secondary)]">
-            Đang tải trang chủ...
+            {t("loading")}
           </p>
         </Card>
       </div>
@@ -360,7 +368,7 @@ export default function Home() {
       <div className="min-h-screen bg-[var(--background)] p-4 md:p-6">
         <Card>
           <p className="text-sm text-[var(--danger)]">
-            {error || "Không thể tải trang chủ"}
+            {error || t("errors.load_failed")}
           </p>
         </Card>
       </div>
@@ -400,7 +408,7 @@ export default function Home() {
 
           <Button onClick={() => navigate("/transactions/create")}>
             <Plus className="w-5 h-5" />
-            <span className="font-medium">Thêm giao dịch</span>
+            <span className="font-medium">{t("actions.add_transaction")}</span>
           </Button>
         </div>
 
@@ -412,13 +420,15 @@ export default function Home() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-[var(--text-secondary)]">
-                  Tổng tài sản
+                  {t("summary.total_balance")}
                 </p>
                 <p className="mt-2 text-2xl font-semibold text-[var(--text-primary)] tabular-nums">
                   {formatCurrency(data.summary.totalBalanceMinor)}
                 </p>
                 <p className="mt-2 text-xs text-[var(--text-tertiary)]">
-                  {data.summary.activeAccountCount} tài khoản đang hoạt động
+                  {t("summary.account_count", {
+                    count: data.summary.activeAccountCount,
+                  })}
                 </p>
                 {netTrend && (
                   <div className="mt-2 flex items-center gap-1">
@@ -446,7 +456,9 @@ export default function Home() {
           >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-[var(--text-secondary)]">Thu</p>
+                <p className="text-sm text-[var(--text-secondary)]">
+                  {t("summary.income_short")}
+                </p>
                 <p className="mt-2 text-2xl font-semibold text-[var(--success)] tabular-nums">
                   {formatCurrency(data.summary.incomeMinor)}
                 </p>
@@ -476,7 +488,9 @@ export default function Home() {
           >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-[var(--text-secondary)]">Chi</p>
+                <p className="text-sm text-[var(--text-secondary)]">
+                  {t("summary.expense_short")}
+                </p>
                 <p className="mt-2 text-2xl font-semibold text-[var(--danger)] tabular-nums">
                   {formatCurrency(data.summary.expenseMinor)}
                 </p>
@@ -506,7 +520,7 @@ export default function Home() {
 
         <Card>
           <h3 className="font-semibold text-[var(--text-primary)] mb-4">
-            Chi tiêu theo ngày
+            {t("chart.daily_expense")}
           </h3>
 
           <div className="h-64">
@@ -565,9 +579,11 @@ export default function Home() {
                   }}
                   formatter={(value: number) => [
                     formatCurrency(value),
-                    "Chi tiêu luỹ kế",
+                    t("chart.cumulative_expense"),
                   ]}
-                  labelFormatter={(label) => `Ngày ${label}`}
+                  labelFormatter={(label) =>
+                    t("chart.day_label", { day: label })
+                  }
                 />
 
                 <Area
@@ -586,13 +602,13 @@ export default function Home() {
         <div>
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-semibold text-[var(--text-primary)]">
-              Ngân sách
+              {t("budget_section.title")}
             </h3>
             <button
               onClick={() => navigate("/budgets")}
               className="text-sm text-[var(--primary)] hover:text-[var(--primary-hover)] font-medium"
             >
-              Xem tất cả
+              {t("actions.view_all")}
             </button>
           </div>
 
@@ -609,13 +625,12 @@ export default function Home() {
           ) : (
             <Card>
               <p className="text-sm text-[var(--text-secondary)]">
-                Bạn chưa có ngân sách nào cho kỳ này. Tạo ngân sách để theo dõi
-                chi tiêu sát hơn.
+                {t("budget_section.no_budgets")}
               </p>
               <div className="mt-4">
                 <Button onClick={() => navigate("/budgets/create")}>
                   <Plus className="w-4 h-4" />
-                  Tạo ngân sách
+                  {t("budget_section.create")}
                 </Button>
               </div>
             </Card>
@@ -625,7 +640,7 @@ export default function Home() {
         {data.insightCard && (
           <div>
             <h3 className="font-semibold text-[var(--text-primary)] mb-4">
-              Gợi ý tuần này
+              {t("insights.weekly_title")}
             </h3>
 
             <InsightSection
@@ -639,13 +654,13 @@ export default function Home() {
           <div>
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-semibold text-[var(--text-primary)]">
-                Giao dịch sắp tới
+                {t("upcoming.title")}
               </h3>
               <button
                 onClick={() => navigate("/rules/recurring")}
                 className="text-sm text-[var(--primary)] hover:text-[var(--primary-hover)] font-medium"
               >
-                Xem lịch
+                {t("upcoming.view_schedule")}
               </button>
             </div>
 
@@ -660,20 +675,20 @@ export default function Home() {
         <div>
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-semibold text-[var(--text-primary)]">
-              Giao dịch gần đây
+              {t("recent_transactions.title")}
             </h3>
             <button
               onClick={() => navigate("/transactions")}
               className="text-sm text-[var(--primary)] hover:text-[var(--primary-hover)] font-medium"
             >
-              Xem tất cả
+              {t("actions.view_all")}
             </button>
           </div>
 
           {data.recentTransactions.length === 0 ? (
             <Card>
               <p className="text-sm text-[var(--text-secondary)] text-center py-6">
-                Chưa có giao dịch nào gần đây.
+                {t("recent_transactions.no_transactions")}
               </p>
             </Card>
           ) : (
@@ -684,19 +699,19 @@ export default function Home() {
                     <thead>
                       <tr className="border-b border-[var(--divider)]">
                         <th className="text-left px-6 py-3 text-sm font-medium text-[var(--text-secondary)]">
-                          Ngày
+                          {t("recent_transactions.col_date")}
                         </th>
                         <th className="text-left px-6 py-3 text-sm font-medium text-[var(--text-secondary)]">
-                          Mô tả
+                          {t("recent_transactions.col_description")}
                         </th>
                         <th className="text-left px-6 py-3 text-sm font-medium text-[var(--text-secondary)]">
-                          Danh mục
+                          {t("recent_transactions.col_category")}
                         </th>
                         <th className="text-left px-6 py-3 text-sm font-medium text-[var(--text-secondary)]">
-                          Tài khoản
+                          {t("recent_transactions.col_account")}
                         </th>
                         <th className="text-right px-6 py-3 text-sm font-medium text-[var(--text-secondary)]">
-                          Số tiền
+                          {t("recent_transactions.col_amount")}
                         </th>
                       </tr>
                     </thead>
@@ -714,7 +729,8 @@ export default function Home() {
                           </td>
                           <td className="px-6 py-4">
                             <p className="text-sm font-medium text-[var(--text-primary)]">
-                              {transaction.description || "Giao dịch"}
+                              {transaction.description ||
+                                t("recent_transactions.fallback_name")}
                             </p>
 
                             {(transaction.merchant ||
@@ -793,7 +809,8 @@ export default function Home() {
                     <div className="flex items-start justify-between mb-2 gap-3">
                       <div className="flex-1 min-w-0">
                         <p className="font-medium text-[var(--text-primary)] mb-1 truncate">
-                          {transaction.description || "Giao dịch"}
+                          {transaction.description ||
+                            t("recent_transactions.fallback_name")}
                         </p>
                         <p className="text-xs text-[var(--text-secondary)] truncate">
                           {[

@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate, useSearchParams } from "react-router";
 import {
   ArrowDownLeft,
@@ -13,6 +14,7 @@ import {
   Tag,
   Trash2,
 } from "lucide-react";
+import i18n from "../../i18n";
 import { Button } from "../components/Button";
 import { Card } from "../components/Card";
 import { ConfirmationModal } from "../components/ConfirmationModals";
@@ -26,16 +28,12 @@ import type {
   TransactionType,
 } from "../types/transactions";
 
-const FILTER_OPTIONS: Array<{ value: "all" | TransactionType; label: string }> =
-  [
-    { value: "all", label: "Tất cả" },
-    { value: "income", label: "Thu nhập" },
-    { value: "expense", label: "Chi tiêu" },
-    { value: "transfer", label: "Chuyển tiền" },
-  ];
+function getLocale() {
+  return i18n.language === "en" ? "en-US" : "vi-VN";
+}
 
 function formatMoney(value?: string | number | null) {
-  return new Intl.NumberFormat("vi-VN").format(Number(value || 0));
+  return new Intl.NumberFormat(getLocale()).format(Number(value || 0));
 }
 
 function formatDateLabel(dateString: string) {
@@ -44,10 +42,12 @@ function formatDateLabel(dateString: string) {
   const yesterday = new Date();
   yesterday.setDate(today.getDate() - 1);
 
-  if (date.toDateString() === today.toDateString()) return "Hôm nay";
-  if (date.toDateString() === yesterday.toDateString()) return "Hôm qua";
+  if (date.toDateString() === today.toDateString())
+    return i18n.t("common:time.today");
+  if (date.toDateString() === yesterday.toDateString())
+    return i18n.t("common:time.yesterday");
 
-  return new Intl.DateTimeFormat("vi-VN", {
+  return new Intl.DateTimeFormat(getLocale(), {
     weekday: "long",
     day: "2-digit",
     month: "2-digit",
@@ -56,7 +56,7 @@ function formatDateLabel(dateString: string) {
 }
 
 function formatSubDate(dateString: string) {
-  return new Intl.DateTimeFormat("vi-VN", {
+  return new Intl.DateTimeFormat(getLocale(), {
     hour: "2-digit",
     minute: "2-digit",
     day: "2-digit",
@@ -86,6 +86,7 @@ function getSignedDisplay(item: TransactionListItem) {
 }
 
 export default function TransactionsList() {
+  const { t } = useTranslation("transactions");
   const navigate = useNavigate();
   const toast = useToast();
   const [searchParams] = useSearchParams();
@@ -118,6 +119,14 @@ export default function TransactionsList() {
     null,
   );
   const [deleting, setDeleting] = useState(false);
+
+  const FILTER_OPTIONS: Array<{ value: "all" | TransactionType; label: string }> =
+    [
+      { value: "all", label: t("common:transaction_type.all") },
+      { value: "income", label: t("common:transaction_type.income") },
+      { value: "expense", label: t("common:transaction_type.expense") },
+      { value: "transfer", label: t("common:transaction_type.transfer") },
+    ];
 
   const { data: metaData, loading: metaLoading } = useTransactionsMeta();
 
@@ -234,12 +243,12 @@ export default function TransactionsList() {
     try {
       setDeleting(true);
       await transactionsService.deleteTransaction(deleteTarget.id);
-      toast.success("Đã xoá giao dịch");
+      toast.success(t("list.delete.success"));
       setDeleteTarget(null);
       await reload();
     } catch (err) {
       toast.error(
-        err instanceof Error ? err.message : "Không thể xoá giao dịch",
+        err instanceof Error ? err.message : t("list.delete.failed"),
       );
     } finally {
       setDeleting(false);
@@ -266,15 +275,9 @@ export default function TransactionsList() {
     <div className="min-h-screen bg-[var(--background)]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-semibold text-[var(--text-primary)]">
-              Giao dịch
-            </h1>
-            <p className="text-sm text-[var(--text-secondary)] mt-1">
-              Danh sách giao dịch dùng dữ liệu thật từ backend, có thể lọc theo
-              merchant và tag.
-            </p>
-          </div>
+          <h1 className="text-2xl font-semibold text-[var(--text-primary)]">
+            {t("list.title")}
+          </h1>
 
           <div className="flex flex-wrap gap-3">
             <Button
@@ -282,33 +285,39 @@ export default function TransactionsList() {
               onClick={() => navigate("/transfer/create")}
             >
               <ArrowLeftRight className="w-4 h-4" />
-              Chuyển tiền
+              {t("list.add_transfer")}
             </Button>
 
             <Button onClick={() => navigate("/transactions/create")}>
               <Plus className="w-4 h-4" />
-              Thêm giao dịch
+              {t("list.add_transaction")}
             </Button>
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Card>
-            <p className="text-sm text-[var(--text-secondary)]">Tổng thu</p>
+            <p className="text-sm text-[var(--text-secondary)]">
+              {t("list.summary.total_income")}
+            </p>
             <p className="mt-2 text-2xl font-semibold text-[var(--success)] tabular-nums">
               +{formatMoney(totals.income)} ₫
             </p>
           </Card>
 
           <Card>
-            <p className="text-sm text-[var(--text-secondary)]">Tổng chi</p>
+            <p className="text-sm text-[var(--text-secondary)]">
+              {t("list.summary.total_expense")}
+            </p>
             <p className="mt-2 text-2xl font-semibold text-[var(--danger)] tabular-nums">
               -{formatMoney(totals.expense)} ₫
             </p>
           </Card>
 
           <Card>
-            <p className="text-sm text-[var(--text-secondary)]">Số lượng</p>
+            <p className="text-sm text-[var(--text-secondary)]">
+              {t("list.sort.count")}
+            </p>
             <p className="mt-2 text-2xl font-semibold text-[var(--text-primary)] tabular-nums">
               {data?.pagination.total || 0}
             </p>
@@ -319,7 +328,7 @@ export default function TransactionsList() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
             <div className="lg:col-span-4">
               <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-                Tìm kiếm
+                {t("common:actions.search")}
               </label>
               <div className="flex items-center gap-2 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--input-background)] px-3 py-2.5">
                 <Search className="w-4 h-4 text-[var(--text-tertiary)]" />
@@ -329,7 +338,7 @@ export default function TransactionsList() {
                     setSearch(event.target.value);
                     setPage(1);
                   }}
-                  placeholder="Mô tả, merchant, tài khoản..."
+                  placeholder={t("list.search_placeholder")}
                   className="w-full bg-transparent outline-none text-sm text-[var(--text-primary)]"
                 />
               </div>
@@ -337,7 +346,7 @@ export default function TransactionsList() {
 
             <div className="lg:col-span-2">
               <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-                Tài khoản
+                {t("list.filter.account_label")}
               </label>
               <select
                 value={accountId}
@@ -347,7 +356,7 @@ export default function TransactionsList() {
                 }}
                 className="w-full px-4 py-2.5 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-lg)]"
               >
-                <option value="">Tất cả</option>
+                <option value="">{t("common:status.all")}</option>
                 {(metaData?.accounts || []).map((account) => (
                   <option key={account.id} value={account.id}>
                     {account.name}
@@ -358,7 +367,7 @@ export default function TransactionsList() {
 
             <div className="lg:col-span-2">
               <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-                Danh mục
+                {t("list.filter.category_label")}
               </label>
               <select
                 value={categoryId}
@@ -368,7 +377,7 @@ export default function TransactionsList() {
                 }}
                 className="w-full px-4 py-2.5 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-lg)]"
               >
-                <option value="">Tất cả</option>
+                <option value="">{t("common:status.all")}</option>
                 {(metaData?.categories || []).map((category) => (
                   <option key={category.id} value={category.id}>
                     {category.name}
@@ -379,7 +388,7 @@ export default function TransactionsList() {
 
             <div className="lg:col-span-2">
               <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-                Merchant
+                {t("list.filter.merchant_label")}
               </label>
               <div className="relative">
                 <Store className="w-4 h-4 text-[var(--text-tertiary)] absolute left-3 top-1/2 -translate-y-1/2" />
@@ -391,7 +400,7 @@ export default function TransactionsList() {
                   }}
                   className="w-full pl-10 pr-4 py-2.5 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-lg)]"
                 >
-                  <option value="">Tất cả</option>
+                  <option value="">{t("common:status.all")}</option>
                   {(metaData?.merchants || []).map((merchant) => (
                     <option key={merchant.id} value={merchant.id}>
                       {merchant.name}
@@ -403,7 +412,7 @@ export default function TransactionsList() {
 
             <div className="lg:col-span-2">
               <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-                Sắp xếp
+                {t("list.sort.title")}
               </label>
               <select
                 value={`${sortBy}:${sortOrder}`}
@@ -417,10 +426,10 @@ export default function TransactionsList() {
                 }}
                 className="w-full px-4 py-2.5 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-lg)]"
               >
-                <option value="date:desc">Mới nhất</option>
-                <option value="date:asc">Cũ nhất</option>
-                <option value="amount:desc">Số tiền giảm dần</option>
-                <option value="amount:asc">Số tiền tăng dần</option>
+                <option value="date:desc">{t("list.sort.date_desc")}</option>
+                <option value="date:asc">{t("list.sort.date_asc")}</option>
+                <option value="amount:desc">{t("list.sort.amount_desc")}</option>
+                <option value="amount:asc">{t("list.sort.amount_asc")}</option>
               </select>
             </div>
           </div>
@@ -428,7 +437,7 @@ export default function TransactionsList() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 mt-4">
             <div className="lg:col-span-3">
               <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-                Từ ngày
+                {t("list.filter.date_from")}
               </label>
               <div className="relative">
                 <Calendar className="w-4 h-4 text-[var(--text-tertiary)] absolute left-3 top-1/2 -translate-y-1/2" />
@@ -446,7 +455,7 @@ export default function TransactionsList() {
 
             <div className="lg:col-span-3">
               <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-                Đến ngày
+                {t("list.filter.date_to")}
               </label>
               <div className="relative">
                 <Calendar className="w-4 h-4 text-[var(--text-tertiary)] absolute left-3 top-1/2 -translate-y-1/2" />
@@ -464,7 +473,7 @@ export default function TransactionsList() {
 
             <div className="lg:col-span-4">
               <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-                Lọc theo thẻ
+                {t("list.filter.tag_label")}
               </label>
 
               <div className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--input-background)] px-3 py-3">
@@ -473,8 +482,10 @@ export default function TransactionsList() {
                     <Tag className="w-4 h-4 text-[var(--text-tertiary)]" />
                     <span className="text-sm text-[var(--text-secondary)]">
                       {selectedTagIds.length
-                        ? `${selectedTagIds.length} thẻ đã chọn`
-                        : "Chưa chọn thẻ"}
+                        ? t("list.filter.tags_selected", {
+                            count: selectedTagIds.length,
+                          })
+                        : t("list.filter.tag_placeholder")}
                     </span>
                   </div>
 
@@ -485,7 +496,12 @@ export default function TransactionsList() {
                     }
                     className="text-xs px-2 py-1 rounded-full border border-[var(--border)] text-[var(--text-secondary)] hover:bg-[var(--surface)]"
                   >
-                    Chế độ: {tagMode === "or" ? "OR" : "AND"}
+                    {t("list.filter.mode", {
+                      mode:
+                        tagMode === "or"
+                          ? t("list.filter.logic_or")
+                          : t("list.filter.logic_and"),
+                    })}
                   </button>
                 </div>
 
@@ -526,7 +542,7 @@ export default function TransactionsList() {
                 className="w-full"
                 onClick={handleResetFilters}
               >
-                Đặt lại lọc
+                {t("list.filter.clear")}
               </Button>
             </div>
           </div>
@@ -594,7 +610,7 @@ export default function TransactionsList() {
         {(loading || metaLoading) && (
           <Card>
             <p className="text-sm text-[var(--text-secondary)]">
-              Đang tải dữ liệu giao dịch...
+              {t("common:status.loading")}
             </p>
           </Card>
         )}
@@ -608,7 +624,7 @@ export default function TransactionsList() {
         {!loading && !error && groupedItems.length === 0 && (
           <Card>
             <p className="text-sm text-[var(--text-secondary)] text-center py-8">
-              Không có giao dịch nào phù hợp với bộ lọc hiện tại.
+              {t("list.empty.no_match")}
             </p>
           </Card>
         )}
@@ -622,7 +638,7 @@ export default function TransactionsList() {
                     {formatDateLabel(dateKey)}
                   </h2>
                   <span className="text-xs text-[var(--text-tertiary)]">
-                    {items.length} giao dịch
+                    {t("list.group_count", { count: items.length })}
                   </span>
                 </div>
 
@@ -643,7 +659,7 @@ export default function TransactionsList() {
                               <p className="font-medium text-[var(--text-primary)] truncate">
                                 {item.description ||
                                   item.category?.name ||
-                                  "Giao dịch"}
+                                  t("detail.fallback_name")}
                               </p>
 
                               {item.isSplit && (
@@ -698,7 +714,7 @@ export default function TransactionsList() {
                               onClick={() => goDuplicate(item)}
                             >
                               <Copy className="w-4 h-4" />
-                              Nhân bản
+                              {t("common:actions.duplicate")}
                             </Button>
 
                             <Button
@@ -707,7 +723,7 @@ export default function TransactionsList() {
                               onClick={() => goEdit(item)}
                             >
                               <Edit2 className="w-4 h-4" />
-                              Sửa
+                              {t("common:actions.edit")}
                             </Button>
 
                             <Button
@@ -716,7 +732,7 @@ export default function TransactionsList() {
                               onClick={() => setDeleteTarget(item)}
                             >
                               <Trash2 className="w-4 h-4" />
-                              Xoá
+                              {t("common:actions.delete")}
                             </Button>
                           </div>
                         </div>
@@ -732,7 +748,10 @@ export default function TransactionsList() {
         {!!data && data.pagination.totalPages > 1 && (
           <Card className="flex flex-col sm:flex-row items-center justify-between gap-3">
             <p className="text-sm text-[var(--text-secondary)]">
-              Trang {data.pagination.page} / {data.pagination.totalPages}
+              {t("common:pagination.page_of", {
+                page: data.pagination.page,
+                total: data.pagination.totalPages,
+              })}
             </p>
 
             <div className="flex gap-2">
@@ -741,7 +760,7 @@ export default function TransactionsList() {
                 disabled={data.pagination.page <= 1}
                 onClick={() => setPage((prev) => Math.max(1, prev - 1))}
               >
-                Trang trước
+                {t("common:pagination.prev")}
               </Button>
 
               <Button
@@ -753,7 +772,7 @@ export default function TransactionsList() {
                   )
                 }
               >
-                Trang sau
+                {t("common:pagination.next")}
               </Button>
             </div>
           </Card>
@@ -764,10 +783,12 @@ export default function TransactionsList() {
         isOpen={Boolean(deleteTarget)}
         onClose={() => setDeleteTarget(null)}
         onConfirm={() => void handleDelete()}
-        title="Xoá giao dịch?"
-        description={`Bạn có chắc muốn xoá "${deleteTarget?.description || "giao dịch này"}"? Hành động này không thể hoàn tác.`}
-        confirmLabel={deleting ? "Đang xoá..." : "Xoá"}
-        cancelLabel="Huỷ"
+        title={t("list.delete.title")}
+        description={t("list.delete.description", {
+          name: deleteTarget?.description || t("detail.fallback_name"),
+        })}
+        confirmLabel={deleting ? t("list.delete.deleting") : t("list.delete.confirm")}
+        cancelLabel={t("list.delete.cancel")}
         isDangerous
       />
     </div>

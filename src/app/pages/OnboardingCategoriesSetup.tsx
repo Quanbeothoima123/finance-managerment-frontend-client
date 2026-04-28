@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
+import { useTranslation } from "react-i18next";
 import {
   ArrowLeft,
   GraduationCap,
@@ -172,33 +173,25 @@ const PROFESSIONAL_GROUPS = [
   "income",
 ];
 
-const PRESETS: Array<{
+const PRESET_STATIC: Array<{
   key: PresetKey;
-  title: string;
-  subtitle: string;
   icon: React.ReactNode;
   recommended?: boolean;
   groups: string[];
 }> = [
   {
     key: "student",
-    title: "Sinh viên",
-    subtitle: "Đủ nhóm chi tiêu phổ biến + thu nhập cơ bản.",
     icon: <GraduationCap className="w-6 h-6" />,
     recommended: true,
     groups: STUDENT_GROUPS,
   },
   {
     key: "professional",
-    title: "Người mới đi làm",
-    subtitle: "Tập trung Nhà ở, Đi lại, Ăn uống, Mua sắm.",
     icon: <Briefcase className="w-6 h-6" />,
     groups: PROFESSIONAL_GROUPS,
   },
   {
     key: "custom",
-    title: "Tự tuỳ chỉnh",
-    subtitle: "Chọn nhóm danh mục bạn muốn tạo.",
     icon: <SlidersHorizontal className="w-6 h-6" />,
     groups: STUDENT_GROUPS,
   },
@@ -208,6 +201,7 @@ export default function OnboardingCategoriesSetup() {
   const navigate = useNavigate();
   const toast = useToast();
   const { isAuthenticated, isHydrated } = useAuth();
+  const { t } = useTranslation("onboarding");
 
   const [selectedPreset, setSelectedPreset] = useState<PresetKey>("student");
   const [customGroupKeys, setCustomGroupKeys] = useState<Set<string>>(
@@ -243,7 +237,7 @@ export default function OnboardingCategoriesSetup() {
       } catch (error) {
         if (!isMounted) return;
         toast.error(
-          getApiErrorMessage(error, "Không thể tải dữ liệu onboarding."),
+          getApiErrorMessage(error, t("categories_setup.errors.load_failed")),
         );
       } finally {
         if (isMounted) setIsBootstrapping(false);
@@ -254,12 +248,12 @@ export default function OnboardingCategoriesSetup() {
     return () => {
       isMounted = false;
     };
-  }, [isAuthenticated, isHydrated, navigate, toast]);
+  }, [isAuthenticated, isHydrated, navigate, t, toast]);
 
   const activeGroupKeys = useMemo(() => {
     if (selectedPreset === "custom") return customGroupKeys;
     return new Set(
-      PRESETS.find((preset) => preset.key === selectedPreset)?.groups ||
+      PRESET_STATIC.find((preset) => preset.key === selectedPreset)?.groups ||
         STUDENT_GROUPS,
     );
   }, [customGroupKeys, selectedPreset]);
@@ -301,11 +295,11 @@ export default function OnboardingCategoriesSetup() {
         return;
       }
 
-      toast.success("Đã tạo bộ danh mục mặc định.");
+      toast.success(t("categories_setup.success_categories"));
       setShowSuccessSheet(true);
     } catch (error) {
       toast.error(
-        getApiErrorMessage(error, "Không thể lưu danh mục onboarding."),
+        getApiErrorMessage(error, t("categories_setup.errors.save_failed")),
       );
     } finally {
       setIsSubmitting(false);
@@ -326,10 +320,12 @@ export default function OnboardingCategoriesSetup() {
     try {
       const completion = await onboardingService.complete();
       setRedirectTo(completion.redirectTo || "/home");
-      toast.success("Onboarding hoàn tất");
+      toast.success(t("categories_setup.success_onboarding"));
       navigate(completion.redirectTo || "/home", { replace: true });
     } catch (error) {
-      toast.error(getApiErrorMessage(error, "Không thể hoàn tất onboarding."));
+      toast.error(
+        getApiErrorMessage(error, t("categories_setup.errors.complete_failed")),
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -351,7 +347,9 @@ export default function OnboardingCategoriesSetup() {
         </button>
 
         <div className="flex flex-col items-center gap-1">
-          <span className="text-xs text-[var(--text-tertiary)]">Bước 3/3</span>
+          <span className="text-xs text-[var(--text-tertiary)]">
+            {t("categories_setup.step")}
+          </span>
           <div className="w-24 h-1 bg-[var(--surface)] rounded-full overflow-hidden">
             <motion.div
               className="h-full bg-[var(--primary)] rounded-full"
@@ -367,7 +365,7 @@ export default function OnboardingCategoriesSetup() {
           disabled={isSubmitting || isBootstrapping}
           className="text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors px-2 py-1 disabled:opacity-50"
         >
-          Bỏ qua
+          {t("categories_setup.skip")}
         </button>
       </motion.header>
 
@@ -379,18 +377,17 @@ export default function OnboardingCategoriesSetup() {
           className="mt-4 mb-5"
         >
           <h1 className="text-2xl font-semibold text-[var(--text-primary)] mb-2">
-            Thiết lập danh mục
+            {t("categories_setup.title")}
           </h1>
           <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-            Chọn bộ danh mục có sẵn để xem báo cáo đẹp ngay. Bạn có thể chỉnh
-            sửa lại trong Categories.
+            {t("categories_setup.subtitle")}
           </p>
         </motion.div>
 
         {isBootstrapping && (
           <div className="flex items-center gap-2 text-sm text-[var(--text-secondary)] mb-4">
             <Loader2 className="w-4 h-4 animate-spin" />
-            Đang đồng bộ dữ liệu onboarding...
+            {t("categories_setup.loading")}
           </div>
         )}
 
@@ -401,10 +398,10 @@ export default function OnboardingCategoriesSetup() {
           className="bg-[var(--surface-elevated)] border border-[var(--border)] rounded-[var(--radius-xl)] p-4 mb-4 shadow-[var(--shadow-sm)]"
         >
           <h2 className="text-sm font-medium text-[var(--text-primary)] mb-3">
-            Chọn preset
+            {t("categories_setup.select_preset_title")}
           </h2>
           <div className="space-y-3">
-            {PRESETS.map((preset) => {
+            {PRESET_STATIC.map((preset) => {
               const isSelected = selectedPreset === preset.key;
               return (
                 <button
@@ -420,16 +417,16 @@ export default function OnboardingCategoriesSetup() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
                       <span className="text-sm font-medium text-[var(--text-primary)]">
-                        {preset.title}
+                        {t(`categories_setup.presets.${preset.key}.title`)}
                       </span>
                       {preset.recommended && (
                         <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-[var(--success-light)] text-[var(--success)]">
-                          Gợi ý
+                          {t("categories_setup.recommended")}
                         </span>
                       )}
                     </div>
                     <p className="text-xs text-[var(--text-tertiary)] mt-0.5 leading-relaxed">
-                      {preset.subtitle}
+                      {t(`categories_setup.presets.${preset.key}.subtitle`)}
                     </p>
                   </div>
                   <div
@@ -451,14 +448,14 @@ export default function OnboardingCategoriesSetup() {
         >
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-sm font-medium text-[var(--text-primary)]">
-              Xem trước danh mục
+              {t("categories_setup.preview_title")}
             </h2>
             {selectedPreset === "custom" && (
               <button
                 onClick={() => setShowQuickEditSheet(true)}
                 className="text-xs font-medium text-[var(--primary)] hover:underline"
               >
-                Chỉnh nhanh
+                {t("categories_setup.quick_edit")}
               </button>
             )}
           </div>
@@ -529,7 +526,10 @@ export default function OnboardingCategoriesSetup() {
           </div>
           <div className="mt-3 pt-3 border-t border-[var(--border)]">
             <p className="text-xs text-[var(--text-tertiary)]">
-              {activeGroups.length} nhóm · {totalSubCategories} danh mục con
+              {t("categories_setup.groups_summary", {
+                groups: activeGroups.length,
+                sub: totalSubCategories,
+              })}
             </p>
           </div>
         </motion.div>
@@ -541,25 +541,30 @@ export default function OnboardingCategoriesSetup() {
           className="bg-[var(--surface-elevated)] border border-[var(--border)] rounded-[var(--radius-xl)] p-4 mb-4 shadow-[var(--shadow-sm)]"
         >
           <h2 className="text-sm font-medium text-[var(--text-primary)] mb-3">
-            Tóm tắt thiết lập
+            {t("categories_setup.summary_title")}
           </h2>
           <div className="space-y-2.5">
             <SummaryRow
               icon={<Coins className="w-4 h-4" />}
-              label="Tiền tệ"
+              label={t("categories_setup.summary_currency")}
               value={currency}
               color="#F59E0B"
             />
             <SummaryRow
               icon={<Wallet className="w-4 h-4" />}
-              label="Ví"
-              value={`${walletCount} ví`}
+              label={t("categories_setup.summary_wallets")}
+              value={t("categories_setup.wallets_count", {
+                count: walletCount,
+              })}
               color="#3B82F6"
             />
             <SummaryRow
               icon={<Sparkles className="w-4 h-4" />}
-              label="Danh mục"
-              value={`${activeGroups.length} nhóm (${totalSubCategories} danh mục con)`}
+              label={t("categories_setup.summary_categories")}
+              value={t("categories_setup.groups_count", {
+                groups: activeGroups.length,
+                sub: totalSubCategories,
+              })}
               color="#8B5CF6"
             />
           </div>
@@ -578,10 +583,12 @@ export default function OnboardingCategoriesSetup() {
             disabled={isSubmitting || isBootstrapping}
             className="w-full py-3.5 rounded-[var(--radius-lg)] font-medium text-base transition-all shadow-[var(--shadow-sm)] bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--primary-hover)] active:scale-[0.98] disabled:opacity-60"
           >
-            {isSubmitting ? "Đang lưu..." : "Hoàn tất"}
+            {isSubmitting
+              ? t("categories_setup.saving")
+              : t("categories_setup.submit")}
           </button>
           <p className="text-center text-xs text-[var(--text-tertiary)] mt-3">
-            Bạn có thể chỉnh trong Settings/Categories sau.
+            {t("categories_setup.settings_hint")}
           </p>
         </motion.div>
       </div>
@@ -608,7 +615,7 @@ export default function OnboardingCategoriesSetup() {
               </div>
               <div className="flex items-center justify-between px-5 pb-3 border-b border-[var(--border)]">
                 <h3 className="text-lg font-semibold text-[var(--text-primary)]">
-                  Chọn nhóm danh mục
+                  {t("categories_setup.select_groups_title")}
                 </h3>
                 <button
                   onClick={() => setShowQuickEditSheet(false)}
@@ -675,19 +682,19 @@ export default function OnboardingCategoriesSetup() {
                   <Check className="w-10 h-10 text-[var(--success)]" />
                 </motion.div>
                 <h2 className="text-xl font-semibold text-[var(--text-primary)] mb-2">
-                  Bạn đã sẵn sàng!
+                  {t("categories_setup.ready_title")}
                 </h2>
                 <p className="text-sm text-[var(--text-secondary)] mb-8 leading-relaxed">
-                  Bắt đầu nhập giao dịch đầu tiên của bạn.
+                  {t("categories_setup.ready_subtitle")}
                 </p>
                 <button
                   onClick={handleStart}
                   className="w-full py-3.5 rounded-[var(--radius-lg)] font-medium text-base bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--primary-hover)] active:scale-[0.98] transition-all shadow-[var(--shadow-sm)]"
                 >
-                  Bắt đầu
+                  {t("categories_setup.start_button")}
                 </button>
                 <p className="text-xs text-[var(--text-tertiary)] mt-3">
-                  Sau khi hoàn tất sẽ chuyển tới {redirectTo}.
+                  {t("categories_setup.redirect_hint", { redirectTo })}
                 </p>
               </div>
             </motion.div>

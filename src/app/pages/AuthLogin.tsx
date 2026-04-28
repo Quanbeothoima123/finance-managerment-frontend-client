@@ -14,9 +14,11 @@ import {
   BarChart3,
   Shield,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useAppNavigation } from "../hooks/useAppNavigation";
 import { useToast } from "../contexts/ToastContext";
 import { ThemeSwitcher } from "../components/ThemeSwitcher";
+import { LanguageSwitcher } from "../components/LanguageSwitcher";
 import { useAuth } from "../hooks/useAuth";
 import { authService } from "../services/authService";
 import { getApiErrorMessage } from "../utils/authError";
@@ -28,6 +30,7 @@ export default function AuthLogin() {
   const nav = useAppNavigation();
   const toast = useToast();
   const { loginWithPassword, loginWithOtp } = useAuth();
+  const { t } = useTranslation("auth");
 
   // Tab
   const [tab, setTab] = useState<AuthTab>("password");
@@ -77,21 +80,21 @@ export default function AuthLogin() {
   // Password login handler
   const handlePasswordLogin = async () => {
     const newErrors: typeof errors = {};
-    if (!email.trim()) newErrors.email = "Vui lòng nhập email.";
-    else if (!validateEmail(email)) newErrors.email = "Email không hợp lệ.";
-    if (!password.trim()) newErrors.password = "Vui lòng nhập mật khẩu.";
+    if (!email.trim()) newErrors.email = t("login.errors.email_required");
+    else if (!validateEmail(email)) newErrors.email = t("login.errors.email_invalid");
+    if (!password.trim()) newErrors.password = t("login.errors.password_required");
     else if (password.length < 8)
-      newErrors.password = "Mật khẩu tối thiểu 8 ký tự.";
+      newErrors.password = t("login.errors.password_min");
     setErrors(newErrors);
     if (Object.keys(newErrors).length > 0) return;
 
     setLoading(true);
     try {
       await loginWithPassword({ email, password }, rememberMe);
-      toast.success("Đăng nhập thành công!");
+      toast.success(t("login.success"));
       nav.goHome();
     } catch (error) {
-      const message = getApiErrorMessage(error, "Đăng nhập thất bại.");
+      const message = getApiErrorMessage(error, t("login.errors.login_failed"));
       setErrors((prev) => ({ ...prev, password: message }));
 
       if (message.toLowerCase().includes("chưa xác minh email")) {
@@ -103,9 +106,7 @@ export default function AuthLogin() {
           setOtpValues(["", "", "", "", "", ""]);
           setOtpError("");
           setCountdown(60);
-          toast.info(
-            "Tài khoản chưa xác minh. Mã OTP đã được gửi lại tới email của bạn.",
-          );
+          toast.info(t("login.errors.email_unverified"));
           return;
         } catch {
           // fall through to show original error
@@ -121,7 +122,7 @@ export default function AuthLogin() {
   // Send OTP handler
   const handleSendOtp = async () => {
     if (!otpEmail.trim() || !validateEmail(otpEmail)) {
-      setOtpEmailError("Email không hợp lệ.");
+      setOtpEmailError(t("login.errors.email_invalid"));
       return;
     }
 
@@ -134,9 +135,9 @@ export default function AuthLogin() {
       setOtpError("");
       setOtpStage("verify");
       setCountdown(60);
-      toast.info("Mã OTP đã gửi tới email của bạn.");
+      toast.info(t("login.otp_sent"));
     } catch (error) {
-      const message = getApiErrorMessage(error, "Không thể gửi OTP lúc này.");
+      const message = getApiErrorMessage(error, t("login.errors.otp_send_failed"));
       setOtpEmailError(message);
       toast.error(message);
     } finally {
@@ -152,12 +153,12 @@ export default function AuthLogin() {
     setOtpLoading(true);
     try {
       await loginWithOtp({ email: otpEmail, code }, rememberMe);
-      toast.success("Đăng nhập thành công!");
+      toast.success(t("login.success"));
       nav.goHome();
     } catch (error) {
       const message = getApiErrorMessage(
         error,
-        "Mã OTP không đúng hoặc đã hết hạn.",
+        t("login.errors.otp_invalid"),
       );
       setOtpError(message);
       toast.error(message);
@@ -206,9 +207,9 @@ export default function AuthLogin() {
 
   // OAuth handler
   const handleOAuth = (provider: string) => {
-    toast.info(`Đang chuyển hướng đến ${provider}...`);
+    toast.info(t("oauth.redirecting", { provider }));
     setTimeout(() => {
-      toast.success("Đăng nhập thành công!");
+      toast.success(t("login.success"));
       nav.goHome();
     }, 1500);
   };
@@ -221,11 +222,11 @@ export default function AuthLogin() {
     try {
       await authService.requestForgotPassword({ email: forgotEmail });
       setForgotSent(true);
-      toast.success("Đã gửi mã đặt lại mật khẩu tới email của bạn.");
+      toast.success(t("forgot_password.email_sent"));
     } catch (error) {
       const message = getApiErrorMessage(
         error,
-        "Không thể gửi email đặt lại mật khẩu.",
+        t("login.errors.reset_email_failed"),
       );
       toast.error(message);
     } finally {
@@ -241,8 +242,9 @@ export default function AuthLogin() {
 
   return (
     <div className="min-h-screen w-full flex bg-[var(--background)]">
-      {/* Theme Switcher */}
-      <div className="absolute top-4 right-4 z-20">
+      {/* Theme + Language Switchers */}
+      <div className="absolute top-4 right-4 z-20 flex items-center gap-2">
+        <LanguageSwitcher />
         <ThemeSwitcher />
       </div>
 
@@ -267,11 +269,10 @@ export default function AuthLogin() {
               </span>
             </div>
             <h2 className="text-3xl text-white font-semibold mb-4">
-              Giữ mọi tài khoản của bạn trong tầm mắt
+              {t("login.hero_title")}
             </h2>
             <p className="text-white/70 mb-10">
-              Ngân sách, mục tiêu và báo cáo trong một nơi. Theo dõi thu chi dễ
-              dàng mỗi ngày.
+              {t("login.hero_desc")}
             </p>
 
             {/* Mini feature cards */}
@@ -279,18 +280,18 @@ export default function AuthLogin() {
               {[
                 {
                   icon: TrendingUp,
-                  label: "Biểu đồ thu chi",
-                  desc: "Trực quan hoá dòng tiền",
+                  label: t("login.features.cashflow_label"),
+                  desc: t("login.features.cashflow_desc"),
                 },
                 {
                   icon: PiggyBank,
-                  label: "Mục tiêu tiết kiệm",
-                  desc: "Theo dõi tiến độ mỗi ngày",
+                  label: t("login.features.goal_label"),
+                  desc: t("login.features.goal_desc"),
                 },
                 {
                   icon: BarChart3,
-                  label: "Báo cáo chi tiết",
-                  desc: "Weekly & Monthly recap",
+                  label: t("login.features.report_label"),
+                  desc: t("login.features.report_desc"),
                 },
               ].map((f, i) => (
                 <motion.div
@@ -328,10 +329,10 @@ export default function AuthLogin() {
               <Wallet className="w-8 h-8 text-white" />
             </div>
             <h1 className="text-2xl font-semibold text-[var(--text-primary)]">
-              Đăng nhập
+              {t("login.title")}
             </h1>
             <p className="text-[var(--text-secondary)] mt-1">
-              Chào mừng bạn quay lại
+              {t("login.subtitle")}
             </p>
           </div>
 
@@ -340,24 +341,24 @@ export default function AuthLogin() {
             {/* Segmented Control */}
             <div className="flex border-b border-[var(--border)]">
               {[
-                { key: "password" as AuthTab, label: "Email & Mật khẩu" },
-                { key: "otp" as AuthTab, label: "OTP Email" },
-              ].map((t) => (
+                { key: "password" as AuthTab, label: t("login.tab_password") },
+                { key: "otp" as AuthTab, label: t("login.tab_otp") },
+              ].map((tabItem) => (
                 <button
-                  key={t.key}
+                  key={tabItem.key}
                   onClick={() => {
-                    setTab(t.key);
+                    setTab(tabItem.key);
                     setErrors({});
                     setOtpError("");
                   }}
                   className={`flex-1 py-3.5 text-sm font-medium relative transition-colors ${
-                    tab === t.key
+                    tab === tabItem.key
                       ? "text-[var(--primary)]"
                       : "text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]"
                   }`}
                 >
-                  {t.label}
-                  {tab === t.key && (
+                  {tabItem.label}
+                  {tab === tabItem.key && (
                     <motion.div
                       layoutId="authTab"
                       className="absolute bottom-0 left-0 right-0 h-0.5 bg-[var(--primary)]"
@@ -380,7 +381,7 @@ export default function AuthLogin() {
                     {/* Email field */}
                     <div className="mb-4">
                       <label className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">
-                        Email
+                        {t("login.email_label")}
                       </label>
                       <div className="relative">
                         <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-[var(--text-tertiary)]" />
@@ -394,7 +395,7 @@ export default function AuthLogin() {
                               email: undefined,
                             }));
                           }}
-                          placeholder="you@example.com"
+                          placeholder={t("login.email_placeholder")}
                           className={`w-full pl-11 pr-4 py-3 bg-[var(--input-background)] border rounded-[var(--radius-lg)] text-[var(--text-primary)] placeholder:text-[var(--text-disabled)] focus:outline-none focus:ring-2 transition-all ${
                             errors.email
                               ? "border-[var(--danger)] focus:ring-[var(--danger)]/30"
@@ -412,7 +413,7 @@ export default function AuthLogin() {
                     {/* Password field */}
                     <div className="mb-4">
                       <label className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">
-                        Mật khẩu
+                        {t("login.password_label")}
                       </label>
                       <div className="relative">
                         <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-[var(--text-tertiary)]" />
@@ -426,7 +427,7 @@ export default function AuthLogin() {
                               password: undefined,
                             }));
                           }}
-                          placeholder="Nhập mật khẩu"
+                          placeholder={t("login.password_placeholder")}
                           className={`w-full pl-11 pr-12 py-3 bg-[var(--input-background)] border rounded-[var(--radius-lg)] text-[var(--text-primary)] placeholder:text-[var(--text-disabled)] focus:outline-none focus:ring-2 transition-all ${
                             errors.password
                               ? "border-[var(--danger)] focus:ring-[var(--danger)]/30"
@@ -465,14 +466,14 @@ export default function AuthLogin() {
                           className="w-4 h-4 rounded border-[var(--border)] text-[var(--primary)] accent-[var(--primary)]"
                         />
                         <span className="text-sm text-[var(--text-secondary)]">
-                          Ghi nhớ đăng nhập
+                          {t("login.remember_me")}
                         </span>
                       </label>
                       <button
                         onClick={() => nav.goForgotPassword()}
                         className="text-sm font-medium text-[var(--primary)] hover:underline"
                       >
-                        Quên mật khẩu?
+                        {t("login.forgot_password")}
                       </button>
                     </div>
 
@@ -485,10 +486,10 @@ export default function AuthLogin() {
                       {loading ? (
                         <>
                           <Loader2 className="w-4.5 h-4.5 animate-spin" />
-                          Đang đăng nhập...
+                          {t("login.submitting")}
                         </>
                       ) : (
-                        "Đăng nhập"
+                        t("login.submit")
                       )}
                     </button>
                   </motion.div>
@@ -510,7 +511,7 @@ export default function AuthLogin() {
                         >
                           <div className="mb-4">
                             <label className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">
-                              Email đã đăng ký
+                              {t("login.registered_email_label")}
                             </label>
                             <div className="relative">
                               <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-[var(--text-tertiary)]" />
@@ -521,7 +522,7 @@ export default function AuthLogin() {
                                   setOtpEmail(e.target.value);
                                   setOtpEmailError("");
                                 }}
-                                placeholder="you@example.com"
+                                placeholder={t("login.email_placeholder")}
                                 className={`w-full pl-11 pr-4 py-3 bg-[var(--input-background)] border rounded-[var(--radius-lg)] text-[var(--text-primary)] placeholder:text-[var(--text-disabled)] focus:outline-none focus:ring-2 transition-all ${
                                   otpEmailError
                                     ? "border-[var(--danger)] focus:ring-[var(--danger)]/30"
@@ -546,22 +547,22 @@ export default function AuthLogin() {
                             {otpLoading ? (
                               <>
                                 <Loader2 className="w-4.5 h-4.5 animate-spin" />
-                                Đang gửi...
+                                {t("login.sending")}
                               </>
                             ) : (
                               <>
                                 <Mail className="w-4 h-4" />
-                                Gửi mã OTP
+                                {t("login.send_otp")}
                               </>
                             )}
                           </button>
                           <p className="text-center text-xs text-[var(--text-tertiary)] mt-3">
-                            Hoặc{" "}
+                            {t("common:actions.or")}{" "}
                             <Link
                               to="/auth/verify-otp?purpose=login"
                               className="text-[var(--primary)] hover:underline font-medium"
                             >
-                              xác minh trang riêng
+                              {t("login.verify_on_separate_page")}
                             </Link>
                           </p>
                         </motion.div>
@@ -577,7 +578,7 @@ export default function AuthLogin() {
                               <Shield className="w-6 h-6 text-[var(--primary)]" />
                             </div>
                             <p className="text-sm text-[var(--text-secondary)]">
-                              Nhập mã OTP đã gửi tới
+                              {t("login.otp_sent_to")}
                             </p>
                             <p className="text-sm font-medium text-[var(--text-primary)] mt-0.5">
                               {otpEmail}
@@ -624,7 +625,7 @@ export default function AuthLogin() {
                           <div className="text-center mb-6">
                             {countdown > 0 ? (
                               <p className="text-xs text-[var(--text-tertiary)]">
-                                Gửi lại sau{" "}
+                                {t("login.resend_in")}{" "}
                                 <span className="font-mono font-medium text-[var(--text-secondary)]">
                                   {formatCountdown(countdown)}
                                 </span>
@@ -634,7 +635,7 @@ export default function AuthLogin() {
                                 onClick={handleSendOtp}
                                 className="text-xs font-medium text-[var(--primary)] hover:underline"
                               >
-                                Gửi lại mã
+                                {t("login.resend_otp")}
                               </button>
                             )}
                           </div>
@@ -648,7 +649,7 @@ export default function AuthLogin() {
                               }}
                               className="px-4 py-3 rounded-[var(--radius-lg)] border border-[var(--border)] text-sm font-medium text-[var(--text-secondary)] hover:bg-[var(--surface)] transition-colors"
                             >
-                              Quay lại
+                              {t("common:actions.back")}
                             </button>
                             <button
                               onClick={handleVerifyOtp}
@@ -658,10 +659,10 @@ export default function AuthLogin() {
                               {otpLoading ? (
                                 <>
                                   <Loader2 className="w-4.5 h-4.5 animate-spin" />
-                                  Đang xác nhận...
+                                  {t("login.confirming")}
                                 </>
                               ) : (
-                                "Xác nhận đăng nhập"
+                                t("login.confirm_otp_submit")
                               )}
                             </button>
                           </div>
@@ -679,7 +680,7 @@ export default function AuthLogin() {
             <div className="flex items-center gap-4 mb-5">
               <div className="flex-1 h-px bg-[var(--border)]" />
               <span className="text-xs text-[var(--text-tertiary)]">
-                Hoặc tiếp tục với
+                {t("login.or_continue_with")}
               </span>
               <div className="flex-1 h-px bg-[var(--border)]" />
             </div>
@@ -706,7 +707,7 @@ export default function AuthLogin() {
                     d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                   />
                 </svg>
-                Tiếp tục với Google
+                {t("oauth.google")}
               </button>
               <button
                 onClick={() => handleOAuth("Apple")}
@@ -715,7 +716,7 @@ export default function AuthLogin() {
                 <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current">
                   <path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />
                 </svg>
-                Tiếp tục với Apple
+                {t("oauth.apple")}
               </button>
               <button
                 onClick={() => handleOAuth("Facebook")}
@@ -727,19 +728,19 @@ export default function AuthLogin() {
                     d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"
                   />
                 </svg>
-                Tiếp tục với Facebook
+                {t("oauth.facebook")}
               </button>
             </div>
           </div>
 
           {/* Footer */}
           <p className="text-center text-sm text-[var(--text-secondary)] mt-8">
-            Chưa có tài khoản?{" "}
+            {t("login.no_account")}{" "}
             <Link
               to="/auth/register"
               className="font-medium text-[var(--primary)] hover:underline"
             >
-              Đăng ký ngay
+              {t("login.register_link")}
             </Link>
           </p>
         </motion.div>
@@ -767,11 +768,10 @@ export default function AuthLogin() {
                 {!forgotSent ? (
                   <>
                     <h3 className="font-semibold text-[var(--text-primary)] mb-2">
-                      Quên mật khẩu?
+                      {t("forgot_password.title")}
                     </h3>
                     <p className="text-sm text-[var(--text-secondary)] mb-5">
-                      Nhập email đã đăng ký, chúng tôi sẽ gửi hướng dẫn đặt lại
-                      mật khẩu.
+                      {t("forgot_password.subtitle")}
                     </p>
                     <div className="relative mb-4">
                       <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-[var(--text-tertiary)]" />
@@ -779,7 +779,7 @@ export default function AuthLogin() {
                         type="email"
                         value={forgotEmail}
                         onChange={(e) => setForgotEmail(e.target.value)}
-                        placeholder="you@example.com"
+                        placeholder={t("forgot_password.step_email.email_placeholder")}
                         className="w-full pl-11 pr-4 py-3 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-lg)] text-[var(--text-primary)] placeholder:text-[var(--text-disabled)] focus:outline-none focus:ring-2 focus:ring-[var(--focus-ring)]/30 focus:border-[var(--primary)]"
                       />
                     </div>
@@ -791,7 +791,7 @@ export default function AuthLogin() {
                         }}
                         className="flex-1 py-3 rounded-[var(--radius-lg)] border border-[var(--border)] text-sm font-medium text-[var(--text-secondary)] hover:bg-[var(--surface)] transition-colors"
                       >
-                        Huỷ
+                        {t("common:actions.cancel")}
                       </button>
                       <button
                         onClick={handleForgotPassword}
@@ -805,7 +805,7 @@ export default function AuthLogin() {
                         {forgotLoading ? (
                           <Loader2 className="w-4 h-4 animate-spin" />
                         ) : (
-                          "Gửi email"
+                          t("forgot_password.step_email.submit")
                         )}
                       </button>
                     </div>
@@ -816,12 +816,10 @@ export default function AuthLogin() {
                       <Mail className="w-7 h-7 text-[var(--success)]" />
                     </div>
                     <h3 className="font-semibold text-[var(--text-primary)] mb-2">
-                      Đã gửi email!
+                      {t("forgot_password.email_sent")}
                     </h3>
                     <p className="text-sm text-[var(--text-secondary)] mb-6">
-                      Kiểm tra hộp thư{" "}
-                      <span className="font-medium">{forgotEmail}</span> để đặt
-                      lại mật khẩu.
+                      <span className="font-medium">{forgotEmail}</span>
                     </p>
                     <button
                       onClick={() => {
@@ -830,7 +828,7 @@ export default function AuthLogin() {
                       }}
                       className="w-full py-3 bg-[var(--primary)] text-white rounded-[var(--radius-lg)] font-medium hover:bg-[var(--primary-hover)] transition-colors"
                     >
-                      Quay lại đăng nhập
+                      {t("forgot_password.back_to_login")}
                     </button>
                   </div>
                 )}
