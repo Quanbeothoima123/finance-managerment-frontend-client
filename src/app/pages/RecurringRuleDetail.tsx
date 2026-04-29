@@ -21,6 +21,7 @@ import {
   XCircle,
   Zap,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Card } from "../components/Card";
 import { Button } from "../components/Button";
 import { ConfirmationModal } from "../components/ConfirmationModals";
@@ -33,71 +34,19 @@ import type {
   RecurringRuleItem,
 } from "../types/recurring";
 
-function getFrequencyLabel(rule: RecurringRuleItem): string {
-  switch (rule.frequency) {
-    case "daily":
-      return rule.dailyInterval && rule.dailyInterval > 1
-        ? `Mỗi ${rule.dailyInterval} ngày`
-        : "Hàng ngày";
-    case "weekly": {
-      const dayNames = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"];
-      const days = (rule.weeklyDays || [])
-        .map((day) => dayNames[day])
-        .join(", ");
-      return days ? `Hàng tuần (${days})` : "Hàng tuần";
-    }
-    case "monthly":
-      return rule.monthlyMode === "last"
-        ? "Hàng tháng (ngày cuối)"
-        : `Hàng tháng (ngày ${rule.monthlyDay || 1})`;
-    case "yearly": {
-      const months = [
-        "Th1",
-        "Th2",
-        "Th3",
-        "Th4",
-        "Th5",
-        "Th6",
-        "Th7",
-        "Th8",
-        "Th9",
-        "Th10",
-        "Th11",
-        "Th12",
-      ];
-      return `Hàng năm (${months[rule.yearlyMonth || 0]} ngày ${rule.yearlyDay || 1})`;
-    }
-    default:
-      return rule.frequency;
-  }
-}
-
-function getEndConditionLabel(rule: RecurringRuleItem): string {
-  switch (rule.endCondition) {
-    case "on-date":
-      return rule.endDate
-        ? `Đến ${formatDateShort(rule.endDate)}`
-        : "Có ngày kết thúc";
-    case "after-n":
-      return `Sau ${rule.endAfterOccurrences || 0} lần (đã chạy ${rule.completedOccurrences || 0})`;
-    default:
-      return "Không kết thúc";
-  }
-}
-
-function formatDateShort(dateStr?: string | null): string {
+function formatDateShort(dateStr?: string | null, locale = "vi-VN"): string {
   if (!dateStr) return "--";
   const d = new Date(dateStr);
-  return d.toLocaleDateString("vi-VN", {
+  return d.toLocaleDateString(locale, {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
   });
 }
 
-function formatDateTime(dateStr: string): string {
+function formatDateTime(dateStr: string, locale = "vi-VN"): string {
   const d = new Date(dateStr);
-  return d.toLocaleDateString("vi-VN", {
+  return d.toLocaleDateString(locale, {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
@@ -151,22 +100,9 @@ function getStatusBadge(log: RecurringOccurrenceItem) {
   return "bg-[var(--danger-light)] text-[var(--danger)]";
 }
 
-function getStatusLabel(status: string) {
-  switch (status) {
-    case "created":
-    case "confirmed":
-      return "Đã tạo";
-    case "skipped":
-    case "cancelled":
-      return "Bỏ qua";
-    case "pending":
-      return "Đang xử lý";
-    default:
-      return "Lỗi";
-  }
-}
-
 export default function RecurringRuleDetail() {
+  const { t, i18n } = useTranslation("tags-rules");
+  const locale = i18n.language === "vi" ? "vi-VN" : "en-US";
   const { id } = useParams<{ id: string }>();
   const nav = useAppNavigation();
   const toast = useToast();
@@ -202,6 +138,62 @@ export default function RecurringRuleDetail() {
   const currencySymbol =
     rule?.currencyCode === "VND" ? "₫" : rule?.currencyCode || "";
 
+  const getFrequencyLabel = (rule: RecurringRuleItem): string => {
+    const weekdayLabels = t("recurring.weekday_labels", { returnObjects: true }) as string[];
+    const monthShortLabels = t("recurring.month_short_labels", { returnObjects: true }) as string[];
+    switch (rule.frequency) {
+      case "daily":
+        return rule.dailyInterval && rule.dailyInterval > 1
+          ? t("recurring.frequency.every_n_days", { n: rule.dailyInterval })
+          : t("recurring.frequency.daily");
+      case "weekly": {
+        const days = (rule.weeklyDays || []).map((day) => weekdayLabels[day]).join(", ");
+        return days
+          ? t("recurring.frequency.weekly_with_days", { days })
+          : t("recurring.frequency.weekly");
+      }
+      case "monthly":
+        return rule.monthlyMode === "last"
+          ? t("recurring.frequency.monthly_last")
+          : t("recurring.frequency.monthly_specific", { day: rule.monthlyDay || 1 });
+      case "yearly":
+        return t("recurring.frequency.yearly_specific", {
+          month: monthShortLabels[rule.yearlyMonth || 0],
+          day: rule.yearlyDay || 1,
+        });
+      default:
+        return rule.frequency;
+    }
+  };
+
+  const getEndConditionLabel = (rule: RecurringRuleItem): string => {
+    switch (rule.endCondition) {
+      case "on-date":
+        return rule.endDate
+          ? t("recurring.end_condition.on_date", { date: formatDateShort(rule.endDate, locale) })
+          : t("recurring.end_condition.on_date_fallback");
+      case "after-n":
+        return t("recurring.end_condition.after_n", { count: rule.endAfterOccurrences || 0 });
+      default:
+        return t("recurring.end_condition.never");
+    }
+  };
+
+  const getStatusLabel = (status: string): string => {
+    switch (status) {
+      case "created":
+      case "confirmed":
+        return t("recurring.detail.occurrence_status.done");
+      case "skipped":
+      case "cancelled":
+        return t("recurring.detail.occurrence_status.skipped");
+      case "pending":
+        return t("recurring.detail.occurrence_status.pending");
+      default:
+        return t("recurring.detail.occurrence_status.failed");
+    }
+  };
+
   const runAction = async (
     action: () => Promise<unknown>,
     successMessage: string,
@@ -215,7 +207,7 @@ export default function RecurringRuleDetail() {
       toast.error(
         err instanceof Error
           ? err.message
-          : "Không thể xử lý giao dịch định kỳ",
+          : t("recurring.list.toast.action_failed"),
       );
     } finally {
       setProcessing(false);
@@ -231,7 +223,7 @@ export default function RecurringRuleDetail() {
       <div className="min-h-screen bg-[var(--background)] p-4 md:p-6">
         <Card>
           <p className="text-[var(--text-secondary)]">
-            Đang tải chi tiết giao dịch định kỳ...
+            {t("recurring.detail.loading")}
           </p>
         </Card>
       </div>
@@ -243,14 +235,14 @@ export default function RecurringRuleDetail() {
       <div className="min-h-screen bg-[var(--background)] flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-xl font-semibold text-[var(--text-primary)] mb-2">
-            Không tìm thấy quy tắc
+            {t("recurring.detail.not_found")}
           </h2>
           <p className="text-[var(--text-secondary)] mb-6">
-            {error || "Quy tắc này có thể đã bị xoá hoặc không tồn tại."}
+            {error}
           </p>
           <Button onClick={() => nav.goRecurringRules()} variant="secondary">
             <ArrowLeft className="w-5 h-5 mr-2" />
-            Quay lại
+            {t("recurring.detail.back")}
           </Button>
         </div>
       </div>
@@ -265,7 +257,7 @@ export default function RecurringRuleDetail() {
 
     await runAction(
       () => recurringService.resumeRecurringRule(rule.id),
-      "Đã kích hoạt lại quy tắc định kỳ",
+      t("recurring.detail.toast.activated"),
     );
   };
 
@@ -278,7 +270,7 @@ export default function RecurringRuleDetail() {
             className="flex items-center gap-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
-            <span className="font-medium">Quay lại</span>
+            <span className="font-medium">{t("recurring.detail.back")}</span>
           </button>
 
           <div className="relative" ref={menuRef}>
@@ -299,7 +291,7 @@ export default function RecurringRuleDetail() {
                   className="w-full flex items-center gap-3 px-4 py-3 text-sm text-[var(--text-primary)] hover:bg-[var(--surface)] transition-colors"
                 >
                   <Edit className="w-4 h-4" />
-                  Chỉnh sửa
+                  {t("recurring.detail.actions.edit")}
                 </button>
                 <button
                   onClick={() => {
@@ -309,7 +301,7 @@ export default function RecurringRuleDetail() {
                   className="w-full flex items-center gap-3 px-4 py-3 text-sm text-[var(--danger)] hover:bg-[var(--danger-light)] transition-colors"
                 >
                   <Trash2 className="w-4 h-4" />
-                  Xoá quy tắc
+                  {t("recurring.detail.actions.delete")}
                 </button>
               </div>
             )}
@@ -342,7 +334,7 @@ export default function RecurringRuleDetail() {
                 ) : (
                   <Bell className="w-3 h-3" />
                 )}
-                {rule.executionMode === "auto" ? "Tự tạo" : "Chỉ nhắc"}
+                {rule.executionMode === "auto" ? t("recurring.execution_mode.auto") : t("recurring.execution_mode.notify")}
               </span>
               <span
                 className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${
@@ -351,7 +343,7 @@ export default function RecurringRuleDetail() {
                     : "bg-[var(--border)] text-[var(--text-tertiary)]"
                 }`}
               >
-                {rule.enabled ? "Đang hoạt động" : "Tạm dừng"}
+                {rule.enabled ? t("recurring.status.active") : t("recurring.status.paused")}
               </span>
             </div>
           </div>
@@ -374,7 +366,7 @@ export default function RecurringRuleDetail() {
 
         <Card>
           <div className="flex items-center justify-between mb-4">
-            <p className="text-sm text-[var(--text-secondary)]">Số tiền</p>
+            <p className="text-sm text-[var(--text-secondary)]">{t("recurring.detail.fields.amount")}</p>
             <p
               className={`text-2xl font-bold ${
                 rule.type === "income"
@@ -393,7 +385,7 @@ export default function RecurringRuleDetail() {
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-sm text-[var(--text-secondary)] flex items-center gap-1.5">
-                <Wallet className="w-3.5 h-3.5" /> Tài khoản
+                <Wallet className="w-3.5 h-3.5" /> {t("recurring.detail.fields.account")}
               </span>
               <span className="text-sm font-medium text-[var(--text-primary)]">
                 {rule.account || "--"}
@@ -403,7 +395,7 @@ export default function RecurringRuleDetail() {
             {rule.category && (
               <div className="flex items-center justify-between">
                 <span className="text-sm text-[var(--text-secondary)] flex items-center gap-1.5">
-                  <Folder className="w-3.5 h-3.5" /> Danh mục
+                  <Folder className="w-3.5 h-3.5" /> {t("recurring.detail.fields.category")}
                 </span>
                 <span className="text-sm font-medium text-[var(--text-primary)]">
                   {rule.category}
@@ -413,7 +405,7 @@ export default function RecurringRuleDetail() {
 
             <div className="flex items-center justify-between">
               <span className="text-sm text-[var(--text-secondary)]">
-                Tần suất
+                {t("recurring.detail.fields.frequency")}
               </span>
               <span className="text-sm font-medium text-[var(--text-primary)]">
                 {getFrequencyLabel(rule)}
@@ -423,17 +415,17 @@ export default function RecurringRuleDetail() {
             {rule.startDate && (
               <div className="flex items-center justify-between">
                 <span className="text-sm text-[var(--text-secondary)]">
-                  Bắt đầu từ
+                  {t("recurring.form.fields.start_date_label")}
                 </span>
                 <span className="text-sm text-[var(--text-primary)]">
-                  {formatDateShort(rule.startDate)}
+                  {formatDateShort(rule.startDate, locale)}
                 </span>
               </div>
             )}
 
             <div className="flex items-center justify-between">
               <span className="text-sm text-[var(--text-secondary)]">
-                Kết thúc
+                {t("recurring.detail.fields.end_condition")}
               </span>
               <span className="text-sm text-[var(--text-primary)]">
                 {getEndConditionLabel(rule)}
@@ -444,22 +436,21 @@ export default function RecurringRuleDetail() {
 
             <div className="flex items-center justify-between">
               <span className="text-sm text-[var(--text-secondary)] flex items-center gap-1.5">
-                <Calendar className="w-3.5 h-3.5" /> Lần chạy tiếp theo
+                <Calendar className="w-3.5 h-3.5" /> {t("recurring.detail.fields.next_run")}
               </span>
               <span className="text-sm font-medium text-[var(--text-primary)]">
                 {rule.enabled ? (
                   <>
-                    {formatDateShort(rule.nextDate)}
+                    {formatDateShort(rule.nextDate, locale)}
                     {daysUntil >= 0 && daysUntil <= 7 && (
                       <span className="ml-1 text-[var(--primary)]">
-                        ({daysUntil === 0 ? "Hôm nay" : `${daysUntil} ngày nữa`}
-                        )
+                        ({daysUntil === 0 ? t("recurring.days_until.today") : t("recurring.days_until.n_days", { n: daysUntil })})
                       </span>
                     )}
                   </>
                 ) : (
                   <span className="text-[var(--text-tertiary)]">
-                    -- (Tạm dừng)
+                    -- ({t("recurring.status.paused")})
                   </span>
                 )}
               </span>
@@ -475,7 +466,7 @@ export default function RecurringRuleDetail() {
             className="text-sm"
           >
             <SkipForward className="w-4 h-4" />
-            Bỏ qua
+            {t("recurring.detail.actions.skip_next")}
           </Button>
           <Button
             variant="secondary"
@@ -484,7 +475,7 @@ export default function RecurringRuleDetail() {
             className="text-sm"
           >
             <Play className="w-4 h-4" />
-            Chạy ngay
+            {t("recurring.detail.actions.run_now")}
           </Button>
           <Button
             variant="secondary"
@@ -492,7 +483,7 @@ export default function RecurringRuleDetail() {
             className="text-sm"
           >
             <Edit className="w-4 h-4" />
-            Chỉnh sửa
+            {t("recurring.detail.actions.edit")}
           </Button>
         </div>
 
@@ -514,12 +505,12 @@ export default function RecurringRuleDetail() {
               </div>
               <div>
                 <h4 className="font-medium text-[var(--text-primary)] text-sm">
-                  Thông báo cho quy tắc này
+                  {t("recurring.form.fields.notify_label")}
                 </h4>
                 <p className="text-xs text-[var(--text-secondary)] mt-0.5">
                   {rule.notifyEnabled !== false
-                    ? "Nhận nhắc nhở khi quy tắc đến hạn."
-                    : "Không nhận thông báo cho quy tắc này."}
+                    ? t("recurring.form.fields.notify_hint")
+                    : t("recurring.list.actions.toggle_mute")}
                 </p>
               </div>
             </div>
@@ -532,8 +523,8 @@ export default function RecurringRuleDetail() {
                       notifyEnabled: newValue,
                     }),
                   newValue
-                    ? "Đã bật thông báo cho quy tắc này"
-                    : "Đã tắt thông báo cho quy tắc này",
+                    ? t("recurring.list.actions.toggle_notify")
+                    : t("recurring.list.actions.toggle_mute"),
                 );
               }}
               className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 ${
@@ -556,7 +547,7 @@ export default function RecurringRuleDetail() {
         <Card>
           <h3 className="font-semibold text-[var(--text-primary)] mb-4 flex items-center gap-2">
             <Clock className="w-5 h-5 text-[var(--primary)]" />
-            Lịch sử thực thi
+            {t("recurring.detail.sections.recent_occurrences")}
           </h3>
 
           {history.length === 0 ? (
@@ -565,7 +556,7 @@ export default function RecurringRuleDetail() {
                 <Clock className="w-6 h-6 text-[var(--text-tertiary)]" />
               </div>
               <p className="text-sm text-[var(--text-tertiary)]">
-                Chưa có lần thực thi nào.
+                {t("recurring.detail.no_occurrences")}
               </p>
             </div>
           ) : (
@@ -599,7 +590,7 @@ export default function RecurringRuleDetail() {
                         {getStatusLabel(log.status)}
                       </span>
                       <span className="text-xs text-[var(--text-tertiary)]">
-                        {formatDateTime(log.date)}
+                        {formatDateTime(log.date, locale)}
                       </span>
                     </div>
                     {log.note && (
@@ -615,7 +606,7 @@ export default function RecurringRuleDetail() {
                       className="flex items-center gap-1 text-xs text-[var(--primary)] hover:text-[var(--primary-hover)] font-medium transition-colors flex-shrink-0"
                     >
                       <Eye className="w-3.5 h-3.5" />
-                      Xem
+                      {t("recurring.detail.actions.view")}
                     </button>
                   )}
                 </div>
@@ -630,13 +621,13 @@ export default function RecurringRuleDetail() {
           onConfirm={() => {
             void runAction(
               () => recurringService.pauseRecurringRule(rule.id),
-              "Đã tạm dừng quy tắc định kỳ",
+              t("recurring.detail.toast.paused"),
             );
           }}
-          title="Tạm dừng quy tắc định kỳ?"
-          description="Ứng dụng sẽ ngừng tất cả thông báo và tự động tạo giao dịch cho quy tắc này."
-          confirmLabel="Tạm dừng"
-          cancelLabel="Huỷ"
+          title={t("recurring.detail.actions.toggle_pause")}
+          description=""
+          confirmLabel={t("recurring.detail.actions.toggle_pause")}
+          cancelLabel={t("recurring.detail.delete_modal.cancel")}
         />
 
         <ConfirmationModal
@@ -645,13 +636,13 @@ export default function RecurringRuleDetail() {
           onConfirm={() => {
             void runAction(
               () => recurringService.skipNextOccurrence(rule.id),
-              "Đã bỏ qua lần chạy tiếp theo",
+              t("recurring.detail.toast.skipped"),
             );
           }}
-          title="Bỏ qua lần chạy tiếp theo?"
-          description="Giao dịch sắp tới sẽ không được tạo. Các kỳ tiếp theo vẫn chạy bình thường."
-          confirmLabel="Bỏ qua"
-          cancelLabel="Huỷ"
+          title={t("recurring.detail.actions.skip_next")}
+          description=""
+          confirmLabel={t("recurring.detail.actions.skip_next")}
+          cancelLabel={t("recurring.detail.delete_modal.cancel")}
         />
 
         <ConfirmationModal
@@ -660,13 +651,13 @@ export default function RecurringRuleDetail() {
           onConfirm={() => {
             void runAction(
               () => recurringService.runNow(rule.id),
-              "Đã tạo giao dịch thành công",
+              t("recurring.detail.toast.run_now_done"),
             );
           }}
-          title="Tạo giao dịch ngay?"
-          description="Giao dịch sẽ được tạo ngay lập tức thay vì chờ đến ngày đã lên lịch."
-          confirmLabel="Tạo ngay"
-          cancelLabel="Huỷ"
+          title={t("recurring.detail.actions.run_now")}
+          description=""
+          confirmLabel={t("recurring.detail.actions.run_now")}
+          cancelLabel={t("recurring.detail.delete_modal.cancel")}
         />
 
         <ConfirmationModal
@@ -677,13 +668,13 @@ export default function RecurringRuleDetail() {
               try {
                 setProcessing(true);
                 await recurringService.deleteRecurringRule(rule.id);
-                toast.success(`Đã xoá "${rule.name}"`);
+                toast.success(t("recurring.detail.toast.deleted"));
                 nav.goRecurringRules();
               } catch (err) {
                 toast.error(
                   err instanceof Error
                     ? err.message
-                    : "Không thể xoá giao dịch định kỳ",
+                    : t("recurring.detail.toast.delete_failed"),
                 );
               } finally {
                 setProcessing(false);
@@ -691,10 +682,10 @@ export default function RecurringRuleDetail() {
               }
             })();
           }}
-          title="Xoá quy tắc định kỳ?"
-          description={`Bạn có chắc muốn xoá "${rule.name}"? Giao dịch đã tạo trước đó sẽ không bị ảnh hưởng.`}
-          confirmLabel="Xoá"
-          cancelLabel="Huỷ"
+          title={t("recurring.detail.delete_modal.title")}
+          description={t("recurring.detail.delete_modal.description", { name: rule.name })}
+          confirmLabel={processing ? t("recurring.detail.delete_modal.confirm_processing") : t("recurring.detail.delete_modal.confirm")}
+          cancelLabel={t("recurring.detail.delete_modal.cancel")}
           isDangerous
         />
       </div>

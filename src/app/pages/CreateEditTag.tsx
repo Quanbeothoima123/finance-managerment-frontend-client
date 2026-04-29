@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { ArrowLeft, Hash, Palette, Save } from "lucide-react";
 import { useParams } from "react-router";
+import { useTranslation } from "react-i18next";
 import { Card } from "../components/Card";
 import { Input } from "../components/Input";
 import { Button } from "../components/Button";
@@ -42,6 +43,7 @@ function normalizeColor(value: string) {
 }
 
 export default function CreateEditTag({ mode = "create" }: CreateEditTagProps) {
+  const { t } = useTranslation("tags-rules");
   const { id } = useParams<{ id: string }>();
   const nav = useAppNavigation();
   const toast = useToast();
@@ -79,12 +81,12 @@ export default function CreateEditTag({ mode = "create" }: CreateEditTagProps) {
   const validate = () => {
     const nextErrors: Record<string, string> = {};
     if (!formData.name.trim()) {
-      nextErrors.name = "Vui lòng nhập tên nhãn";
+      nextErrors.name = t("tags.form.errors.name_required");
     }
 
     const normalizedColor = normalizeColor(formData.color);
     if (!/^#[0-9A-Fa-f]{6}$/i.test(normalizedColor)) {
-      nextErrors.color = "Màu không hợp lệ (vd: #ef4444)";
+      nextErrors.color = t("tags.form.errors.color_invalid");
     }
 
     setErrors(nextErrors);
@@ -105,15 +107,15 @@ export default function CreateEditTag({ mode = "create" }: CreateEditTagProps) {
 
       if (isEditMode && id) {
         await tagsService.updateTag(id, payload);
-        toast.success("Đã cập nhật nhãn");
+        toast.success(t("tags.form.toast.updated"));
       } else {
         await tagsService.createTag(payload);
-        toast.success("Đã tạo nhãn mới");
+        toast.success(t("tags.form.toast.created"));
       }
 
       nav.goTags();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Không thể lưu nhãn");
+      toast.error(err instanceof Error ? err.message : t("tags.form.toast.save_failed"));
     } finally {
       setSubmitting(false);
     }
@@ -124,7 +126,7 @@ export default function CreateEditTag({ mode = "create" }: CreateEditTagProps) {
       <div className="min-h-screen bg-[var(--background)] p-4 md:p-6">
         <Card>
           <p className="text-sm text-[var(--text-secondary)]">
-            Đang tải dữ liệu nhãn...
+            {t("tags.form.loading")}
           </p>
         </Card>
       </div>
@@ -150,27 +152,25 @@ export default function CreateEditTag({ mode = "create" }: CreateEditTagProps) {
             className="flex items-center gap-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] mb-4 transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
-            <span className="font-medium">Quay lại</span>
+            <span className="font-medium">{t("tags.form.back")}</span>
           </button>
 
           <h1 className="text-2xl font-semibold text-[var(--text-primary)]">
-            {isEditMode ? "Chỉnh sửa nhãn" : "Tạo nhãn mới"}
+            {isEditMode ? t("tags.form.edit_title") : t("tags.form.create_title")}
           </h1>
           <p className="text-sm text-[var(--text-secondary)] mt-1">
-            {isEditMode
-              ? "Cập nhật thông tin nhãn"
-              : "Thêm nhãn mới để gắn vào giao dịch"}
+            {isEditMode ? t("tags.form.edit_subtitle") : t("tags.form.create_subtitle")}
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <Card>
             <h3 className="font-semibold text-[var(--text-primary)] mb-4">
-              Tên nhãn
+              {t("tags.form.name_section")}
             </h3>
             <Input
-              label="Tên"
-              placeholder="VD: Công việc, Cần thiết..."
+              label={t("tags.form.fields.name_label")}
+              placeholder={t("tags.form.fields.name_placeholder")}
               value={formData.name}
               onChange={(event) =>
                 handleInputChange("name", event.target.value)
@@ -181,7 +181,7 @@ export default function CreateEditTag({ mode = "create" }: CreateEditTagProps) {
 
           <Card>
             <h3 className="font-semibold text-[var(--text-primary)] mb-4">
-              Màu sắc
+              {t("tags.form.color_section")}
             </h3>
 
             <div className="space-y-4">
@@ -205,7 +205,7 @@ export default function CreateEditTag({ mode = "create" }: CreateEditTagProps) {
                     onClick={() => setShowColorPicker((prev) => !prev)}
                     className="text-xs text-[var(--primary)] hover:underline mt-1"
                   >
-                    {showColorPicker ? "Ẩn bảng màu" : "Chọn từ bảng màu"}
+                    {showColorPicker ? t("tags.form.color_picker.hide") : t("tags.form.color_picker.show")}
                   </button>
                 </div>
               </div>
@@ -236,8 +236,8 @@ export default function CreateEditTag({ mode = "create" }: CreateEditTagProps) {
               )}
 
               <Input
-                label="Mã màu HEX"
-                placeholder="#ef4444"
+                label={t("tags.form.fields.color_label")}
+                placeholder={t("tags.form.fields.color_placeholder")}
                 value={formData.color}
                 onChange={(event) =>
                   handleInputChange("color", event.target.value)
@@ -249,7 +249,7 @@ export default function CreateEditTag({ mode = "create" }: CreateEditTagProps) {
 
           <Card>
             <h3 className="font-semibold text-[var(--text-primary)] mb-4">
-              Xem trước
+              {t("tags.form.preview_section")}
             </h3>
 
             <div className="flex justify-center">
@@ -268,7 +268,7 @@ export default function CreateEditTag({ mode = "create" }: CreateEditTagProps) {
                   className="font-medium"
                   style={{ color: normalizeColor(formData.color) || "#ef4444" }}
                 >
-                  {formData.name || "Tên nhãn"}
+                  {formData.name || t("tags.form.preview.name_placeholder")}
                 </span>
               </div>
             </div>
@@ -276,15 +276,15 @@ export default function CreateEditTag({ mode = "create" }: CreateEditTagProps) {
 
           <div className="flex flex-col-reverse md:flex-row gap-3">
             <Button type="button" variant="secondary" onClick={nav.goBack}>
-              Huỷ
+              {t("tags.form.actions.cancel")}
             </Button>
             <Button type="submit" disabled={submitting}>
               <Save className="w-4 h-4" />
               {submitting
-                ? "Đang lưu..."
+                ? t("tags.form.actions.saving")
                 : isEditMode
-                  ? "Lưu thay đổi"
-                  : "Tạo nhãn"}
+                  ? t("tags.form.actions.save")
+                  : t("tags.form.actions.create")}
             </Button>
           </div>
         </form>

@@ -16,6 +16,7 @@ import { useToast } from "../contexts/ToastContext";
 import { useTransactionsList } from "../hooks/useTransactionsList";
 import { useAccountsOverview } from "../hooks/useAccountsOverview";
 import { useAppNavigation } from "../hooks/useAppNavigation";
+import { useTranslation } from "react-i18next";
 
 function downloadFile(content: string, filename: string, mimeType: string) {
   const blob = new Blob(["\uFEFF" + content], {
@@ -43,6 +44,8 @@ const minor = (s: string | null | undefined) => parseInt(s || "0", 10) || 0;
 export default function ExportCenter() {
   const toast = useToast();
   const nav = useAppNavigation();
+  const { t, i18n } = useTranslation("settings");
+  const locale = i18n.language === "vi" ? "vi-VN" : "en-US";
 
   const now = new Date();
   const pad = (n: number) => String(n).padStart(2, "0");
@@ -74,17 +77,18 @@ export default function ExportCenter() {
   const accounts = accData?.accounts ?? [];
   const filteredTransactions = txnData?.items ?? [];
   const loading = accLoading || txnLoading;
-  const isTruncated = (txnData?.pagination?.total ?? 0) > (txnData?.items?.length ?? 0);
+  const isTruncated =
+    (txnData?.pagination?.total ?? 0) > (txnData?.items?.length ?? 0);
 
   const accountOptions = useMemo(() => {
     return [
-      { id: "all", name: "Tất cả tài khoản" },
+      { id: "all", name: t("export.filters.account_all") },
       ...accounts.map((a: any) => ({ id: a.id, name: a.name })),
     ];
-  }, [accounts]);
+  }, [accounts, t]);
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("vi-VN").format(amount);
+    return new Intl.NumberFormat(locale).format(amount);
   };
 
   const totalIncome = filteredTransactions
@@ -110,21 +114,28 @@ export default function ExportCenter() {
   };
 
   const generateCSV = () => {
-    const headerParts = ["Ngày", "Loại", "Mô tả", "Số tiền", "Tài khoản"];
-    if (includeCategories) headerParts.push("Danh mục");
-    if (includeTags) headerParts.push("Nhãn");
-    if (includeAttachments) headerParts.push("Đính kèm");
-    headerParts.push("Nhà cung cấp");
+    const headerParts = [
+      t("export.csv_headers.date"),
+      t("export.csv_headers.type"),
+      t("export.csv_headers.description"),
+      t("export.csv_headers.amount"),
+      t("export.csv_headers.account"),
+    ];
+    if (includeCategories) headerParts.push(t("export.csv_headers.category"));
+    if (includeTags) headerParts.push(t("export.csv_headers.tags"));
+    if (includeAttachments)
+      headerParts.push(t("export.csv_headers.attachment"));
+    headerParts.push(t("export.csv_headers.merchant"));
 
     const rows = filteredTransactions.map((txn: any) => {
       const parts = [
         escapeCSV(txn.date || txn.occurredAt?.split("T")[0] || ""),
         escapeCSV(
           txn.type === "income"
-            ? "Thu nhập"
+            ? t("export.filters.type_income")
             : txn.type === "expense"
-              ? "Chi tiêu"
-              : "Chuyển khoản",
+              ? t("export.filters.type_expense")
+              : t("export.filters.type_transfer"),
         ),
         escapeCSV(txn.description || ""),
         String(minor(txn.totalAmountMinor)),
@@ -135,7 +146,12 @@ export default function ExportCenter() {
         parts.push(
           escapeCSV((txn.tags || []).map((t: any) => t.name).join("; ")),
         );
-      if (includeAttachments) parts.push(txn.imageUrl ? "Có" : "Không");
+      if (includeAttachments)
+        parts.push(
+          txn.imageUrl
+            ? t("export.csv_headers.attachment_yes")
+            : t("export.csv_headers.attachment_no"),
+        );
       parts.push(escapeCSV(txn.merchant?.name || ""));
       return parts.join(",");
     });
@@ -143,9 +159,7 @@ export default function ExportCenter() {
     const csv = [headerParts.join(","), ...rows].join("\n");
     const dateStr = `${startDate}_${endDate}`.replace(/-/g, "");
     downloadFile(csv, `giao-dich_${dateStr}.csv`, "text/csv");
-    toast.success(
-      `Đã xuất ${filteredTransactions.length} giao dịch ra file CSV`,
-    );
+    toast.success(t("export.toast.success"));
     setExported(true);
     setTimeout(() => setExported(false), 3000);
   };
@@ -153,17 +167,17 @@ export default function ExportCenter() {
   const generateTextReport = () => {
     const lines: string[] = [];
     lines.push("══════════════════════════════════════");
-    lines.push("         BÁO CÁO TÀI CHÍNH");
+    lines.push(`         ${t("export.txt_headers.report_title")}`);
     lines.push("═══════════════════════════════════════");
     lines.push("");
     lines.push(`Khoảng thời gian: ${startDate} → ${endDate}`);
     lines.push(
-      `Tài khoản: ${selectedAccount === "all" ? "Tất cả" : accounts.find((a: any) => a.id === selectedAccount)?.name || selectedAccount}`,
+      `Tài khoản: ${selectedAccount === "all" ? t("export.filters.account_all") : accounts.find((a: any) => a.id === selectedAccount)?.name || selectedAccount}`,
     );
-    lines.push(`Ngày xuất: ${new Date().toLocaleDateString("vi-VN")}`);
+    lines.push(`Ngày xuất: ${new Date().toLocaleDateString(locale)}`);
     lines.push("");
     lines.push("───────────────────────────────────────");
-    lines.push("  TỔNG QUAN");
+    lines.push(`  ${t("export.txt_headers.summary")}`);
     lines.push("───────────────────────────────────────");
     lines.push(`  Tổng thu nhập:   +${formatCurrency(totalIncome)}₫`);
     lines.push(`  Tổng chi tiêu:   -${formatCurrency(totalExpense)}₫`);
@@ -173,7 +187,7 @@ export default function ExportCenter() {
     lines.push(`  Số giao dịch:    ${filteredTransactions.length}`);
     lines.push("");
     lines.push("───────────────────────────────────────");
-    lines.push("  CHI TIẾT GIAO DỊCH");
+    lines.push(`  ${t("export.txt_headers.details")}`);
     lines.push("───────────────────────────────────────");
     lines.push("");
 
@@ -196,13 +210,13 @@ export default function ExportCenter() {
       });
 
     lines.push("═══════════════════════════════════════");
-    lines.push("  Xuất bởi FinanceApp");
+    lines.push(`  ${t("export.txt_headers.footer")}`);
     lines.push("═══════════════════════════════════════");
 
     const report = lines.join("\n");
     const dateStr = `${startDate}_${endDate}`.replace(/-/g, "");
     downloadFile(report, `bao-cao_${dateStr}.txt`, "text/plain");
-    toast.success(`Đã xuất báo cáo ${filteredTransactions.length} giao dịch`);
+    toast.success(t("export.toast.success"));
     setExported(true);
     setTimeout(() => setExported(false), 3000);
   };
@@ -254,8 +268,9 @@ export default function ExportCenter() {
           <div className="flex items-center gap-2 px-4 py-2.5 bg-[var(--warning-light)] border border-[var(--warning)] text-[var(--warning)] rounded-[var(--radius-lg)] text-sm">
             <AlertTriangle className="w-4 h-4 shrink-0" />
             <span>
-              Đang hiển thị {txnData?.items?.length}/{txnData?.pagination?.total} giao dịch.
-              File xuất có thể chưa đầy đủ.
+              Đang hiển thị {txnData?.items?.length}/
+              {txnData?.pagination?.total} giao dịch. File xuất có thể chưa đầy
+              đủ.
             </span>
           </div>
         )}
@@ -392,7 +407,7 @@ export default function ExportCenter() {
               }}
               className="px-3 py-1.5 bg-[var(--surface)] hover:bg-[var(--border)] rounded-[var(--radius-md)] text-sm font-medium text-[var(--text-primary)] transition-colors"
             >
-              Tháng này
+              {t("export.date_ranges.this_month")}
             </button>
             <button
               onClick={() => {
@@ -407,7 +422,7 @@ export default function ExportCenter() {
               }}
               className="px-3 py-1.5 bg-[var(--surface)] hover:bg-[var(--border)] rounded-[var(--radius-md)] text-sm font-medium text-[var(--text-primary)] transition-colors"
             >
-              Tháng trước
+              {t("export.date_ranges.last_month")}
             </button>
             <button
               onClick={() => {
@@ -416,7 +431,7 @@ export default function ExportCenter() {
               }}
               className="px-3 py-1.5 bg-[var(--surface)] hover:bg-[var(--border)] rounded-[var(--radius-md)] text-sm font-medium text-[var(--text-primary)] transition-colors"
             >
-              Năm nay
+              {t("export.date_ranges.this_year")}
             </button>
             <button
               onClick={() => {
@@ -428,7 +443,7 @@ export default function ExportCenter() {
               }}
               className="px-3 py-1.5 bg-[var(--surface)] hover:bg-[var(--border)] rounded-[var(--radius-md)] text-sm font-medium text-[var(--text-primary)] transition-colors"
             >
-              3 tháng gần nhất
+              {t("export.date_ranges.last_3_months")}
             </button>
           </div>
         </Card>
@@ -582,14 +597,14 @@ export default function ExportCenter() {
               <Download className="w-5 h-5" />
             )}
             {exported
-              ? "Đã xuất thành công!"
-              : `Xuất ${filteredTransactions.length} giao dịch`}
+              ? t("export.toast.success")
+              : `${t("export.export_button")} (${filteredTransactions.length})`}
           </Button>
 
           <p className="text-sm text-[var(--text-secondary)] md:self-center">
             {filteredTransactions.length === 0
-              ? "Không có giao dịch nào trong khoảng thời gian này"
-              : "File sẽ được tải về máy của bạn"}
+              ? t("export.empty")
+              : t("export.footer_hint")}
           </p>
         </div>
 

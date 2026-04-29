@@ -4,6 +4,7 @@ import { Card } from "../components/Card";
 import { useAppNavigation } from "../hooks/useAppNavigation";
 import { useToast } from "../contexts/ToastContext";
 import { onboardingService } from "../services/onboardingService";
+import { useTranslation } from "react-i18next";
 
 // ── Storage helpers ──
 const STORAGE_KEYS = {
@@ -70,6 +71,7 @@ const DEFAULTS = {
 export default function GeneralSettings() {
   const nav = useAppNavigation();
   const toast = useToast();
+  const { t } = useTranslation("settings");
 
   const [selectedCurrency, setSelectedCurrency] = useState(() => {
     try {
@@ -129,7 +131,9 @@ export default function GeneralSettings() {
     const dd = "06",
       mm = "03",
       yyyy = "2026";
-    const dayNames = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"];
+    const dayNames = t("general.day_names_short", {
+      returnObjects: true,
+    }) as string[];
     const dayOfWeek = dayNames[d.getDay()]; // Friday = T6
 
     let formatted = "";
@@ -148,7 +152,7 @@ export default function GeneralSettings() {
     }
     if (showDayOfWeek) formatted = `${dayOfWeek}, ${formatted}`;
     return formatted;
-  }, [dateFormat, showDayOfWeek]);
+  }, [dateFormat, showDayOfWeek, t]);
 
   // ── Save ──
   const handleSave = async () => {
@@ -165,9 +169,9 @@ export default function GeneralSettings() {
         baseCurrencyCode: selectedCurrency,
         trackingStartDate: new Date().toISOString().split("T")[0],
       });
-      toast.success("Đã lưu cài đặt");
+      toast.success(t("general.toast.saved"));
     } catch {
-      toast.error("Lưu thất bại, vui lòng thử lại");
+      toast.error(t("general.toast.save_failed"));
     }
   };
 
@@ -184,7 +188,7 @@ export default function GeneralSettings() {
       setDecimals(2);
       setSymbolPosition("before");
     }
-    toast.warning("Chỉ áp dụng cho giao dịch mới.");
+    toast.warning(t("general.fields.currency_change_warning"));
   };
 
   const handleRestoreDefaults = () => {
@@ -211,7 +215,7 @@ export default function GeneralSettings() {
         trackingStartDate: new Date().toISOString().split("T")[0],
       })
       .catch(() => {});
-    toast.success("Đã khôi phục cài đặt mặc định");
+    toast.success(t("general.toast.reset_done"));
   };
 
   return (
@@ -227,10 +231,10 @@ export default function GeneralSettings() {
           </button>
           <div>
             <h1 className="text-xl font-semibold text-[var(--text-primary)]">
-              Cài đặt chung
+              {t("general.title")}
             </h1>
             <p className="text-sm text-[var(--text-secondary)]">
-              Currency, định dạng số/ngày, timezone
+              {t("general.subtitle")}
             </p>
           </div>
         </div>
@@ -238,7 +242,7 @@ export default function GeneralSettings() {
         {/* B2: Currency */}
         <Card>
           <h3 className="font-semibold text-[var(--text-primary)] mb-4">
-            Tiền tệ
+            {t("general.sections.currency")}
           </h3>
           <select
             value={selectedCurrency}
@@ -259,7 +263,7 @@ export default function GeneralSettings() {
         {/* B3: Numeric Format */}
         <Card>
           <h3 className="font-semibold text-[var(--text-primary)] mb-4">
-            Định dạng số
+            {t("general.sections.number_format")}
           </h3>
 
           {/* Decimals */}
@@ -280,9 +284,11 @@ export default function GeneralSettings() {
                 >
                   {d} decimals{" "}
                   {d === 0 && selectedCurrency === "VND"
-                    ? "(mặc định VND)"
+                    ? t("general.fields.currency_vnd_default")
                     : d === 2 && selectedCurrency !== "VND"
-                      ? `(mặc định ${selectedCurrency})`
+                      ? t("general.fields.currency_default", {
+                          code: selectedCurrency,
+                        })
                       : ""}
                 </button>
               ))}
@@ -342,7 +348,7 @@ export default function GeneralSettings() {
         {/* B4: Date Format */}
         <Card>
           <h3 className="font-semibold text-[var(--text-primary)] mb-4">
-            Ngày tháng
+            {t("general.sections.date_format")}
           </h3>
 
           <div className="space-y-2 mb-4">
@@ -403,7 +409,7 @@ export default function GeneralSettings() {
         {/* B5: Timezone */}
         <Card>
           <h3 className="font-semibold text-[var(--text-primary)] mb-4">
-            Múi giờ
+            {t("general.sections.timezone")}
           </h3>
 
           {/* Auto toggle */}
@@ -456,7 +462,7 @@ export default function GeneralSettings() {
         {/* B6: Preview */}
         <Card className="bg-[var(--surface)] border-l-4 border-l-[var(--primary)]">
           <h3 className="font-semibold text-[var(--text-primary)] mb-4">
-            Xem trước
+            {t("general.sections.preview")}
           </h3>
           <div className="space-y-3">
             <div className="flex items-center justify-between p-3 bg-[var(--card)] rounded-[var(--radius-lg)]">
@@ -482,14 +488,14 @@ export default function GeneralSettings() {
             onClick={handleSave}
             className="flex-1 px-6 py-3 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white rounded-[var(--radius-lg)] font-medium transition-colors"
           >
-            Lưu thay đổi
+            {t("general.actions.save")}
           </button>
           <button
             onClick={handleRestoreDefaults}
             className="flex items-center justify-center gap-2 px-6 py-3 border border-[var(--border)] text-[var(--text-secondary)] rounded-[var(--radius-lg)] font-medium hover:bg-[var(--surface)] transition-colors"
           >
             <RotateCcw className="w-4 h-4" />
-            <span>Khôi phục mặc định</span>
+            <span>{t("general.actions.reset_defaults")}</span>
           </button>
         </div>
       </div>

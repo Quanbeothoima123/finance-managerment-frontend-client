@@ -16,10 +16,12 @@ import { useAppNavigation } from "../hooks/useAppNavigation";
 import { useToast } from "../contexts/ToastContext";
 import { useAppData } from "../contexts/AppDataContext";
 import { CSVImportModal } from "../components/CSVImportModal";
+import { useTranslation } from "react-i18next";
 
 export default function DataBackupSettings() {
   const nav = useAppNavigation();
   const toast = useToast();
+  const { t } = useTranslation("settings");
   const {
     resetData,
     addTransaction,
@@ -36,6 +38,7 @@ export default function DataBackupSettings() {
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [confirmText, setConfirmText] = useState("");
   const [csvImportOpen, setCSVImportOpen] = useState(false);
+  const confirmPhrase = t("data_backup.danger_zone.confirm_placeholder");
   const [lastBackup, setLastBackup] = useState<string | null>(() => {
     try {
       return localStorage.getItem("finance-last-backup-date");
@@ -112,7 +115,7 @@ export default function DataBackupSettings() {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-    toast.success("Đã xuất toàn bộ dữ liệu thành công");
+    toast.success(t("export.toast.all_success"));
     const now = new Date().toISOString();
     try {
       localStorage.setItem("finance-last-backup-date", now);
@@ -121,9 +124,9 @@ export default function DataBackupSettings() {
   };
 
   const handleResetData = () => {
-    if (confirmText === "XÓA DỮ LIỆU") {
+    if (confirmText === confirmPhrase) {
       resetData();
-      toast.success("Đã xoá toàn bộ dữ liệu và khôi phục mặc định");
+      toast.success(t("data_backup.toast.deleted"));
       setShowResetConfirm(false);
       setConfirmText("");
     }
@@ -139,11 +142,11 @@ export default function DataBackupSettings() {
             className="flex items-center gap-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] mb-4 transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
-            <span className="font-medium">Quay lại</span>
+            <span className="font-medium">{t("security.actions.back")}</span>
           </button>
 
           <h1 className="text-2xl font-semibold text-[var(--text-primary)]">
-            Dữ liệu & Sao lưu
+            {t("data_backup.title")}
           </h1>
           <p className="text-sm text-[var(--text-secondary)] mt-1">
             Quản lý và sao lưu dữ liệu của bạn
@@ -159,26 +162,26 @@ export default function DataBackupSettings() {
             </div>
             <div className="flex-1">
               <h3 className="font-semibold text-[var(--text-primary)] mb-0.5">
-                Sao lưu gần nhất
+                {t("data_backup.backup.last_backup")}
               </h3>
               <p className="text-sm text-[var(--text-secondary)]">
                 {lastBackup
                   ? new Date(lastBackup).toLocaleString("vi-VN")
-                  : "Chưa có bản sao lưu nào"}
+                  : t("data_backup.backup.no_backup")}
               </p>
             </div>
           </div>
           <div className="flex gap-3 mt-4">
             <Button onClick={handleExportAll} className="flex-1">
               <Download className="w-4 h-4" />
-              Tạo sao lưu
+              {t("data_backup.backup.create_button")}
             </Button>
             <button
               onClick={() => nav.goRestoreData()}
               className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 border border-[var(--border)] text-[var(--text-primary)] rounded-[var(--radius-lg)] font-medium hover:bg-[var(--surface)] transition-colors"
             >
               <RotateCcw className="w-4 h-4" />
-              <span>Khôi phục</span>
+              <span>{t("data_backup.restore.restore_button")}</span>
             </button>
           </div>
         </Card>
@@ -337,10 +340,10 @@ export default function DataBackupSettings() {
 
             <div className="flex-1">
               <h3 className="font-semibold text-[var(--danger)] mb-1">
-                Vùng nguy hiểm
+                {t("data_backup.sections.danger_zone")}
               </h3>
               <p className="text-sm text-[var(--text-secondary)]">
-                Các hành động không thể hoàn tác
+                {t("data_backup.danger_zone.description")}
               </p>
             </div>
           </div>
@@ -351,7 +354,7 @@ export default function DataBackupSettings() {
               className="w-full bg-[var(--danger)] hover:bg-[var(--danger)]/90"
             >
               <Trash2 className="w-5 h-5" />
-              Xoá toàn bộ dữ liệu
+              {t("data_backup.danger_zone.delete_button")}
             </Button>
           ) : (
             <div className="space-y-4">
@@ -381,14 +384,14 @@ export default function DataBackupSettings() {
                 <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
                   Để xác nhận, gõ:{" "}
                   <span className="font-mono font-bold text-[var(--danger)]">
-                    XÓA DỮ LIỆU
+                    {confirmPhrase}
                   </span>
                 </label>
                 <input
                   type="text"
                   value={confirmText}
                   onChange={(e) => setConfirmText(e.target.value)}
-                  placeholder="XÓA DỮ LIỆU"
+                  placeholder={confirmPhrase}
                   className="w-full px-4 py-2.5 bg-[var(--input-background)] border-2 border-[var(--danger)] rounded-[var(--radius-lg)] text-[var(--text-primary)] font-mono transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--danger)]"
                 />
               </div>
@@ -402,11 +405,11 @@ export default function DataBackupSettings() {
                   variant="secondary"
                   className="flex-1"
                 >
-                  Huỷ
+                  {t("security.actions.cancel")}
                 </Button>
                 <Button
                   onClick={handleResetData}
-                  disabled={confirmText !== "XÓA DỮ LIỆU"}
+                  disabled={confirmText !== confirmPhrase}
                   className="flex-1 bg-[var(--danger)] hover:bg-[var(--danger)]/90 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Trash2 className="w-5 h-5" />

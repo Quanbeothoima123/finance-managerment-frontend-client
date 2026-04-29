@@ -9,6 +9,7 @@ import {
   Tag,
   Zap,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Card } from "../components/Card";
 import { Button } from "../components/Button";
 import { AmountInput } from "../components/AmountInput";
@@ -26,26 +27,10 @@ import type {
   RecurringTxnType,
 } from "../types/recurring";
 
-const WEEKDAY_LABELS = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"];
-const MONTH_LABELS = [
-  "Tháng 1",
-  "Tháng 2",
-  "Tháng 3",
-  "Tháng 4",
-  "Tháng 5",
-  "Tháng 6",
-  "Tháng 7",
-  "Tháng 8",
-  "Tháng 9",
-  "Tháng 10",
-  "Tháng 11",
-  "Tháng 12",
-];
-
-function formatNextRun(dateStr?: string | null) {
+function formatNextRun(dateStr?: string | null, locale = "vi-VN") {
   if (!dateStr) return "--";
   const d = new Date(dateStr);
-  return d.toLocaleDateString("vi-VN", {
+  return d.toLocaleDateString(locale, {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
@@ -53,6 +38,9 @@ function formatNextRun(dateStr?: string | null) {
 }
 
 export default function CreateRecurringRule() {
+  const { t, i18n } = useTranslation("tags-rules");
+  const locale = i18n.language === "vi" ? "vi-VN" : "en-US";
+
   const { id } = useParams<{ id: string }>();
   const isEdit = Boolean(id);
   const nav = useAppNavigation();
@@ -215,63 +203,58 @@ export default function CreateRecurringRule() {
   );
 
   const previewText = useMemo(() => {
+    const weekdayLabels = t("recurring.weekday_labels", { returnObjects: true }) as string[];
+    const monthLabels = t("recurring.month_labels", { returnObjects: true }) as string[];
     if (!startDate) return "--";
     if (frequency === "daily")
-      return `Mỗi ${dailyInterval} ngày, bắt đầu từ ${formatNextRun(startDate)}`;
+      return t("recurring.form.preview.daily", { n: dailyInterval, date: formatNextRun(startDate, locale) });
     if (frequency === "weekly") {
-      const days = weeklyDays.map((day) => WEEKDAY_LABELS[day]).join(", ");
-      return days ? `Mỗi tuần vào ${days}` : "Chọn ngày trong tuần";
+      const days = weeklyDays.map((day) => weekdayLabels[day]).join(", ");
+      return days
+        ? t("recurring.form.preview.weekly_with_days", { days })
+        : t("recurring.form.preview.weekly_select");
     }
     if (frequency === "monthly") {
       return monthlyMode === "last"
-        ? "Mỗi tháng vào ngày cuối cùng"
-        : `Mỗi tháng vào ngày ${monthlyDay}`;
+        ? t("recurring.form.preview.monthly_last")
+        : t("recurring.form.preview.monthly_specific", { day: monthlyDay });
     }
-    return `Mỗi năm vào ${MONTH_LABELS[yearlyMonth]} ngày ${yearlyDay}`;
-  }, [
-    dailyInterval,
-    frequency,
-    monthlyDay,
-    monthlyMode,
-    startDate,
-    weeklyDays,
-    yearlyDay,
-    yearlyMonth,
-  ]);
+    return t("recurring.form.preview.yearly", { month: monthLabels[yearlyMonth], day: yearlyDay });
+  }, [dailyInterval, frequency, locale, monthlyDay, monthlyMode, startDate, t, weeklyDays, yearlyDay, yearlyMonth]);
 
   const validate = () => {
     const nextErrors: Record<string, string> = {};
     if (!name.trim() && !description.trim())
-      nextErrors.name = "Tên hoặc mô tả là bắt buộc";
+      nextErrors.name = t("recurring.form.errors.name_required");
     if (!amount || Number(amount) <= 0)
-      nextErrors.amount = "Số tiền phải lớn hơn 0";
+      nextErrors.amount = t("recurring.form.errors.amount_required");
     if (!accountId)
       nextErrors.accountId =
         txnType === "transfer"
-          ? "Tài khoản nguồn là bắt buộc"
-          : "Tài khoản là bắt buộc";
+          ? t("recurring.form.errors.from_account_required")
+          : t("recurring.form.errors.account_required");
     if (txnType === "transfer") {
-      if (!toAccountId) nextErrors.toAccountId = "Tài khoản đích là bắt buộc";
+      if (!toAccountId) nextErrors.toAccountId = t("recurring.form.errors.to_account_required");
       if (accountId && toAccountId && accountId === toAccountId)
-        nextErrors.toAccountId = "Tài khoản đích phải khác tài khoản nguồn";
+        nextErrors.toAccountId = t("recurring.form.errors.to_account_same");
     } else if (!categoryId) {
-      nextErrors.categoryId = "Danh mục là bắt buộc";
+      nextErrors.categoryId = t("recurring.form.errors.category_required");
     }
-    if (!startDate) nextErrors.startDate = "Ngày bắt đầu là bắt buộc";
+    if (!startDate) nextErrors.startDate = t("recurring.form.errors.start_date_required");
     if (frequency === "weekly" && weeklyDays.length === 0)
-      nextErrors.weeklyDays = "Chọn ít nhất 1 ngày";
+      nextErrors.weeklyDays = t("recurring.form.errors.weekly_days_required");
     if (
       frequency === "monthly" &&
       monthlyMode === "specific" &&
       (monthlyDay < 1 || monthlyDay > 31)
     )
-      nextErrors.monthlyDay = "Ngày trong tháng không hợp lệ";
+      nextErrors.monthlyDay = t("recurring.form.errors.monthly_day_invalid");
     if (frequency === "yearly" && (yearlyDay < 1 || yearlyDay > 31))
-      nextErrors.yearlyDay = "Ngày trong năm không hợp lệ";
+      nextErrors.yearlyDay = t("recurring.form.errors.yearly_day_invalid");
     if (endCondition === "on-date" && !endDate)
-      nextErrors.endDate = "Ngày kết thúc là bắt buộc";
+      nextErrors.endDate = t("recurring.form.errors.end_date_required");
     if (endCondition === "after-n" && endAfterOccurrences < 1)
-      nextErrors.endAfterOccurrences = "Số lần phải lớn hơn 0";
+      nextErrors.endAfterOccurrences = t("recurring.form.errors.end_occurrences_invalid");
     setErrors(nextErrors);
     return Object.keys(nextErrors).length === 0;
   };
@@ -282,17 +265,17 @@ export default function CreateRecurringRule() {
       setSaving(true);
       if (isEdit && id) {
         await recurringService.updateRecurringRule(id, submitPayload);
-        toast.success("Đã cập nhật giao dịch định kỳ");
+        toast.success(t("recurring.form.toast.updated"));
         nav.goRecurringRuleDetail(id);
       } else {
         const created =
           await recurringService.createRecurringRule(submitPayload);
-        toast.success("Đã tạo giao dịch định kỳ");
+        toast.success(t("recurring.form.toast.created"));
         nav.goRecurringRuleDetail(created.rule.id);
       }
     } catch (err) {
       toast.error(
-        err instanceof Error ? err.message : "Không thể lưu giao dịch định kỳ",
+        err instanceof Error ? err.message : t("recurring.form.toast.save_failed"),
       );
     } finally {
       setSaving(false);
@@ -320,7 +303,7 @@ export default function CreateRecurringRule() {
       <div className="p-4 md:p-6">
         <Card>
           <p className="text-[var(--text-secondary)]">
-            Đang tải biểu mẫu giao dịch định kỳ...
+            {t("recurring.form.loading")}
           </p>
         </Card>
       </div>
@@ -334,19 +317,22 @@ export default function CreateRecurringRule() {
           <p className="text-[var(--danger)]">
             {metaError ||
               detailError ||
-              "Không thể tải dữ liệu giao dịch định kỳ"}
+              t("recurring.form.load_error")}
           </p>
           <Button
             variant="secondary"
             className="mt-4"
             onClick={() => nav.goRecurringRules()}
           >
-            <ArrowLeft className="w-4 h-4" /> Quay lại danh sách
+            <ArrowLeft className="w-4 h-4" /> {t("recurring.form.back")}
           </Button>
         </Card>
       </div>
     );
   }
+
+  const weekdayLabels = t("recurring.weekday_labels", { returnObjects: true }) as string[];
+  const monthLabels = t("recurring.month_labels", { returnObjects: true }) as string[];
 
   return (
     <div className="space-y-6 p-4 md:p-6">
@@ -356,22 +342,22 @@ export default function CreateRecurringRule() {
             onClick={() => nav.goRecurringRules()}
             className="inline-flex items-center gap-2 text-sm text-[var(--text-secondary)] hover:text-[var(--primary)] mb-2"
           >
-            <ArrowLeft className="w-4 h-4" /> Quay lại giao dịch định kỳ
+            <ArrowLeft className="w-4 h-4" /> {t("recurring.form.back")}
           </button>
           <h1 className="text-2xl font-bold text-[var(--text-primary)]">
-            {isEdit ? "Chỉnh sửa giao dịch định kỳ" : "Tạo giao dịch định kỳ"}
+            {isEdit ? t("recurring.form.edit_title") : t("recurring.form.create_title")}
           </h1>
           <p className="text-sm text-[var(--text-secondary)] mt-1">
-            Tạo quy tắc để tự nhắc hoặc tự tạo giao dịch theo lịch.
+            {t("recurring.form.subtitle")}
           </p>
         </div>
         <Button onClick={() => void handleSubmit()} disabled={saving}>
           <Save className="w-4 h-4" />{" "}
           {saving
-            ? "Đang lưu..."
+            ? t("recurring.form.actions.saving")
             : isEdit
-              ? "Lưu thay đổi"
-              : "Tạo giao dịch định kỳ"}
+              ? t("recurring.form.actions.save")
+              : t("recurring.form.actions.create")}
         </Button>
       </div>
 
@@ -379,12 +365,12 @@ export default function CreateRecurringRule() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-              Tên quy tắc
+              {t("recurring.form.fields.name_label")}
             </label>
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Ví dụ: Tiền nhà mỗi tháng"
+              placeholder={t("recurring.form.fields.name_placeholder")}
               className="w-full px-4 py-3 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--input-background)]"
             />
             {errors.name && (
@@ -393,12 +379,12 @@ export default function CreateRecurringRule() {
           </div>
           <div>
             <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-              Mô tả hiển thị
+              {t("recurring.form.fields.description_label")}
             </label>
             <input
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Ví dụ: Thanh toán tiền điện"
+              placeholder={t("recurring.form.fields.description_placeholder")}
               className="w-full px-4 py-3 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--input-background)]"
             />
           </div>
@@ -409,7 +395,7 @@ export default function CreateRecurringRule() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-              Loại giao dịch
+              {t("recurring.form.fields.txn_type_label")}
             </label>
             <div className="grid grid-cols-3 gap-2">
               {(["expense", "income", "transfer"] as RecurringTxnType[]).map(
@@ -419,11 +405,7 @@ export default function CreateRecurringRule() {
                     onClick={() => setTxnType(value)}
                     className={`px-4 py-3 rounded-[var(--radius-lg)] border text-sm font-medium ${txnType === value ? "border-[var(--primary)] bg-[var(--primary-light)] text-[var(--primary)]" : "border-[var(--border)] text-[var(--text-primary)] bg-[var(--surface)]"}`}
                   >
-                    {value === "expense"
-                      ? "Chi tiêu"
-                      : value === "income"
-                        ? "Thu nhập"
-                        : "Chuyển khoản"}
+                    {t(`recurring.form.txn_types.${value}`)}
                   </button>
                 ),
               )}
@@ -431,20 +413,20 @@ export default function CreateRecurringRule() {
           </div>
           <div>
             <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-              Cách thực thi
+              {t("recurring.form.fields.execution_mode_label")}
             </label>
             <div className="grid grid-cols-2 gap-2">
               <button
                 onClick={() => setExecutionMode("notify")}
                 className={`px-4 py-3 rounded-[var(--radius-lg)] border text-sm font-medium inline-flex items-center justify-center gap-2 ${executionMode === "notify" ? "border-[var(--primary)] bg-[var(--primary-light)] text-[var(--primary)]" : "border-[var(--border)] text-[var(--text-primary)] bg-[var(--surface)]"}`}
               >
-                <Bell className="w-4 h-4" /> Chỉ nhắc
+                <Bell className="w-4 h-4" /> {t("recurring.form.execution_modes.notify")}
               </button>
               <button
                 onClick={() => setExecutionMode("auto")}
                 className={`px-4 py-3 rounded-[var(--radius-lg)] border text-sm font-medium inline-flex items-center justify-center gap-2 ${executionMode === "auto" ? "border-[var(--warning)] bg-[var(--warning-light)] text-[var(--warning)]" : "border-[var(--border)] text-[var(--text-primary)] bg-[var(--surface)]"}`}
               >
-                <Zap className="w-4 h-4" /> Tự tạo
+                <Zap className="w-4 h-4" /> {t("recurring.form.execution_modes.auto")}
               </button>
             </div>
           </div>
@@ -453,7 +435,7 @@ export default function CreateRecurringRule() {
         <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-              Số tiền
+              {t("recurring.form.fields.amount_label")}
             </label>
             <AmountInput
               value={amount}
@@ -463,16 +445,18 @@ export default function CreateRecurringRule() {
           </div>
           <div className="flex items-end">
             <div className="w-full rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface)] px-4 py-4">
-              <p className="text-sm text-[var(--text-secondary)]">Trạng thái</p>
+              <p className="text-sm text-[var(--text-secondary)]">
+                {t("recurring.form.fields.status_label")}
+              </p>
               <div className="mt-2 flex items-center justify-between">
                 <div>
                   <p className="font-medium text-[var(--text-primary)]">
-                    {enabled ? "Đang hoạt động" : "Tạm dừng"}
+                    {enabled ? t("recurring.status.active") : t("recurring.status.paused")}
                   </p>
                   <p className="text-sm text-[var(--text-secondary)]">
                     {notifyEnabled
-                      ? "Có gửi thông báo"
-                      : "Tắt thông báo riêng cho quy tắc này"}
+                      ? t("recurring.form.fields.notify_on")
+                      : t("recurring.form.fields.notify_off")}
                   </p>
                 </div>
                 <button
@@ -491,19 +475,19 @@ export default function CreateRecurringRule() {
 
       <Card>
         <h2 className="text-lg font-semibold text-[var(--text-primary)] mb-4">
-          Tài khoản, danh mục và thẻ
+          {t("recurring.form.sections.accounts")}
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-              {txnType === "transfer" ? "Tài khoản nguồn" : "Tài khoản"}
+              {txnType === "transfer" ? t("recurring.form.fields.from_account_label") : t("recurring.form.fields.account_label")}
             </label>
             <select
               value={accountId}
               onChange={(e) => setAccountId(e.target.value)}
               className="w-full px-4 py-3 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--input-background)]"
             >
-              <option value="">Chọn tài khoản</option>
+              <option value="">{t("recurring.form.fields.account_placeholder")}</option>
               {meta.accounts.map((account) => (
                 <option key={account.id} value={account.id}>
                   {account.name}
@@ -520,14 +504,14 @@ export default function CreateRecurringRule() {
           {txnType === "transfer" ? (
             <div>
               <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-                Tài khoản đích
+                {t("recurring.form.fields.to_account_label")}
               </label>
               <select
                 value={toAccountId}
                 onChange={(e) => setToAccountId(e.target.value)}
                 className="w-full px-4 py-3 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--input-background)]"
               >
-                <option value="">Chọn tài khoản đích</option>
+                <option value="">{t("recurring.form.fields.to_account_placeholder")}</option>
                 {meta.accounts.map((account) => (
                   <option key={account.id} value={account.id}>
                     {account.name}
@@ -543,14 +527,14 @@ export default function CreateRecurringRule() {
           ) : (
             <div>
               <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-                Danh mục
+                {t("recurring.form.fields.category_label")}
               </label>
               <select
                 value={categoryId}
                 onChange={(e) => setCategoryId(e.target.value)}
                 className="w-full px-4 py-3 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--input-background)]"
               >
-                <option value="">Chọn danh mục</option>
+                <option value="">{t("recurring.form.fields.category_placeholder")}</option>
                 {meta.categories
                   .filter((item) =>
                     txnType === "income"
@@ -575,14 +559,14 @@ export default function CreateRecurringRule() {
 
           <div>
             <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-              Merchant
+              {t("recurring.form.fields.merchant_label")}
             </label>
             <select
               value={merchantId}
               onChange={(e) => setMerchantId(e.target.value)}
               className="w-full px-4 py-3 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--input-background)]"
             >
-              <option value="">Không chọn merchant</option>
+              <option value="">{t("recurring.form.fields.merchant_none")}</option>
               {meta.merchants.map((merchant) => (
                 <option key={merchant.id} value={merchant.id}>
                   {merchant.name}
@@ -592,15 +576,15 @@ export default function CreateRecurringRule() {
           </div>
           <div>
             <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-              Thông báo riêng cho quy tắc
+              {t("recurring.form.fields.notify_label")}
             </label>
             <div className="flex items-center justify-between rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface)] px-4 py-3">
               <div>
                 <p className="font-medium text-[var(--text-primary)]">
-                  {notifyEnabled ? "Đang bật" : "Đang tắt"}
+                  {notifyEnabled ? t("recurring.form.fields.notify_on") : t("recurring.form.fields.notify_off")}
                 </p>
                 <p className="text-sm text-[var(--text-secondary)]">
-                  Nhắc khi quy tắc đến hạn.
+                  {t("recurring.form.fields.notify_hint")}
                 </p>
               </div>
               <button
@@ -617,7 +601,7 @@ export default function CreateRecurringRule() {
 
         <div className="mt-6">
           <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-            Nhãn
+            {t("recurring.form.fields.tags_label")}
           </label>
           <div className="flex flex-wrap gap-2">
             {meta.tags.map((tag) => {
@@ -656,12 +640,12 @@ export default function CreateRecurringRule() {
 
       <Card>
         <h2 className="text-lg font-semibold text-[var(--text-primary)] mb-4">
-          Lịch chạy
+          {t("recurring.form.sections.schedule")}
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-              Tần suất
+              {t("recurring.form.fields.frequency_label")}
             </label>
             <select
               value={frequency}
@@ -670,15 +654,15 @@ export default function CreateRecurringRule() {
               }
               className="w-full px-4 py-3 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--input-background)]"
             >
-              <option value="daily">Hàng ngày</option>
-              <option value="weekly">Hàng tuần</option>
-              <option value="monthly">Hàng tháng</option>
-              <option value="yearly">Hàng năm</option>
+              <option value="daily">{t("recurring.frequency.daily")}</option>
+              <option value="weekly">{t("recurring.frequency.weekly")}</option>
+              <option value="monthly">{t("recurring.frequency.monthly")}</option>
+              <option value="yearly">{t("recurring.frequency.yearly")}</option>
             </select>
           </div>
           <div>
             <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-              Ngày bắt đầu
+              {t("recurring.form.fields.start_date_label")}
             </label>
             <input
               type="date"
@@ -697,7 +681,7 @@ export default function CreateRecurringRule() {
         {frequency === "daily" && (
           <div className="mt-4">
             <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-              Mỗi bao nhiêu ngày
+              {t("recurring.form.fields.daily_interval_label")}
             </label>
             <input
               type="number"
@@ -712,12 +696,12 @@ export default function CreateRecurringRule() {
         {frequency === "weekly" && (
           <div className="mt-4">
             <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-              Ngày trong tuần
+              {t("recurring.form.fields.weekly_days_label")}
             </label>
             <div className="flex flex-wrap gap-2">
-              {WEEKDAY_LABELS.map((label, index) => (
+              {weekdayLabels.map((label, index) => (
                 <button
-                  key={label}
+                  key={index}
                   onClick={() => toggleWeeklyDay(index)}
                   className={`px-3 py-2 rounded-[var(--radius-lg)] border text-sm font-medium ${weeklyDays.includes(index) ? "border-[var(--primary)] bg-[var(--primary-light)] text-[var(--primary)]" : "border-[var(--border)] text-[var(--text-primary)] bg-[var(--surface)]"}`}
                 >
@@ -737,7 +721,7 @@ export default function CreateRecurringRule() {
           <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-                Kiểu lặp hàng tháng
+                {t("recurring.form.fields.monthly_mode_label")}
               </label>
               <select
                 value={monthlyMode}
@@ -746,14 +730,14 @@ export default function CreateRecurringRule() {
                 }
                 className="w-full px-4 py-3 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--input-background)]"
               >
-                <option value="specific">Ngày cụ thể</option>
-                <option value="last">Ngày cuối tháng</option>
+                <option value="specific">{t("recurring.form.fields.monthly_mode_specific")}</option>
+                <option value="last">{t("recurring.form.fields.monthly_mode_last")}</option>
               </select>
             </div>
             {monthlyMode === "specific" && (
               <div>
                 <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-                  Ngày trong tháng
+                  {t("recurring.form.fields.monthly_day_label")}
                 </label>
                 <input
                   type="number"
@@ -777,15 +761,15 @@ export default function CreateRecurringRule() {
           <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-                Tháng
+                {t("recurring.form.fields.yearly_month_label")}
               </label>
               <select
                 value={yearlyMonth}
                 onChange={(e) => setYearlyMonth(Number(e.target.value))}
                 className="w-full px-4 py-3 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--input-background)]"
               >
-                {MONTH_LABELS.map((label, index) => (
-                  <option key={label} value={index}>
+                {monthLabels.map((label, index) => (
+                  <option key={index} value={index}>
                     {label}
                   </option>
                 ))}
@@ -793,7 +777,7 @@ export default function CreateRecurringRule() {
             </div>
             <div>
               <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-                Ngày
+                {t("recurring.form.fields.yearly_day_label")}
               </label>
               <input
                 type="number"
@@ -815,7 +799,7 @@ export default function CreateRecurringRule() {
         <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-              Điều kiện kết thúc
+              {t("recurring.form.fields.end_condition_label")}
             </label>
             <select
               value={endCondition}
@@ -824,15 +808,15 @@ export default function CreateRecurringRule() {
               }
               className="w-full px-4 py-3 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--input-background)]"
             >
-              <option value="never">Không kết thúc</option>
-              <option value="on-date">Kết thúc vào ngày</option>
-              <option value="after-n">Kết thúc sau số lần</option>
+              <option value="never">{t("recurring.form.fields.end_condition_never")}</option>
+              <option value="on-date">{t("recurring.form.fields.end_condition_on_date")}</option>
+              <option value="after-n">{t("recurring.form.fields.end_condition_after_n")}</option>
             </select>
           </div>
           {endCondition === "on-date" && (
             <div>
               <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-                Ngày kết thúc
+                {t("recurring.form.fields.end_date_label")}
               </label>
               <input
                 type="date"
@@ -850,7 +834,7 @@ export default function CreateRecurringRule() {
           {endCondition === "after-n" && (
             <div>
               <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-                Số lần thực hiện
+                {t("recurring.form.fields.end_occurrences_label")}
               </label>
               <input
                 type="number"
@@ -878,15 +862,15 @@ export default function CreateRecurringRule() {
           </div>
           <div className="min-w-0">
             <h3 className="font-semibold text-[var(--text-primary)] mb-1">
-              Xem trước quy tắc
+              {t("recurring.form.sections.preview_title")}
             </h3>
             <p className="text-sm text-[var(--text-secondary)]">
               {previewText}
             </p>
             <div className="flex flex-wrap gap-2 mt-3 text-sm">
               <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-[var(--surface)] text-[var(--text-secondary)]">
-                <Calendar className="w-3.5 h-3.5" /> Bắt đầu{" "}
-                {formatNextRun(startDate)}
+                <Calendar className="w-3.5 h-3.5" />{" "}
+                {t("recurring.form.preview.start_date", { date: formatNextRun(startDate, locale) })}
               </span>
               <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-[var(--surface)] text-[var(--text-secondary)]">
                 {executionMode === "auto" ? (
@@ -895,13 +879,13 @@ export default function CreateRecurringRule() {
                   <Bell className="w-3.5 h-3.5" />
                 )}{" "}
                 {executionMode === "auto"
-                  ? "Tự tạo giao dịch"
-                  : "Chỉ gửi nhắc nhở"}
+                  ? t("recurring.form.preview.mode_auto")
+                  : t("recurring.form.preview.mode_notify")}
               </span>
               {selectedTagObjects.length > 0 && (
                 <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-[var(--surface)] text-[var(--text-secondary)]">
-                  <Tag className="w-3.5 h-3.5" /> {selectedTagObjects.length}{" "}
-                  nhãn
+                  <Tag className="w-3.5 h-3.5" />{" "}
+                  {t("recurring.form.preview.tag_count", { n: selectedTagObjects.length })}
                 </span>
               )}
             </div>
@@ -910,28 +894,28 @@ export default function CreateRecurringRule() {
 
         <div className="mt-6">
           <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-            Ghi chú
+            {t("recurring.form.fields.notes_label")}
           </label>
           <textarea
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             rows={4}
             className="w-full px-4 py-3 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--input-background)]"
-            placeholder="Ghi chú thêm cho giao dịch định kỳ này..."
+            placeholder={t("recurring.form.fields.notes_placeholder")}
           />
         </div>
       </Card>
 
       <div className="flex justify-end gap-3">
         <Button variant="secondary" onClick={() => nav.goRecurringRules()}>
-          Huỷ
+          {t("recurring.form.actions.cancel")}
         </Button>
         <Button onClick={() => void handleSubmit()} disabled={saving}>
           {saving
-            ? "Đang lưu..."
+            ? t("recurring.form.actions.saving")
             : isEdit
-              ? "Lưu thay đổi"
-              : "Tạo giao dịch định kỳ"}
+              ? t("recurring.form.actions.save")
+              : t("recurring.form.actions.create")}
         </Button>
       </div>
     </div>

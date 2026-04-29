@@ -1,1 +1,307 @@
-{}
+{
+  "home": {
+    "title": "Cài đặt",
+    "subtitle": "Quản lý tài khoản và tuỳ chọn",
+    "profile": {
+      "nav_label": "Hồ sơ",
+      "title": "Hồ sơ",
+      "subtitle": "Quản lý thông tin cá nhân của bạn",
+      "name_label": "Họ và tên",
+      "email_label": "Email",
+      "uploading": "Đang tải ảnh...",
+      "edit_button": "Chỉnh sửa hồ sơ",
+      "change_avatar_title": "Đổi ảnh đại diện",
+      "save_button": "Lưu thay đổi",
+      "saving": "Đang lưu..."
+    },
+    "sections": {
+      "general": "Cài đặt chung",
+      "security_data": "Bảo mật & Dữ liệu",
+      "info": "Thông tin"
+    },
+    "menu_items": {
+      "general": {
+        "title": "Chung (Tiền tệ & định dạng)",
+        "description": "Currency, định dạng số/ngày, timezone"
+      },
+      "security": {
+        "title": "Bảo mật",
+        "description": "PIN, sinh trắc học, chế độ riêng tư"
+      },
+      "notifications": {
+        "title": "Thông báo",
+        "description": "Nhắc nhở, cảnh báo, giờ yên lặng"
+      },
+      "data_backup": {
+        "title": "Dữ liệu & Sao lưu",
+        "description": "Nhập, xuất, khôi phục dữ liệu"
+      },
+      "attachment_library": {
+        "title": "Thư viện đính kèm",
+        "description": "Quản lý và xem các tệp đính kèm"
+      },
+      "about": {
+        "title": "Giới thiệu",
+        "description": "Phiên bản, điều khoản, chính sách"
+      }
+    },
+    "toast": {
+      "avatar_updated": "Đã cập nhật ảnh đại diện",
+      "avatar_failed": "Tải ảnh thất bại",
+      "profile_saved": "Đã lưu thông tin hồ sơ",
+      "profile_save_failed": "Lưu thất bại",
+      "display_name_empty": "Tên hiển thị không được để trống",
+      "open_profile": "Đang mở hồ sơ cá nhân"
+    }
+  },
+
+  "general": {
+    "title": "Cài đặt chung",
+    "subtitle": "Tiền tệ, định dạng số, ngày, và múi giờ",
+    "sections": {
+      "currency": "Tiền tệ",
+      "number_format": "Định dạng số",
+      "date_format": "Định dạng ngày",
+      "timezone": "Múi giờ",
+      "first_day_of_week": "Ngày bắt đầu tuần",
+      "preview": "Xem trước"
+    },
+    "fields": {
+      "currency_label": "Đơn vị tiền tệ",
+      "currency_change_warning": "Chỉ áp dụng cho giao dịch mới.",
+      "currency_vnd_default": "(mặc định VND)",
+      "currency_default": "(mặc định {{code}})",
+      "timezone_label": "Múi giờ",
+      "first_day_label": "Ngày đầu tuần"
+    },
+    "day_names_short": ["CN", "T2", "T3", "T4", "T5", "T6", "T7"],
+    "actions": {
+      "save": "Lưu thay đổi",
+      "saving": "Đang lưu...",
+      "reset_defaults": "Khôi phục mặc định"
+    },
+    "toast": {
+      "saved": "Đã lưu cài đặt",
+      "save_failed": "Lưu thất bại, vui lòng thử lại",
+      "reset_done": "Đã khôi phục cài đặt mặc định"
+    }
+  },
+
+  "security": {
+    "title": "Bảo mật",
+    "subtitle": "PIN, sinh trắc học và chế độ riêng tư",
+    "sections": {
+      "pin": "Mã PIN",
+      "pin_lock": "Khoá bằng mã PIN",
+      "biometrics": "Sinh trắc học",
+      "privacy_mode": "Chế độ riêng tư",
+      "hide_accounts": "Ẩn số tài khoản",
+      "session": "Phiên đăng nhập"
+    },
+    "fields": {
+      "pin_label": "Mã PIN ứng dụng",
+      "pin_hint": "Bảo vệ ứng dụng bằng mã PIN 6 chữ số",
+      "biometrics_label": "Xác thực sinh trắc học",
+      "biometrics_hint": "Dùng vân tay hoặc Face ID để mở khoá",
+      "privacy_mode_label": "Chế độ riêng tư",
+      "privacy_mode_hint": "Ẩn số tiền trên màn hình chính",
+      "auto_lock_label": "Tự khoá sau",
+      "auto_lock_hint": "Khoá ứng dụng sau một khoảng thời gian không hoạt động"
+    },
+    "actions": {
+      "save": "Lưu cài đặt bảo mật",
+      "saving": "Đang lưu...",
+      "back": "Quay lại",
+      "cancel": "Huỷ",
+      "confirm": "Xác nhận",
+      "change_pin": "Thay đổi mã PIN"
+    },
+    "toast": {
+      "saved": "Đã lưu cài đặt bảo mật",
+      "save_failed": "Lưu thất bại"
+    }
+  },
+
+  "notifications": {
+    "title": "Thông báo",
+    "subtitle": "Nhắc nhở, cảnh báo ngân sách và giờ yên lặng",
+    "system_settings": "Mở cài đặt hệ thống",
+    "items": {
+      "weekly_summary": {
+        "title": "Tổng kết tuần",
+        "description": "Nhận báo cáo tóm tắt chi tiêu hàng tuần.",
+        "badge_coming_soon": "Sắp ra mắt"
+      },
+      "budget_warning": {
+        "title": "Cảnh báo vượt ngân sách",
+        "description": "Nhắc khi chi tiêu gần hoặc vượt giới hạn ngân sách."
+      },
+      "goal_reminder": {
+        "title": "Nhắc nhở mục tiêu tiết kiệm",
+        "description": "Nhắc đóng góp cho mục tiêu tiết kiệm."
+      },
+      "recurring_reminder": {
+        "title": "Nhắc nhở giao dịch định kỳ",
+        "description": "Thông báo khi có giao dịch định kỳ đến hạn."
+      },
+      "sound": {
+        "title": "Âm thanh thông báo",
+        "description": "Phát âm thanh khi có thông báo mới."
+      },
+      "vibration": {
+        "title": "Rung",
+        "description": "Rung khi nhận thông báo (trên thiết bị hỗ trợ)."
+      }
+    },
+    "toggle": {
+      "on": "Bật",
+      "off": "Tắt"
+    },
+    "sections": {
+      "system": "Quyền hệ thống",
+      "types": "Loại thông báo",
+      "sound_vibration": "Âm thanh & Rung",
+      "quiet_hours": "Giờ yên lặng"
+    },
+    "quiet_hours": {
+      "enable_label": "Bật Giờ yên lặng",
+      "from_label": "Từ",
+      "to_label": "Đến"
+    },
+    "actions": {
+      "save": "Lưu cài đặt",
+      "saving": "Đang lưu...",
+      "cancel": "Huỷ",
+      "back": "Quay lại"
+    },
+    "toast": {
+      "saved": "Đã lưu cài đặt thông báo",
+      "save_failed": "Lưu thất bại"
+    }
+  },
+
+  "data_backup": {
+    "title": "Dữ liệu & Sao lưu",
+    "subtitle": "Quản lý, nhập, xuất và khôi phục dữ liệu",
+    "sections": {
+      "backup": "Sao lưu",
+      "restore": "Khôi phục",
+      "danger_zone": "Vùng nguy hiểm"
+    },
+    "backup": {
+      "last_backup": "Lần sao lưu gần nhất",
+      "no_backup": "Chưa có bản sao lưu nào",
+      "create_button": "Tạo bản sao lưu",
+      "auto_backup_label": "Sao lưu tự động",
+      "auto_backup_hint": "Tự động sao lưu khi mở ứng dụng"
+    },
+    "restore": {
+      "description": "Khôi phục dữ liệu từ bản sao lưu trước đó",
+      "choose_file": "Chọn file sao lưu",
+      "restore_button": "Khôi phục"
+    },
+    "danger_zone": {
+      "title": "Xoá toàn bộ dữ liệu",
+      "description": "Hành động này không thể hoàn tác. Toàn bộ giao dịch, tài khoản, ngân sách, mục tiêu sẽ bị xoá.",
+      "confirm_placeholder": "XÓA DỮ LIỆU",
+      "confirm_hint": "Nhập \"XÓA DỮ LIỆU\" để xác nhận",
+      "delete_button": "Xoá tất cả dữ liệu",
+      "deleting": "Đang xoá..."
+    },
+    "toast": {
+      "backup_created": "Đã tạo bản sao lưu",
+      "backup_failed": "Không thể tạo bản sao lưu",
+      "restore_done": "Đã khôi phục dữ liệu",
+      "restore_failed": "Không thể khôi phục dữ liệu",
+      "deleted": "Đã xoá toàn bộ dữ liệu và khôi phục mặc định"
+    }
+  },
+
+  "export": {
+    "title": "Xuất dữ liệu",
+    "subtitle": "Tải xuống giao dịch dưới dạng CSV hoặc báo cáo TXT",
+    "sections": {
+      "format": "Định dạng",
+      "date_range": "Khoảng thời gian",
+      "filters": "Bộ lọc nâng cao",
+      "options": "Tuỳ chọn"
+    },
+    "formats": {
+      "csv": "CSV",
+      "txt": "Báo cáo TXT"
+    },
+    "date_ranges": {
+      "this_month": "Tháng này",
+      "last_month": "Tháng trước",
+      "last_30_days": "30 ngày",
+      "this_year": "Năm nay",
+      "last_3_months": "3 tháng gần nhất"
+    },
+    "filters": {
+      "account_all": "Tất cả tài khoản",
+      "type_all": "Tất cả",
+      "type_expense": "Chi tiêu",
+      "type_income": "Thu nhập",
+      "type_transfer": "Chuyển khoản"
+    },
+    "options": {
+      "include_tags": "Bao gồm nhãn",
+      "include_attachments": "Bao gồm đính kèm",
+      "include_attachments_hint": "Thêm cột đánh dấu giao dịch có đính kèm",
+      "include_merchant": "Bao gồm nhà cung cấp",
+      "include_notes": "Bao gồm ghi chú",
+      "notes_hint": "Ghi chú giao dịch có đính kèm trong báo cáo"
+    },
+    "csv_headers": {
+      "date": "Ngày",
+      "type": "Loại",
+      "description": "Mô tả",
+      "amount": "Số tiền",
+      "account": "Tài khoản",
+      "category": "Danh mục",
+      "merchant": "Nhà cung cấp",
+      "attachment": "Đính kèm",
+      "tags": "Nhãn",
+      "attachment_yes": "Có",
+      "attachment_no": "Không"
+    },
+    "txt_headers": {
+      "report_title": "BÁO CÁO TÀI CHÍNH",
+      "summary": "TỔNG QUAN",
+      "details": "CHI TIẾT GIAO DỊCH",
+      "footer": "Xuất bởi FinanceApp"
+    },
+    "empty": "Không có giao dịch nào trong khoảng thời gian này",
+    "footer_hint": "File sẽ được tải về máy của bạn",
+    "export_button": "Xuất dữ liệu",
+    "exporting": "Đang xuất...",
+    "toast": {
+      "success": "Đã xuất thành công!",
+      "all_success": "Đã xuất toàn bộ dữ liệu thành công",
+      "failed": "Xuất thất bại"
+    }
+  },
+
+  "attachments": {
+    "title": "Thư viện đính kèm",
+    "subtitle": "Tất cả ảnh và file đã đính kèm vào giao dịch",
+    "filters": {
+      "search_placeholder": "Tìm tên file, giao dịch...",
+      "type_all": "Tất cả",
+      "type_image": "Ảnh",
+      "open_advanced": "Bộ lọc nâng cao",
+      "clear": "Xoá bộ lọc",
+      "apply": "Áp dụng"
+    },
+    "item": {
+      "open_in_browser": "Mở trong trình duyệt",
+      "download": "Tải về"
+    },
+    "empty": {
+      "title": "Chưa có đính kèm nào.",
+      "no_attachments": "Thêm ảnh hoá đơn hoặc file vào giao dịch để xem ở đây.",
+      "no_results": "Không tìm thấy đính kèm phù hợp bộ lọc."
+    },
+    "loading": "Đang tải thư viện đính kèm..."
+  }
+}

@@ -1,1 +1,478 @@
-{}
+{
+  "tags": {
+    "list": {
+      "title": "Nhãn",
+      "subtitle": "Quản lý tag để phân loại giao dịch",
+      "add_button": "Tạo nhãn",
+      "summary": {
+        "total": "Tổng số nhãn",
+        "total_usage": "Tổng lượt sử dụng",
+        "avg_usage": "Trung bình / nhãn"
+      },
+      "filters": {
+        "search_placeholder": "Tìm theo tên nhãn...",
+        "sort_usage_desc": "Dùng nhiều nhất",
+        "sort_usage_asc": "Dùng ít nhất",
+        "sort_name_asc": "Tên A-Z",
+        "sort_name_desc": "Tên Z-A",
+        "sort_created_desc": "Tạo mới nhất",
+        "sort_created_asc": "Tạo cũ nhất"
+      },
+      "card": {
+        "stats": "{{txnCount}} giao dịch · {{ruleCount}} rule",
+        "view_transactions": "Xem giao dịch",
+        "tooltip_edit": "Chỉnh sửa",
+        "tooltip_delete": "Xoá"
+      },
+      "loading": "Đang tải danh sách nhãn...",
+      "empty": {
+        "title": "Chưa có nhãn nào",
+        "subtitle": "Tạo nhãn để phân loại giao dịch linh hoạt hơn.",
+        "create_button": "Tạo nhãn đầu tiên"
+      },
+      "delete_modal": {
+        "title": "Xoá nhãn?",
+        "description": "Bạn có chắc muốn xoá nhãn \"{{name}}\"?",
+        "confirm_deleting": "Đang xoá...",
+        "confirm": "Xoá",
+        "cancel": "Huỷ"
+      },
+      "toast": {
+        "deleted": "Đã xoá nhãn \"{{name}}\"",
+        "delete_failed": "Không thể xoá nhãn"
+      }
+    },
+    "form": {
+      "create_title": "Tạo nhãn mới",
+      "edit_title": "Chỉnh sửa nhãn",
+      "create_subtitle": "Thêm nhãn mới để gắn vào giao dịch",
+      "edit_subtitle": "Cập nhật thông tin nhãn",
+      "back": "Quay lại",
+      "loading": "Đang tải dữ liệu nhãn...",
+      "name_section": "Tên nhãn",
+      "color_section": "Màu sắc",
+      "preview_section": "Xem trước",
+      "fields": {
+        "name_label": "Tên",
+        "name_placeholder": "VD: Công việc, Cần thiết...",
+        "color_label": "Mã màu HEX",
+        "color_placeholder": "#ef4444"
+      },
+      "color_picker": {
+        "show": "Chọn từ bảng màu",
+        "hide": "Ẩn bảng màu"
+      },
+      "preview": {
+        "name_placeholder": "Tên nhãn"
+      },
+      "actions": {
+        "cancel": "Huỷ",
+        "saving": "Đang lưu...",
+        "create": "Tạo nhãn",
+        "save": "Lưu thay đổi"
+      },
+      "errors": {
+        "name_required": "Vui lòng nhập tên nhãn",
+        "color_invalid": "Màu không hợp lệ (vd: #ef4444)"
+      },
+      "toast": {
+        "created": "Đã tạo nhãn mới",
+        "updated": "Đã cập nhật nhãn",
+        "save_failed": "Không thể lưu nhãn"
+      }
+    }
+  },
+  "auto_rules": {
+    "list": {
+      "title": "Quy tắc tự động",
+      "subtitle": "Tự động phân loại giao dịch dựa trên mẫu",
+      "add_button": "Tạo rule",
+      "summary": {
+        "total": "Tổng quy tắc",
+        "active": "Đang hoạt động",
+        "paused": "Tạm dừng",
+        "priority_info_label": "Độ ưu tiên",
+        "priority_info_value": "Cao → Thấp"
+      },
+      "how_it_works": {
+        "title": "Cách hoạt động",
+        "description": "Quy tắc sẽ được áp dụng theo thứ tự ưu tiên khi bạn thêm giao dịch mới"
+      },
+      "filters": {
+        "search_placeholder": "Tìm kiếm quy tắc...",
+        "status_all": "Tất cả",
+        "status_active": "Đang hoạt động",
+        "status_inactive": "Tạm dừng",
+        "sort_priority": "Ưu tiên",
+        "sort_name": "Tên A-Z"
+      },
+      "rule_item": {
+        "edit": "Chỉnh sửa",
+        "delete": "Xoá",
+        "status_active": "Đang hoạt động",
+        "status_paused": "Đang tạm dừng"
+      },
+      "match_fields": {
+        "description": "Mô tả",
+        "merchant": "Merchant",
+        "note": "Ghi chú",
+        "amount": "Số tiền",
+        "account": "Tài khoản",
+        "weekday": "Thứ"
+      },
+      "match_types": {
+        "contains": "chứa",
+        "equals": "bằng",
+        "regex": "regex",
+        "starts_with": "bắt đầu với",
+        "ends_with": "kết thúc với",
+        "greater_than": "lớn hơn",
+        "gt": "lớn hơn",
+        "less_than": "nhỏ hơn",
+        "lt": "nhỏ hơn"
+      },
+      "swipe_actions": {
+        "edit": "Sửa",
+        "delete": "Xoá"
+      },
+      "loading": "Đang tải danh sách quy tắc tự động...",
+      "reload": "Tải lại",
+      "empty": {
+        "title": "Chưa có quy tắc nào",
+        "subtitle": "Tạo quy tắc đầu tiên để tự động phân loại giao dịch",
+        "create_button": "Tạo rule"
+      },
+      "no_results": {
+        "title": "Không tìm thấy quy tắc",
+        "subtitle": "Thử thay đổi bộ lọc hoặc tìm kiếm khác"
+      },
+      "delete_modal": {
+        "title": "Xoá quy tắc?",
+        "description": "Bạn có chắc muốn xoá quy tắc \"{{name}}\"? Hành động này không thể hoàn tác.",
+        "confirm": "Xoá",
+        "cancel": "Huỷ"
+      },
+      "toast": {
+        "deleted": "Đã xoá quy tắc \"{{name}}\"",
+        "delete_failed": "Không thể xoá quy tắc",
+        "activated": "Đã kích hoạt quy tắc",
+        "paused": "Đã tạm dừng quy tắc",
+        "toggle_failed": "Không thể cập nhật trạng thái quy tắc",
+        "reorder_failed": "Không thể sắp xếp lại quy tắc"
+      }
+    },
+    "form": {
+      "create_title": "Tạo quy tắc mới",
+      "edit_title": "Chỉnh sửa quy tắc",
+      "back": "Quay lại",
+      "back_to_list": "Quay lại danh sách",
+      "loading": "Đang tải biểu mẫu quy tắc tự động...",
+      "load_error": "Không thể tải dữ liệu quy tắc tự động",
+      "basic_section": "Thông tin cơ bản",
+      "condition_section": "Điều kiện khớp",
+      "action_section": "Hành động",
+      "test_section": "Kiểm tra quy tắc",
+      "fields": {
+        "name_label": "Tên quy tắc",
+        "name_placeholder": "VD: Giao dịch Grab",
+        "status_label": "Trạng thái",
+        "status_active": "Đang hoạt động",
+        "status_paused": "Tạm dừng",
+        "priority_label": "Độ ưu tiên",
+        "priority_hint": "Số nhỏ = ưu tiên cao hơn",
+        "field_label": "Trường dữ liệu",
+        "operator_label": "Kiểu khớp",
+        "pattern_label": "Mẫu",
+        "pattern_placeholder_default": "VD: grab",
+        "pattern_placeholder_regex": "VD: (grab|gojek|be)",
+        "pattern_regex_hint": "Sử dụng cú pháp JavaScript RegExp",
+        "category_label": "Đặt danh mục",
+        "category_no_change": "-- Không thay đổi --",
+        "merchant_label": "Đặt merchant",
+        "merchant_no_change": "-- Không thay đổi --",
+        "tags_label": "Thêm tags",
+        "tags_placeholder": "-- Chọn tag --",
+        "test_input_label": "Thử với mô tả mẫu",
+        "test_input_placeholder": "VD: Grab - Di chuyển từ nhà đến công ty"
+      },
+      "test": {
+        "run_button": "Kiểm tra",
+        "no_input_message": "Vui lòng nhập mô tả và mẫu để kiểm tra",
+        "no_match": "Không khớp với mẫu",
+        "matched": "Khớp!",
+        "matched_with_actions": "Khớp! Sẽ áp dụng: {{actions}}",
+        "action_category": "Danh mục: {{name}}",
+        "action_merchant": "Merchant: {{name}}",
+        "action_tags": "Tags: {{names}}",
+        "regex_error": "Lỗi: Mẫu regex không hợp lệ"
+      },
+      "actions": {
+        "cancel": "Huỷ",
+        "saving": "Đang lưu...",
+        "create": "Lưu quy tắc",
+        "save": "Lưu thay đổi"
+      },
+      "errors": {
+        "name_required": "Vui lòng nhập tên quy tắc",
+        "pattern_required": "Vui lòng nhập mẫu khớp",
+        "priority_invalid": "Độ ưu tiên phải lớn hơn 0",
+        "no_action": "Vui lòng chọn ít nhất một hành động"
+      },
+      "toast": {
+        "created": "Đã tạo quy tắc tự động mới",
+        "updated": "Đã cập nhật quy tắc tự động",
+        "save_failed": "Không thể lưu quy tắc tự động"
+      }
+    }
+  },
+  "recurring": {
+    "frequency": {
+      "daily": "Hàng ngày",
+      "weekly": "Hàng tuần",
+      "monthly": "Hàng tháng",
+      "yearly": "Hàng năm",
+      "every_n_days": "Mỗi {{n}} ngày",
+      "weekly_with_days": "Hàng tuần ({{days}})",
+      "monthly_specific": "Hàng tháng (ngày {{day}})",
+      "monthly_last": "Hàng tháng (ngày cuối)",
+      "yearly_specific": "Hàng năm ({{month}} ngày {{day}})"
+    },
+    "end_condition": {
+      "never": "Không có ngày kết thúc",
+      "on_date": "Đến {{date}}",
+      "on_date_fallback": "Có ngày kết thúc",
+      "after_n": "Sau {{count}} lần",
+      "after_n_fallback": "Giới hạn số lần"
+    },
+    "execution_mode": {
+      "auto": "Tự tạo",
+      "notify": "Chỉ nhắc"
+    },
+    "txn_type": {
+      "income": "Thu nhập",
+      "expense": "Chi tiêu",
+      "transfer": "Chuyển khoản"
+    },
+    "status": {
+      "active": "Đang hoạt động",
+      "paused": "Đang tạm dừng"
+    },
+    "days_until": {
+      "today": "Hôm nay",
+      "n_days": "{{n}} ngày nữa"
+    },
+    "weekday_labels": ["CN", "T2", "T3", "T4", "T5", "T6", "T7"],
+    "month_labels": ["Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6", "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"],
+    "month_short_labels": ["Th1", "Th2", "Th3", "Th4", "Th5", "Th6", "Th7", "Th8", "Th9", "Th10", "Th11", "Th12"],
+    "list": {
+      "title": "Giao dịch định kỳ",
+      "subtitle": "Quản lý các giao dịch lặp lại tự động",
+      "add_button": "Tạo quy tắc",
+      "filters": {
+        "search_placeholder": "Tìm giao dịch định kỳ...",
+        "sort_asc": "Tăng dần",
+        "sort_desc": "Giảm dần"
+      },
+      "actions": {
+        "view_detail": "Xem chi tiết",
+        "skip_next": "Bỏ qua lần tiếp",
+        "run_now": "Chạy ngay",
+        "duplicate": "Nhân bản",
+        "edit": "Chỉnh sửa",
+        "delete": "Xoá",
+        "toggle_pause": "Tạm dừng",
+        "toggle_resume": "Kích hoạt",
+        "toggle_notify": "Bật thông báo",
+        "toggle_mute": "Tắt thông báo"
+      },
+      "loading": "Đang tải giao dịch định kỳ...",
+      "empty": {
+        "title": "Chưa có giao dịch định kỳ nào",
+        "subtitle": "Tạo quy tắc định kỳ để tự động hoá các giao dịch lặp lại",
+        "create_button": "Tạo giao dịch định kỳ đầu tiên"
+      },
+      "delete_modal": {
+        "title": "Xoá giao dịch định kỳ?",
+        "description": "Quy tắc \"{{name}}\" sẽ bị xoá vĩnh viễn.",
+        "confirm_processing": "Đang xử lý...",
+        "confirm": "Xoá",
+        "cancel": "Huỷ"
+      },
+      "toast": {
+        "paused": "Đã tạm dừng giao dịch định kỳ",
+        "activated": "Đã kích hoạt giao dịch định kỳ",
+        "skipped": "Đã bỏ qua lần chạy tiếp theo",
+        "run_now_done": "Đã chạy quy tắc ngay",
+        "duplicated": "Đã nhân bản giao dịch định kỳ",
+        "deleted": "Đã xoá giao dịch định kỳ",
+        "action_failed": "Không thể xử lý giao dịch định kỳ"
+      }
+    },
+    "detail": {
+      "back": "Quay lại",
+      "not_found": "Không tìm thấy quy tắc định kỳ",
+      "loading": "Đang tải chi tiết quy tắc định kỳ...",
+      "sections": {
+        "overview": "Tổng quan",
+        "schedule": "Lịch chạy",
+        "recent_occurrences": "Lần chạy gần đây",
+        "upcoming": "Sắp tới"
+      },
+      "fields": {
+        "frequency": "Tần suất",
+        "next_run": "Lần chạy tiếp",
+        "end_condition": "Điều kiện kết thúc",
+        "amount": "Số tiền",
+        "account": "Tài khoản",
+        "category": "Danh mục",
+        "merchant": "Merchant",
+        "execution_mode": "Chế độ thực thi",
+        "description": "Mô tả",
+        "notes": "Ghi chú",
+        "tags": "Nhãn"
+      },
+      "occurrence_status": {
+        "done": "Đã thực hiện",
+        "skipped": "Bỏ qua",
+        "pending": "Chờ xử lý",
+        "failed": "Thất bại"
+      },
+      "no_occurrences": "Chưa có lần chạy nào",
+      "actions": {
+        "edit": "Chỉnh sửa",
+        "skip_next": "Bỏ qua lần tiếp",
+        "run_now": "Chạy ngay",
+        "toggle_pause": "Tạm dừng",
+        "toggle_resume": "Kích hoạt",
+        "delete": "Xoá",
+        "view": "Xem"
+      },
+      "delete_modal": {
+        "title": "Xoá quy tắc định kỳ?",
+        "description": "Bạn có chắc muốn xoá \"{{name}}\"? Hành động này không thể hoàn tác.",
+        "confirm_processing": "Đang xoá...",
+        "confirm": "Xoá",
+        "cancel": "Huỷ"
+      },
+      "toast": {
+        "deleted": "Đã xoá quy tắc định kỳ",
+        "delete_failed": "Không thể xoá quy tắc định kỳ",
+        "paused": "Đã tạm dừng",
+        "activated": "Đã kích hoạt",
+        "skipped": "Đã bỏ qua lần chạy tiếp theo",
+        "run_now_done": "Đã chạy ngay"
+      }
+    },
+    "form": {
+      "create_title": "Tạo giao dịch định kỳ",
+      "edit_title": "Chỉnh sửa giao dịch định kỳ",
+      "back": "Quay lại",
+      "subtitle": "Tạo quy tắc để tự nhắc hoặc tự tạo giao dịch theo lịch.",
+      "loading": "Đang tải biểu mẫu giao dịch định kỳ...",
+      "load_error": "Không thể tải dữ liệu giao dịch định kỳ",
+      "sections": {
+        "basic": "Thông tin cơ bản",
+        "schedule": "Lịch chạy",
+        "end_condition": "Điều kiện kết thúc",
+        "execution": "Chế độ thực thi",
+        "extra": "Thông tin thêm",
+        "accounts": "Tài khoản, danh mục và thẻ",
+        "preview_title": "Xem trước quy tắc"
+      },
+      "txn_types": {
+        "expense": "Chi tiêu",
+        "income": "Thu nhập",
+        "transfer": "Chuyển khoản"
+      },
+      "execution_modes": {
+        "notify": "Chỉ nhắc",
+        "notify_hint": "Hệ thống sẽ thông báo khi đến hạn",
+        "auto": "Tự tạo",
+        "auto_hint": "Giao dịch được tạo tự động"
+      },
+      "fields": {
+        "name_label": "Tên quy tắc",
+        "name_placeholder": "Ví dụ: Tiền nhà mỗi tháng",
+        "description_label": "Mô tả hiển thị",
+        "description_placeholder": "Ví dụ: Thanh toán tiền điện",
+        "txn_type_label": "Loại giao dịch",
+        "execution_mode_label": "Cách thực thi",
+        "amount_label": "Số tiền",
+        "status_label": "Trạng thái",
+        "notify_on": "Có gửi thông báo",
+        "notify_off": "Tắt thông báo riêng cho quy tắc này",
+        "account_label": "Tài khoản",
+        "account_placeholder": "Chọn tài khoản",
+        "from_account_label": "Tài khoản nguồn",
+        "to_account_label": "Tài khoản đích",
+        "to_account_placeholder": "Chọn tài khoản đích",
+        "category_label": "Danh mục",
+        "category_placeholder": "Chọn danh mục",
+        "merchant_label": "Merchant",
+        "merchant_placeholder": "Chọn merchant",
+        "merchant_none": "Không chọn merchant",
+        "frequency_label": "Tần suất",
+        "daily_interval_label": "Mỗi bao nhiêu ngày",
+        "weekly_days_label": "Ngày trong tuần",
+        "monthly_mode_label": "Kiểu lặp hàng tháng",
+        "monthly_mode_specific": "Ngày cụ thể",
+        "monthly_mode_last": "Ngày cuối tháng",
+        "monthly_day_label": "Ngày trong tháng",
+        "yearly_month_label": "Tháng",
+        "yearly_day_label": "Ngày",
+        "start_date_label": "Ngày bắt đầu",
+        "end_condition_label": "Điều kiện kết thúc",
+        "end_condition_never": "Không kết thúc",
+        "end_condition_on_date": "Kết thúc vào ngày",
+        "end_condition_after_n": "Kết thúc sau số lần",
+        "end_date_label": "Ngày kết thúc",
+        "end_occurrences_label": "Số lần thực hiện",
+        "tags_label": "Nhãn",
+        "notes_label": "Ghi chú",
+        "notes_placeholder": "Ghi chú thêm cho giao dịch định kỳ này...",
+        "notify_label": "Thông báo riêng cho quy tắc",
+        "notify_hint": "Nhắc khi quy tắc đến hạn."
+      },
+      "preview": {
+        "title": "Xem trước lịch chạy",
+        "next_run": "Lần chạy tiếp theo: {{date}}",
+        "daily": "Mỗi {{n}} ngày, bắt đầu từ {{date}}",
+        "weekly_with_days": "Mỗi tuần vào {{days}}",
+        "weekly_select": "Chọn ngày trong tuần",
+        "monthly_last": "Mỗi tháng vào ngày cuối cùng",
+        "monthly_specific": "Mỗi tháng vào ngày {{day}}",
+        "yearly": "Mỗi năm vào {{month}} ngày {{day}}",
+        "start_date": "Bắt đầu {{date}}",
+        "mode_auto": "Tự tạo giao dịch",
+        "mode_notify": "Chỉ gửi nhắc nhở",
+        "tag_count": "{{n}} nhãn"
+      },
+      "actions": {
+        "cancel": "Huỷ",
+        "saving": "Đang lưu...",
+        "create": "Tạo giao dịch định kỳ",
+        "save": "Lưu thay đổi"
+      },
+      "errors": {
+        "name_required": "Tên hoặc mô tả là bắt buộc",
+        "amount_required": "Số tiền phải lớn hơn 0",
+        "from_account_required": "Tài khoản nguồn là bắt buộc",
+        "account_required": "Tài khoản là bắt buộc",
+        "to_account_required": "Tài khoản đích là bắt buộc",
+        "to_account_same": "Tài khoản đích phải khác tài khoản nguồn",
+        "category_required": "Danh mục là bắt buộc",
+        "start_date_required": "Ngày bắt đầu là bắt buộc",
+        "weekly_days_required": "Chọn ít nhất 1 ngày",
+        "monthly_day_invalid": "Ngày trong tháng không hợp lệ",
+        "yearly_day_invalid": "Ngày trong năm không hợp lệ",
+        "end_date_required": "Ngày kết thúc là bắt buộc",
+        "end_occurrences_invalid": "Số lần phải lớn hơn 0"
+      },
+      "toast": {
+        "created": "Đã tạo giao dịch định kỳ",
+        "updated": "Đã cập nhật giao dịch định kỳ",
+        "save_failed": "Không thể lưu giao dịch định kỳ"
+      }
+    }
+  }
+}

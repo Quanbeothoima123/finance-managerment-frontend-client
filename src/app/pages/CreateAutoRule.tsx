@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router";
 import { ArrowLeft, Hash, Play, Save, Store, Tag, X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Card } from "../components/Card";
 import { Button } from "../components/Button";
 import { Input } from "../components/Input";
@@ -37,6 +38,7 @@ function resolveLabel(items: Array<{ id: string; name: string }>, id: string) {
 export default function CreateAutoRule({
   mode = "create",
 }: CreateAutoRuleProps) {
+  const { t } = useTranslation("tags-rules");
   const nav = useAppNavigation();
   const toast = useToast();
   const { id } = useParams<{ id: string }>();
@@ -157,19 +159,19 @@ export default function CreateAutoRule({
 
   const validate = () => {
     if (!name.trim()) {
-      toast.error("Vui lòng nhập tên quy tắc");
+      toast.error(t("auto_rules.form.errors.name_required"));
       return false;
     }
     if (!pattern.trim()) {
-      toast.error("Vui lòng nhập mẫu khớp");
+      toast.error(t("auto_rules.form.errors.pattern_required"));
       return false;
     }
     if (!priority || Number(priority) <= 0) {
-      toast.error("Độ ưu tiên phải lớn hơn 0");
+      toast.error(t("auto_rules.form.errors.priority_invalid"));
       return false;
     }
     if (!selectedCategory && !selectedMerchant && selectedTags.length === 0) {
-      toast.error("Vui lòng chọn ít nhất một hành động");
+      toast.error(t("auto_rules.form.errors.no_action"));
       return false;
     }
     return true;
@@ -181,15 +183,15 @@ export default function CreateAutoRule({
       setSaving(true);
       if (isEdit && id) {
         await autoRulesService.updateAutoRule(id, payload);
-        toast.success("Đã cập nhật quy tắc tự động");
+        toast.success(t("auto_rules.form.toast.updated"));
       } else {
         await autoRulesService.createAutoRule(payload);
-        toast.success("Đã tạo quy tắc tự động mới");
+        toast.success(t("auto_rules.form.toast.created"));
       }
       nav.goAutoRules();
     } catch (err) {
       toast.error(
-        err instanceof Error ? err.message : "Không thể lưu quy tắc tự động",
+        err instanceof Error ? err.message : t("auto_rules.form.toast.save_failed"),
       );
     } finally {
       setSaving(false);
@@ -200,7 +202,7 @@ export default function CreateAutoRule({
     if (!testDescription || !pattern) {
       setTestResult({
         matched: false,
-        message: "Vui lòng nhập mô tả và mẫu để kiểm tra",
+        message: t("auto_rules.form.test.no_input_message"),
       });
       return;
     }
@@ -218,29 +220,29 @@ export default function CreateAutoRule({
         matched = new RegExp(pattern, "i").test(testDescription);
       }
     } catch {
-      setTestResult({ matched: false, message: "Lỗi: Mẫu regex không hợp lệ" });
+      setTestResult({ matched: false, message: t("auto_rules.form.test.regex_error") });
       return;
     }
 
     if (!matched) {
-      setTestResult({ matched: false, message: "Không khớp với mẫu" });
+      setTestResult({ matched: false, message: t("auto_rules.form.test.no_match") });
       return;
     }
 
     const actions: string[] = [];
     if (selectedCategoryLabel)
-      actions.push(`Danh mục: ${selectedCategoryLabel}`);
+      actions.push(t("auto_rules.form.test.action_category", { name: selectedCategoryLabel }));
     if (selectedMerchantLabel)
-      actions.push(`Merchant: ${selectedMerchantLabel}`);
+      actions.push(t("auto_rules.form.test.action_merchant", { name: selectedMerchantLabel }));
     if (selectedTagLabels.length > 0)
-      actions.push(`Tags: ${selectedTagLabels.join(", ")}`);
+      actions.push(t("auto_rules.form.test.action_tags", { names: selectedTagLabels.join(", ") }));
 
     setTestResult({
       matched: true,
       message:
         actions.length > 0
-          ? `Khớp! Sẽ áp dụng: ${actions.join(" • ")}`
-          : "Khớp!",
+          ? t("auto_rules.form.test.matched_with_actions", { actions: actions.join(" • ") })
+          : t("auto_rules.form.test.matched"),
     });
   };
 
@@ -259,7 +261,7 @@ export default function CreateAutoRule({
       <div className="p-4 md:p-6">
         <Card>
           <p className="text-[var(--text-secondary)]">
-            Đang tải biểu mẫu quy tắc tự động...
+            {t("auto_rules.form.loading")}
           </p>
         </Card>
       </div>
@@ -273,10 +275,10 @@ export default function CreateAutoRule({
           <p className="text-[var(--danger)]">
             {metaError ||
               detailError ||
-              "Không thể tải dữ liệu quy tắc tự động"}
+              t("auto_rules.form.load_error")}
           </p>
           <Button variant="secondary" className="mt-4" onClick={handleBack}>
-            <ArrowLeft className="w-4 h-4" /> Quay lại danh sách
+            <ArrowLeft className="w-4 h-4" /> {t("auto_rules.form.back_to_list")}
           </Button>
         </Card>
       </div>
@@ -292,41 +294,36 @@ export default function CreateAutoRule({
             className="flex items-center gap-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] mb-4 transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
-            <span className="font-medium">Quay lại</span>
+            <span className="font-medium">{t("auto_rules.form.back")}</span>
           </button>
 
           <h1 className="text-2xl font-semibold text-[var(--text-primary)]">
-            {isEdit ? "Chỉnh sửa quy tắc" : "Tạo quy tắc mới"}
+            {isEdit ? t("auto_rules.form.edit_title") : t("auto_rules.form.create_title")}
           </h1>
-          <p className="text-sm text-[var(--text-secondary)] mt-1">
-            {isEdit
-              ? "Cập nhật thông tin quy tắc tự động"
-              : "Thiết lập quy tắc tự động phân loại giao dịch"}
-          </p>
         </div>
 
         <Card>
           <h3 className="font-semibold text-[var(--text-primary)] mb-4">
-            Thông tin cơ bản
+            {t("auto_rules.form.basic_section")}
           </h3>
 
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-                Tên quy tắc <span className="text-[var(--danger)]">*</span>
+                {t("auto_rules.form.fields.name_label")} <span className="text-[var(--danger)]">*</span>
               </label>
               <Input
                 type="text"
                 value={name}
                 onChange={(event) => setName(event.target.value)}
-                placeholder="VD: Giao dịch Grab"
+                placeholder={t("auto_rules.form.fields.name_placeholder")}
               />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-                  Trạng thái
+                  {t("auto_rules.form.fields.status_label")}
                 </label>
                 <button
                   onClick={() => setActive((prev) => !prev)}
@@ -348,14 +345,14 @@ export default function CreateAutoRule({
                     />
                   </div>
                   <span className="text-sm font-medium text-[var(--text-primary)]">
-                    {active ? "Đang hoạt động" : "Tạm dừng"}
+                    {active ? t("auto_rules.form.fields.status_active") : t("auto_rules.form.fields.status_paused")}
                   </span>
                 </button>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-                  Độ ưu tiên <span className="text-[var(--danger)]">*</span>
+                  {t("auto_rules.form.fields.priority_label")} <span className="text-[var(--danger)]">*</span>
                 </label>
                 <Input
                   type="number"
@@ -365,7 +362,7 @@ export default function CreateAutoRule({
                   min="1"
                 />
                 <p className="text-xs text-[var(--text-secondary)] mt-1">
-                  Số nhỏ = ưu tiên cao hơn
+                  {t("auto_rules.form.fields.priority_hint")}
                 </p>
               </div>
             </div>
@@ -374,13 +371,13 @@ export default function CreateAutoRule({
 
         <Card>
           <h3 className="font-semibold text-[var(--text-primary)] mb-4">
-            Điều kiện khớp
+            {t("auto_rules.form.condition_section")}
           </h3>
 
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-                Trường dữ liệu <span className="text-[var(--danger)]">*</span>
+                {t("auto_rules.form.fields.field_label")} <span className="text-[var(--danger)]">*</span>
               </label>
               <select
                 value={matchField}
@@ -399,7 +396,7 @@ export default function CreateAutoRule({
 
             <div>
               <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-                Kiểu khớp <span className="text-[var(--danger)]">*</span>
+                {t("auto_rules.form.fields.operator_label")} <span className="text-[var(--danger)]">*</span>
               </label>
               <div className="grid grid-cols-3 gap-3">
                 {availableOperators.map((operator) => (
@@ -420,19 +417,21 @@ export default function CreateAutoRule({
 
             <div>
               <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-                Mẫu <span className="text-[var(--danger)]">*</span>
+                {t("auto_rules.form.fields.pattern_label")} <span className="text-[var(--danger)]">*</span>
               </label>
               <Input
                 type="text"
                 value={pattern}
                 onChange={(event) => setPattern(event.target.value)}
                 placeholder={
-                  matchType === "regex" ? "VD: (grab|gojek|be)" : "VD: grab"
+                  matchType === "regex"
+                    ? t("auto_rules.form.fields.pattern_placeholder_regex")
+                    : t("auto_rules.form.fields.pattern_placeholder_default")
                 }
               />
               {matchType === "regex" && (
                 <p className="text-xs text-[var(--text-secondary)] mt-1">
-                  Sử dụng cú pháp JavaScript RegExp
+                  {t("auto_rules.form.fields.pattern_regex_hint")}
                 </p>
               )}
             </div>
@@ -441,21 +440,21 @@ export default function CreateAutoRule({
 
         <Card>
           <h3 className="font-semibold text-[var(--text-primary)] mb-4">
-            Hành động
+            {t("auto_rules.form.action_section")}
           </h3>
 
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
                 <Hash className="w-4 h-4 inline mr-1" />
-                Đặt danh mục
+                {t("auto_rules.form.fields.category_label")}
               </label>
               <select
                 value={selectedCategory}
                 onChange={(event) => setSelectedCategory(event.target.value)}
                 className="w-full px-4 py-2.5 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-lg)] text-[var(--text-primary)] appearance-none cursor-pointer transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--focus-ring)]"
               >
-                <option value="">-- Không thay đổi --</option>
+                <option value="">{t("auto_rules.form.fields.category_no_change")}</option>
                 {meta.categories.map((category) => (
                   <option key={category.id} value={category.id}>
                     {category.name}
@@ -467,14 +466,14 @@ export default function CreateAutoRule({
             <div>
               <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
                 <Store className="w-4 h-4 inline mr-1" />
-                Đặt merchant
+                {t("auto_rules.form.fields.merchant_label")}
               </label>
               <select
                 value={selectedMerchant}
                 onChange={(event) => setSelectedMerchant(event.target.value)}
                 className="w-full px-4 py-2.5 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-lg)] text-[var(--text-primary)] appearance-none cursor-pointer transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--focus-ring)]"
               >
-                <option value="">-- Không thay đổi --</option>
+                <option value="">{t("auto_rules.form.fields.merchant_no_change")}</option>
                 {meta.merchants.map((merchant) => (
                   <option key={merchant.id} value={merchant.id}>
                     {merchant.name}
@@ -486,7 +485,7 @@ export default function CreateAutoRule({
             <div>
               <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
                 <Tag className="w-4 h-4 inline mr-1" />
-                Thêm tags
+                {t("auto_rules.form.fields.tags_label")}
               </label>
               <select
                 value=""
@@ -496,7 +495,7 @@ export default function CreateAutoRule({
                 }}
                 className="w-full px-4 py-2.5 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-lg)] text-[var(--text-primary)] appearance-none cursor-pointer transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--focus-ring)]"
               >
-                <option value="">-- Chọn tag --</option>
+                <option value="">{t("auto_rules.form.fields.tags_placeholder")}</option>
                 {meta.tags
                   .filter((tag) => !selectedTags.includes(tag.id))
                   .map((tag) => (
@@ -532,25 +531,25 @@ export default function CreateAutoRule({
 
         <Card className="bg-[var(--surface)]">
           <h3 className="font-semibold text-[var(--text-primary)] mb-4">
-            Kiểm tra quy tắc
+            {t("auto_rules.form.test_section")}
           </h3>
 
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-                Thử với mô tả mẫu
+                {t("auto_rules.form.fields.test_input_label")}
               </label>
               <div className="flex gap-2">
                 <Input
                   type="text"
                   value={testDescription}
                   onChange={(event) => setTestDescription(event.target.value)}
-                  placeholder="VD: Grab - Di chuyển từ nhà đến công ty"
+                  placeholder={t("auto_rules.form.fields.test_input_placeholder")}
                   className="flex-1"
                 />
                 <Button onClick={handleTest} variant="secondary">
                   <Play className="w-5 h-5" />
-                  Kiểm tra
+                  {t("auto_rules.form.test.run_button")}
                 </Button>
               </div>
             </div>
@@ -583,7 +582,7 @@ export default function CreateAutoRule({
             variant="secondary"
             className="flex-1 md:flex-initial"
           >
-            Huỷ
+            {t("auto_rules.form.actions.cancel")}
           </Button>
           <Button
             onClick={() => void handleSave()}
@@ -591,7 +590,7 @@ export default function CreateAutoRule({
             className="flex-1 md:flex-initial"
           >
             <Save className="w-4 h-4" />
-            {saving ? "Đang lưu..." : isEdit ? "Lưu thay đổi" : "Lưu quy tắc"}
+            {saving ? t("auto_rules.form.actions.saving") : isEdit ? t("auto_rules.form.actions.save") : t("auto_rules.form.actions.create")}
           </Button>
         </div>
       </div>

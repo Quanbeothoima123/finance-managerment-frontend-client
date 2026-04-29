@@ -17,6 +17,7 @@ import { Button } from "../components/Button";
 import { useAppNavigation } from "../hooks/useAppNavigation";
 import { useNotifications } from "../contexts/NotificationContext";
 import { useToast } from "../contexts/ToastContext";
+import { useTranslation } from "react-i18next";
 
 // ── Toggle Row ────────────────────────────────────────────────────────────────
 
@@ -84,9 +85,10 @@ export default function NotificationSettings() {
   const nav = useAppNavigation();
   const toast = useToast();
   const { settings, updateSettings } = useNotifications();
+  const { t } = useTranslation("settings");
 
   const handleSave = () => {
-    toast.success("Đã lưu cài đặt thông báo");
+    toast.success(t("notifications.toast.saved"));
   };
 
   return (
@@ -99,10 +101,12 @@ export default function NotificationSettings() {
             className="flex items-center gap-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] mb-4 transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
-            <span className="font-medium">Quay lại</span>
+            <span className="font-medium">
+              {t("notifications.actions.back")}
+            </span>
           </button>
           <h1 className="text-2xl font-semibold text-[var(--text-primary)]">
-            Thông báo
+            {t("notifications.title")}
           </h1>
           <p className="text-sm text-[var(--text-secondary)] mt-1">
             Quản lý cách ứng dụng thông báo cho bạn.
@@ -113,7 +117,7 @@ export default function NotificationSettings() {
         <Card>
           <h3 className="font-semibold text-[var(--text-primary)] mb-4 flex items-center gap-2">
             <Bell className="w-5 h-5 text-[var(--primary)]" />
-            Quyền hệ thống
+            {t("notifications.sections.system")}
           </h3>
 
           <div className="flex items-center gap-4 p-4 bg-[var(--surface)] rounded-[var(--radius-lg)]">
@@ -143,7 +147,7 @@ export default function NotificationSettings() {
         {/* ─── Section B: Notification Types ──────────────────────── */}
         <Card>
           <h3 className="font-semibold text-[var(--text-primary)] mb-2">
-            Loại thông báo
+            {t("notifications.sections.types")}
           </h3>
           <p className="text-xs text-[var(--text-tertiary)] mb-4">
             Bật hoặc tắt từng loại thông báo riêng biệt.
@@ -152,33 +156,35 @@ export default function NotificationSettings() {
           <div className="divide-y divide-[var(--divider)]">
             <ToggleRow
               icon={<RefreshCw className="w-5 h-5" />}
-              title="Nhắc nhở giao dịch định kỳ"
-              description="Thông báo khi có giao dịch định kỳ đến hạn."
+              title={t("notifications.items.recurring_reminder.title")}
+              description={t(
+                "notifications.items.recurring_reminder.description",
+              )}
               enabled={settings.recurringReminders}
               onChange={(val) => updateSettings({ recurringReminders: val })}
             />
             <ToggleRow
               icon={<BarChart3 className="w-5 h-5" />}
-              title="Cảnh báo vượt ngân sách"
-              description="Nhắc khi chi tiêu gần hoặc vượt giới hạn ngân sách."
+              title={t("notifications.items.budget_warning.title")}
+              description={t("notifications.items.budget_warning.description")}
               enabled={settings.budgetAlerts}
               onChange={(val) => updateSettings({ budgetAlerts: val })}
             />
             <ToggleRow
               icon={<Target className="w-5 h-5" />}
-              title="Nhắc nhở mục tiêu tiết kiệm"
-              description="Nhắc đóng góp cho mục tiêu tiết kiệm."
+              title={t("notifications.items.goal_reminder.title")}
+              description={t("notifications.items.goal_reminder.description")}
               enabled={settings.goalReminders}
               onChange={(val) => updateSettings({ goalReminders: val })}
             />
             <ToggleRow
               icon={<Mail className="w-5 h-5" />}
-              title="Tổng kết tuần"
-              description="Nhận báo cáo tóm tắt chi tiêu hàng tuần."
+              title={t("notifications.items.weekly_summary.title")}
+              description={t("notifications.items.weekly_summary.description")}
               enabled={settings.weeklyRecap}
               onChange={() => {}}
               disabled
-              badge="Sắp ra mắt"
+              badge={t("notifications.items.weekly_summary.badge_coming_soon")}
             />
           </div>
         </Card>
@@ -187,7 +193,7 @@ export default function NotificationSettings() {
         <Card>
           <h3 className="font-semibold text-[var(--text-primary)] mb-2 flex items-center gap-2">
             <Smartphone className="w-5 h-5 text-[var(--primary)]" />
-            Âm thanh & Rung
+            {t("notifications.sections.sound_vibration")}
           </h3>
           <p className="text-xs text-[var(--text-tertiary)] mb-4">
             Tuỳ chỉnh phản hồi khi nhận thông báo mới.
@@ -196,15 +202,15 @@ export default function NotificationSettings() {
           <div className="divide-y divide-[var(--divider)]">
             <ToggleRow
               icon={<Volume2 className="w-5 h-5" />}
-              title="Âm thanh thông báo"
-              description="Phát âm thanh khi có thông báo mới."
+              title={t("notifications.items.sound.title")}
+              description={t("notifications.items.sound.description")}
               enabled={settings.soundEnabled}
               onChange={(val) => updateSettings({ soundEnabled: val })}
             />
             <ToggleRow
               icon={<Vibrate className="w-5 h-5" />}
-              title="Rung"
-              description="Rung khi nhận thông báo (trên thiết bị hỗ trợ)."
+              title={t("notifications.items.vibration.title")}
+              description={t("notifications.items.vibration.description")}
               enabled={settings.vibrationEnabled}
               onChange={(val) => updateSettings({ vibrationEnabled: val })}
             />
@@ -215,7 +221,7 @@ export default function NotificationSettings() {
         <Card>
           <h3 className="font-semibold text-[var(--text-primary)] mb-2 flex items-center gap-2">
             <Moon className="w-5 h-5 text-[var(--primary)]" />
-            Giờ yên lặng
+            {t("notifications.sections.quiet_hours")}
           </h3>
           <p className="text-xs text-[var(--text-tertiary)] mb-4">
             Thông báo hệ thống sẽ bị tắt tiếng trong khoảng thời gian này; các
@@ -225,7 +231,7 @@ export default function NotificationSettings() {
           {/* Toggle */}
           <div className="flex items-center justify-between py-3">
             <span className="font-medium text-[var(--text-primary)]">
-              Bật Giờ yên lặng
+              {t("notifications.quiet_hours.enable_label")}
             </span>
             <button
               onClick={() =>
@@ -253,7 +259,7 @@ export default function NotificationSettings() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">
-                    Từ
+                    {t("notifications.quiet_hours.from_label")}
                   </label>
                   <input
                     type="time"
@@ -266,7 +272,7 @@ export default function NotificationSettings() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">
-                    Đến
+                    {t("notifications.quiet_hours.to_label")}
                   </label>
                   <input
                     type="time"
@@ -294,10 +300,10 @@ export default function NotificationSettings() {
             onClick={() => nav.goBack()}
             className="flex-1 md:flex-initial"
           >
-            Huỷ
+            {t("notifications.actions.cancel")}
           </Button>
           <Button onClick={handleSave} className="flex-1 md:flex-initial">
-            Lưu cài đặt
+            {t("notifications.actions.save")}
           </Button>
         </div>
       </div>

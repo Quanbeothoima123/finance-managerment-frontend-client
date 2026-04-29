@@ -22,6 +22,7 @@ import { useAppData } from "../contexts/AppDataContext";
 import { useNavigate } from "react-router";
 import { useAuth } from "../hooks/useAuth";
 import { authService } from "../services/authService";
+import { useTranslation } from "react-i18next";
 
 interface SettingItemProps {
   icon: React.ReactNode;
@@ -56,6 +57,7 @@ export default function SettingsHome() {
   const navigate = useNavigate();
   const { isPro, setIsPro } = useAppData();
   const { user, setSession, accessToken } = useAuth();
+  const { t } = useTranslation("settings");
 
   const [displayName, setDisplayName] = useState(user?.displayName ?? "");
   const [isSaving, setIsSaving] = useState(false);
@@ -74,7 +76,7 @@ export default function SettingsHome() {
 
   const handleSaveProfile = async () => {
     if (!displayName.trim()) {
-      toast.error("Tên hiển thị không được để trống");
+      toast.error(t("home.toast.display_name_empty"));
       return;
     }
     setIsSaving(true);
@@ -89,9 +91,9 @@ export default function SettingsHome() {
           rememberMe: true,
         });
       }
-      toast.success("Đã lưu thông tin hồ sơ");
+      toast.success(t("home.toast.profile_saved"));
     } catch (err: any) {
-      toast.error(err?.message ?? "Lưu thất bại");
+      toast.error(err?.message ?? t("home.toast.profile_save_failed"));
     } finally {
       setIsSaving(false);
     }
@@ -103,7 +105,7 @@ export default function SettingsHome() {
     setIsUploadingAvatar(true);
     try {
       await authService.uploadAvatar(file);
-      toast.success("Đã cập nhật ảnh đại diện");
+      toast.success(t("home.toast.avatar_updated"));
       // reload user
       const updated = await authService.me();
       if (updated) {
@@ -114,7 +116,7 @@ export default function SettingsHome() {
         });
       }
     } catch (err: any) {
-      toast.error(err?.message ?? "Tải ảnh thất bại");
+      toast.error(err?.message ?? t("home.toast.avatar_failed"));
     } finally {
       setIsUploadingAvatar(false);
       if (avatarInputRef.current) avatarInputRef.current.value = "";
@@ -124,7 +126,7 @@ export default function SettingsHome() {
   const handleNavigation = (section: string) => {
     switch (section) {
       case "profile":
-        toast.info("Đang mở hồ sơ cá nhân");
+        toast.info(t("home.toast.open_profile"));
         break;
       case "currency":
         nav.goGeneralSettings();
@@ -154,7 +156,7 @@ export default function SettingsHome() {
           {/* Left Menu */}
           <div className="w-80 bg-[var(--card)] border-r border-[var(--divider)] p-6 overflow-y-auto">
             <h1 className="text-2xl font-semibold text-[var(--text-primary)] mb-6">
-              Cài đặt
+              {t("home.title")}
             </h1>
 
             <nav className="space-y-2">
@@ -164,7 +166,7 @@ export default function SettingsHome() {
               >
                 <User className="w-5 h-5 text-[var(--primary)]" />
                 <span className="font-medium text-[var(--text-primary)]">
-                  Hồ sơ
+                  {t("home.profile.nav_label")}
                 </span>
               </button>
 
@@ -174,7 +176,7 @@ export default function SettingsHome() {
               >
                 <Globe className="w-5 h-5 text-[var(--text-secondary)]" />
                 <span className="font-medium text-[var(--text-primary)]">
-                  Tiền tệ & Tuần
+                  {t("home.menu_items.general.title")}
                 </span>
               </button>
 
@@ -184,7 +186,7 @@ export default function SettingsHome() {
               >
                 <Shield className="w-5 h-5 text-[var(--text-secondary)]" />
                 <span className="font-medium text-[var(--text-primary)]">
-                  Bảo mật
+                  {t("home.menu_items.security.title")}
                 </span>
               </button>
 
@@ -194,7 +196,7 @@ export default function SettingsHome() {
               >
                 <Bell className="w-5 h-5 text-[var(--text-secondary)]" />
                 <span className="font-medium text-[var(--text-primary)]">
-                  Thông báo
+                  {t("home.menu_items.notifications.title")}
                 </span>
               </button>
 
@@ -204,7 +206,7 @@ export default function SettingsHome() {
               >
                 <Database className="w-5 h-5 text-[var(--text-secondary)]" />
                 <span className="font-medium text-[var(--text-primary)]">
-                  Dữ liệu & Sao lưu
+                  {t("home.menu_items.data_backup.title")}
                 </span>
               </button>
 
@@ -214,7 +216,7 @@ export default function SettingsHome() {
               >
                 <Paperclip className="w-5 h-5 text-[var(--text-secondary)]" />
                 <span className="font-medium text-[var(--text-primary)]">
-                  Thư viện đính kèm
+                  {t("home.menu_items.attachment_library.title")}
                 </span>
               </button>
 
@@ -224,7 +226,7 @@ export default function SettingsHome() {
               >
                 <Info className="w-5 h-5 text-[var(--text-secondary)]" />
                 <span className="font-medium text-[var(--text-primary)]">
-                  Giới thiệu
+                  {t("home.menu_items.about.title")}
                 </span>
               </button>
 
@@ -320,10 +322,10 @@ export default function SettingsHome() {
             <div className="max-w-3xl space-y-6">
               <div>
                 <h2 className="text-2xl font-semibold text-[var(--text-primary)] mb-2">
-                  Hồ sơ
+                  {t("home.profile.title")}
                 </h2>
                 <p className="text-sm text-[var(--text-secondary)]">
-                  Quản lý thông tin cá nhân của bạn
+                  {t("home.profile.subtitle")}
                 </p>
               </div>
 
@@ -350,7 +352,7 @@ export default function SettingsHome() {
                       }}
                       disabled={isUploadingAvatar}
                       className="absolute -bottom-1 -right-1 w-7 h-7 bg-[var(--card)] border-2 border-[var(--border)] rounded-full flex items-center justify-center hover:bg-[var(--surface-elevated)] transition-colors disabled:opacity-60"
-                      title="Đổi ảnh đại diện"
+                      title={t("home.profile.change_avatar_title")}
                     >
                       <Camera className="w-3.5 h-3.5 text-[var(--text-secondary)]" />
                     </button>
@@ -371,7 +373,7 @@ export default function SettingsHome() {
                     </p>
                     {isUploadingAvatar && (
                       <p className="text-xs text-[var(--text-tertiary)] mt-1">
-                        Đang tải ảnh...
+                        {t("home.profile.uploading")}
                       </p>
                     )}
                   </div>
@@ -380,7 +382,7 @@ export default function SettingsHome() {
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-                      Họ và tên
+                      {t("home.profile.name_label")}
                     </label>
                     <input
                       type="text"
@@ -392,7 +394,7 @@ export default function SettingsHome() {
 
                   <div>
                     <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-                      Email
+                      {t("home.profile.email_label")}
                     </label>
                     <input
                       type="email"
@@ -407,7 +409,9 @@ export default function SettingsHome() {
                     className="w-full md:w-auto px-6 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] disabled:opacity-60 text-white rounded-[var(--radius-lg)] font-medium transition-colors"
                     onClick={handleSaveProfile}
                   >
-                    {isSaving ? "Đang lưu..." : "Lưu thay đổi"}
+                    {isSaving
+                      ? t("home.profile.saving")
+                      : t("home.profile.save_button")}
                   </button>
                 </div>
               </Card>
@@ -419,10 +423,10 @@ export default function SettingsHome() {
         <div className="md:hidden p-4 pb-20 space-y-6">
           <div>
             <h1 className="text-2xl font-semibold text-[var(--text-primary)]">
-              Cài đặt
+              {t("home.title")}
             </h1>
             <p className="text-sm text-[var(--text-secondary)] mt-1">
-              Quản lý tài khoản và tuỳ chọn
+              {t("home.subtitle")}
             </p>
           </div>
 
@@ -456,7 +460,7 @@ export default function SettingsHome() {
               className="flex items-center justify-between w-full px-4 py-3 bg-[var(--surface)] hover:bg-[var(--border)] rounded-[var(--radius-lg)] transition-colors"
             >
               <span className="text-sm font-medium text-[var(--text-primary)]">
-                Chỉnh sửa hồ sơ
+                {t("home.profile.edit_button")}
               </span>
               <ChevronRight className="w-5 h-5 text-[var(--text-secondary)]" />
             </button>
@@ -465,14 +469,14 @@ export default function SettingsHome() {
           {/* Settings Sections */}
           <Card>
             <h3 className="font-semibold text-[var(--text-primary)] mb-4">
-              Cài đặt chung
+              {t("home.sections.general")}
             </h3>
 
             <div className="space-y-1">
               <SettingItem
                 icon={<SlidersHorizontal className="w-6 h-6" />}
-                title="Chung (Tiền tệ & định dạng)"
-                description="Currency, định dạng số/ngày, timezone"
+                title={t("home.menu_items.general.title")}
+                description={t("home.menu_items.general.description")}
                 onClick={() => handleNavigation("currency")}
               />
             </div>
@@ -480,35 +484,37 @@ export default function SettingsHome() {
 
           <Card>
             <h3 className="font-semibold text-[var(--text-primary)] mb-4">
-              Bảo mật & Dữ liệu
+              {t("home.sections.security_data")}
             </h3>
 
             <div className="space-y-1">
               <SettingItem
                 icon={<Shield className="w-6 h-6" />}
-                title="Bảo mật"
-                description="PIN, sinh trắc học, chế độ riêng tư"
+                title={t("home.menu_items.security.title")}
+                description={t("home.menu_items.security.description")}
                 onClick={() => handleNavigation("security")}
               />
 
               <SettingItem
                 icon={<Bell className="w-6 h-6" />}
-                title="Thông báo"
-                description="Nhắc nhở, cảnh báo, giờ yên lặng"
+                title={t("home.menu_items.notifications.title")}
+                description={t("home.menu_items.notifications.description")}
                 onClick={() => handleNavigation("notifications")}
               />
 
               <SettingItem
                 icon={<Database className="w-6 h-6" />}
-                title="Dữ liệu & Sao lưu"
-                description="Nhập, xuất, khôi phục dữ liệu"
+                title={t("home.menu_items.data_backup.title")}
+                description={t("home.menu_items.data_backup.description")}
                 onClick={() => handleNavigation("data")}
               />
 
               <SettingItem
                 icon={<Paperclip className="w-6 h-6" />}
-                title="Thư viện đính kèm"
-                description="Quản lý và xem các tệp đính kèm"
+                title={t("home.menu_items.attachment_library.title")}
+                description={t(
+                  "home.menu_items.attachment_library.description",
+                )}
                 onClick={() => nav.goAttachments()}
               />
             </div>
@@ -516,14 +522,14 @@ export default function SettingsHome() {
 
           <Card>
             <h3 className="font-semibold text-[var(--text-primary)] mb-4">
-              Thông tin
+              {t("home.sections.info")}
             </h3>
 
             <div className="space-y-1">
               <SettingItem
                 icon={<Info className="w-6 h-6" />}
-                title="Giới thiệu"
-                description="Phiên bản, điều khoản, chính sách"
+                title={t("home.menu_items.about.title")}
+                description={t("home.menu_items.about.description")}
                 onClick={() => handleNavigation("about")}
               />
             </div>

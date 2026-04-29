@@ -12,10 +12,12 @@ import { Card } from "../components/Card";
 import { Button } from "../components/Button";
 import { useAppNavigation } from "../hooks/useAppNavigation";
 import { useToast } from "../contexts/ToastContext";
+import { useTranslation } from "react-i18next";
 
 export default function SecuritySettings() {
   const nav = useAppNavigation();
   const toast = useToast();
+  const { t } = useTranslation("settings");
 
   const [hideAccountNumbers, setHideAccountNumbers] = useState(() => {
     try {
@@ -41,7 +43,7 @@ export default function SecuritySettings() {
   };
 
   const handleSave = () => {
-    toast.success("Đã lưu cài đặt bảo mật");
+    toast.success(t("security.toast.saved"));
     nav.goSettings();
   };
 
@@ -63,11 +65,11 @@ export default function SecuritySettings() {
             className="flex items-center gap-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] mb-4 transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
-            <span className="font-medium">Quay lại</span>
+            <span className="font-medium">{t("security.actions.back")}</span>
           </button>
 
           <h1 className="text-2xl font-semibold text-[var(--text-primary)]">
-            Bảo mật
+            {t("security.title")}
           </h1>
           <p className="text-sm text-[var(--text-secondary)] mt-1">
             Bảo vệ dữ liệu tài chính của bạn
@@ -85,7 +87,7 @@ export default function SecuritySettings() {
               <div className="flex items-start justify-between gap-4 mb-2">
                 <div>
                   <h3 className="font-semibold text-[var(--text-primary)] mb-1">
-                    Khoá bằng mã PIN
+                    {t("security.sections.pin_lock")}
                   </h3>
                   <p className="text-sm text-[var(--text-secondary)]">
                     Yêu cầu nhập mã PIN 6 số khi mở ứng dụng
@@ -111,7 +113,7 @@ export default function SecuritySettings() {
                   onClick={() => setShowPinSetup(true)}
                   className="mt-3 text-sm text-[var(--primary)] hover:text-[var(--primary-hover)] font-medium transition-colors"
                 >
-                  Thay đổi mã PIN
+                  {t("security.actions.change_pin")}
                 </button>
               )}
             </div>
@@ -156,7 +158,7 @@ export default function SecuritySettings() {
                   }}
                   className="flex-1"
                 >
-                  Xác nhận
+                  {t("security.actions.confirm")}
                 </Button>
                 <Button
                   onClick={() => {
@@ -166,7 +168,7 @@ export default function SecuritySettings() {
                   variant="secondary"
                   className="flex-1"
                 >
-                  Huỷ
+                  {t("security.actions.cancel")}
                 </Button>
               </div>
             </div>
@@ -184,7 +186,7 @@ export default function SecuritySettings() {
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <h3 className="font-semibold text-[var(--text-primary)] mb-1">
-                    Sinh trắc học
+                    {t("security.sections.biometrics")}
                   </h3>
                   <p className="text-sm text-[var(--text-secondary)]">
                     Sử dụng vân tay hoặc Face ID để mở khoá nhanh
@@ -232,7 +234,7 @@ export default function SecuritySettings() {
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <h3 className="font-semibold text-[var(--text-primary)] mb-1">
-                    Chế độ riêng tư
+                    {t("security.sections.privacy_mode")}
                   </h3>
                   <p className="text-sm text-[var(--text-secondary)]">
                     Ẩn số tiền trên màn hình chính và thông báo
@@ -276,7 +278,7 @@ export default function SecuritySettings() {
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <h3 className="font-semibold text-[var(--text-primary)] mb-1">
-                    Ẩn số tài khoản
+                    {t("security.sections.hide_accounts")}
                   </h3>
                   <p className="text-sm text-[var(--text-secondary)]">
                     Ẩn số tài khoản trên màn hình chính và thông báo
@@ -359,10 +361,10 @@ export default function SecuritySettings() {
             variant="secondary"
             className="flex-1 md:flex-initial"
           >
-            Huỷ
+            {t("security.actions.cancel")}
           </Button>
           <Button onClick={handleSave} className="flex-1 md:flex-initial">
-            Lưu thay đổi
+            {t("security.actions.save")}
           </Button>
         </div>
       </div>

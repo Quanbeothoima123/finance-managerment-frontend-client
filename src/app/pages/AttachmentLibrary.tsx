@@ -22,6 +22,7 @@ import { useTransactionsList } from "../hooks/useTransactionsList";
 import { useAccountsOverview } from "../hooks/useAccountsOverview";
 import { useAppNavigation } from "../hooks/useAppNavigation";
 import { Button } from "../components/Button";
+import { useTranslation } from "react-i18next";
 
 interface GalleryItem {
   imageUrl: string;
@@ -44,6 +45,7 @@ export default function AttachmentLibrary() {
   });
   const { data: accData, loading: accLoading } = useAccountsOverview();
   const { goTransactionDetail, goCreateTransaction } = useAppNavigation();
+  const { t } = useTranslation("settings");
   const loading = txnLoading || accLoading;
 
   // State
@@ -158,8 +160,8 @@ export default function AttachmentLibrary() {
 
   // Quick filter chips config
   const quickFilters: { key: QuickFilter; label: string; show: boolean }[] = [
-    { key: "all", label: "Tất cả", show: true },
-    { key: "image", label: "Ảnh", show: true },
+    { key: "all", label: t("attachments.filters.type_all"), show: true },
+    { key: "image", label: t("attachments.filters.type_image"), show: true },
   ];
 
   // Unique accounts that have attachments
@@ -184,10 +186,10 @@ export default function AttachmentLibrary() {
           <div className="flex items-center justify-between mb-1">
             <div>
               <h1 className="text-2xl font-semibold text-[var(--text-primary)]">
-                Đính kèm
+                {t("attachments.title")}
               </h1>
               <p className="text-sm text-[var(--text-tertiary)] mt-0.5">
-                Tất cả ảnh & file bạn đã lưu
+                {t("attachments.subtitle")}
               </p>
             </div>
             <div className="flex items-center gap-2">
@@ -198,7 +200,7 @@ export default function AttachmentLibrary() {
                     ? "bg-[var(--primary-light)] border-[var(--primary)] text-[var(--primary)]"
                     : "border-[var(--border)] text-[var(--text-secondary)] hover:bg-[var(--surface)]"
                 }`}
-                title="Bộ lọc nâng cao"
+                title={t("attachments.filters.open_advanced")}
               >
                 <Filter className="w-5 h-5" />
               </button>
@@ -210,7 +212,7 @@ export default function AttachmentLibrary() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--text-tertiary)]" />
             <input
               type="text"
-              placeholder="Tìm tên file, giao dịch..."
+              placeholder={t("attachments.filters.search_placeholder")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-10 pr-4 py-2.5 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-lg)] text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-[var(--focus-ring)]"
@@ -253,7 +255,7 @@ export default function AttachmentLibrary() {
                 onClick={clearAdvancedFilters}
                 className="text-[var(--danger)] font-medium hover:underline ml-auto"
               >
-                Xoá bộ lọc
+                {t("attachments.filters.clear")}
               </button>
             )}
           </div>
@@ -270,12 +272,12 @@ export default function AttachmentLibrary() {
                 <Paperclip className="w-10 h-10 text-[var(--text-tertiary)]" />
               </div>
               <h3 className="font-semibold text-[var(--text-primary)] mb-2">
-                Chưa có đính kèm nào.
+                {t("attachments.empty.title")}
               </h3>
               <p className="text-sm text-[var(--text-tertiary)] max-w-xs mb-6">
                 {allItems.length === 0
-                  ? "Thêm ảnh hoá đơn hoặc file vào giao dịch để xem ở đây."
-                  : "Không tìm thấy đính kèm phù hợp bộ lọc."}
+                  ? t("attachments.empty.no_attachments")
+                  : t("attachments.empty.no_results")}
               </p>
               {allItems.length === 0 && (
                 <Button onClick={() => goCreateTransaction()}>
@@ -369,7 +371,7 @@ export default function AttachmentLibrary() {
             {/* Sheet header */}
             <div className="flex items-center justify-between p-4 border-b border-[var(--border)]">
               <h3 className="font-semibold text-[var(--text-primary)]">
-                Bộ lọc nâng cao
+                {t("attachments.filters.open_advanced")}
               </h3>
               <button
                 onClick={() => setFilterSheetOpen(false)}
@@ -497,13 +499,13 @@ export default function AttachmentLibrary() {
                 }}
                 className="flex-1 px-4 py-2.5 rounded-[var(--radius-lg)] border border-[var(--border)] text-sm font-medium text-[var(--text-secondary)] hover:bg-[var(--surface)] transition-colors"
               >
-                Xoá bộ lọc
+                {t("attachments.filters.clear")}
               </button>
               <button
                 onClick={() => setFilterSheetOpen(false)}
                 className="flex-1 px-4 py-2.5 rounded-[var(--radius-lg)] bg-[var(--primary)] text-white text-sm font-medium hover:opacity-90 transition-opacity"
               >
-                Áp dụng
+                {t("attachments.filters.apply")}
               </button>
             </div>
           </div>
@@ -535,7 +537,7 @@ export default function AttachmentLibrary() {
                     target="_blank"
                     rel="noopener noreferrer"
                     className="p-2 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
-                    title="Mở trong trình duyệt"
+                    title={t("attachments.item.open_in_browser")}
                   >
                     <ExternalLink className="w-5 h-5" />
                   </a>
@@ -543,7 +545,7 @@ export default function AttachmentLibrary() {
                     href={currentItem.imageUrl}
                     download
                     className="p-2 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
-                    title="Tải về"
+                    title={t("attachments.item.download")}
                   >
                     <Download className="w-5 h-5" />
                   </a>

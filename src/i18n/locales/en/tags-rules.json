@@ -1,1 +1,478 @@
-{}
+{
+  "tags": {
+    "list": {
+      "title": "Tags",
+      "subtitle": "Manage tags to categorize transactions",
+      "add_button": "Create tag",
+      "summary": {
+        "total": "Total tags",
+        "total_usage": "Total usage",
+        "avg_usage": "Average / tag"
+      },
+      "filters": {
+        "search_placeholder": "Search by tag name...",
+        "sort_usage_desc": "Most used",
+        "sort_usage_asc": "Least used",
+        "sort_name_asc": "Name A-Z",
+        "sort_name_desc": "Name Z-A",
+        "sort_created_desc": "Newest first",
+        "sort_created_asc": "Oldest first"
+      },
+      "card": {
+        "stats": "{{txnCount}} transactions · {{ruleCount}} rules",
+        "view_transactions": "View transactions",
+        "tooltip_edit": "Edit",
+        "tooltip_delete": "Delete"
+      },
+      "loading": "Loading tags...",
+      "empty": {
+        "title": "No tags yet",
+        "subtitle": "Create tags to organize your transactions more flexibly.",
+        "create_button": "Create your first tag"
+      },
+      "delete_modal": {
+        "title": "Delete tag?",
+        "description": "Are you sure you want to delete the tag \"{{name}}\"?",
+        "confirm_deleting": "Deleting...",
+        "confirm": "Delete",
+        "cancel": "Cancel"
+      },
+      "toast": {
+        "deleted": "Deleted tag \"{{name}}\"",
+        "delete_failed": "Could not delete tag"
+      }
+    },
+    "form": {
+      "create_title": "Create new tag",
+      "edit_title": "Edit tag",
+      "create_subtitle": "Add a new tag to attach to transactions",
+      "edit_subtitle": "Update tag information",
+      "back": "Back",
+      "loading": "Loading tag data...",
+      "name_section": "Tag name",
+      "color_section": "Color",
+      "preview_section": "Preview",
+      "fields": {
+        "name_label": "Name",
+        "name_placeholder": "E.g. Work, Essential...",
+        "color_label": "HEX color code",
+        "color_placeholder": "#ef4444"
+      },
+      "color_picker": {
+        "show": "Choose from palette",
+        "hide": "Hide palette"
+      },
+      "preview": {
+        "name_placeholder": "Tag name"
+      },
+      "actions": {
+        "cancel": "Cancel",
+        "saving": "Saving...",
+        "create": "Create tag",
+        "save": "Save changes"
+      },
+      "errors": {
+        "name_required": "Please enter a tag name",
+        "color_invalid": "Invalid color (e.g. #ef4444)"
+      },
+      "toast": {
+        "created": "Tag created",
+        "updated": "Tag updated",
+        "save_failed": "Could not save tag"
+      }
+    }
+  },
+  "auto_rules": {
+    "list": {
+      "title": "Auto rules",
+      "subtitle": "Automatically categorize transactions based on patterns",
+      "add_button": "Create rule",
+      "summary": {
+        "total": "Total rules",
+        "active": "Active",
+        "paused": "Paused",
+        "priority_info_label": "Priority",
+        "priority_info_value": "High → Low"
+      },
+      "how_it_works": {
+        "title": "How it works",
+        "description": "Rules are applied in priority order when you add a new transaction"
+      },
+      "filters": {
+        "search_placeholder": "Search rules...",
+        "status_all": "All",
+        "status_active": "Active",
+        "status_inactive": "Paused",
+        "sort_priority": "Priority",
+        "sort_name": "Name A-Z"
+      },
+      "rule_item": {
+        "edit": "Edit",
+        "delete": "Delete",
+        "status_active": "Active",
+        "status_paused": "Paused"
+      },
+      "match_fields": {
+        "description": "Description",
+        "merchant": "Merchant",
+        "note": "Note",
+        "amount": "Amount",
+        "account": "Account",
+        "weekday": "Weekday"
+      },
+      "match_types": {
+        "contains": "contains",
+        "equals": "equals",
+        "regex": "regex",
+        "starts_with": "starts with",
+        "ends_with": "ends with",
+        "greater_than": "greater than",
+        "gt": "greater than",
+        "less_than": "less than",
+        "lt": "less than"
+      },
+      "swipe_actions": {
+        "edit": "Edit",
+        "delete": "Delete"
+      },
+      "loading": "Loading auto rules...",
+      "reload": "Reload",
+      "empty": {
+        "title": "No rules yet",
+        "subtitle": "Create your first rule to automatically categorize transactions",
+        "create_button": "Create rule"
+      },
+      "no_results": {
+        "title": "No rules found",
+        "subtitle": "Try changing your filters or search"
+      },
+      "delete_modal": {
+        "title": "Delete rule?",
+        "description": "Are you sure you want to delete the rule \"{{name}}\"? This action cannot be undone.",
+        "confirm": "Delete",
+        "cancel": "Cancel"
+      },
+      "toast": {
+        "deleted": "Deleted rule \"{{name}}\"",
+        "delete_failed": "Could not delete rule",
+        "activated": "Rule activated",
+        "paused": "Rule paused",
+        "toggle_failed": "Could not update rule status",
+        "reorder_failed": "Could not reorder rules"
+      }
+    },
+    "form": {
+      "create_title": "Create new rule",
+      "edit_title": "Edit rule",
+      "back": "Back",
+      "back_to_list": "Back to list",
+      "loading": "Loading auto rule form...",
+      "load_error": "Could not load auto rule data",
+      "basic_section": "Basic information",
+      "condition_section": "Match conditions",
+      "action_section": "Actions",
+      "test_section": "Test rule",
+      "fields": {
+        "name_label": "Rule name",
+        "name_placeholder": "E.g. Grab transactions",
+        "status_label": "Status",
+        "status_active": "Active",
+        "status_paused": "Paused",
+        "priority_label": "Priority",
+        "priority_hint": "Lower number = higher priority",
+        "field_label": "Field",
+        "operator_label": "Match type",
+        "pattern_label": "Pattern",
+        "pattern_placeholder_default": "E.g. grab",
+        "pattern_placeholder_regex": "E.g. (grab|gojek|be)",
+        "pattern_regex_hint": "Use JavaScript RegExp syntax",
+        "category_label": "Set category",
+        "category_no_change": "-- No change --",
+        "merchant_label": "Set merchant",
+        "merchant_no_change": "-- No change --",
+        "tags_label": "Add tags",
+        "tags_placeholder": "-- Select tag --",
+        "test_input_label": "Test with sample description",
+        "test_input_placeholder": "E.g. Grab - Trip from home to office"
+      },
+      "test": {
+        "run_button": "Test",
+        "no_input_message": "Please enter a description and pattern to test",
+        "no_match": "Does not match pattern",
+        "matched": "Matched!",
+        "matched_with_actions": "Matched! Will apply: {{actions}}",
+        "action_category": "Category: {{name}}",
+        "action_merchant": "Merchant: {{name}}",
+        "action_tags": "Tags: {{names}}",
+        "regex_error": "Error: Invalid regex pattern"
+      },
+      "actions": {
+        "cancel": "Cancel",
+        "saving": "Saving...",
+        "create": "Save rule",
+        "save": "Save changes"
+      },
+      "errors": {
+        "name_required": "Please enter a rule name",
+        "pattern_required": "Please enter a match pattern",
+        "priority_invalid": "Priority must be greater than 0",
+        "no_action": "Please select at least one action"
+      },
+      "toast": {
+        "created": "Auto rule created",
+        "updated": "Auto rule updated",
+        "save_failed": "Could not save auto rule"
+      }
+    }
+  },
+  "recurring": {
+    "frequency": {
+      "daily": "Daily",
+      "weekly": "Weekly",
+      "monthly": "Monthly",
+      "yearly": "Yearly",
+      "every_n_days": "Every {{n}} days",
+      "weekly_with_days": "Weekly ({{days}})",
+      "monthly_specific": "Monthly (day {{day}})",
+      "monthly_last": "Monthly (last day)",
+      "yearly_specific": "Yearly ({{month}} day {{day}})"
+    },
+    "end_condition": {
+      "never": "No end date",
+      "on_date": "Until {{date}}",
+      "on_date_fallback": "Has end date",
+      "after_n": "After {{count}} times",
+      "after_n_fallback": "Limited occurrences"
+    },
+    "execution_mode": {
+      "auto": "Auto-create",
+      "notify": "Notify only"
+    },
+    "txn_type": {
+      "income": "Income",
+      "expense": "Expense",
+      "transfer": "Transfer"
+    },
+    "status": {
+      "active": "Active",
+      "paused": "Paused"
+    },
+    "days_until": {
+      "today": "Today",
+      "n_days": "In {{n}} days"
+    },
+    "weekday_labels": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+    "month_labels": ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+    "month_short_labels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+    "list": {
+      "title": "Recurring transactions",
+      "subtitle": "Manage automatically repeating transactions",
+      "add_button": "Create rule",
+      "filters": {
+        "search_placeholder": "Search recurring transactions...",
+        "sort_asc": "Ascending",
+        "sort_desc": "Descending"
+      },
+      "actions": {
+        "view_detail": "View detail",
+        "skip_next": "Skip next",
+        "run_now": "Run now",
+        "duplicate": "Duplicate",
+        "edit": "Edit",
+        "delete": "Delete",
+        "toggle_pause": "Pause",
+        "toggle_resume": "Resume",
+        "toggle_notify": "Enable notifications",
+        "toggle_mute": "Mute notifications"
+      },
+      "loading": "Loading recurring transactions...",
+      "empty": {
+        "title": "No recurring transactions yet",
+        "subtitle": "Create recurring rules to automate repeating transactions",
+        "create_button": "Create your first recurring transaction"
+      },
+      "delete_modal": {
+        "title": "Delete recurring transaction?",
+        "description": "The rule \"{{name}}\" will be permanently deleted.",
+        "confirm_processing": "Processing...",
+        "confirm": "Delete",
+        "cancel": "Cancel"
+      },
+      "toast": {
+        "paused": "Recurring transaction paused",
+        "activated": "Recurring transaction activated",
+        "skipped": "Next occurrence skipped",
+        "run_now_done": "Rule executed immediately",
+        "duplicated": "Recurring transaction duplicated",
+        "deleted": "Recurring transaction deleted",
+        "action_failed": "Could not process recurring transaction"
+      }
+    },
+    "detail": {
+      "back": "Back",
+      "not_found": "Recurring rule not found",
+      "loading": "Loading recurring rule detail...",
+      "sections": {
+        "overview": "Overview",
+        "schedule": "Schedule",
+        "recent_occurrences": "Recent occurrences",
+        "upcoming": "Upcoming"
+      },
+      "fields": {
+        "frequency": "Frequency",
+        "next_run": "Next run",
+        "end_condition": "End condition",
+        "amount": "Amount",
+        "account": "Account",
+        "category": "Category",
+        "merchant": "Merchant",
+        "execution_mode": "Execution mode",
+        "description": "Description",
+        "notes": "Notes",
+        "tags": "Tags"
+      },
+      "occurrence_status": {
+        "done": "Done",
+        "skipped": "Skipped",
+        "pending": "Pending",
+        "failed": "Failed"
+      },
+      "no_occurrences": "No occurrences yet",
+      "actions": {
+        "edit": "Edit",
+        "skip_next": "Skip next",
+        "run_now": "Run now",
+        "toggle_pause": "Pause",
+        "toggle_resume": "Resume",
+        "delete": "Delete",
+        "view": "View"
+      },
+      "delete_modal": {
+        "title": "Delete recurring rule?",
+        "description": "Are you sure you want to delete \"{{name}}\"? This action cannot be undone.",
+        "confirm_processing": "Deleting...",
+        "confirm": "Delete",
+        "cancel": "Cancel"
+      },
+      "toast": {
+        "deleted": "Recurring rule deleted",
+        "delete_failed": "Could not delete recurring rule",
+        "paused": "Paused",
+        "activated": "Activated",
+        "skipped": "Next occurrence skipped",
+        "run_now_done": "Executed immediately"
+      }
+    },
+    "form": {
+      "create_title": "Create recurring transaction",
+      "edit_title": "Edit recurring transaction",
+      "back": "Back",
+      "subtitle": "Create a rule to automatically remind or create transactions on a schedule.",
+      "loading": "Loading recurring transaction form...",
+      "load_error": "Could not load recurring transaction data",
+      "sections": {
+        "basic": "Basic information",
+        "schedule": "Schedule",
+        "end_condition": "End condition",
+        "execution": "Execution mode",
+        "extra": "Additional info",
+        "accounts": "Account, category & tags",
+        "preview_title": "Rule preview"
+      },
+      "txn_types": {
+        "expense": "Expense",
+        "income": "Income",
+        "transfer": "Transfer"
+      },
+      "execution_modes": {
+        "notify": "Remind only",
+        "notify_hint": "The system will notify you when due",
+        "auto": "Auto-create",
+        "auto_hint": "Transaction is created automatically"
+      },
+      "fields": {
+        "name_label": "Rule name",
+        "name_placeholder": "E.g. Monthly rent",
+        "description_label": "Display description",
+        "description_placeholder": "E.g. Pay electricity bill",
+        "txn_type_label": "Transaction type",
+        "execution_mode_label": "Execution mode",
+        "amount_label": "Amount",
+        "status_label": "Status",
+        "notify_on": "Notifications enabled",
+        "notify_off": "Notifications disabled for this rule",
+        "account_label": "Account",
+        "account_placeholder": "Select account",
+        "from_account_label": "Source account",
+        "to_account_label": "Destination account",
+        "to_account_placeholder": "Select destination account",
+        "category_label": "Category",
+        "category_placeholder": "Select category",
+        "merchant_label": "Merchant",
+        "merchant_placeholder": "Select merchant",
+        "merchant_none": "No merchant",
+        "frequency_label": "Frequency",
+        "daily_interval_label": "Every how many days",
+        "weekly_days_label": "Days of week",
+        "monthly_mode_label": "Monthly repeat mode",
+        "monthly_mode_specific": "Specific day",
+        "monthly_mode_last": "Last day of month",
+        "monthly_day_label": "Day of month",
+        "yearly_month_label": "Month",
+        "yearly_day_label": "Day",
+        "start_date_label": "Start date",
+        "end_condition_label": "End condition",
+        "end_condition_never": "No end",
+        "end_condition_on_date": "End on date",
+        "end_condition_after_n": "End after N times",
+        "end_date_label": "End date",
+        "end_occurrences_label": "Number of occurrences",
+        "tags_label": "Tags",
+        "notes_label": "Notes",
+        "notes_placeholder": "Additional notes for this recurring transaction...",
+        "notify_label": "Rule notifications",
+        "notify_hint": "Remind when the rule is due."
+      },
+      "preview": {
+        "title": "Schedule preview",
+        "next_run": "Next run: {{date}}",
+        "daily": "Every {{n}} days, starting {{date}}",
+        "weekly_with_days": "Every week on {{days}}",
+        "weekly_select": "Select days of the week",
+        "monthly_last": "Every month on the last day",
+        "monthly_specific": "Every month on day {{day}}",
+        "yearly": "Every year on {{month}} {{day}}",
+        "start_date": "Starting {{date}}",
+        "mode_auto": "Auto-create transaction",
+        "mode_notify": "Reminder only",
+        "tag_count": "{{n}} tag(s)"
+      },
+      "actions": {
+        "cancel": "Cancel",
+        "saving": "Saving...",
+        "create": "Create recurring transaction",
+        "save": "Save changes"
+      },
+      "errors": {
+        "name_required": "Name or description is required",
+        "amount_required": "Amount must be greater than 0",
+        "from_account_required": "Source account is required",
+        "account_required": "Account is required",
+        "to_account_required": "Destination account is required",
+        "to_account_same": "Destination account must differ from source",
+        "category_required": "Category is required",
+        "start_date_required": "Start date is required",
+        "weekly_days_required": "Select at least 1 day",
+        "monthly_day_invalid": "Invalid day of month",
+        "yearly_day_invalid": "Invalid day of year",
+        "end_date_required": "End date is required",
+        "end_occurrences_invalid": "Count must be greater than 0"
+      },
+      "toast": {
+        "created": "Recurring transaction created",
+        "updated": "Recurring transaction updated",
+        "save_failed": "Could not save recurring transaction"
+      }
+    }
+  }
+}

@@ -19,6 +19,8 @@ import {
   Wallet,
   X,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 import { Card } from "../components/Card";
 import { Button } from "../components/Button";
 import { useAppNavigation } from "../hooks/useAppNavigation";
@@ -86,46 +88,12 @@ function mapRuleToDisplay(rule: AutoRuleItem): DisplayRule {
   };
 }
 
-function getMatchFieldLabel(field: string) {
-  switch (field) {
-    case "description":
-      return "Mô tả";
-    case "merchant":
-      return "Merchant";
-    case "note":
-      return "Ghi chú";
-    case "amount":
-      return "Số tiền";
-    case "account":
-      return "Tài khoản";
-    case "weekday":
-      return "Thứ";
-    default:
-      return field;
-  }
+function getMatchFieldLabel(field: string, t: TFunction) {
+  return t(`auto_rules.list.match_fields.${field}`, { defaultValue: field });
 }
 
-function getMatchTypeLabel(type: string) {
-  switch (type) {
-    case "contains":
-      return "chứa";
-    case "equals":
-      return "bằng";
-    case "regex":
-      return "regex";
-    case "starts_with":
-      return "bắt đầu với";
-    case "ends_with":
-      return "kết thúc với";
-    case "greater_than":
-    case "gt":
-      return "lớn hơn";
-    case "less_than":
-    case "lt":
-      return "nhỏ hơn";
-    default:
-      return type;
-  }
+function getMatchTypeLabel(type: string, t: TFunction) {
+  return t(`auto_rules.list.match_types.${type}`, { defaultValue: type });
 }
 
 function RuleActionBadge({ action }: { action: RuleActionBadgeData }) {
@@ -188,6 +156,7 @@ function AutoRuleItem({
   moveRule,
   canDrag = true,
 }: AutoRuleItemProps) {
+  const { t } = useTranslation("tags-rules");
   const ref = useRef<HTMLDivElement>(null);
 
   const [{ isDragging }, drag] = useDrag(
@@ -256,8 +225,8 @@ function AutoRuleItem({
                   {rule.name}
                 </h3>
                 <p className="text-sm text-[var(--text-secondary)]">
-                  {getMatchFieldLabel(rule.matchField)}{" "}
-                  {getMatchTypeLabel(rule.matchType)}{" "}
+                  {getMatchFieldLabel(rule.matchField, t)}{" "}
+                  {getMatchTypeLabel(rule.matchType, t)}{" "}
                   <code className="px-1.5 py-0.5 bg-[var(--surface)] rounded text-xs font-mono">
                     {rule.pattern}
                   </code>
@@ -292,7 +261,7 @@ function AutoRuleItem({
                 onClick={() => onEdit(rule.id)}
                 className="flex items-center gap-1 text-sm text-[var(--primary)] hover:text-[var(--primary-hover)] font-medium transition-colors"
               >
-                Chỉnh sửa
+                {t("auto_rules.list.rule_item.edit")}
                 <ChevronRight className="w-4 h-4" />
               </button>
               <button
@@ -300,7 +269,7 @@ function AutoRuleItem({
                 className="flex items-center gap-1.5 text-sm text-[var(--text-tertiary)] hover:text-[var(--danger)] font-medium transition-colors"
               >
                 <Trash2 className="w-3.5 h-3.5" />
-                Xoá
+                {t("auto_rules.list.rule_item.delete")}
               </button>
             </div>
           </div>
@@ -311,6 +280,7 @@ function AutoRuleItem({
 }
 
 export default function AutoRulesList() {
+  const { t } = useTranslation("tags-rules");
   const nav = useAppNavigation();
   const toast = useToast();
   const { data, loading, error, reload, setData } = useAutoRulesList({
@@ -394,9 +364,9 @@ export default function AutoRulesList() {
           items: nextItems,
         };
       });
-      toast.success(`Đã xoá quy tắc "${ruleToDelete.name}"`);
+      toast.success(t("auto_rules.list.toast.deleted", { name: ruleToDelete.name }));
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Không thể xoá quy tắc");
+      toast.error(err instanceof Error ? err.message : t("auto_rules.list.toast.delete_failed"));
     } finally {
       setDeleteModalOpen(false);
       setRuleToDelete(null);
@@ -434,13 +404,13 @@ export default function AutoRulesList() {
     try {
       await autoRulesService.updateAutoRule(id, { enabled: nextEnabled });
       toast.success(
-        nextEnabled ? "Đã kích hoạt quy tắc" : "Đã tạm dừng quy tắc",
+        nextEnabled ? t("auto_rules.list.toast.activated") : t("auto_rules.list.toast.paused"),
       );
     } catch (err) {
       toast.error(
         err instanceof Error
           ? err.message
-          : "Không thể cập nhật trạng thái quy tắc",
+          : t("auto_rules.list.toast.toggle_failed"),
       );
       await reload();
     }
@@ -478,7 +448,7 @@ export default function AutoRulesList() {
             toast.error(
               err instanceof Error
                 ? err.message
-                : "Không thể sắp xếp lại quy tắc",
+                : t("auto_rules.list.toast.reorder_failed"),
             );
             await reload();
           } finally {
@@ -502,16 +472,16 @@ export default function AutoRulesList() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl font-semibold text-[var(--text-primary)]">
-              Quy tắc tự động
+              {t("auto_rules.list.title")}
             </h1>
             <p className="text-sm text-[var(--text-secondary)] mt-1">
-              Tự động phân loại giao dịch dựa trên mẫu
+              {t("auto_rules.list.subtitle")}
             </p>
           </div>
 
           <Button onClick={handleCreate} className="md:w-auto">
             <Plus className="w-5 h-5" />
-            Tạo rule
+            {t("auto_rules.list.add_button")}
           </Button>
         </div>
 
@@ -519,7 +489,7 @@ export default function AutoRulesList() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div>
               <p className="text-sm text-[var(--text-secondary)] mb-1">
-                Tổng quy tắc
+                {t("auto_rules.list.summary.total")}
               </p>
               <p className="text-2xl font-bold text-[var(--text-primary)] tabular-nums">
                 {totalRulesCount}
@@ -527,7 +497,7 @@ export default function AutoRulesList() {
             </div>
             <div>
               <p className="text-sm text-[var(--text-secondary)] mb-1">
-                Đang hoạt động
+                {t("auto_rules.list.summary.active")}
               </p>
               <p className="text-2xl font-bold text-[var(--success)] tabular-nums">
                 {activeRulesCount}
@@ -535,7 +505,7 @@ export default function AutoRulesList() {
             </div>
             <div>
               <p className="text-sm text-[var(--text-secondary)] mb-1">
-                Tạm dừng
+                {t("auto_rules.list.summary.paused")}
               </p>
               <p className="text-2xl font-bold text-[var(--text-tertiary)] tabular-nums">
                 {totalRulesCount - activeRulesCount}
@@ -543,9 +513,9 @@ export default function AutoRulesList() {
             </div>
             <div>
               <p className="text-sm text-[var(--text-secondary)] mb-1">
-                Độ ưu tiên
+                {t("auto_rules.list.summary.priority_info_label")}
               </p>
-              <p className="text-sm text-[var(--text-secondary)]">Cao → Thấp</p>
+              <p className="text-sm text-[var(--text-secondary)]">{t("auto_rules.list.summary.priority_info_value")}</p>
             </div>
           </div>
         </Card>
@@ -556,7 +526,7 @@ export default function AutoRulesList() {
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--text-tertiary)]" />
               <input
                 type="text"
-                placeholder="Tìm kiếm quy tắc..."
+                placeholder={t("auto_rules.list.filters.search_placeholder")}
                 value={searchQuery}
                 onChange={(event) => setSearchQuery(event.target.value)}
                 className="w-full pl-12 pr-10 py-2.5 bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-lg)] text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--focus-ring)]"
@@ -572,9 +542,9 @@ export default function AutoRulesList() {
             </div>
             <div className="flex gap-2">
               {[
-                { value: "all", label: "Tất cả" },
-                { value: "active", label: "Đang hoạt động" },
-                { value: "inactive", label: "Tạm dừng" },
+                { value: "all", label: t("auto_rules.list.filters.status_all") },
+                { value: "active", label: t("auto_rules.list.filters.status_active") },
+                { value: "inactive", label: t("auto_rules.list.filters.status_inactive") },
               ].map((tab) => (
                 <button
                   key={tab.value}
@@ -600,8 +570,8 @@ export default function AutoRulesList() {
                   }
                   className="pl-9 pr-8 py-1.5 bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-lg)] text-sm text-[var(--text-primary)] appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-[var(--focus-ring)]"
                 >
-                  <option value="priority">Ưu tiên</option>
-                  <option value="name">Tên A-Z</option>
+                  <option value="priority">{t("auto_rules.list.filters.sort_priority")}</option>
+                  <option value="name">{t("auto_rules.list.filters.sort_name")}</option>
                 </select>
               </div>
             </div>
@@ -615,12 +585,10 @@ export default function AutoRulesList() {
             </div>
             <div className="flex-1">
               <h4 className="font-semibold text-[var(--text-primary)] mb-1">
-                Cách hoạt động
+                {t("auto_rules.list.how_it_works.title")}
               </h4>
               <p className="text-sm text-[var(--text-secondary)]">
-                Quy tắc sẽ được áp dụng theo thứ tự ưu tiên từ cao đến thấp. Khi
-                một giao dịch khớp với mẫu, hệ thống sẽ tự động thêm danh mục,
-                merchant hoặc tag tương ứng.
+                {t("auto_rules.list.how_it_works.description")}
               </p>
             </div>
           </div>
@@ -629,7 +597,7 @@ export default function AutoRulesList() {
         {loading ? (
           <Card>
             <p className="text-[var(--text-secondary)]">
-              Đang tải danh sách quy tắc tự động...
+              {t("auto_rules.list.loading")}
             </p>
           </Card>
         ) : error ? (
@@ -640,7 +608,7 @@ export default function AutoRulesList() {
               className="mt-4"
               onClick={() => void reload()}
             >
-              Tải lại
+              {t("auto_rules.list.reload")}
             </Button>
           </Card>
         ) : totalRulesCount === 0 ? (
@@ -649,14 +617,14 @@ export default function AutoRulesList() {
               <Hash className="w-8 h-8 text-[var(--text-secondary)]" />
             </div>
             <h3 className="font-semibold text-[var(--text-primary)] mb-2">
-              Chưa có quy tắc nào
+              {t("auto_rules.list.empty.title")}
             </h3>
             <p className="text-sm text-[var(--text-secondary)] mb-4">
-              Tạo quy tắc đầu tiên để tự động phân loại giao dịch
+              {t("auto_rules.list.empty.subtitle")}
             </p>
             <Button onClick={handleCreate} className="mx-auto">
               <Plus className="w-5 h-5" />
-              Tạo rule
+              {t("auto_rules.list.empty.create_button")}
             </Button>
           </Card>
         ) : hasNoResults ? (
@@ -665,10 +633,10 @@ export default function AutoRulesList() {
               <Search className="w-8 h-8 text-[var(--text-tertiary)]" />
             </div>
             <h3 className="font-semibold text-[var(--text-primary)] mb-2">
-              Không tìm thấy quy tắc
+              {t("auto_rules.list.no_results.title")}
             </h3>
             <p className="text-sm text-[var(--text-secondary)]">
-              Thử thay đổi bộ lọc hoặc từ khoá tìm kiếm
+              {t("auto_rules.list.no_results.subtitle")}
             </p>
           </Card>
         ) : (
@@ -683,14 +651,14 @@ export default function AutoRulesList() {
                   actions={[
                     {
                       icon: <Edit2 className="w-4 h-4" />,
-                      label: "Sửa",
+                      label: t("auto_rules.list.swipe_actions.edit"),
                       color: "white",
                       bgColor: "var(--primary)",
                       onClick: () => handleEdit(rule.id),
                     },
                     {
                       icon: <Trash2 className="w-3.5 h-3.5" />,
-                      label: "Xoá",
+                      label: t("auto_rules.list.swipe_actions.delete"),
                       color: "white",
                       bgColor: "var(--danger)",
                       onClick: () => handleDeleteRequest(rule),
@@ -721,10 +689,10 @@ export default function AutoRulesList() {
           onConfirm={() => {
             void confirmDelete();
           }}
-          title="Xoá quy tắc?"
-          description={`Bạn có chắc muốn xoá quy tắc "${ruleToDelete?.name || ""}"? Các giao dịch đã được phân loại trước đó sẽ không bị ảnh hưởng.`}
-          confirmLabel="Xoá"
-          cancelLabel="Huỷ"
+          title={t("auto_rules.list.delete_modal.title")}
+          description={t("auto_rules.list.delete_modal.description", { name: ruleToDelete?.name || "" })}
+          confirmLabel={t("auto_rules.list.delete_modal.confirm")}
+          cancelLabel={t("auto_rules.list.delete_modal.cancel")}
           isDangerous={true}
         />
       </div>

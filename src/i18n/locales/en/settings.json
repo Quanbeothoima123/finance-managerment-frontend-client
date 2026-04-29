@@ -1,1 +1,307 @@
-{}
+{
+  "home": {
+    "title": "Settings",
+    "subtitle": "Manage your account and preferences",
+    "profile": {
+      "nav_label": "Profile",
+      "title": "Profile",
+      "subtitle": "Manage your personal information",
+      "name_label": "Full name",
+      "email_label": "Email",
+      "uploading": "Uploading...",
+      "edit_button": "Edit profile",
+      "change_avatar_title": "Change avatar",
+      "save_button": "Save changes",
+      "saving": "Saving..."
+    },
+    "sections": {
+      "general": "General settings",
+      "security_data": "Security & Data",
+      "info": "About"
+    },
+    "menu_items": {
+      "general": {
+        "title": "General (Currency & format)",
+        "description": "Currency, number/date format, timezone"
+      },
+      "security": {
+        "title": "Security",
+        "description": "PIN, biometrics, privacy mode"
+      },
+      "notifications": {
+        "title": "Notifications",
+        "description": "Reminders, alerts, quiet hours"
+      },
+      "data_backup": {
+        "title": "Data & Backup",
+        "description": "Import, export, restore data"
+      },
+      "attachment_library": {
+        "title": "Attachment Library",
+        "description": "Manage and view attachments"
+      },
+      "about": {
+        "title": "About",
+        "description": "Version, terms, privacy policy"
+      }
+    },
+    "toast": {
+      "avatar_updated": "Avatar updated",
+      "avatar_failed": "Could not upload image",
+      "profile_saved": "Profile saved",
+      "profile_save_failed": "Could not save profile",
+      "display_name_empty": "Display name cannot be empty",
+      "open_profile": "Opening public profile"
+    }
+  },
+
+  "general": {
+    "title": "General settings",
+    "subtitle": "Currency, number format, date, and timezone",
+    "sections": {
+      "currency": "Currency",
+      "number_format": "Number format",
+      "date_format": "Date format",
+      "timezone": "Timezone",
+      "first_day_of_week": "First day of week",
+      "preview": "Preview"
+    },
+    "fields": {
+      "currency_label": "Currency",
+      "currency_change_warning": "Only applies to new transactions.",
+      "currency_vnd_default": "(default VND)",
+      "currency_default": "(default {{code}})",
+      "timezone_label": "Timezone",
+      "first_day_label": "First day of week"
+    },
+    "day_names_short": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+    "actions": {
+      "save": "Save changes",
+      "saving": "Saving...",
+      "reset_defaults": "Reset to defaults"
+    },
+    "toast": {
+      "saved": "Settings saved",
+      "save_failed": "Could not save, please try again",
+      "reset_done": "Settings reset to defaults"
+    }
+  },
+
+  "security": {
+    "title": "Security",
+    "subtitle": "PIN, biometrics, and privacy mode",
+    "sections": {
+      "pin": "PIN code",
+      "pin_lock": "PIN lock",
+      "biometrics": "Biometrics",
+      "privacy_mode": "Privacy mode",
+      "hide_accounts": "Hide account numbers",
+      "session": "Session"
+    },
+    "fields": {
+      "pin_label": "App PIN",
+      "pin_hint": "Protect the app with a 6-digit PIN",
+      "biometrics_label": "Biometric authentication",
+      "biometrics_hint": "Use fingerprint or Face ID to unlock",
+      "privacy_mode_label": "Privacy mode",
+      "privacy_mode_hint": "Hide amounts on the home screen",
+      "auto_lock_label": "Auto-lock after",
+      "auto_lock_hint": "Lock the app after a period of inactivity"
+    },
+    "actions": {
+      "save": "Save security settings",
+      "saving": "Saving...",
+      "back": "Back",
+      "cancel": "Cancel",
+      "confirm": "Confirm",
+      "change_pin": "Change PIN"
+    },
+    "toast": {
+      "saved": "Security settings saved",
+      "save_failed": "Could not save settings"
+    }
+  },
+
+  "notifications": {
+    "title": "Notifications",
+    "subtitle": "Reminders, budget alerts, and quiet hours",
+    "system_settings": "Open system settings",
+    "items": {
+      "weekly_summary": {
+        "title": "Weekly recap",
+        "description": "Receive a weekly spending summary report.",
+        "badge_coming_soon": "Coming soon"
+      },
+      "budget_warning": {
+        "title": "Budget overspend alert",
+        "description": "Notify when spending is near or over the budget limit."
+      },
+      "goal_reminder": {
+        "title": "Savings goal reminder",
+        "description": "Remind you to contribute to savings goals."
+      },
+      "recurring_reminder": {
+        "title": "Recurring transaction reminder",
+        "description": "Notify when a recurring transaction is due."
+      },
+      "sound": {
+        "title": "Notification sound",
+        "description": "Play a sound when a new notification arrives."
+      },
+      "vibration": {
+        "title": "Vibration",
+        "description": "Vibrate on notification (on supported devices)."
+      }
+    },
+    "toggle": {
+      "on": "On",
+      "off": "Off"
+    },
+    "sections": {
+      "system": "System permissions",
+      "types": "Notification types",
+      "sound_vibration": "Sound & Vibration",
+      "quiet_hours": "Quiet hours"
+    },
+    "quiet_hours": {
+      "enable_label": "Enable quiet hours",
+      "from_label": "From",
+      "to_label": "To"
+    },
+    "actions": {
+      "save": "Save settings",
+      "saving": "Saving...",
+      "cancel": "Cancel",
+      "back": "Back"
+    },
+    "toast": {
+      "saved": "Notification settings saved",
+      "save_failed": "Could not save settings"
+    }
+  },
+
+  "data_backup": {
+    "title": "Data & Backup",
+    "subtitle": "Manage, import, export, and restore data",
+    "sections": {
+      "backup": "Backup",
+      "restore": "Restore",
+      "danger_zone": "Danger zone"
+    },
+    "backup": {
+      "last_backup": "Last backup",
+      "no_backup": "No backups yet",
+      "create_button": "Create backup",
+      "auto_backup_label": "Auto backup",
+      "auto_backup_hint": "Automatically back up when the app opens"
+    },
+    "restore": {
+      "description": "Restore data from a previous backup",
+      "choose_file": "Choose backup file",
+      "restore_button": "Restore"
+    },
+    "danger_zone": {
+      "title": "Delete all data",
+      "description": "This action cannot be undone. All transactions, accounts, budgets, and goals will be permanently deleted.",
+      "confirm_placeholder": "DELETE DATA",
+      "confirm_hint": "Type \"DELETE DATA\" to confirm",
+      "delete_button": "Delete all data",
+      "deleting": "Deleting..."
+    },
+    "toast": {
+      "backup_created": "Backup created",
+      "backup_failed": "Could not create backup",
+      "restore_done": "Data restored",
+      "restore_failed": "Could not restore data",
+      "deleted": "All data deleted and reset to defaults"
+    }
+  },
+
+  "export": {
+    "title": "Export data",
+    "subtitle": "Download transactions as CSV or TXT report",
+    "sections": {
+      "format": "Format",
+      "date_range": "Date range",
+      "filters": "Advanced filters",
+      "options": "Options"
+    },
+    "formats": {
+      "csv": "CSV",
+      "txt": "TXT Report"
+    },
+    "date_ranges": {
+      "this_month": "This month",
+      "last_month": "Last month",
+      "last_30_days": "30 days",
+      "this_year": "This year",
+      "last_3_months": "Last 3 months"
+    },
+    "filters": {
+      "account_all": "All accounts",
+      "type_all": "All",
+      "type_expense": "Expense",
+      "type_income": "Income",
+      "type_transfer": "Transfer"
+    },
+    "options": {
+      "include_tags": "Include tags",
+      "include_attachments": "Include attachments",
+      "include_attachments_hint": "Add a column marking transactions with attachments",
+      "include_merchant": "Include merchant",
+      "include_notes": "Include notes",
+      "notes_hint": "Transaction notes are included in the report"
+    },
+    "csv_headers": {
+      "date": "Date",
+      "type": "Type",
+      "description": "Description",
+      "amount": "Amount",
+      "account": "Account",
+      "category": "Category",
+      "merchant": "Merchant",
+      "attachment": "Attachment",
+      "tags": "Tags",
+      "attachment_yes": "Yes",
+      "attachment_no": "No"
+    },
+    "txt_headers": {
+      "report_title": "FINANCIAL REPORT",
+      "summary": "OVERVIEW",
+      "details": "TRANSACTION DETAILS",
+      "footer": "Exported by FinanceApp"
+    },
+    "empty": "No transactions in this time range",
+    "footer_hint": "The file will be downloaded to your device",
+    "export_button": "Export data",
+    "exporting": "Exporting...",
+    "toast": {
+      "success": "Exported successfully!",
+      "all_success": "All data exported successfully",
+      "failed": "Export failed"
+    }
+  },
+
+  "attachments": {
+    "title": "Attachment Library",
+    "subtitle": "All images and files attached to transactions",
+    "filters": {
+      "search_placeholder": "Search by file name, transaction...",
+      "type_all": "All",
+      "type_image": "Images",
+      "open_advanced": "Advanced filters",
+      "clear": "Clear filters",
+      "apply": "Apply"
+    },
+    "item": {
+      "open_in_browser": "Open in browser",
+      "download": "Download"
+    },
+    "empty": {
+      "title": "No attachments yet.",
+      "no_attachments": "Add receipt photos or files to transactions to view them here.",
+      "no_results": "No attachments match the current filter."
+    },
+    "loading": "Loading attachment library..."
+  }
+}
