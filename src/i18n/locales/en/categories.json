@@ -1,0 +1,171 @@
+{
+  "list": {
+    "title": "Categories",
+    "subtitle": "Manage your category tree, visibility, and merge categories.",
+    "add_button": "Add category",
+    "summary": {
+      "total": "Total categories",
+      "active": "Visible",
+      "hidden": "Hidden",
+      "transactions": "Transactions"
+    },
+    "filters": {
+      "search_placeholder": "Search by category name...",
+      "type_label": "Type",
+      "type_all": "All types",
+      "type_expense": "Expense",
+      "type_income": "Income",
+      "type_both": "Both",
+      "visibility_label": "Status",
+      "visibility_all": "All statuses",
+      "visibility_active": "Visible",
+      "visibility_hidden": "Hidden",
+      "visibility_archived": "Archived",
+      "sort_by_label": "Sort by",
+      "sort_sort_order": "By order",
+      "sort_name": "By name",
+      "sort_usage": "By usage",
+      "sort_created_at": "By creation date",
+      "order_asc": "Ascending",
+      "order_desc": "Descending"
+    },
+    "row": {
+      "badge_hidden": "Hidden",
+      "badge_children": "{{count}} subcategories",
+      "direct_txns": "{{count}} direct transactions",
+      "total_txns": "{{count}} total transactions",
+      "usage_count": "{{count}} linked"
+    },
+    "type_labels": {
+      "expense": "Expense",
+      "income": "Income",
+      "both": "Both"
+    },
+    "loading": "Loading categories...",
+    "empty": {
+      "title": "No categories yet",
+      "subtitle": "Create your first category to start classifying transactions.",
+      "create_button": "Create category"
+    },
+    "delete_modal": {
+      "title": "Delete category?",
+      "description": "Are you sure you want to delete \"{{name}}\"?",
+      "cascade_label": "Also delete {{count}} subcategories",
+      "confirm_deleting": "Deleting...",
+      "confirm": "Delete",
+      "cancel": "Cancel"
+    },
+    "visibility_modal": {
+      "show_title": "Show category?",
+      "hide_title": "Hide category?",
+      "show_description": "Are you sure you want to show \"{{name}}\" again?",
+      "hide_description": "Are you sure you want to hide \"{{name}}\"?",
+      "confirm_updating": "Updating...",
+      "confirm": "Confirm",
+      "cancel": "Cancel"
+    },
+    "merge_modal": {
+      "title": "Merge category",
+      "description": "Choose a destination to merge \"{{name}}\" into.",
+      "loading_targets": "Loading available destinations...",
+      "destination_placeholder": "Choose destination category",
+      "cascade_note": "Subcategories of the source will also be merged.",
+      "confirm_merging": "Merging...",
+      "confirm": "Merge",
+      "cancel": "Cancel"
+    },
+    "toast": {
+      "deleted": "Category \"{{name}}\" deleted",
+      "delete_failed": "Could not delete category",
+      "shown": "Category \"{{name}}\" is now visible",
+      "hidden": "Category \"{{name}}\" is now hidden",
+      "visibility_failed": "Could not update category visibility",
+      "merged": "Category \"{{name}}\" merged successfully",
+      "merge_failed": "Could not merge category",
+      "merge_load_failed": "Could not load merge targets"
+    }
+  },
+
+  "form": {
+    "create_title": "Create category",
+    "edit_title": "Edit category",
+    "create_subtitle": "Add a new category to classify transactions",
+    "edit_subtitle": "Update category information",
+    "back": "Back",
+    "loading": "Loading category data...",
+    "load_error": "Could not load category data",
+    "basic_info_section": "Basic information",
+    "appearance_section": "Icon & color",
+    "preview_section": "Preview",
+    "fields": {
+      "name_label": "Category name",
+      "name_placeholder": "E.g. Breakfast, Shopping...",
+      "type_label": "Category type",
+      "parent_label": "Parent category",
+      "parent_no_parent": "None (root category)",
+      "parent_hint": "Only root-level categories can be parents to avoid deep nesting.",
+      "active_label": "Active",
+      "active_hint": "Disable to hide this category from quick-select forms.",
+      "color_label": "HEX color code",
+      "color_placeholder": "#ef4444"
+    },
+    "type_options": {
+      "expense": "Expense",
+      "income": "Income",
+      "both": "Both"
+    },
+    "icon_picker": {
+      "show": "Choose icon",
+      "hide": "Hide icons"
+    },
+    "color_picker": {
+      "show": "Choose color",
+      "hide": "Hide colors"
+    },
+    "preview": {
+      "name_placeholder": "Category name",
+      "has_parent": "Has parent",
+      "no_parent": "Root category"
+    },
+    "icon_labels": {
+      "shopping": "Shopping",
+      "home": "Home",
+      "car": "Car",
+      "food": "Food",
+      "coffee": "Coffee",
+      "shirt": "Clothing",
+      "health": "Health",
+      "work": "Work",
+      "salary": "Salary",
+      "gift": "Gift",
+      "investment": "Investment",
+      "phone": "Phone",
+      "travel": "Travel",
+      "education": "Education",
+      "entertainment": "Entertainment",
+      "movie": "Movies",
+      "fitness": "Fitness",
+      "pet": "Pet",
+      "baby": "Baby",
+      "maintenance": "Maintenance",
+      "utility": "Utilities",
+      "subscription": "Subscriptions",
+      "delivery": "Delivery"
+    },
+    "actions": {
+      "cancel": "Cancel",
+      "saving": "Saving...",
+      "create": "Create category",
+      "save": "Save changes"
+    },
+    "errors": {
+      "name_required": "Please enter a category name",
+      "color_invalid": "Invalid color (e.g. #ef4444)"
+    },
+    "toast": {
+      "created": "Category created",
+      "updated": "Category updated",
+      "save_failed": "Could not save category"
+    }
+  }
+}

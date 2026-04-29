@@ -6,6 +6,40 @@
     "budgets": "Ngân sách",
     "more": "Thêm"
   },
+  "sidebar": {
+    "brand_tagline": "Quản lý tài chính",
+    "nav": {
+      "home": "Trang chủ",
+      "transactions": "Giao dịch",
+      "accounts": "Tài khoản",
+      "categories": "Danh mục",
+      "tags": "Tags",
+      "merchants": "Nhà cung cấp",
+      "budgets": "Ngân sách",
+      "goals": "Mục tiêu",
+      "insights": "Báo cáo",
+      "auto_rules": "Quy tắc tự động",
+      "recurring": "Giao dịch định kỳ",
+      "attachments": "Đính kèm",
+      "export": "Xuất dữ liệu",
+      "settings": "Cài đặt",
+      "about": "Về ứng dụng",
+      "community": "Cộng đồng"
+    },
+    "sections": {
+      "accounts": "Tài khoản",
+      "categories": "Phân loại",
+      "planning": "Lập kế hoạch",
+      "insights": "Phân tích",
+      "automation": "Tự động hoá",
+      "community": "Cộng đồng",
+      "other": "Khác"
+    },
+    "user_menu": {
+      "settings": "Cài đặt",
+      "logout": "Đăng xuất"
+    }
+  },
   "actions": {
     "save": "Lưu",
     "save_changes": "Lưu thay đổi",

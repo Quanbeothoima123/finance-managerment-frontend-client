@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import {
   ArrowLeft,
   TrendingUp,
@@ -30,6 +31,7 @@ import {
 } from "../components/TagFilterDropdown";
 
 export default function CashflowChart() {
+  const { t, i18n } = useTranslation("insights");
   const [viewType, setViewType] = useState<"balance" | "netflow">("balance");
   const [selectedAccount, setSelectedAccount] = useState("all");
   const now = new Date();
@@ -84,7 +86,8 @@ export default function CashflowChart() {
     reload: reloadTxn,
   } = useTransactionsList(txnQuery);
   const transactions = txnData?.items ?? [];
-  const isTruncated = (txnData?.pagination?.total ?? 0) > (txnData?.items?.length ?? 0);
+  const isTruncated =
+    (txnData?.pagination?.total ?? 0) > (txnData?.items?.length ?? 0);
 
   const minor = (s: string | null | undefined) => parseInt(s || "0", 10) || 0;
 
@@ -95,13 +98,15 @@ export default function CashflowChart() {
   };
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("vi-VN").format(amount);
+    return new Intl.NumberFormat(
+      i18n.language === "vi" ? "vi-VN" : "en-US",
+    ).format(amount);
   };
 
   // Build account filter options from real data
   const accountOptions = useMemo(() => {
     return [
-      { id: "all", name: "Tất cả tài khoản" },
+      { id: "all", name: t("cashflow.filters.all_accounts") },
       ...accounts
         .filter((a) => a.status === "active")
         .map((a) => ({ id: a.id, name: a.name })),
@@ -204,7 +209,7 @@ export default function CashflowChart() {
         <div className="text-center">
           <AlertTriangle className="w-10 h-10 text-[var(--danger)] mx-auto mb-3" />
           <p className="text-[var(--text-primary)] font-medium mb-1">
-            Không thể tải dữ liệu
+            {t("cashflow.error.load_failed")}
           </p>
           <p className="text-sm text-[var(--text-secondary)] mb-4">
             {txnError}
@@ -213,7 +218,7 @@ export default function CashflowChart() {
             onClick={reloadTxn}
             className="px-4 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white rounded-[var(--radius-lg)] text-sm font-medium transition-colors"
           >
-            Thử lại
+            {t("cashflow.error.retry")}
           </button>
         </div>
       </div>
@@ -230,14 +235,14 @@ export default function CashflowChart() {
             className="flex items-center gap-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] mb-4 transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
-            <span className="font-medium">Quay lại</span>
+            <span className="font-medium">{t("cashflow.back")}</span>
           </button>
 
           <h1 className="text-2xl font-semibold text-[var(--text-primary)]">
-            Biểu đồ dòng tiền
+            {t("cashflow.title")}
           </h1>
           <p className="text-sm text-[var(--text-secondary)] mt-1">
-            Theo dõi số dư và dòng tiền hàng ngày
+            {t("cashflow.subtitle")}
           </p>
         </div>
 
@@ -246,8 +251,10 @@ export default function CashflowChart() {
           <div className="flex items-center gap-2 px-4 py-2.5 bg-[var(--warning-light)] border border-[var(--warning)] text-[var(--warning)] rounded-[var(--radius-lg)] text-sm">
             <AlertTriangle className="w-4 h-4 shrink-0" />
             <span>
-              Đang hiển thị {txnData?.items?.length}/{txnData?.pagination?.total} giao dịch.
-              Số liệu có thể chưa đầy đủ.
+              {t("cashflow.truncation_warning", {
+                shown: txnData?.items?.length,
+                total: txnData?.pagination?.total,
+              })}
             </span>
           </div>
         )}
@@ -258,7 +265,7 @@ export default function CashflowChart() {
             {/* View Type Toggle */}
             <div className="md:col-span-4">
               <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-                Chế độ xem
+                {t("cashflow.view_type.label")}
               </label>
               <div className="flex gap-2">
                 <button
@@ -270,7 +277,9 @@ export default function CashflowChart() {
                   }`}
                 >
                   <TrendingUp className="w-4 h-4" />
-                  <span className="text-sm">Số dư</span>
+                  <span className="text-sm">
+                    {t("cashflow.view_type.balance")}
+                  </span>
                 </button>
                 <button
                   onClick={() => setViewType("netflow")}
@@ -281,7 +290,9 @@ export default function CashflowChart() {
                   }`}
                 >
                   <Calendar className="w-4 h-4" />
-                  <span className="text-sm">Dòng tiền ròng</span>
+                  <span className="text-sm">
+                    {t("cashflow.view_type.netflow")}
+                  </span>
                 </button>
               </div>
             </div>
@@ -289,7 +300,7 @@ export default function CashflowChart() {
             {/* Date Range */}
             <div className="md:col-span-2">
               <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-                Từ ngày
+                {t("cashflow.filters.start_date_label")}
               </label>
               <Input
                 type="date"
@@ -300,7 +311,7 @@ export default function CashflowChart() {
 
             <div className="md:col-span-2">
               <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-                Đến ngày
+                {t("cashflow.filters.end_date_label")}
               </label>
               <Input
                 type="date"
@@ -312,7 +323,7 @@ export default function CashflowChart() {
             {/* Account Filter */}
             <div className="md:col-span-4">
               <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-                Tài khoản
+                {t("cashflow.filters.account_label")}
               </label>
               <div className="relative">
                 <select
@@ -334,7 +345,7 @@ export default function CashflowChart() {
             {tags.length > 0 && (
               <div className="md:col-span-4">
                 <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-                  Thẻ
+                  {t("cashflow.filters.tag_label")}
                 </label>
                 <div className="flex items-center gap-3 flex-wrap">
                   <TagFilterDropdown
@@ -363,7 +374,7 @@ export default function CashflowChart() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Card>
               <p className="text-sm text-[var(--text-secondary)] mb-2">
-                Số dư đầu kỳ
+                {t("cashflow.balance_stats.start_balance")}
               </p>
               <p className="text-2xl font-bold text-[var(--text-primary)] tabular-nums">
                 {formatCurrency(startBalance)}₫
@@ -372,7 +383,7 @@ export default function CashflowChart() {
 
             <Card>
               <p className="text-sm text-[var(--text-secondary)] mb-2">
-                Số dư cuối kỳ
+                {t("cashflow.balance_stats.end_balance")}
               </p>
               <p className="text-2xl font-bold text-[var(--text-primary)] tabular-nums">
                 {formatCurrency(endBalance)}₫
@@ -381,7 +392,7 @@ export default function CashflowChart() {
 
             <Card>
               <p className="text-sm text-[var(--text-secondary)] mb-2">
-                Thay đổi
+                {t("cashflow.balance_stats.change")}
               </p>
               <p
                 className={`text-2xl font-bold tabular-nums ${
@@ -409,7 +420,7 @@ export default function CashflowChart() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Card>
               <p className="text-sm text-[var(--text-secondary)] mb-2">
-                Tổng tiền vào
+                {t("cashflow.netflow_stats.total_inflow")}
               </p>
               <p className="text-2xl font-bold text-[var(--success)] tabular-nums">
                 +{formatCurrency(totalInflow)}₫
@@ -418,7 +429,7 @@ export default function CashflowChart() {
 
             <Card>
               <p className="text-sm text-[var(--text-secondary)] mb-2">
-                Tổng tiền ra
+                {t("cashflow.netflow_stats.total_outflow")}
               </p>
               <p className="text-2xl font-bold text-[var(--danger)] tabular-nums">
                 -{formatCurrency(totalOutflow)}₫
@@ -427,7 +438,7 @@ export default function CashflowChart() {
 
             <Card>
               <p className="text-sm text-[var(--text-secondary)] mb-2">
-                Dòng tiền ròng
+                {t("cashflow.netflow_stats.net_flow")}
               </p>
               <p
                 className={`text-2xl font-bold tabular-nums ${
@@ -448,13 +459,13 @@ export default function CashflowChart() {
           <div className="mb-4">
             <h3 className="font-semibold text-[var(--text-primary)]">
               {viewType === "balance"
-                ? "Biến động số dư"
-                : "Dòng tiền ròng hàng ngày"}
+                ? t("cashflow.chart.balance_title")
+                : t("cashflow.chart.netflow_title")}
             </h3>
             <p className="text-sm text-[var(--text-secondary)] mt-1">
               {viewType === "balance"
-                ? "Theo dõi số dư tài khoản theo thời gian"
-                : "Phân tích luồng tiền vào ra hàng ngày"}
+                ? t("cashflow.chart.balance_subtitle")
+                : t("cashflow.chart.netflow_subtitle")}
             </p>
           </div>
 
@@ -493,13 +504,17 @@ export default function CashflowChart() {
                     }}
                     formatter={(value: number) => [
                       `${value >= 0 ? "+" : ""}${formatCurrency(value)}₫`,
-                      viewType === "balance" ? "Số dư" : "Dòng tiền",
+                      viewType === "balance"
+                        ? t("cashflow.chart.tooltip_balance")
+                        : t("cashflow.chart.tooltip_netflow"),
                     ]}
                   />
                   <Legend
                     wrapperStyle={{ fontSize: "12px" }}
                     formatter={() =>
-                      viewType === "balance" ? "Số dư" : "Dòng tiền ròng"
+                      viewType === "balance"
+                        ? t("cashflow.chart.balance_legend")
+                        : t("cashflow.chart.netflow_legend")
                     }
                   />
                   {viewType === "balance" ? (
@@ -534,7 +549,7 @@ export default function CashflowChart() {
           ) : (
             <div className="h-96 flex items-center justify-center">
               <p className="text-sm text-[var(--text-tertiary)]">
-                Không có dữ liệu trong khoảng thời gian này
+                {t("cashflow.chart.no_data")}
               </p>
             </div>
           )}
@@ -550,47 +565,36 @@ export default function CashflowChart() {
             </div>
             <div className="flex-1">
               <h4 className="font-semibold text-[var(--text-primary)] mb-1">
-                Phân tích
+                {t("cashflow.insight.title")}
               </h4>
               {viewType === "balance" ? (
                 <div className="space-y-2 text-sm text-[var(--text-secondary)]">
                   <p>
-                    Số dư của bạn đã {balanceChange >= 0 ? "tăng" : "giảm"}{" "}
-                    <span className="font-semibold text-[var(--text-primary)]">
-                      {formatCurrency(Math.abs(balanceChange))}₫
-                    </span>{" "}
-                    ({Math.abs(percentageChange).toFixed(2)}%) trong khoảng thời
-                    gian này.
+                    {balanceChange >= 0
+                      ? t("cashflow.insight.balance_increased", {
+                          amount: `${formatCurrency(Math.abs(balanceChange))}₫`,
+                          percent: `${Math.abs(percentageChange).toFixed(2)}%`,
+                        })
+                      : t("cashflow.insight.balance_decreased", {
+                          amount: `${formatCurrency(Math.abs(balanceChange))}₫`,
+                          percent: `${Math.abs(percentageChange).toFixed(2)}%`,
+                        })}
                   </p>
                   {balanceChange < 0 && (
-                    <p>
-                      Hãy xem xét chi tiêu của bạn để duy trì tài chính ổn định.
-                    </p>
+                    <p>{t("cashflow.insight.balance_negative_tip")}</p>
                   )}
                 </div>
               ) : (
                 <div className="space-y-2 text-sm text-[var(--text-secondary)]">
                   <p>
-                    Dòng tiền ròng của bạn là{" "}
-                    <span
-                      className={`font-semibold ${
-                        netFlow >= 0
-                          ? "text-[var(--success)]"
-                          : "text-[var(--danger)]"
-                      }`}
-                    >
-                      {netFlow >= 0 ? "+" : ""}
-                      {formatCurrency(netFlow)}₫
-                    </span>
-                    .
+                    {t("cashflow.insight.netflow_summary", {
+                      amount: `${netFlow >= 0 ? "+" : ""}${formatCurrency(netFlow)}₫`,
+                    })}
                   </p>
                   {netFlow >= 0 ? (
-                    <p>Tốt lắm! Bạn đang có dòng tiền dương trong kỳ này.</p>
+                    <p>{t("cashflow.insight.netflow_positive")}</p>
                   ) : (
-                    <p>
-                      Chi tiêu đang cao hơn thu nhập. Hãy xem xét điều chỉnh
-                      ngân sách.
-                    </p>
+                    <p>{t("cashflow.insight.netflow_negative")}</p>
                   )}
                 </div>
               )}

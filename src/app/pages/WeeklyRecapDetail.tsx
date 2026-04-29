@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useRef, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import {
   ArrowLeft,
   Share2,
@@ -42,20 +43,7 @@ import { useToast } from "../contexts/ToastContext";
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
 const minor = (s: string | null | undefined) => parseInt(s || "0", 10) || 0;
-const fmt = (n: number) => new Intl.NumberFormat("vi-VN").format(Math.abs(n));
-const fmtDate = (d: Date) =>
-  d.toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit" });
-
-const DAY_NAMES = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"];
-const FULL_DAY_NAMES = [
-  "Chủ nhật",
-  "Thứ 2",
-  "Thứ 3",
-  "Thứ 4",
-  "Thứ 5",
-  "Thứ 6",
-  "Thứ 7",
-];
+const fmt = (n: number, loc = "vi-VN") => new Intl.NumberFormat(loc).format(Math.abs(n));
 const DAY_COLORS = [
   "#ef4444",
   "#3b82f6",
@@ -119,6 +107,7 @@ function ShareBottomSheet({
   bullets,
   onCopyText,
   onDownloadPng,
+  labels,
 }: {
   isOpen: boolean;
   onClose: () => void;
@@ -127,6 +116,11 @@ function ShareBottomSheet({
   bullets: StoryBullet[];
   onCopyText: () => void;
   onDownloadPng: () => void;
+  labels: {
+    title: string; posterLabel: string; footerApp: string;
+    expense: string; income: string; net: string;
+    downloadPng: string; copyText: string;
+  };
 }) {
   if (!isOpen) return null;
   return (
@@ -141,7 +135,7 @@ function ShareBottomSheet({
         {/* Header */}
         <div className="flex items-center justify-between mb-5">
           <h3 className="text-lg font-semibold text-[var(--text-primary)]">
-            Chia sẻ recap
+            {labels.title}
           </h3>
           <button
             onClick={onClose}
@@ -157,14 +151,14 @@ function ShareBottomSheet({
           id="recap-poster"
         >
           <div className="bg-gradient-to-br from-[var(--primary)] to-[var(--primary-hover)] p-5 text-white">
-            <p className="text-xs text-white/70 mb-1">Recap tuần</p>
+            <p className="text-xs text-white/70 mb-1">{labels.posterLabel}</p>
             <p className="text-sm font-semibold">{weekLabel}</p>
           </div>
           <div className="p-4 bg-[var(--card)]">
             <div className="grid grid-cols-3 gap-3 mb-4">
               <div className="text-center">
                 <p className="text-[10px] text-[var(--text-tertiary)] mb-0.5">
-                  Chi tiêu
+                  {labels.expense}
                 </p>
                 <p className="text-sm font-bold text-[var(--danger)] tabular-nums">
                   {fmt(metrics.spending)}₫
@@ -172,7 +166,7 @@ function ShareBottomSheet({
               </div>
               <div className="text-center">
                 <p className="text-[10px] text-[var(--text-tertiary)] mb-0.5">
-                  Thu nhập
+                  {labels.income}
                 </p>
                 <p className="text-sm font-bold text-[var(--success)] tabular-nums">
                   {fmt(metrics.income)}₫
@@ -180,7 +174,7 @@ function ShareBottomSheet({
               </div>
               <div className="text-center">
                 <p className="text-[10px] text-[var(--text-tertiary)] mb-0.5">
-                  Ròng
+                  {labels.net}
                 </p>
                 <p
                   className={`text-sm font-bold tabular-nums ${metrics.net >= 0 ? "text-[var(--success)]" : "text-[var(--danger)]"}`}
@@ -199,7 +193,7 @@ function ShareBottomSheet({
             </div>
             <div className="mt-3 pt-3 border-t border-[var(--divider)] flex items-center justify-center">
               <span className="text-[10px] text-[var(--text-tertiary)]">
-                FinanceApp • Weekly Recap
+                {labels.footerApp}
               </span>
             </div>
           </div>
@@ -212,14 +206,14 @@ function ShareBottomSheet({
             className="flex items-center justify-center gap-2 px-4 py-3 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white rounded-[var(--radius-lg)] font-medium transition-colors"
           >
             <Download className="w-4 h-4" />
-            <span>Tải ảnh (PNG)</span>
+            <span>{labels.downloadPng}</span>
           </button>
           <button
             onClick={onCopyText}
             className="flex items-center justify-center gap-2 px-4 py-3 border border-[var(--border)] text-[var(--text-primary)] rounded-[var(--radius-lg)] font-medium hover:bg-[var(--surface)] transition-colors"
           >
             <Copy className="w-4 h-4" />
-            <span>Copy text</span>
+            <span>{labels.copyText}</span>
           </button>
         </div>
       </div>
@@ -231,6 +225,11 @@ function ShareBottomSheet({
 // MAIN
 // ═══════════════════════════════════════════════════════════════════════════
 export default function WeeklyRecapDetail() {
+  const { t, i18n } = useTranslation('reports');
+  const locale = i18n.language === 'vi' ? 'vi-VN' : 'en-US';
+  const DAY_NAMES = t('weekly_recap.day_names_short', { returnObjects: true }) as string[];
+  const FULL_DAY_NAMES = t('weekly_recap.day_names_full', { returnObjects: true }) as string[];
+  const fmtDate = (d: Date) => d.toLocaleDateString(locale, { day: '2-digit', month: '2-digit' });
   const [weekAnchor, setWeekAnchor] = useState(new Date());
   const [showShare, setShowShare] = useState(false);
   const nav = useAppNavigation();
@@ -305,8 +304,8 @@ export default function WeeklyRecapDetail() {
           : 0;
       result.push({
         type: "top-category",
-        headline: `Chi nhiều nhất: ${topCat.name} ${fmt(topCat.total)}₫ (${pct}%)`,
-        detail: `${topCat.name} chiếm ${pct}% tổng chi tiêu trong tuần.`,
+        headline: t('weekly_recap.bullets.top_category_headline', { name: topCat.name, amount: fmt(topCat.total, locale), pct }),
+        detail: t('weekly_recap.bullets.top_category_detail', { name: topCat.name, pct }),
       });
     }
 
@@ -319,8 +318,8 @@ export default function WeeklyRecapDetail() {
     if (biggest) {
       result.push({
         type: "biggest-txn",
-        headline: `Giao dịch lớn nhất: ${biggest.description || biggest.category?.name || "Giao dịch"} ${fmt(minor(biggest.totalAmountMinor))}₫`,
-        detail: `${biggest.description || ""} vào ngày ${fmtDate(new Date(biggest.date || biggest.occurredAt))}.`,
+        headline: t('weekly_recap.bullets.biggest_txn_headline', { name: biggest.description || biggest.category?.name || t('weekly_recap.stats.expense'), amount: fmt(minor(biggest.totalAmountMinor), locale) }),
+        detail: t('weekly_recap.bullets.biggest_txn_detail', { name: biggest.description || '', date: fmtDate(new Date(biggest.date || biggest.occurredAt)) }),
       });
     }
 
@@ -334,8 +333,8 @@ export default function WeeklyRecapDetail() {
     if (peakDay) {
       result.push({
         type: "day-spike",
-        headline: `Ngày chi nhiều nhất: ${FULL_DAY_NAMES[parseInt(peakDay[0])]} ${fmt(peakDay[1])}₫`,
-        detail: `Bạn đã chi nhiều nhất vào ${FULL_DAY_NAMES[parseInt(peakDay[0])]} tuần này.`,
+        headline: t('weekly_recap.bullets.day_spike_headline', { day: FULL_DAY_NAMES[parseInt(peakDay[0])], amount: fmt(peakDay[1], locale) }),
+        detail: t('weekly_recap.bullets.day_spike_detail', { day: FULL_DAY_NAMES[parseInt(peakDay[0])] }),
       });
     }
 
@@ -358,8 +357,8 @@ export default function WeeklyRecapDetail() {
     if (biggestDrop && biggestDrop.delta < 0) {
       result.push({
         type: "account-insight",
-        headline: `${biggestDrop.name} giảm ${fmt(Math.abs(biggestDrop.delta))}₫ trong tuần`,
-        detail: `Tài khoản ${biggestDrop.name} có biến động lớn nhất.`,
+        headline: t('weekly_recap.bullets.account_insight_headline', { account: biggestDrop.name, amount: fmt(Math.abs(biggestDrop.delta), locale) }),
+        detail: t('weekly_recap.bullets.account_insight_detail', { account: biggestDrop.name }),
       });
     }
 
@@ -373,15 +372,15 @@ export default function WeeklyRecapDetail() {
         const limit = minor(b.amountMinor);
         result.push({
           type: "budget-warning",
-          headline: `Ngân sách "${b.name}" đã dùng ${pctUsed}%`,
-          detail: `Đã chi ${fmt(spent)}₫ / ${fmt(limit)}₫ — hãy cân nhắc chi tiêu.`,
+          headline: t('weekly_recap.bullets.budget_warning_headline', { name: b.name, pct: pctUsed }),
+          detail: t('weekly_recap.bullets.budget_warning_detail', { spent: fmt(spent, locale), limit: fmt(limit, locale) }),
         });
         break; // Only 1 budget warning
       }
     }
 
     return result.slice(0, 5);
-  }, [weekExpenses, weekTxns, totalSpending, budgetData]);
+  }, [weekExpenses, weekTxns, totalSpending, budgetData, t, locale, DAY_NAMES, FULL_DAY_NAMES, fmtDate]);
 
   // ── Daily spending chart data ──
   const dailyChartData = useMemo(() => {
@@ -418,28 +417,27 @@ export default function WeeklyRecapDetail() {
   const handleCopyText = useCallback(() => {
     const lines = [
       `📊 Recap tuần ${weekLabel}`,
-      `💸 Chi tiêu: ${fmt(totalSpending)}₫`,
-      `💰 Thu nhập: ${fmt(totalIncome)}₫`,
-      `${netBalance >= 0 ? "✅" : "❌"} Ròng: ${netBalance >= 0 ? "+" : "-"}${fmt(Math.abs(netBalance))}₫`,
+      `💸 ${t('weekly_recap.stats.expense')}: ${fmt(totalSpending, locale)}₫`,
+      `💰 ${t('weekly_recap.stats.income')}: ${fmt(totalIncome, locale)}₫`,
+      `${netBalance >= 0 ? "✅" : "❌"} ${t('weekly_recap.stats.net')}: ${netBalance >= 0 ? "+" : "-"}${fmt(Math.abs(netBalance), locale)}₫`,
       "",
       ...bullets.map((b) => `• ${b.headline}`),
     ];
     navigator.clipboard
       .writeText(lines.join("\n"))
       .then(() => {
-        toast.success("Đã copy nội dung recap");
+        toast.success(t('weekly_recap.toast.copy_done'));
       })
       .catch(() => {
-        toast.error("Không thể copy");
+        toast.error(t('weekly_recap.toast.copy_failed'));
       });
     setShowShare(false);
-  }, [weekLabel, totalSpending, totalIncome, netBalance, bullets, toast]);
+  }, [weekLabel, totalSpending, totalIncome, netBalance, bullets, toast, t, locale]);
 
   const handleDownloadPng = useCallback(() => {
-    // UI-only: show toast simulating download
-    toast.success("Đã tạo ảnh recap");
+    toast.success(t('weekly_recap.toast.png_done'));
     setShowShare(false);
-  }, [toast]);
+  }, [toast, t]);
 
   const handleViewTransactions = () => {
     nav.goTransactions();
@@ -469,7 +467,7 @@ export default function WeeklyRecapDetail() {
             </button>
             <div>
               <h1 className="text-xl font-semibold text-[var(--text-primary)]">
-                Recap tuần của bạn
+                {t('weekly_recap.title')}
               </h1>
               <p className="text-sm text-[var(--text-secondary)]">
                 {weekLabel}
@@ -492,13 +490,13 @@ export default function WeeklyRecapDetail() {
             onClick={() => setWeekAnchor(new Date())}
             className={`px-3 py-1.5 rounded-[var(--radius-md)] text-xs font-medium border transition-colors ${isThisWeek ? "border-[var(--primary)] bg-[var(--primary-light)] text-[var(--primary)]" : "border-[var(--border)] text-[var(--text-secondary)] hover:border-[var(--text-tertiary)]"}`}
           >
-            Tuần này
+            {t('weekly_recap.this_week')}
           </button>
           <button
             onClick={() => setWeekAnchor(shiftWeek(new Date(), -1))}
             className={`px-3 py-1.5 rounded-[var(--radius-md)] text-xs font-medium border transition-colors ${isLastWeek ? "border-[var(--primary)] bg-[var(--primary-light)] text-[var(--primary)]" : "border-[var(--border)] text-[var(--text-secondary)] hover:border-[var(--text-tertiary)]"}`}
           >
-            Tuần trước
+            {t('weekly_recap.last_week')}
           </button>
           <div className="flex items-center ml-auto gap-1">
             <button
@@ -524,8 +522,10 @@ export default function WeeklyRecapDetail() {
           <div className="flex items-center gap-2 px-4 py-2.5 bg-[var(--warning-light)] border border-[var(--warning)] text-[var(--warning)] rounded-[var(--radius-lg)] text-sm">
             <AlertTriangle className="w-4 h-4 shrink-0" />
             <span>
-              Đang hiển thị {txnData?.items?.length}/{txnData?.pagination?.total} giao dịch.
-              Số liệu có thể chưa đầy đủ.
+              {t('weekly_recap.truncation_warning', {
+                shown: txnData?.items?.length,
+                total: txnData?.pagination?.total,
+              })}
             </span>
           </div>
         )}
@@ -538,17 +538,17 @@ export default function WeeklyRecapDetail() {
                 <CalendarDays className="w-8 h-8 text-[var(--text-tertiary)]" />
               </div>
               <h3 className="font-semibold text-[var(--text-primary)] mb-2">
-                Tuần này chưa có dữ liệu
+                {t('weekly_recap.empty.title')}
               </h3>
               <p className="text-sm text-[var(--text-secondary)] mb-6">
-                Thêm giao dịch để xem recap tuần của bạn.
+                {t('weekly_recap.empty.subtitle')}
               </p>
               <button
                 onClick={() => nav.goCreateTransaction()}
                 className="inline-flex items-center gap-2 px-4 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white rounded-[var(--radius-lg)] font-medium transition-colors"
               >
                 <Plus className="w-4 h-4" />
-                <span>Thêm giao dịch</span>
+                <span>{t('weekly_recap.empty.add_transaction')}</span>
               </button>
             </div>
           </Card>
@@ -558,24 +558,24 @@ export default function WeeklyRecapDetail() {
             <div className="grid grid-cols-3 gap-3">
               <Card className="bg-[var(--danger-light)]">
                 <p className="text-xs text-[var(--text-secondary)] mb-1">
-                  Chi tiêu
+                  {t('weekly_recap.stats.expense')}
                 </p>
                 <p className="text-lg md:text-xl font-bold text-[var(--danger)] tabular-nums">
-                  {fmt(totalSpending)}₫
+                  {fmt(totalSpending, locale)}₫
                 </p>
                 <p className="text-[10px] text-[var(--text-tertiary)] mt-0.5">
-                  {weekExpenses.length} giao dịch
+                  {t('weekly_recap.stats.txn_count', { count: weekExpenses.length })}
                 </p>
               </Card>
               <Card className="bg-[var(--success-light)]">
                 <p className="text-xs text-[var(--text-secondary)] mb-1">
-                  Thu nhập
+                  {t('weekly_recap.stats.income')}
                 </p>
                 <p className="text-lg md:text-xl font-bold text-[var(--success)] tabular-nums">
-                  {fmt(totalIncome)}₫
+                  {fmt(totalIncome, locale)}₫
                 </p>
                 <p className="text-[10px] text-[var(--text-tertiary)] mt-0.5">
-                  {weekIncome.length} giao dịch
+                  {t('weekly_recap.stats.txn_count', { count: weekIncome.length })}
                 </p>
               </Card>
               <Card
@@ -586,13 +586,13 @@ export default function WeeklyRecapDetail() {
                 }
               >
                 <p className="text-xs text-[var(--text-secondary)] mb-1">
-                  Ròng
+                  {t('weekly_recap.stats.net')}
                 </p>
                 <p
                   className={`text-lg md:text-xl font-bold tabular-nums ${netBalance >= 0 ? "text-[var(--success)]" : "text-[var(--danger)]"}`}
                 >
                   {netBalance >= 0 ? "+" : "-"}
-                  {fmt(Math.abs(netBalance))}₫
+                  {fmt(Math.abs(netBalance), locale)}₫
                 </p>
                 <p className="text-[10px] text-[var(--text-tertiary)] mt-0.5 flex items-center gap-0.5">
                   {netBalance >= 0 ? (
@@ -600,7 +600,7 @@ export default function WeeklyRecapDetail() {
                   ) : (
                     <TrendingDown className="w-3 h-3" />
                   )}
-                  {netBalance >= 0 ? "Dư" : "Thiếu"}
+                  {netBalance >= 0 ? t('weekly_recap.stats.surplus') : t('weekly_recap.stats.deficit')}
                 </p>
               </Card>
             </div>
@@ -610,10 +610,10 @@ export default function WeeklyRecapDetail() {
               <div className="space-y-3">
                 <div className="flex items-center gap-2">
                   <h2 className="font-semibold text-[var(--text-primary)]">
-                    Điểm nổi bật
+                    {t('weekly_recap.highlights.title')}
                   </h2>
                   <span className="px-2 py-0.5 rounded-full bg-[var(--primary-light)] text-[var(--primary)] text-[10px] font-medium">
-                    {bullets.length} điểm
+                    {t('weekly_recap.highlights.count_badge', { count: bullets.length })}
                   </span>
                 </div>
                 {bullets.map((b, i) => (
@@ -643,7 +643,7 @@ export default function WeeklyRecapDetail() {
             {/* B4: Daily Spending Chart */}
             <Card>
               <h3 className="font-semibold text-[var(--text-primary)] mb-4">
-                Chi tiêu theo ngày
+                {t('weekly_recap.chart.title')}
               </h3>
               <div className="h-52">
                 <ResponsiveContainer width="100%" height="100%">
@@ -680,7 +680,7 @@ export default function WeeklyRecapDetail() {
                         borderRadius: "var(--radius-lg)",
                         fontSize: 12,
                       }}
-                      formatter={(v: number) => [`${fmt(v)}₫`, "Chi tiêu"]}
+                      formatter={(v: number) => [`${fmt(v, locale)}₫`, t('weekly_recap.chart.tooltip_label')]}
                       labelFormatter={(label: string) => label}
                     />
                     <Bar dataKey="amount" radius={[6, 6, 0, 0]}>
@@ -712,14 +712,14 @@ export default function WeeklyRecapDetail() {
                 className="flex items-center justify-center gap-2 px-4 py-3 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white rounded-[var(--radius-lg)] font-medium transition-colors"
               >
                 <Share2 className="w-4 h-4" />
-                <span>Chia sẻ recap</span>
+                <span>{t('weekly_recap.bottom_actions.share')}</span>
               </button>
               <button
                 onClick={handleViewTransactions}
                 className="flex items-center justify-center gap-2 px-4 py-3 border border-[var(--border)] text-[var(--text-primary)] rounded-[var(--radius-lg)] font-medium hover:bg-[var(--surface)] transition-colors"
               >
                 <Receipt className="w-4 h-4" />
-                <span>Xem giao dịch tuần</span>
+                <span>{t('weekly_recap.bottom_actions.view_transactions')}</span>
               </button>
             </div>
           </div>
@@ -738,6 +738,16 @@ export default function WeeklyRecapDetail() {
           bullets={bullets}
           onCopyText={handleCopyText}
           onDownloadPng={handleDownloadPng}
+          labels={{
+            title: t('weekly_recap.share_sheet.title'),
+            posterLabel: t('weekly_recap.share_sheet.poster_label'),
+            footerApp: t('weekly_recap.share_sheet.footer_app'),
+            expense: t('weekly_recap.stats.expense'),
+            income: t('weekly_recap.stats.income'),
+            net: t('weekly_recap.stats.net'),
+            downloadPng: t('weekly_recap.share_sheet.download_png'),
+            copyText: t('weekly_recap.share_sheet.copy_text'),
+          }}
         />
       </div>
     </div>

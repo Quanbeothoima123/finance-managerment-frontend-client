@@ -33,6 +33,7 @@ import {
   Merge,
   Trash2,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Card } from "../components/Card";
 import { Button } from "../components/Button";
 import { ConfirmationModal } from "../components/ConfirmationModals";
@@ -80,12 +81,6 @@ function getCategoryIcon(iconKey?: string | null) {
   return iconMap[iconKey] || Folder;
 }
 
-function getTypeLabel(type: string) {
-  if (type === "expense") return "Chi tiêu";
-  if (type === "income") return "Thu nhập";
-  return "Cả hai";
-}
-
 function formatNumber(value?: number | string | null) {
   return new Intl.NumberFormat("vi-VN").format(Number(value || 0));
 }
@@ -111,6 +106,7 @@ function CategoryRow({
   onOpenDelete: (category: CategoryTreeNode) => void;
   onViewTransactions: (category: CategoryTreeNode) => void;
 }) {
+  const { t } = useTranslation('categories');
   const Icon = getCategoryIcon(category.iconKey || category.icon);
   const hasChildren = category.children.length > 0;
   const isExpanded = expandedIds.has(category.id);
@@ -164,31 +160,34 @@ function CategoryRow({
               </p>
 
               <span className="text-[10px] px-2 py-0.5 rounded-full bg-[var(--surface)] border border-[var(--border)] text-[var(--text-tertiary)]">
-                {getTypeLabel(category.categoryType)}
+                {category.categoryType === 'expense'
+                  ? t('list.type_labels.expense')
+                  : category.categoryType === 'income'
+                    ? t('list.type_labels.income')
+                    : t('list.type_labels.both')}
               </span>
 
               {category.isHidden && (
                 <span className="text-[10px] px-2 py-0.5 rounded-full bg-[var(--warning-light)] text-[var(--warning)] border border-[var(--warning)]/20">
-                  Đã ẩn
+                  {t('list.row.badge_hidden')}
                 </span>
               )}
 
               {category.childCount > 0 && (
                 <span className="text-[10px] px-2 py-0.5 rounded-full bg-[var(--info-light)] text-[var(--info)] border border-[var(--info)]/20">
-                  {category.childCount} mục con
+                  {t('list.row.badge_children', { count: category.childCount })}
                 </span>
               )}
             </div>
 
             <div className="flex flex-wrap items-center gap-3 mt-2 text-xs text-[var(--text-secondary)]">
               <span>
-                {formatNumber(category.transactionCount)} giao dịch trực tiếp
+                {t('list.row.direct_txns', { count: formatNumber(category.transactionCount) })}
               </span>
               <span>
-                {formatNumber(category.totalTransactionCount)} giao dịch toàn
-                cây
+                {t('list.row.total_txns', { count: formatNumber(category.totalTransactionCount) })}
               </span>
-              <span>{formatNumber(category.usageCount)} liên kết</span>
+              <span>{t('list.row.usage_count', { count: formatNumber(category.usageCount) })}</span>
             </div>
           </div>
 
@@ -263,6 +262,7 @@ function CategoryRow({
 }
 
 export default function CategoriesList() {
+  const { t } = useTranslation('categories');
   const nav = useAppNavigation();
   const toast = useToast();
 
@@ -339,13 +339,13 @@ export default function CategoriesList() {
     try {
       setDeleting(true);
       await categoriesService.deleteCategory(deleteTarget.id, cascadeChildren);
-      toast.success(`Đã xoá danh mục "${deleteTarget.name}"`);
+      toast.success(t('list.toast.deleted', { name: deleteTarget.name }));
       setDeleteTarget(null);
       setCascadeChildren(false);
       await reload();
     } catch (err) {
       toast.error(
-        err instanceof Error ? err.message : "Không thể xoá danh mục",
+        err instanceof Error ? err.message : t('list.toast.delete_failed'),
       );
     } finally {
       setDeleting(false);
@@ -365,7 +365,7 @@ export default function CategoriesList() {
       toast.error(
         err instanceof Error
           ? err.message
-          : "Không thể tải dữ liệu gộp danh mục",
+          : t('list.toast.merge_load_failed'),
       );
       setMergeTarget(null);
     } finally {
@@ -383,14 +383,14 @@ export default function CategoriesList() {
         includeChildren: true,
       });
 
-      toast.success(`Đã gộp danh mục "${mergeTarget.name}"`);
+      toast.success(t('list.toast.merged', { name: mergeTarget.name }));
       setMergeTarget(null);
       setMergeDetail(null);
       setMergeDestinationId("");
       await reload();
     } catch (err) {
       toast.error(
-        err instanceof Error ? err.message : "Không thể gộp danh mục",
+        err instanceof Error ? err.message : t('list.toast.merge_failed'),
       );
     } finally {
       setMerging(false);
@@ -409,8 +409,8 @@ export default function CategoriesList() {
 
       toast.success(
         visibilityTarget.isHidden
-          ? `Đã hiện danh mục "${visibilityTarget.name}"`
-          : `Đã ẩn danh mục "${visibilityTarget.name}"`,
+          ? t('list.toast.shown', { name: visibilityTarget.name })
+          : t('list.toast.hidden', { name: visibilityTarget.name }),
       );
       setVisibilityTarget(null);
       await reload();
@@ -418,7 +418,7 @@ export default function CategoriesList() {
       toast.error(
         err instanceof Error
           ? err.message
-          : "Không thể cập nhật trạng thái danh mục",
+          : t('list.toast.visibility_failed'),
       );
     } finally {
       setTogglingVisibility(false);
@@ -431,24 +431,23 @@ export default function CategoriesList() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl font-semibold text-[var(--text-primary)]">
-              Danh mục
+              {t('list.title')}
             </h1>
             <p className="text-sm text-[var(--text-secondary)] mt-1">
-              Quản lý cây danh mục, trạng thái hiển thị và gộp danh mục bằng dữ
-              liệu thật từ backend.
+              {t('list.subtitle')}
             </p>
           </div>
 
           <Button onClick={nav.goCreateCategory}>
             <Plus className="w-4 h-4" />
-            Thêm danh mục
+            {t('list.add_button')}
           </Button>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card>
             <p className="text-sm text-[var(--text-secondary)] mb-1">
-              Tổng danh mục
+              {t('list.summary.total')}
             </p>
             <p className="text-2xl font-semibold text-[var(--text-primary)] tabular-nums">
               {summary?.total || 0}
@@ -457,7 +456,7 @@ export default function CategoriesList() {
 
           <Card>
             <p className="text-sm text-[var(--text-secondary)] mb-1">
-              Đang hiển thị
+              {t('list.summary.active')}
             </p>
             <p className="text-2xl font-semibold text-[var(--text-primary)] tabular-nums">
               {summary?.activeCount || 0}
@@ -465,7 +464,7 @@ export default function CategoriesList() {
           </Card>
 
           <Card>
-            <p className="text-sm text-[var(--text-secondary)] mb-1">Đã ẩn</p>
+            <p className="text-sm text-[var(--text-secondary)] mb-1">{t('list.summary.hidden')}</p>
             <p className="text-2xl font-semibold text-[var(--text-primary)] tabular-nums">
               {summary?.hiddenCount || 0}
             </p>
@@ -473,7 +472,7 @@ export default function CategoriesList() {
 
           <Card>
             <p className="text-sm text-[var(--text-secondary)] mb-1">
-              Giao dịch
+              {t('list.summary.transactions')}
             </p>
             <p className="text-2xl font-semibold text-[var(--text-primary)] tabular-nums">
               {formatNumber(summary?.totalTransactionCount || 0)}
@@ -487,7 +486,7 @@ export default function CategoriesList() {
               <Search className="w-4 h-4 text-[var(--text-tertiary)] absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
-                placeholder="Tìm theo tên danh mục..."
+                placeholder={t('list.filters.search_placeholder')}
                 value={searchQuery}
                 onChange={(event) => setSearchQuery(event.target.value)}
                 className="w-full pl-10 pr-4 py-2.5 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-lg)]"
@@ -504,10 +503,10 @@ export default function CategoriesList() {
                 }
                 className="w-full px-4 py-2.5 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-lg)]"
               >
-                <option value="all">Tất cả loại</option>
-                <option value="expense">Chi tiêu</option>
-                <option value="income">Thu nhập</option>
-                <option value="both">Cả hai</option>
+                <option value="all">{t('list.filters.type_all')}</option>
+                <option value="expense">{t('list.filters.type_expense')}</option>
+                <option value="income">{t('list.filters.type_income')}</option>
+                <option value="both">{t('list.filters.type_both')}</option>
               </select>
             </div>
 
@@ -525,10 +524,10 @@ export default function CategoriesList() {
                 }
                 className="w-full px-4 py-2.5 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-lg)]"
               >
-                <option value="all">Tất cả trạng thái</option>
-                <option value="active">Đang hiển thị</option>
-                <option value="hidden">Đã ẩn</option>
-                <option value="archived">Đã lưu trữ</option>
+                <option value="all">{t('list.filters.visibility_all')}</option>
+                <option value="active">{t('list.filters.visibility_active')}</option>
+                <option value="hidden">{t('list.filters.visibility_hidden')}</option>
+                <option value="archived">{t('list.filters.visibility_archived')}</option>
               </select>
             </div>
 
@@ -546,10 +545,10 @@ export default function CategoriesList() {
                 }
                 className="w-full px-4 py-2.5 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-lg)]"
               >
-                <option value="sortOrder">Theo thứ tự</option>
-                <option value="name">Theo tên</option>
-                <option value="usage">Theo usage</option>
-                <option value="createdAt">Theo ngày tạo</option>
+                <option value="sortOrder">{t('list.filters.sort_sort_order')}</option>
+                <option value="name">{t('list.filters.sort_name')}</option>
+                <option value="usage">{t('list.filters.sort_usage')}</option>
+                <option value="createdAt">{t('list.filters.sort_created_at')}</option>
               </select>
             </div>
 
@@ -561,8 +560,8 @@ export default function CategoriesList() {
                 }
                 className="w-full px-4 py-2.5 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-lg)]"
               >
-                <option value="asc">Tăng dần</option>
-                <option value="desc">Giảm dần</option>
+                <option value="asc">{t('list.filters.order_asc')}</option>
+                <option value="desc">{t('list.filters.order_desc')}</option>
               </select>
             </div>
           </div>
@@ -571,7 +570,7 @@ export default function CategoriesList() {
         {loading && (
           <Card>
             <p className="text-sm text-[var(--text-secondary)]">
-              Đang tải danh sách danh mục...
+              {t('list.loading')}
             </p>
           </Card>
         )}
@@ -589,14 +588,14 @@ export default function CategoriesList() {
                 <Folder className="w-6 h-6 text-[var(--text-tertiary)]" />
               </div>
               <h3 className="text-lg font-semibold text-[var(--text-primary)]">
-                Chưa có danh mục nào
+                {t('list.empty.title')}
               </h3>
               <p className="text-sm text-[var(--text-secondary)] mt-2 mb-5">
-                Tạo danh mục đầu tiên để bắt đầu phân loại giao dịch.
+                {t('list.empty.subtitle')}
               </p>
               <Button onClick={nav.goCreateCategory}>
                 <Plus className="w-4 h-4" />
-                Tạo danh mục
+                {t('list.empty.create_button')}
               </Button>
             </div>
           </Card>
@@ -634,14 +633,14 @@ export default function CategoriesList() {
           setCascadeChildren(false);
         }}
         onConfirm={() => void handleDelete()}
-        title="Xoá danh mục?"
+        title={t('list.delete_modal.title')}
         description={
           deleteTarget
-            ? `Bạn có chắc muốn xoá danh mục "${deleteTarget.name}"?`
+            ? t('list.delete_modal.description', { name: deleteTarget.name })
             : ""
         }
-        confirmLabel={deleting ? "Đang xoá..." : "Xoá"}
-        cancelLabel="Huỷ"
+        confirmLabel={deleting ? t('list.delete_modal.confirm_deleting') : t('list.delete_modal.confirm')}
+        cancelLabel={t('list.delete_modal.cancel')}
         isDangerous
       >
         {deleteTarget?.childCount ? (
@@ -653,7 +652,7 @@ export default function CategoriesList() {
               className="w-4 h-4"
             />
             <span className="text-sm text-[var(--text-primary)]">
-              Xoá kèm {deleteTarget.childCount} danh mục con
+              {t('list.delete_modal.cascade_label', { count: deleteTarget.childCount })}
             </span>
           </label>
         ) : null}
@@ -663,16 +662,16 @@ export default function CategoriesList() {
         isOpen={Boolean(visibilityTarget)}
         onClose={() => setVisibilityTarget(null)}
         onConfirm={() => void handleToggleVisibility()}
-        title={visibilityTarget?.isHidden ? "Hiện danh mục?" : "Ẩn danh mục?"}
+        title={visibilityTarget?.isHidden ? t('list.visibility_modal.show_title') : t('list.visibility_modal.hide_title')}
         description={
           visibilityTarget
             ? visibilityTarget.isHidden
-              ? `Bạn có chắc muốn hiện lại "${visibilityTarget.name}"?`
-              : `Bạn có chắc muốn ẩn "${visibilityTarget.name}"?`
+              ? t('list.visibility_modal.show_description', { name: visibilityTarget.name })
+              : t('list.visibility_modal.hide_description', { name: visibilityTarget.name })
             : ""
         }
-        confirmLabel={togglingVisibility ? "Đang cập nhật..." : "Xác nhận"}
-        cancelLabel="Huỷ"
+        confirmLabel={togglingVisibility ? t('list.visibility_modal.confirm_updating') : t('list.visibility_modal.confirm')}
+        cancelLabel={t('list.visibility_modal.cancel')}
       />
 
       <ConfirmationModal
@@ -683,19 +682,19 @@ export default function CategoriesList() {
           setMergeDestinationId("");
         }}
         onConfirm={() => void handleMerge()}
-        title="Gộp danh mục"
+        title={t('list.merge_modal.title')}
         description={
           mergeTarget
-            ? `Chọn danh mục đích để gộp "${mergeTarget.name}" vào.`
+            ? t('list.merge_modal.description', { name: mergeTarget.name })
             : ""
         }
-        confirmLabel={merging ? "Đang gộp..." : "Gộp"}
-        cancelLabel="Huỷ"
+        confirmLabel={merging ? t('list.merge_modal.confirm_merging') : t('list.merge_modal.confirm')}
+        cancelLabel={t('list.merge_modal.cancel')}
         isDangerous={false}
       >
         {loadingMergeDetail ? (
           <p className="text-sm text-[var(--text-secondary)]">
-            Đang tải danh sách danh mục đích...
+            {t('list.merge_modal.loading_targets')}
           </p>
         ) : (
           <div className="space-y-3">
@@ -704,17 +703,21 @@ export default function CategoriesList() {
               onChange={(event) => setMergeDestinationId(event.target.value)}
               className="w-full px-4 py-2.5 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-lg)]"
             >
-              <option value="">Chọn danh mục đích</option>
+              <option value="">{t('list.merge_modal.destination_placeholder')}</option>
               {(mergeDetail?.mergeTargets || []).map((item) => (
                 <option key={item.id} value={item.id}>
-                  {item.name} · {getTypeLabel(item.categoryType)}
+                  {item.name} · {item.categoryType === 'expense'
+                    ? t('list.type_labels.expense')
+                    : item.categoryType === 'income'
+                      ? t('list.type_labels.income')
+                      : t('list.type_labels.both')}
                 </option>
               ))}
             </select>
 
             {mergeDetail?.children.length ? (
               <p className="text-xs text-[var(--text-tertiary)]">
-                Hệ thống sẽ gộp cả danh mục con của mục nguồn.
+                {t('list.merge_modal.cascade_note')}
               </p>
             ) : null}
           </div>

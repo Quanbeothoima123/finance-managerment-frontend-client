@@ -1,0 +1,146 @@
+{
+  "list": {
+    "title": "Merchants",
+    "subtitle": "Manage merchants for automatic suggestions and transaction categorization.",
+    "add_button": "Add merchant",
+    "summary": {
+      "total": "Total merchants",
+      "total_usage": "Total usage",
+      "total_spent": "Total spent",
+      "no_default_category": "No default set"
+    },
+    "filters": {
+      "search_placeholder": "Search by merchant name...",
+      "category_all": "All categories",
+      "visibility_visible": "Visible",
+      "visibility_hidden": "Hidden",
+      "visibility_all": "All",
+      "sort_usage_desc": "Most used",
+      "sort_spent_desc": "Most spent",
+      "sort_recent_desc": "Recently used",
+      "sort_name_asc": "Name A-Z",
+      "sort_created_desc": "Newest"
+    },
+    "card": {
+      "badge_hidden": "Hidden",
+      "no_default_category": "No default category",
+      "stat_usage": "Usage",
+      "stat_total_spent": "Total spent",
+      "stat_last_used": "Last used",
+      "date_never": "Never",
+      "view_transactions": "View transactions"
+    },
+    "loading": "Loading merchants...",
+    "empty": {
+      "title": "No merchants yet",
+      "subtitle": "Create a merchant to assign a default category and reuse it in transaction forms.",
+      "create_button": "Create first merchant"
+    },
+    "delete_modal": {
+      "title": "Delete merchant?",
+      "description": "Are you sure you want to delete \"{{name}}\"?",
+      "confirm_deleting": "Deleting...",
+      "confirm": "Delete",
+      "cancel": "Cancel"
+    },
+    "toast": {
+      "deleted": "Merchant \"{{name}}\" deleted",
+      "delete_failed": "Could not delete merchant"
+    }
+  },
+
+  "form": {
+    "create_title": "Add merchant",
+    "edit_title": "Edit merchant",
+    "create_subtitle": "Add a new merchant for category suggestions and reuse in transaction forms",
+    "edit_subtitle": "Update merchant information",
+    "back": "Back",
+    "loading": "Loading merchant data...",
+    "load_error": "Could not load merchant data",
+    "info_section": "Information",
+    "preview_section": "Preview",
+    "fields": {
+      "name_label": "Merchant name",
+      "name_placeholder": "E.g. Starbucks",
+      "default_category_label": "Default category",
+      "default_category_no_default": "No default",
+      "default_category_hint": "Used to suggest a category when this merchant is selected in a transaction form.",
+      "note_label": "Note",
+      "note_placeholder": "E.g. Favourite coffee chain",
+      "hidden_label": "Hide merchant",
+      "hidden_hint": "Merchant still exists but won't appear by default in the list."
+    },
+    "preview": {
+      "name_placeholder": "Merchant name",
+      "badge_hidden": "Hidden"
+    },
+    "edit_note": {
+      "title": "Note",
+      "description": "Changing the default category only affects transactions created after this update."
+    },
+    "actions": {
+      "cancel": "Cancel",
+      "saving": "Saving...",
+      "create": "Create merchant",
+      "save": "Save changes"
+    },
+    "errors": {
+      "name_required": "Please enter a merchant name"
+    },
+    "toast": {
+      "created": "Merchant created",
+      "updated": "Merchant updated",
+      "save_failed": "Could not save merchant"
+    }
+  },
+
+  "detail": {
+    "back": "Back",
+    "back_to_list": "Back to merchants",
+    "subtitle": "Merchant details",
+    "badge_hidden": "Hidden",
+    "actions": {
+      "edit": "Edit",
+      "view_transactions": "View transactions",
+      "delete": "Delete"
+    },
+    "stats": {
+      "total_spent": "Total spent",
+      "transaction_count": "Transactions",
+      "recurring_rules": "Recurring rules",
+      "avg_per_transaction": "Avg per transaction"
+    },
+    "info_section": {
+      "title": "Information",
+      "name_label": "Merchant name",
+      "default_category_label": "Default category",
+      "no_default_category": "No default category set",
+      "last_transaction_label": "Last transaction",
+      "date_never": "Never",
+      "note_label": "Note"
+    },
+    "recent_transactions": {
+      "title": "Recent transactions",
+      "view_all": "View all",
+      "empty": "No transactions linked to this merchant yet.",
+      "fallback_name": "Transaction"
+    },
+    "not_found": {
+      "title": "Merchant not found",
+      "description": "This merchant may have been deleted or does not exist.",
+      "back_button": "Back to merchants"
+    },
+    "loading": "Loading merchant details...",
+    "delete_modal": {
+      "title": "Delete merchant?",
+      "description": "Are you sure you want to delete \"{{name}}\"?",
+      "confirm_deleting": "Deleting...",
+      "confirm": "Delete",
+      "cancel": "Cancel"
+    },
+    "toast": {
+      "deleted": "Merchant \"{{name}}\" deleted",
+      "delete_failed": "Could not delete merchant"
+    }
+  }
+}

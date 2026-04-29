@@ -2,6 +2,7 @@ import React from "react";
 import { Bell, Menu } from "lucide-react";
 import { useNavigate } from "react-router";
 import { ThemeSwitcher } from "./ThemeSwitcher";
+import { LanguageSwitcher } from "./LanguageSwitcher";
 import { useNotifications } from "../contexts/NotificationContext";
 
 interface TopbarProps {
@@ -46,6 +47,9 @@ export function Topbar({ title = "Tổng quan", onMenuClick }: TopbarProps) {
             </span>
           )}
         </button>
+
+        {/* Language Switcher */}
+        <LanguageSwitcher />
 
         {/* Theme Switcher */}
         <ThemeSwitcher />

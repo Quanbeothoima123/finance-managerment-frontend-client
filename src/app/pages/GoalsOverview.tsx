@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { Edit2, Plus, Search, Target, Trash2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Card } from "../components/Card";
 import { Button } from "../components/Button";
 import { ConfirmationModal } from "../components/ConfirmationModals";
@@ -11,7 +12,6 @@ import {
   formatCurrency,
   formatDate,
   getGoalIconComponent,
-  getPriorityLabel,
   getUiStatus,
   getUiStatusMeta,
 } from "../utils/goalHelpers";
@@ -28,6 +28,7 @@ function GoalCard({
   onEdit: () => void;
   onDelete: () => void;
 }) {
+  const { t } = useTranslation("goals");
   const GoalIcon = getGoalIconComponent(goal.icon);
   const status = getUiStatus(goal);
   const statusMeta = getUiStatusMeta(status);
@@ -54,7 +55,7 @@ function GoalCard({
               {goal.name}
             </h3>
             <p className="text-xs text-[var(--text-secondary)]">
-              {getPriorityLabel(goal.priority)}
+              {t(`priority.${goal.priority || "medium"}`)}
             </p>
           </div>
         </div>
@@ -64,7 +65,7 @@ function GoalCard({
           style={{ backgroundColor: statusMeta.bg, color: statusMeta.color }}
         >
           <StatusIcon className="w-3.5 h-3.5" />
-          <span>{statusMeta.label}</span>
+          <span>{t(`status.${status}`)}</span>
         </div>
       </div>
 
@@ -94,13 +95,17 @@ function GoalCard({
 
       <div className="grid grid-cols-2 gap-4 text-sm pt-4 border-t border-[var(--divider)]">
         <div>
-          <p className="text-[var(--text-secondary)] mb-1">Mục tiêu</p>
+          <p className="text-[var(--text-secondary)] mb-1">
+            {t("overview.card.target_label")}
+          </p>
           <p className="font-semibold text-[var(--text-primary)]">
             {formatDate(goal.targetDate || goal.deadline)}
           </p>
         </div>
         <div>
-          <p className="text-[var(--text-secondary)] mb-1">Còn lại</p>
+          <p className="text-[var(--text-secondary)] mb-1">
+            {t("overview.card.remaining_label")}
+          </p>
           <p className="font-semibold text-[var(--text-primary)]">
             {formatCurrency(goal.remainingAmount)}₫
           </p>
@@ -117,7 +122,7 @@ function GoalCard({
           }}
         >
           <Edit2 className="w-4 h-4" />
-          Sửa
+          {t("overview.card.edit_button")}
         </Button>
         <Button
           variant="danger"
@@ -128,7 +133,7 @@ function GoalCard({
           }}
         >
           <Trash2 className="w-4 h-4" />
-          Xoá
+          {t("overview.card.delete_button")}
         </Button>
       </div>
     </Card>
@@ -136,6 +141,7 @@ function GoalCard({
 }
 
 export default function GoalsOverview() {
+  const { t } = useTranslation("goals");
   const nav = useAppNavigation();
   const toast = useToast();
   const [search, setSearch] = useState("");
@@ -176,12 +182,12 @@ export default function GoalsOverview() {
     try {
       setDeleting(true);
       await goalsService.deleteGoal(goalToDelete.id);
-      toast.success(`Đã xoá mục tiêu "${goalToDelete.name}"`);
+      toast.success(t("overview.toast.deleted", { name: goalToDelete.name }));
       setGoalToDelete(null);
       await reload();
     } catch (err) {
       toast.error(
-        err instanceof Error ? err.message : "Không thể xoá mục tiêu",
+        err instanceof Error ? err.message : t("overview.toast.delete_failed"),
       );
     } finally {
       setDeleting(false);
@@ -194,41 +200,47 @@ export default function GoalsOverview() {
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <h1 className="text-2xl font-semibold text-[var(--text-primary)]">
-              Mục tiêu
+              {t("overview.title")}
             </h1>
             <p className="text-sm text-[var(--text-secondary)] mt-1">
-              Theo dõi tiến độ tiết kiệm và các đóng góp cho từng mục tiêu.
+              {t("overview.subtitle")}
             </p>
           </div>
           <Button onClick={nav.goCreateGoal}>
             <Plus className="w-4 h-4" />
-            Tạo mục tiêu
+            {t("overview.create_button")}
           </Button>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
           <Card>
             <p className="text-sm text-[var(--text-secondary)]">
-              Tổng mục tiêu
+              {t("overview.summary.total")}
             </p>
             <p className="text-2xl font-semibold text-[var(--text-primary)] mt-2">
               {summary?.total ?? 0}
             </p>
           </Card>
           <Card>
-            <p className="text-sm text-[var(--text-secondary)]">Hoàn thành</p>
+            <p className="text-sm text-[var(--text-secondary)]">
+              {t("overview.summary.achieved")}
+            </p>
             <p className="text-2xl font-semibold text-[var(--success)] mt-2">
               {summary?.achievedCount ?? 0}
             </p>
           </Card>
           <Card>
-            <p className="text-sm text-[var(--text-secondary)]">Cần tăng tốc</p>
+            <p className="text-sm text-[var(--text-secondary)]">
+              {t("overview.summary.behind")}
+            </p>
             <p className="text-2xl font-semibold text-[var(--warning)] mt-2">
               {summary?.behindCount ?? 0}
             </p>
           </Card>
           <Card>
-            <p className="text-sm text-[var(--text-secondary)]">Đúng tiến độ</p>
+            <p className="text-sm text-[var(--text-secondary)]">
+              {t("overview.summary.on_track")}
+            </p>
             <p className="text-2xl font-semibold text-[var(--primary)] mt-2">
               {summary?.onTrackCount ?? 0}
             </p>
@@ -239,14 +251,14 @@ export default function GoalsOverview() {
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
             <div className="lg:col-span-2">
               <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-                Tìm kiếm
+                {t("overview.filters.search_label")}
               </label>
               <div className="relative">
                 <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)]" />
                 <input
                   value={search}
                   onChange={(event) => setSearch(event.target.value)}
-                  placeholder="Tìm theo tên mục tiêu"
+                  placeholder={t("overview.filters.search_placeholder")}
                   className="w-full pl-9 pr-4 py-2.5 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-lg)] text-[var(--text-primary)]"
                 />
               </div>
@@ -254,7 +266,7 @@ export default function GoalsOverview() {
 
             <div>
               <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-                Tiến độ
+                {t("overview.filters.status_label")}
               </label>
               <select
                 value={statusFilter}
@@ -269,16 +281,22 @@ export default function GoalsOverview() {
                 }
                 className="w-full px-4 py-2.5 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-lg)] text-[var(--text-primary)]"
               >
-                <option value="all">Tất cả</option>
-                <option value="on-track">Đúng tiến độ</option>
-                <option value="behind">Cần tăng tốc</option>
-                <option value="achieved">Hoàn thành</option>
+                <option value="all">{t("overview.filters.status.all")}</option>
+                <option value="on-track">
+                  {t("overview.filters.status.on_track")}
+                </option>
+                <option value="behind">
+                  {t("overview.filters.status.behind")}
+                </option>
+                <option value="achieved">
+                  {t("overview.filters.status.achieved")}
+                </option>
               </select>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-                Ưu tiên
+                {t("overview.filters.priority_label")}
               </label>
               <select
                 value={priority}
@@ -289,10 +307,18 @@ export default function GoalsOverview() {
                 }
                 className="w-full px-4 py-2.5 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-lg)] text-[var(--text-primary)]"
               >
-                <option value="all">Tất cả</option>
-                <option value="high">Ưu tiên cao</option>
-                <option value="medium">Ưu tiên trung bình</option>
-                <option value="low">Ưu tiên thấp</option>
+                <option value="all">
+                  {t("overview.filters.priority.all")}
+                </option>
+                <option value="high">
+                  {t("overview.filters.priority.high")}
+                </option>
+                <option value="medium">
+                  {t("overview.filters.priority.medium")}
+                </option>
+                <option value="low">
+                  {t("overview.filters.priority.low")}
+                </option>
               </select>
             </div>
           </div>
@@ -300,7 +326,7 @@ export default function GoalsOverview() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
             <div>
               <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-                Sắp xếp theo
+                {t("overview.filters.sort_label")}
               </label>
               <select
                 value={sortBy}
@@ -309,16 +335,26 @@ export default function GoalsOverview() {
                 }
                 className="w-full px-4 py-2.5 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-lg)] text-[var(--text-primary)]"
               >
-                <option value="targetDate">Ngày mục tiêu</option>
-                <option value="progress">Tiến độ</option>
-                <option value="targetAmount">Số tiền mục tiêu</option>
-                <option value="name">Tên mục tiêu</option>
-                <option value="createdAt">Ngày tạo</option>
+                <option value="targetDate">
+                  {t("overview.filters.sort_by.targetDate")}
+                </option>
+                <option value="progress">
+                  {t("overview.filters.sort_by.progress")}
+                </option>
+                <option value="targetAmount">
+                  {t("overview.filters.sort_by.targetAmount")}
+                </option>
+                <option value="name">
+                  {t("overview.filters.sort_by.name")}
+                </option>
+                <option value="createdAt">
+                  {t("overview.filters.sort_by.createdAt")}
+                </option>
               </select>
             </div>
             <div>
               <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-                Thứ tự
+                {t("overview.filters.order_label")}
               </label>
               <select
                 value={sortOrder}
@@ -327,8 +363,8 @@ export default function GoalsOverview() {
                 }
                 className="w-full px-4 py-2.5 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-lg)] text-[var(--text-primary)]"
               >
-                <option value="asc">Tăng dần</option>
-                <option value="desc">Giảm dần</option>
+                <option value="asc">{t("overview.filters.order.asc")}</option>
+                <option value="desc">{t("overview.filters.order.desc")}</option>
               </select>
             </div>
           </div>
@@ -337,7 +373,7 @@ export default function GoalsOverview() {
         {loading && (
           <Card>
             <p className="text-[var(--text-secondary)]">
-              Đang tải danh sách mục tiêu...
+              {t("overview.loading")}
             </p>
           </Card>
         )}
@@ -351,12 +387,14 @@ export default function GoalsOverview() {
           <Card className="text-center py-12">
             <Target className="w-12 h-12 text-[var(--text-tertiary)] mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-[var(--text-primary)]">
-              Chưa có mục tiêu phù hợp
+              {t("overview.empty.title")}
             </h3>
             <p className="text-sm text-[var(--text-secondary)] mt-2 mb-6">
-              Hãy tạo mục tiêu mới hoặc thay đổi bộ lọc hiện tại.
+              {t("overview.empty.subtitle")}
             </p>
-            <Button onClick={nav.goCreateGoal}>Tạo mục tiêu đầu tiên</Button>
+            <Button onClick={nav.goCreateGoal}>
+              {t("overview.empty.create_first")}
+            </Button>
           </Card>
         )}
 
@@ -379,18 +417,24 @@ export default function GoalsOverview() {
         isOpen={Boolean(goalToDelete)}
         onClose={() => setGoalToDelete(null)}
         onConfirm={handleDelete}
-        title="Xoá mục tiêu?"
+        title={t("overview.delete_modal.title")}
         description={
           goalToDelete
-            ? `Bạn có chắc muốn xoá mục tiêu "${goalToDelete.name}"?`
-            : "Bạn có chắc muốn xoá mục tiêu này?"
+            ? t("overview.delete_modal.description", {
+                name: goalToDelete.name,
+              })
+            : t("overview.delete_modal.description_generic")
         }
         consequences={[
-          "Tất cả đóng góp của mục tiêu sẽ bị xoá.",
-          "Dữ liệu này không thể khôi phục.",
+          t("overview.delete_modal.consequences.all_contributions"),
+          t("overview.delete_modal.consequences.no_recovery"),
         ]}
-        confirmLabel={deleting ? "Đang xoá..." : "Xoá mục tiêu"}
-        cancelLabel="Huỷ"
+        confirmLabel={
+          deleting
+            ? t("overview.delete_modal.confirm_deleting")
+            : t("overview.delete_modal.confirm")
+        }
+        cancelLabel={t("overview.delete_modal.cancel")}
         isDangerous={true}
       />
     </div>

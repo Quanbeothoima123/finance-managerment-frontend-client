@@ -1,4 +1,5 @@
 import React, { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import {
   TrendingUp,
   TrendingDown,
@@ -125,6 +126,7 @@ function InsightCard({
 }
 
 export default function InsightsOverview() {
+  const { t, i18n } = useTranslation("insights");
   const nav = useAppNavigation();
   const toast = useToast();
 
@@ -162,12 +164,15 @@ export default function InsightsOverview() {
   }, [month]);
   const { data: txnData, loading: txnLoading } = useTransactionsList(txnQuery);
   const transactions = txnData?.items ?? [];
-  const isTruncated = (txnData?.pagination?.total ?? 0) > (txnData?.items?.length ?? 0);
+  const isTruncated =
+    (txnData?.pagination?.total ?? 0) > (txnData?.items?.length ?? 0);
 
   // ── Helpers ──
   const minor = (s: string | null | undefined) => parseInt(s || "0", 10) || 0;
   const formatCurrency = (amount: number) =>
-    new Intl.NumberFormat("vi-VN").format(amount);
+    new Intl.NumberFormat(i18n.language === "vi" ? "vi-VN" : "en-US").format(
+      amount,
+    );
 
   const toMonthKey = (d: Date) =>
     `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
@@ -185,7 +190,10 @@ export default function InsightsOverview() {
   };
 
   const formatMonthYear = (date: Date) =>
-    date.toLocaleDateString("vi-VN", { month: "long", year: "numeric" });
+    date.toLocaleDateString(i18n.language === "vi" ? "vi-VN" : "en-US", {
+      month: "long",
+      year: "numeric",
+    });
 
   // ── Loading / Error ──
   const isLoading = homeLoading || txnLoading || accLoading;
@@ -212,18 +220,19 @@ export default function InsightsOverview() {
       { name: string; amount: number; color: string }
     > = {};
     transactions
-      .filter((t) => {
-        if (t.type !== "expense") return false;
-        const d = new Date(t.date || t.occurredAt);
+      .filter((txn) => {
+        if (txn.type !== "expense") return false;
+        const d = new Date(txn.date || txn.occurredAt);
         return d.getFullYear() === year && d.getMonth() === mo;
       })
-      .forEach((t) => {
-        const catId = t.category?.id || "unknown";
-        const catName = t.category?.name || "Không danh mục";
-        const catColor = t.category?.colorHex || CATEGORY_FALLBACK_COLORS[0];
+      .forEach((txn) => {
+        const catId = txn.category?.id || "unknown";
+        const catName =
+          txn.category?.name || t("overview.top_categories.uncategorized");
+        const catColor = txn.category?.colorHex || CATEGORY_FALLBACK_COLORS[0];
         if (!catMap[catId])
           catMap[catId] = { name: catName, amount: 0, color: catColor };
-        catMap[catId].amount += minor(t.totalAmountMinor);
+        catMap[catId].amount += minor(txn.totalAmountMinor);
       });
 
     // Enrich color from categories list when transaction doesn't carry one
@@ -250,7 +259,7 @@ export default function InsightsOverview() {
       return [
         ...top4,
         {
-          name: "Khác",
+          name: t("overview.top_categories.other"),
           amount: restAmount,
           percentage: Math.round((restAmount / total) * 100),
           color: "#6b7280",
@@ -261,7 +270,7 @@ export default function InsightsOverview() {
       ? sorted
       : [
           {
-            name: "Chưa có dữ liệu",
+            name: t("overview.top_categories.no_data"),
             amount: 0,
             percentage: 0,
             color: "#6b7280",
@@ -282,15 +291,20 @@ export default function InsightsOverview() {
       let income = 0;
       let expense = 0;
 
-      transactions.forEach((t) => {
-        const d = new Date(t.date || t.occurredAt);
+      transactions.forEach((txn) => {
+        const d = new Date(txn.date || txn.occurredAt);
         if (d.getFullYear() === mYear && d.getMonth() === mMonth) {
-          if (t.type === "income") income += minor(t.totalAmountMinor);
-          else if (t.type === "expense") expense += minor(t.totalAmountMinor);
+          if (txn.type === "income") income += minor(txn.totalAmountMinor);
+          else if (txn.type === "expense")
+            expense += minor(txn.totalAmountMinor);
         }
       });
 
-      result.push({ month: `T${mMonth + 1}`, income, expense });
+      result.push({
+        month: t("overview.month_short", { n: mMonth + 1 }),
+        income,
+        expense,
+      });
     }
     return result;
   }, [transactions, selectedMonth]);
@@ -348,7 +362,10 @@ export default function InsightsOverview() {
 
   // ── Weekly Recap Data ──
   const weeklyRecapData = useMemo(() => {
-    const fmtC = (n: number) => new Intl.NumberFormat("vi-VN").format(n);
+    const fmtC = (n: number) =>
+      new Intl.NumberFormat(i18n.language === "vi" ? "vi-VN" : "en-US").format(
+        n,
+      );
     const now = new Date();
     const day = now.getDay();
     const diffMon = day === 0 ? -6 : 1 - day;
@@ -359,28 +376,31 @@ export default function InsightsOverview() {
     sun.setDate(mon.getDate() + 6);
     sun.setHours(23, 59, 59, 999);
 
-    const weekTxns = transactions.filter((t) => {
-      const d = new Date(t.date || t.occurredAt);
+    const weekTxns = transactions.filter((txn) => {
+      const d = new Date(txn.date || txn.occurredAt);
       return d >= mon && d <= sun;
     });
-    const expenses = weekTxns.filter((t) => t.type === "expense");
-    const incTxns = weekTxns.filter((t) => t.type === "income");
+    const expenses = weekTxns.filter((txn) => txn.type === "expense");
+    const incTxns = weekTxns.filter((txn) => txn.type === "income");
     const spending = expenses.reduce(
-      (s, t) => s + minor(t.totalAmountMinor),
+      (s, txn) => s + minor(txn.totalAmountMinor),
       0,
     );
-    const inc = incTxns.reduce((s, t) => s + minor(t.totalAmountMinor), 0);
+    const inc = incTxns.reduce((s, txn) => s + minor(txn.totalAmountMinor), 0);
 
     // Build 3 bullets
     const bullets: string[] = [];
     if (expenses.length > 0) {
       // Top category
       const catBuckets: Record<string, { name: string; total: number }> = {};
-      expenses.forEach((t) => {
-        const key = t.category?.id || "unknown";
+      expenses.forEach((exp) => {
+        const key = exp.category?.id || "unknown";
         if (!catBuckets[key])
-          catBuckets[key] = { name: t.category?.name || "Khác", total: 0 };
-        catBuckets[key].total += minor(t.totalAmountMinor);
+          catBuckets[key] = {
+            name: exp.category?.name || t("overview.weekly_recap.other"),
+            total: 0,
+          };
+        catBuckets[key].total += minor(exp.totalAmountMinor);
       });
       const topCat = Object.values(catBuckets).sort(
         (a, b) => b.total - a.total,
@@ -388,7 +408,11 @@ export default function InsightsOverview() {
       const pct =
         spending > 0 ? Math.round((topCat.total / spending) * 100) : 0;
       bullets.push(
-        `Chi nhiều nhất: ${topCat.name} ${fmtC(topCat.total)}₫ (${pct}%)`,
+        t("overview.weekly_recap.bullet_top_category", {
+          name: topCat.name,
+          amount: `${fmtC(topCat.total)}₫`,
+          percent: pct,
+        }),
       );
 
       // Biggest transaction
@@ -396,33 +420,33 @@ export default function InsightsOverview() {
         (a, b) => minor(b.totalAmountMinor) - minor(a.totalAmountMinor),
       )[0];
       bullets.push(
-        `Giao dịch lớn nhất: ${biggest.description || biggest.category?.name || ""} ${fmtC(minor(biggest.totalAmountMinor))}₫`,
+        t("overview.weekly_recap.bullet_biggest_txn", {
+          name: biggest.description || biggest.category?.name || "",
+          amount: `${fmtC(minor(biggest.totalAmountMinor))}₫`,
+        }),
       );
 
       // Peak day
-      const DAYS = [
-        "Chủ nhật",
-        "Thứ 2",
-        "Thứ 3",
-        "Thứ 4",
-        "Thứ 5",
-        "Thứ 6",
-        "Thứ 7",
-      ];
       const dayMap: Record<number, number> = {};
-      expenses.forEach((t) => {
-        const d = new Date(t.date || t.occurredAt).getDay();
-        dayMap[d] = (dayMap[d] || 0) + minor(t.totalAmountMinor);
+      expenses.forEach((exp) => {
+        const d = new Date(exp.date || exp.occurredAt).getDay();
+        dayMap[d] = (dayMap[d] || 0) + minor(exp.totalAmountMinor);
       });
       const peak = Object.entries(dayMap).sort(([, a], [, b]) => b - a)[0];
       if (peak)
         bullets.push(
-          `Ngày chi nhiều nhất: ${DAYS[parseInt(peak[0])]} ${fmtC(peak[1])}₫`,
+          t("overview.weekly_recap.bullet_peak_day", {
+            day: t(`overview.weekly_recap.days.${peak[0]}`),
+            amount: `${fmtC(peak[1])}₫`,
+          }),
         );
     }
 
     const fmtD = (d: Date) =>
-      d.toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit" });
+      d.toLocaleDateString(i18n.language === "vi" ? "vi-VN" : "en-US", {
+        day: "2-digit",
+        month: "2-digit",
+      });
     return {
       spending,
       income: inc,
@@ -436,22 +460,25 @@ export default function InsightsOverview() {
   const handleExportCSV = () => {
     const year = selectedMonth.getFullYear();
     const mo = selectedMonth.getMonth();
-    const monthTxns = transactions.filter((t) => {
-      const d = new Date(t.date || t.occurredAt);
+    const monthTxns = transactions.filter((txn) => {
+      const d = new Date(txn.date || txn.occurredAt);
       return d.getFullYear() === year && d.getMonth() === mo;
     });
 
-    const header = "Ngày,Mô tả,Danh mục,Tài khoản,Loại,Số tiền\n";
+    const header = `${t("overview.csv.header")}\n`;
     const rows = monthTxns
-      .map((t) => {
+      .map((txn) => {
         const escaped = (s: string) =>
           s.includes(",") || s.includes('"') ? `"${s.replace(/"/g, '""')}"` : s;
-        const date = t.date || t.occurredAt?.split("T")[0] || "";
-        const desc = t.description || "";
-        const cat = t.category?.name || "";
-        const acc = t.account?.name || "";
-        const type = t.type === "income" ? "Thu nhập" : "Chi tiêu";
-        return `${date},${escaped(desc)},${escaped(cat)},${escaped(acc)},${type},${t.signedAmountMinor}`;
+        const date = txn.date || txn.occurredAt?.split("T")[0] || "";
+        const desc = txn.description || "";
+        const cat = txn.category?.name || "";
+        const acc = txn.account?.name || "";
+        const type =
+          txn.type === "income"
+            ? t("overview.csv.type_income")
+            : t("overview.csv.type_expense");
+        return `${date},${escaped(desc)},${escaped(cat)},${escaped(acc)},${type},${txn.signedAmountMinor}`;
       })
       .join("\n");
 
@@ -460,12 +487,15 @@ export default function InsightsOverview() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `thong-ke-${year}-${String(mo + 1).padStart(2, "0")}.csv`;
+    link.download = t("overview.csv.filename", {
+      year,
+      month: String(mo + 1).padStart(2, "0"),
+    });
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-    toast.success(`Đã xuất ${monthTxns.length} giao dịch ra file CSV`);
+    toast.success(t("overview.csv.success", { count: monthTxns.length }));
   };
 
   if (homeError) {
@@ -474,7 +504,7 @@ export default function InsightsOverview() {
         <Card className="max-w-sm w-full text-center p-8">
           <AlertTriangle className="w-12 h-12 text-[var(--danger)] mx-auto mb-4" />
           <h2 className="text-lg font-semibold text-[var(--text-primary)] mb-2">
-            Không thể tải dữ liệu
+            {t("overview.error.title")}
           </h2>
           <p className="text-sm text-[var(--text-secondary)] mb-4">
             {homeError}
@@ -483,7 +513,7 @@ export default function InsightsOverview() {
             onClick={reloadHome}
             className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white rounded-[var(--radius-lg)] font-medium transition-colors text-sm"
           >
-            <RefreshCw className="w-4 h-4" /> Thử lại
+            <RefreshCw className="w-4 h-4" /> {t("overview.error.retry")}
           </button>
         </Card>
       </div>
@@ -505,10 +535,10 @@ export default function InsightsOverview() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl font-semibold text-[var(--text-primary)]">
-              Thống kê & Báo cáo
+              {t("overview.title")}
             </h1>
             <p className="text-sm text-[var(--text-secondary)] mt-1">
-              Phân tích chi tiêu và tài chính
+              {t("overview.subtitle")}
             </p>
           </div>
 
@@ -517,11 +547,11 @@ export default function InsightsOverview() {
             <button
               onClick={handleExportCSV}
               className="flex items-center gap-2 px-3 py-2 border border-[var(--border)] text-[var(--text-secondary)] hover:bg-[var(--surface)] rounded-[var(--radius-lg)] transition-colors"
-              title="Xuất CSV"
+              title={t("overview.export_csv")}
             >
               <Download className="w-4 h-4" />
               <span className="text-sm font-medium hidden md:inline">
-                Xuất CSV
+                {t("overview.export_csv")}
               </span>
             </button>
             <button
@@ -549,8 +579,10 @@ export default function InsightsOverview() {
           <div className="flex items-center gap-2 px-4 py-2.5 bg-[var(--warning-light)] border border-[var(--warning)] text-[var(--warning)] rounded-[var(--radius-lg)] text-sm">
             <AlertTriangle className="w-4 h-4 shrink-0" />
             <span>
-              Đang hiển thị {txnData?.items?.length}/{txnData?.pagination?.total} giao dịch.
-              Số liệu có thể chưa đầy đủ.
+              {t("overview.truncation_warning", {
+                shown: txnData?.items?.length,
+                total: txnData?.pagination?.total,
+              })}
             </span>
           </div>
         )}
@@ -559,7 +591,7 @@ export default function InsightsOverview() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Card>
             <p className="text-sm text-[var(--text-secondary)] mb-2">
-              Tổng chi tiêu
+              {t("overview.summary.total_spending")}
             </p>
             <p className="text-2xl font-bold text-[var(--text-primary)] tabular-nums mb-1">
               {formatCurrency(currentMonthData.expense)}₫
@@ -575,7 +607,8 @@ export default function InsightsOverview() {
                   className={`text-xs ${spendingChange > 0 ? "text-[var(--danger)]" : "text-[var(--success)]"}`}
                 >
                   {spendingChange > 0 ? "+" : ""}
-                  {spendingChange.toFixed(1)}% so với tháng trước
+                  {spendingChange.toFixed(1)}%{" "}
+                  {t("overview.summary.vs_prev_month")}
                 </span>
               </div>
             )}
@@ -583,20 +616,21 @@ export default function InsightsOverview() {
 
           <Card>
             <p className="text-sm text-[var(--text-secondary)] mb-2">
-              Trung bình/ngày
+              {t("overview.summary.avg_daily")}
             </p>
             <p className="text-2xl font-bold text-[var(--text-primary)] tabular-nums mb-1">
               {formatCurrency(Math.round(avgDailySpending))}₫
             </p>
             <p className="text-xs text-[var(--text-secondary)]">
-              Dự kiến: {formatCurrency(Math.round(avgDailySpending * 30))}
-              ₫/tháng
+              {t("overview.summary.avg_daily_projection", {
+                amount: `${formatCurrency(Math.round(avgDailySpending * 30))}₫`,
+              })}
             </p>
           </Card>
 
           <Card>
             <p className="text-sm text-[var(--text-secondary)] mb-2">
-              Tỷ lệ tiết kiệm
+              {t("overview.summary.savings_rate")}
             </p>
             <p
               className={`text-2xl font-bold tabular-nums mb-1 ${savingsRate > 0 ? "text-[var(--success)]" : "text-[var(--danger)]"}`}
@@ -604,7 +638,10 @@ export default function InsightsOverview() {
               {savingsRate.toFixed(1)}%
             </p>
             <p className="text-xs text-[var(--text-secondary)]">
-              {savingsRate >= 0 ? "Tiết kiệm" : "Vượt chi"}:{" "}
+              {savingsRate >= 0
+                ? t("overview.summary.savings_label")
+                : t("overview.summary.overspend_label")}
+              :{" "}
               {formatCurrency(
                 Math.abs(currentMonthData.income - currentMonthData.expense),
               )}
@@ -623,10 +660,10 @@ export default function InsightsOverview() {
               <div>
                 <div className="flex items-center gap-2">
                   <h3 className="font-semibold text-[var(--text-primary)]">
-                    Recap tuần
+                    {t("overview.weekly_recap.title")}
                   </h3>
                   <span className="px-2 py-0.5 rounded-full bg-[var(--primary-light)] text-[var(--primary)] text-[10px] font-medium">
-                    3–5 điểm nổi bật
+                    {t("overview.weekly_recap.badge")}
                   </span>
                 </div>
                 <p className="text-xs text-[var(--text-secondary)] mt-0.5">
@@ -642,7 +679,7 @@ export default function InsightsOverview() {
               <div className="grid grid-cols-3 gap-3 mb-4">
                 <div className="p-2.5 rounded-[var(--radius-lg)] bg-[var(--surface)]">
                   <p className="text-[10px] text-[var(--text-tertiary)]">
-                    Chi tiêu
+                    {t("overview.weekly_recap.spending")}
                   </p>
                   <p className="text-sm font-bold text-[var(--danger)] tabular-nums">
                     {formatCurrency(weeklyRecapData.spending)}₫
@@ -650,7 +687,7 @@ export default function InsightsOverview() {
                 </div>
                 <div className="p-2.5 rounded-[var(--radius-lg)] bg-[var(--surface)]">
                   <p className="text-[10px] text-[var(--text-tertiary)]">
-                    Thu nhập
+                    {t("overview.weekly_recap.income")}
                   </p>
                   <p className="text-sm font-bold text-[var(--success)] tabular-nums">
                     {formatCurrency(weeklyRecapData.income)}₫
@@ -658,7 +695,7 @@ export default function InsightsOverview() {
                 </div>
                 <div className="p-2.5 rounded-[var(--radius-lg)] bg-[var(--surface)]">
                   <p className="text-[10px] text-[var(--text-tertiary)]">
-                    Ròng
+                    {t("overview.weekly_recap.net")}
                   </p>
                   <p
                     className={`text-sm font-bold tabular-nums ${weeklyRecapData.net >= 0 ? "text-[var(--success)]" : "text-[var(--danger)]"}`}
@@ -685,27 +722,27 @@ export default function InsightsOverview() {
                   className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white rounded-[var(--radius-lg)] font-medium transition-colors text-sm"
                 >
                   <Receipt className="w-4 h-4" />
-                  Xem recap
+                  {t("overview.weekly_recap.view_recap")}
                 </button>
                 <button
                   onClick={() => nav.goWeeklyRecap()}
                   className="flex items-center justify-center gap-2 px-4 py-2.5 border border-[var(--border)] text-[var(--text-primary)] rounded-[var(--radius-lg)] font-medium hover:bg-[var(--surface)] transition-colors text-sm"
                 >
                   <Share2 className="w-4 h-4" />
-                  Chia sẻ
+                  {t("overview.weekly_recap.share")}
                 </button>
               </div>
             </>
           ) : (
             <div className="text-center py-6">
               <p className="text-sm text-[var(--text-secondary)] mb-3">
-                Tuần này chưa có dữ liệu
+                {t("overview.weekly_recap.no_data")}
               </p>
               <button
                 onClick={() => nav.goCreateTransaction()}
                 className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white rounded-[var(--radius-lg)] font-medium transition-colors text-sm"
               >
-                Thêm giao dịch
+                {t("overview.weekly_recap.add_transaction")}
               </button>
             </div>
           )}
@@ -713,7 +750,7 @@ export default function InsightsOverview() {
 
         {/* Spending Trend Chart */}
         <InsightCard
-          title="Xu hướng chi tiêu"
+          title={t("overview.spending_trend.title")}
           icon={<TrendingUp className="w-5 h-5 text-[var(--primary)]" />}
           onViewDetails={handleViewSpendingTrend}
           trend={
@@ -721,7 +758,7 @@ export default function InsightsOverview() {
               ? {
                   value: spendingChange,
                   isPositive: spendingChange < 0,
-                  label: "so với tháng trưc",
+                  label: t("overview.spending_trend.vs_prev_month"),
                 }
               : undefined
           }
@@ -771,7 +808,7 @@ export default function InsightsOverview() {
                   }}
                   formatter={(value: number) => [
                     `${formatCurrency(value)}₫`,
-                    "Chi tiêu",
+                    t("overview.spending_trend.tooltip_label"),
                   ]}
                 />
                 <Area
@@ -789,7 +826,7 @@ export default function InsightsOverview() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {/* Top Categories */}
           <InsightCard
-            title="Danh mục chi tiêu"
+            title={t("overview.top_categories.title")}
             icon={<PieChart className="w-5 h-5 text-[var(--primary)]" />}
             onViewDetails={handleViewCategoryBreakdown}
           >
@@ -825,7 +862,7 @@ export default function InsightsOverview() {
 
           {/* Income vs Expense */}
           <InsightCard
-            title="Thu nhập & Chi tiêu"
+            title={t("overview.income_expense.title")}
             icon={<DollarSign className="w-5 h-5 text-[var(--primary)]" />}
             onViewDetails={handleViewIncomeExpense}
           >
@@ -858,7 +895,9 @@ export default function InsightsOverview() {
                   <Legend
                     wrapperStyle={{ fontSize: "12px" }}
                     formatter={(value) =>
-                      value === "income" ? "Thu nhập" : "Chi tiêu"
+                      value === "income"
+                        ? t("overview.income_expense.income_label")
+                        : t("overview.income_expense.expense_label")
                     }
                   />
                   <Bar
@@ -879,7 +918,7 @@ export default function InsightsOverview() {
 
         {/* Account Distribution */}
         <InsightCard
-          title="Phân bổ tài khoản"
+          title={t("overview.account_distribution.title")}
           icon={<Wallet className="w-5 h-5 text-[var(--primary)]" />}
           onViewDetails={handleViewAccountDistribution}
         >
@@ -909,7 +948,7 @@ export default function InsightsOverview() {
                     }}
                     formatter={(value: number) => [
                       `${formatCurrency(value)}₫`,
-                      "Số dư",
+                      t("overview.account_distribution.tooltip_label"),
                     ]}
                   />
                 </RePieChart>

@@ -1,10 +1,30 @@
 import React, { useRef, useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router";
 import { Wallet, ChevronDown, Settings, LogOut } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { getSidebarRoutes } from "../routes";
 import { useRecurringDueCount } from "../hooks/useRecurringDueCount";
 import { useAuth } from "../hooks/useAuth";
 import { LogoutModal } from "./ConfirmationModals";
+
+const PATH_LABEL_KEYS: Record<string, string> = {
+  "/home": "sidebar.nav.home",
+  "/transactions": "sidebar.nav.transactions",
+  "/accounts": "sidebar.nav.accounts",
+  "/categories": "sidebar.nav.categories",
+  "/tags": "sidebar.nav.tags",
+  "/merchants": "sidebar.nav.merchants",
+  "/budgets": "sidebar.nav.budgets",
+  "/goals": "sidebar.nav.goals",
+  "/insights": "sidebar.nav.insights",
+  "/rules/auto": "sidebar.nav.auto_rules",
+  "/rules/recurring": "sidebar.nav.recurring",
+  "/attachments": "sidebar.nav.attachments",
+  "/export": "sidebar.nav.export",
+  "/settings": "sidebar.nav.settings",
+  "/about": "sidebar.nav.about",
+  "/community": "sidebar.nav.community",
+};
 
 interface SidebarProps {
   activePath?: string;
@@ -14,6 +34,7 @@ interface SidebarProps {
 export function Sidebar({ activePath, onNavigate }: SidebarProps) {
   const location = useLocation();
   const navigate = useNavigate();
+  const { t } = useTranslation("common");
   const sidebarRoutes = getSidebarRoutes();
   const recurringDueCount = useRecurringDueCount(1);
   const { user, logout } = useAuth();
@@ -93,7 +114,11 @@ export function Sidebar({ activePath, onNavigate }: SidebarProps) {
         }`}
       >
         {Icon && <Icon className="w-5 h-5" />}
-        <span className="font-medium flex-1 text-left">{route.label}</span>
+        <span className="font-medium flex-1 text-left">
+          {t(PATH_LABEL_KEYS[route.path] ?? route.label, {
+            defaultValue: route.label,
+          })}
+        </span>
         {showBadge && (
           <span className="flex-shrink-0 min-w-[20px] h-5 px-1.5 rounded-full bg-[var(--danger)] text-white text-xs font-bold flex items-center justify-center">
             {recurringDueCount}
@@ -116,7 +141,7 @@ export function Sidebar({ activePath, onNavigate }: SidebarProps) {
               MoneyApp
             </h1>
             <p className="text-xs text-[var(--text-secondary)]">
-              Quản lý tài chính
+              {t("sidebar.brand_tagline")}
             </p>
           </div>
         </div>
@@ -133,7 +158,7 @@ export function Sidebar({ activePath, onNavigate }: SidebarProps) {
         {groupedRoutes.accounts.length > 0 && (
           <div>
             <div className="px-4 py-2 text-xs font-semibold text-[var(--text-tertiary)] uppercase tracking-wider">
-              Tài khoản
+              {t("sidebar.sections.accounts")}
             </div>
             <div className="space-y-1">
               {groupedRoutes.accounts.map(renderNavItem)}
@@ -145,7 +170,7 @@ export function Sidebar({ activePath, onNavigate }: SidebarProps) {
         {groupedRoutes.categories.length > 0 && (
           <div>
             <div className="px-4 py-2 text-xs font-semibold text-[var(--text-tertiary)] uppercase tracking-wider">
-              Phân loại
+              {t("sidebar.sections.categories")}
             </div>
             <div className="space-y-1">
               {groupedRoutes.categories.map(renderNavItem)}
@@ -158,7 +183,7 @@ export function Sidebar({ activePath, onNavigate }: SidebarProps) {
           groupedRoutes.goals.length > 0) && (
           <div>
             <div className="px-4 py-2 text-xs font-semibold text-[var(--text-tertiary)] uppercase tracking-wider">
-              Lập kế hoạch
+              {t("sidebar.sections.planning")}
             </div>
             <div className="space-y-1">
               {groupedRoutes.budgets.map(renderNavItem)}
@@ -171,7 +196,7 @@ export function Sidebar({ activePath, onNavigate }: SidebarProps) {
         {groupedRoutes.insights.length > 0 && (
           <div>
             <div className="px-4 py-2 text-xs font-semibold text-[var(--text-tertiary)] uppercase tracking-wider">
-              Phân tích
+              {t("sidebar.sections.insights")}
             </div>
             <div className="space-y-1">
               {groupedRoutes.insights.map(renderNavItem)}
@@ -183,7 +208,7 @@ export function Sidebar({ activePath, onNavigate }: SidebarProps) {
         {groupedRoutes.rules.length > 0 && (
           <div>
             <div className="px-4 py-2 text-xs font-semibold text-[var(--text-tertiary)] uppercase tracking-wider">
-              Tự động hoá
+              {t("sidebar.sections.automation")}
             </div>
             <div className="space-y-1">
               {groupedRoutes.rules.map(renderNavItem)}
@@ -195,7 +220,7 @@ export function Sidebar({ activePath, onNavigate }: SidebarProps) {
         {groupedRoutes.community.length > 0 && (
           <div>
             <div className="px-4 py-2 text-xs font-semibold text-[var(--text-tertiary)] uppercase tracking-wider">
-              Cộng đồng
+              {t("sidebar.sections.community")}
             </div>
             <div className="space-y-1">
               {groupedRoutes.community.map(renderNavItem)}
@@ -207,7 +232,7 @@ export function Sidebar({ activePath, onNavigate }: SidebarProps) {
         {groupedRoutes.settings.length > 0 && (
           <div>
             <div className="px-4 py-2 text-xs font-semibold text-[var(--text-tertiary)] uppercase tracking-wider">
-              Khác
+              {t("sidebar.sections.other")}
             </div>
             <div className="space-y-1">
               {groupedRoutes.settings.map(renderNavItem)}
@@ -243,7 +268,7 @@ export function Sidebar({ activePath, onNavigate }: SidebarProps) {
                 className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-[var(--text-primary)] hover:bg-[var(--surface-elevated)] transition-colors"
               >
                 <Settings className="w-4 h-4 text-[var(--text-secondary)]" />
-                Cài đặt
+                {t("sidebar.user_menu.settings")}
               </button>
               <button
                 onClick={() => {
@@ -253,7 +278,7 @@ export function Sidebar({ activePath, onNavigate }: SidebarProps) {
                 className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-[var(--danger)] hover:bg-[var(--surface-elevated)] transition-colors"
               >
                 <LogOut className="w-4 h-4" />
-                Đăng xuất
+                {t("sidebar.user_menu.logout")}
               </button>
             </div>
           </div>

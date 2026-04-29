@@ -1,1 +1,266 @@
-{}
+{
+  "overview": {
+    "title": "Mục tiêu",
+    "subtitle": "Theo dõi tiến độ tiết kiệm và các đóng góp cho từng mục tiêu.",
+    "create_button": "Tạo mục tiêu",
+    "summary": {
+      "total": "Tổng mục tiêu",
+      "achieved": "Hoàn thành",
+      "behind": "Cần tăng tốc",
+      "on_track": "Đúng tiến độ"
+    },
+    "filters": {
+      "search_label": "Tìm kiếm",
+      "search_placeholder": "Tìm theo tên mục tiêu",
+      "status_label": "Tiến độ",
+      "priority_label": "Ưu tiên",
+      "sort_label": "Sắp xếp theo",
+      "order_label": "Thứ tự",
+      "status": {
+        "all": "Tất cả",
+        "on_track": "Đúng tiến độ",
+        "behind": "Cần tăng tốc",
+        "achieved": "Hoàn thành"
+      },
+      "priority": {
+        "all": "Tất cả",
+        "high": "Ưu tiên cao",
+        "medium": "Ưu tiên trung bình",
+        "low": "Ưu tiên thấp"
+      },
+      "sort_by": {
+        "targetDate": "Ngày mục tiêu",
+        "progress": "Tiến độ",
+        "targetAmount": "Số tiền mục tiêu",
+        "name": "Tên mục tiêu",
+        "createdAt": "Ngày tạo"
+      },
+      "order": {
+        "asc": "Tăng dần",
+        "desc": "Giảm dần"
+      }
+    },
+    "card": {
+      "target_label": "Mục tiêu",
+      "remaining_label": "Còn lại",
+      "edit_button": "Sửa",
+      "delete_button": "Xoá"
+    },
+    "empty": {
+      "title": "Chưa có mục tiêu phù hợp",
+      "subtitle": "Hãy tạo mục tiêu mới hoặc thay đổi bộ lọc hiện tại.",
+      "create_first": "Tạo mục tiêu đầu tiên"
+    },
+    "loading": "Đang tải danh sách mục tiêu...",
+    "delete_modal": {
+      "title": "Xoá mục tiêu?",
+      "description": "Bạn có chắc muốn xoá mục tiêu \"{{name}}\"?",
+      "description_generic": "Bạn có chắc muốn xoá mục tiêu này?",
+      "consequences": {
+        "all_contributions": "Tất cả đóng góp của mục tiêu sẽ bị xoá.",
+        "no_recovery": "Dữ liệu này không thể khôi phục."
+      },
+      "confirm_deleting": "Đang xoá...",
+      "confirm": "Xoá mục tiêu",
+      "cancel": "Huỷ"
+    },
+    "toast": {
+      "deleted": "Đã xoá mục tiêu \"{{name}}\"",
+      "delete_failed": "Không thể xoá mục tiêu"
+    }
+  },
+
+  "detail": {
+    "back": "Quay lại",
+    "edit_button": "Chỉnh sửa",
+    "add_contribution_button": "Thêm đóng góp",
+    "priority_target": "{{priority}} • Mục tiêu đến {{date}}",
+    "progress": {
+      "current_label": "Đã có",
+      "target_label": "Mục tiêu",
+      "remaining_label": "Còn lại",
+      "days_remaining_label": "Số ngày còn lại"
+    },
+    "contributions": {
+      "title": "Lịch sử đóng góp",
+      "empty": "Chưa có đóng góp nào cho mục tiêu này.",
+      "linked_transaction": "Đã liên kết giao dịch",
+      "no_note": "Không có ghi chú"
+    },
+    "summary_card": {
+      "title": "Tổng quan",
+      "total_deposited": "Tổng nạp",
+      "total_withdrawn": "Tổng rút",
+      "event_count": "Sự kiện",
+      "linked_transactions": "Liên kết giao dịch",
+      "last_contribution": "Lần đóng góp gần nhất"
+    },
+    "progress_card": {
+      "title": "Tiến độ theo thời gian",
+      "empty": "Chưa đủ dữ liệu để hiển thị tiến độ."
+    },
+    "actions_card": {
+      "title": "Hành động",
+      "add_contribution": "Thêm đóng góp",
+      "edit_goal": "Chỉnh sửa mục tiêu",
+      "delete_goal": "Xoá mục tiêu"
+    },
+    "recent_transactions": {
+      "title": "Giao dịch thu gần đây để liên kết",
+      "fallback_name": "Giao dịch thu nhập"
+    },
+    "loading": "Đang tải chi tiết mục tiêu...",
+    "not_found": "Không tìm thấy mục tiêu",
+    "delete_modal": {
+      "title": "Xoá mục tiêu?",
+      "description": "Bạn có chắc muốn xoá mục tiêu \"{{name}}\"?",
+      "description_generic": "Bạn có chắc muốn xoá mục tiêu này?",
+      "consequences": {
+        "all_contributions": "Tất cả đóng góp liên quan cũng sẽ bị xoá.",
+        "no_recovery": "Dữ liệu này không thể khôi phục."
+      },
+      "confirm_deleting": "Đang xoá...",
+      "confirm": "Xoá mục tiêu",
+      "cancel": "Huỷ"
+    },
+    "contribution_delete_modal": {
+      "title": "Xoá đóng góp?",
+      "description": "Bạn có chắc muốn xoá đóng góp này? Số dư mục tiêu sẽ được tính lại.",
+      "confirm_deleting": "Đang xoá...",
+      "confirm": "Xoá đóng góp",
+      "cancel": "Huỷ"
+    },
+    "toast": {
+      "goal_deleted": "Đã xoá mục tiêu",
+      "goal_delete_failed": "Không thể xoá mục tiêu",
+      "contribution_deleted": "Đã xoá đóng góp",
+      "contribution_delete_failed": "Không thể xoá đóng góp"
+    }
+  },
+
+  "form": {
+    "create_title": "Tạo mục tiêu",
+    "edit_title": "Chỉnh sửa mục tiêu",
+    "create_subtitle": "Đặt mục tiêu tiết kiệm cho kế hoạch của bạn.",
+    "edit_subtitle": "Cập nhật thông tin mục tiêu.",
+    "back": "Quay lại",
+    "basic_info": {
+      "title": "Thông tin cơ bản",
+      "icon_label": "Biểu tượng",
+      "color_label": "Màu sắc",
+      "name_label": "Tên mục tiêu",
+      "name_placeholder": "Ví dụ: Mua iPhone 15",
+      "priority_label": "Mức ưu tiên",
+      "note_label": "Ghi chú",
+      "note_placeholder": "Mô tả ngắn về mục tiêu của bạn",
+      "priority": {
+        "high": "Ưu tiên cao",
+        "medium": "Ưu tiên trung bình",
+        "low": "Ưu tiên thấp"
+      }
+    },
+    "finance": {
+      "title": "Tài chính & thời gian",
+      "target_amount_label": "Số tiền mục tiêu",
+      "target_amount_placeholder": "Ví dụ: 10000000",
+      "initial_amount_label": "Số tiền ban đầu",
+      "initial_amount_placeholder": "0",
+      "start_date_label": "Ngày bắt đầu",
+      "target_date_label": "Ngày mục tiêu",
+      "linked_account_label": "Tài khoản liên kết ban đầu",
+      "no_linked_account": "Không liên kết",
+      "preview": {
+        "label": "Xem trước tiến độ",
+        "current": "Đã có",
+        "target": "Mục tiêu",
+        "remaining": "Còn lại"
+      }
+    },
+    "auto_contribute": {
+      "title": "Đóng góp tự động",
+      "subtitle": "Nếu bật, backend sẽ lưu cấu hình auto contribution cho mục tiêu.",
+      "enabled_label": "Bật đóng góp tự động",
+      "amount_label": "Số tiền mỗi kỳ",
+      "amount_placeholder": "Ví dụ: 500000",
+      "day_label": "Ngày đóng góp",
+      "account_label": "Tài khoản đóng góp",
+      "account_placeholder": "Chọn tài khoản"
+    },
+    "actions": {
+      "cancel": "Huỷ",
+      "saving": "Đang lưu...",
+      "create": "Tạo mục tiêu",
+      "save": "Lưu thay đổi"
+    },
+    "errors": {
+      "name_required": "Vui lòng nhập tên mục tiêu",
+      "target_amount_required": "Vui lòng nhập số tiền mục tiêu",
+      "start_date_required": "Vui lòng chọn ngày bắt đầu",
+      "target_date_required": "Vui lòng chọn ngày mục tiêu",
+      "target_amount_positive": "Số tiền mục tiêu phải lớn hơn 0",
+      "initial_amount_invalid": "Số tiền ban đầu không hợp lệ",
+      "initial_exceeds_target": "Số tiền ban đầu không được lớn hơn mục tiêu",
+      "target_date_before_start": "Ngày mục tiêu phải sau ngày bắt đầu",
+      "auto_amount_required": "Nhập số tiền đóng góp tự động",
+      "auto_day_range": "Ngày đóng góp phải từ 1 đến 28",
+      "auto_account_required": "Chọn tài khoản đóng góp tự động"
+    },
+    "loading": "Đang tải dữ liệu mục tiêu...",
+    "toast": {
+      "created": "Đã tạo mục tiêu mới",
+      "updated": "Đã cập nhật mục tiêu",
+      "save_failed": "Không thể lưu mục tiêu",
+      "preview_mode": "Đây là chế độ preview, không gửi lên API."
+    }
+  },
+
+  "contribution": {
+    "title": "Thêm đóng góp",
+    "subtitle": "Ghi nhận khoản tiền mới cho mục tiêu.",
+    "amount_label": "Số tiền đóng góp",
+    "amount_placeholder": "Ví dụ: 500000",
+    "date_label": "Ngày đóng góp",
+    "note_label": "Ghi chú",
+    "note_placeholder": "Ví dụ: Trích từ lương tháng này",
+    "link_transactions": {
+      "title": "Liên kết giao dịch thu gần đây",
+      "fallback_name": "Giao dịch thu nhập",
+      "unlink": "Bỏ liên kết giao dịch",
+      "from_prefix": "Từ: {{name}}"
+    },
+    "preview": {
+      "title": "Xem trước sau khi đóng góp",
+      "new_total": "Tổng mới",
+      "new_progress": "Tiến độ mới",
+      "remaining": "Còn lại"
+    },
+    "actions": {
+      "cancel": "Huỷ",
+      "saving": "Đang lưu...",
+      "save": "Lưu đóng góp"
+    },
+    "errors": {
+      "amount_invalid": "Nhập số tiền đóng góp hợp lệ",
+      "date_required": "Vui lòng chọn ngày đóng góp"
+    },
+    "loading": "Đang tải dữ liệu mục tiêu...",
+    "not_found": "Không tìm thấy mục tiêu",
+    "toast": {
+      "saved": "Đã thêm đóng góp vào mục tiêu",
+      "save_failed": "Không thể thêm đóng góp"
+    }
+  },
+
+  "status": {
+    "on_track": "Đúng tiến độ",
+    "behind": "Cần tăng tốc",
+    "achieved": "Hoàn thành",
+    "not_started": "Chưa bắt đầu"
+  },
+
+  "priority": {
+    "high": "Ưu tiên cao",
+    "medium": "Ưu tiên trung bình",
+    "low": "Ưu tiên thấp"
+  }
+}

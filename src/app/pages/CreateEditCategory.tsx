@@ -28,6 +28,7 @@ import {
   Folder,
 } from "lucide-react";
 import { useParams } from "react-router";
+import { useTranslation } from "react-i18next";
 import { Card } from "../components/Card";
 import { Input } from "../components/Input";
 import { Button } from "../components/Button";
@@ -37,32 +38,6 @@ import { categoriesService } from "../services/categoriesService";
 import { useCategoriesMeta } from "../hooks/useCategoriesMeta";
 import { useCategoryDetail } from "../hooks/useCategoryDetail";
 import type { CategoryKind, CategoryItem } from "../types/categories";
-
-const availableIcons = [
-  { value: "shopping", label: "Mua sắm", Icon: ShoppingCart },
-  { value: "home", label: "Nhà ở", Icon: Home },
-  { value: "car", label: "Xe cộ", Icon: Car },
-  { value: "food", label: "Đồ ăn", Icon: Utensils },
-  { value: "coffee", label: "Cà phê", Icon: Coffee },
-  { value: "shirt", label: "Quần áo", Icon: Shirt },
-  { value: "health", label: "Sức khỏe", Icon: Heart },
-  { value: "work", label: "Công việc", Icon: Briefcase },
-  { value: "salary", label: "Lương", Icon: DollarSign },
-  { value: "gift", label: "Quà tặng", Icon: Gift },
-  { value: "investment", label: "Đầu tư", Icon: TrendingUp },
-  { value: "phone", label: "Điện thoại", Icon: Smartphone },
-  { value: "travel", label: "Du lịch", Icon: Plane },
-  { value: "education", label: "Giáo dục", Icon: Book },
-  { value: "entertainment", label: "Giải trí", Icon: Music },
-  { value: "movie", label: "Phim ảnh", Icon: Film },
-  { value: "fitness", label: "Thể dục", Icon: Dumbbell },
-  { value: "pet", label: "Thú cưng", Icon: PawPrint },
-  { value: "baby", label: "Trẻ em", Icon: Baby },
-  { value: "maintenance", label: "Bảo trì", Icon: Wrench },
-  { value: "utility", label: "Tiện ích", Icon: Lightbulb },
-  { value: "subscription", label: "Dịch vụ", Icon: Newspaper },
-  { value: "delivery", label: "Giao hàng", Icon: Package },
-];
 
 const colorPalette = [
   "#ef4444",
@@ -118,11 +93,38 @@ function getParentOptionsForCreate(
 export default function CreateEditCategory({
   mode = "create",
 }: CreateEditCategoryProps) {
+  const { t } = useTranslation('categories');
   const { id } = useParams<{ id: string }>();
   const nav = useAppNavigation();
   const toast = useToast();
 
   const isEditMode = mode === "edit";
+
+  const availableIcons = [
+    { value: "shopping", label: t('form.icon_labels.shopping'), Icon: ShoppingCart },
+    { value: "home", label: t('form.icon_labels.home'), Icon: Home },
+    { value: "car", label: t('form.icon_labels.car'), Icon: Car },
+    { value: "food", label: t('form.icon_labels.food'), Icon: Utensils },
+    { value: "coffee", label: t('form.icon_labels.coffee'), Icon: Coffee },
+    { value: "shirt", label: t('form.icon_labels.shirt'), Icon: Shirt },
+    { value: "health", label: t('form.icon_labels.health'), Icon: Heart },
+    { value: "work", label: t('form.icon_labels.work'), Icon: Briefcase },
+    { value: "salary", label: t('form.icon_labels.salary'), Icon: DollarSign },
+    { value: "gift", label: t('form.icon_labels.gift'), Icon: Gift },
+    { value: "investment", label: t('form.icon_labels.investment'), Icon: TrendingUp },
+    { value: "phone", label: t('form.icon_labels.phone'), Icon: Smartphone },
+    { value: "travel", label: t('form.icon_labels.travel'), Icon: Plane },
+    { value: "education", label: t('form.icon_labels.education'), Icon: Book },
+    { value: "entertainment", label: t('form.icon_labels.entertainment'), Icon: Music },
+    { value: "movie", label: t('form.icon_labels.movie'), Icon: Film },
+    { value: "fitness", label: t('form.icon_labels.fitness'), Icon: Dumbbell },
+    { value: "pet", label: t('form.icon_labels.pet'), Icon: PawPrint },
+    { value: "baby", label: t('form.icon_labels.baby'), Icon: Baby },
+    { value: "maintenance", label: t('form.icon_labels.maintenance'), Icon: Wrench },
+    { value: "utility", label: t('form.icon_labels.utility'), Icon: Lightbulb },
+    { value: "subscription", label: t('form.icon_labels.subscription'), Icon: Newspaper },
+    { value: "delivery", label: t('form.icon_labels.delivery'), Icon: Package },
+  ];
 
   const {
     data: metaData,
@@ -194,12 +196,12 @@ export default function CreateEditCategory({
     const nextErrors: Record<string, string> = {};
 
     if (!formData.name.trim()) {
-      nextErrors.name = "Vui lòng nhập tên danh mục";
+      nextErrors.name = t('form.errors.name_required');
     }
 
     const normalizedColor = normalizeColor(formData.color);
     if (!/^#[0-9A-Fa-f]{6}$/i.test(normalizedColor)) {
-      nextErrors.color = "Màu không hợp lệ (vd: #ef4444)";
+      nextErrors.color = t('form.errors.color_invalid');
     }
 
     setErrors(nextErrors);
@@ -224,16 +226,16 @@ export default function CreateEditCategory({
 
       if (isEditMode && id) {
         await categoriesService.updateCategory(id, payload);
-        toast.success("Đã cập nhật danh mục");
+        toast.success(t('form.toast.updated'));
       } else {
         await categoriesService.createCategory(payload);
-        toast.success("Đã tạo danh mục mới");
+        toast.success(t('form.toast.created'));
       }
 
       nav.goCategories();
     } catch (err) {
       toast.error(
-        err instanceof Error ? err.message : "Không thể lưu danh mục",
+        err instanceof Error ? err.message : t('form.toast.save_failed'),
       );
     } finally {
       setSubmitting(false);
@@ -250,7 +252,7 @@ export default function CreateEditCategory({
       <div className="min-h-screen bg-[var(--background)] p-4 md:p-6">
         <Card>
           <p className="text-sm text-[var(--text-secondary)]">
-            Đang tải dữ liệu danh mục...
+            {t('form.loading')}
           </p>
         </Card>
       </div>
@@ -262,7 +264,7 @@ export default function CreateEditCategory({
       <div className="min-h-screen bg-[var(--background)] p-4 md:p-6">
         <Card>
           <p className="text-sm text-[var(--danger)]">
-            {metaError || detailError || "Không thể tải dữ liệu danh mục"}
+            {metaError || detailError || t('form.load_error')}
           </p>
         </Card>
       </div>
@@ -278,17 +280,15 @@ export default function CreateEditCategory({
             className="flex items-center gap-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] mb-4 transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
-            <span className="font-medium">Quay lại</span>
+            <span className="font-medium">{t('form.back')}</span>
           </button>
 
           <h1 className="text-2xl font-semibold text-[var(--text-primary)]">
-            {isEditMode ? "Chỉnh sửa danh mục" : "Tạo danh mục mới"}
+            {isEditMode ? t('form.edit_title') : t('form.create_title')}
           </h1>
 
           <p className="text-sm text-[var(--text-secondary)] mt-1">
-            {isEditMode
-              ? "Cập nhật thông tin danh mục"
-              : "Thêm danh mục mới để phân loại giao dịch"}
+            {isEditMode ? t('form.edit_subtitle') : t('form.create_subtitle')}
           </p>
         </div>
 
@@ -297,13 +297,13 @@ export default function CreateEditCategory({
             <div className="space-y-6">
               <Card>
                 <h3 className="font-semibold text-[var(--text-primary)] mb-4">
-                  Thông tin cơ bản
+                  {t('form.basic_info_section')}
                 </h3>
 
                 <div className="space-y-4">
                   <Input
-                    label="Tên danh mục"
-                    placeholder="VD: Ăn sáng, Mua sắm..."
+                    label={t('form.fields.name_label')}
+                    placeholder={t('form.fields.name_placeholder')}
                     value={formData.name}
                     onChange={(event) =>
                       handleInputChange("name", event.target.value)
@@ -313,22 +313,22 @@ export default function CreateEditCategory({
 
                   <div>
                     <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-                      Loại danh mục
+                      {t('form.fields.type_label')}
                     </label>
 
                     <div className="grid grid-cols-3 gap-2">
                       {[
                         {
                           value: "expense",
-                          label: "Chi tiêu",
+                          label: t('form.type_options.expense'),
                           color: "danger",
                         },
                         {
                           value: "income",
-                          label: "Thu nhập",
+                          label: t('form.type_options.income'),
                           color: "success",
                         },
-                        { value: "both", label: "Cả hai", color: "info" },
+                        { value: "both", label: t('form.type_options.both'), color: "info" },
                       ].map((kind) => {
                         const isSelected = formData.kind === kind.value;
                         return (
@@ -356,7 +356,7 @@ export default function CreateEditCategory({
 
                   <div>
                     <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-                      Danh mục cha
+                      {t('form.fields.parent_label')}
                     </label>
 
                     <select
@@ -366,7 +366,7 @@ export default function CreateEditCategory({
                       }
                       className="w-full px-4 py-2 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-lg)] text-[var(--text-primary)]"
                     >
-                      <option value="">Không có (danh mục gốc)</option>
+                      <option value="">{t('form.fields.parent_no_parent')}</option>
                       {parentCategoryOptions.map((category) => (
                         <option key={category.id} value={category.id}>
                           {category.name}
@@ -375,19 +375,17 @@ export default function CreateEditCategory({
                     </select>
 
                     <p className="text-xs text-[var(--text-tertiary)] mt-1">
-                      Hiện tại chỉ cho chọn danh mục cha ở cấp gốc để tránh cấu
-                      trúc quá sâu.
+                      {t('form.fields.parent_hint')}
                     </p>
                   </div>
 
                   <label className="flex items-center justify-between gap-4 cursor-pointer">
                     <div>
                       <p className="font-medium text-[var(--text-primary)]">
-                        Đang hoạt động
+                        {t('form.fields.active_label')}
                       </p>
                       <p className="text-sm text-[var(--text-secondary)]">
-                        Tắt đi nếu bạn muốn ẩn danh mục này khỏi các form chọn
-                        nhanh.
+                        {t('form.fields.active_hint')}
                       </p>
                     </div>
 
@@ -407,7 +405,7 @@ export default function CreateEditCategory({
             <div className="space-y-6">
               <Card>
                 <h3 className="font-semibold text-[var(--text-primary)] mb-4">
-                  Icon & màu sắc
+                  {t('form.appearance_section')}
                 </h3>
 
                 <div className="space-y-4">
@@ -434,7 +432,7 @@ export default function CreateEditCategory({
                           onClick={() => setShowIconPicker((prev) => !prev)}
                           className="text-sm text-[var(--primary)] hover:underline"
                         >
-                          {showIconPicker ? "Ẩn icon" : "Chọn icon"}
+                          {showIconPicker ? t('form.icon_picker.hide') : t('form.icon_picker.show')}
                         </button>
 
                         <button
@@ -442,7 +440,7 @@ export default function CreateEditCategory({
                           onClick={() => setShowColorPicker((prev) => !prev)}
                           className="text-sm text-[var(--primary)] hover:underline"
                         >
-                          {showColorPicker ? "Ẩn màu" : "Chọn màu"}
+                          {showColorPicker ? t('form.color_picker.hide') : t('form.color_picker.show')}
                         </button>
                       </div>
                     </div>
@@ -503,8 +501,8 @@ export default function CreateEditCategory({
                   )}
 
                   <Input
-                    label="Mã màu HEX"
-                    placeholder="#ef4444"
+                    label={t('form.fields.color_label')}
+                    placeholder={t('form.fields.color_placeholder')}
                     value={formData.color}
                     onChange={(event) =>
                       handleInputChange("color", event.target.value)
@@ -516,7 +514,7 @@ export default function CreateEditCategory({
 
               <Card>
                 <h3 className="font-semibold text-[var(--text-primary)] mb-4">
-                  Xem trước
+                  {t('form.preview_section')}
                 </h3>
 
                 <div
@@ -540,17 +538,17 @@ export default function CreateEditCategory({
 
                   <div className="min-w-0">
                     <p className="font-medium text-[var(--text-primary)] truncate">
-                      {formData.name || "Tên danh mục"}
+                      {formData.name || t('form.preview.name_placeholder')}
                     </p>
                     <p className="text-xs text-[var(--text-secondary)] mt-0.5">
                       {formData.kind === "expense"
-                        ? "Chi tiêu"
+                        ? t('form.type_options.expense')
                         : formData.kind === "income"
-                          ? "Thu nhập"
-                          : "Cả hai"}
+                          ? t('form.type_options.income')
+                          : t('form.type_options.both')}
                       {formData.parentId
-                        ? " · Có danh mục cha"
-                        : " · Danh mục gốc"}
+                        ? ` · ${t('form.preview.has_parent')}`
+                        : ` · ${t('form.preview.no_parent')}`}
                     </p>
                   </div>
                 </div>
@@ -560,16 +558,16 @@ export default function CreateEditCategory({
 
           <div className="flex flex-col-reverse md:flex-row gap-3 mt-6">
             <Button type="button" variant="secondary" onClick={nav.goBack}>
-              Huỷ
+              {t('form.actions.cancel')}
             </Button>
 
             <Button type="submit" disabled={submitting}>
               <Save className="w-4 h-4" />
               {submitting
-                ? "Đang lưu..."
+                ? t('form.actions.saving')
                 : isEditMode
-                  ? "Lưu thay đổi"
-                  : "Tạo danh mục"}
+                  ? t('form.actions.save')
+                  : t('form.actions.create')}
             </Button>
           </div>
         </form>

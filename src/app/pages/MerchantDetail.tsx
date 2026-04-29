@@ -9,6 +9,7 @@ import {
   Trash2,
   ListFilter,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Card } from "../components/Card";
 import { Button } from "../components/Button";
 import { ConfirmationModal } from "../components/ConfirmationModals";
@@ -21,11 +22,10 @@ function formatMoney(value?: string | number | null) {
   return new Intl.NumberFormat("vi-VN").format(Number(value || 0));
 }
 
-function formatDate(value?: string | null) {
-  if (!value) return "Chưa có";
+function formatDateValue(value: string, locale: string) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
-  return new Intl.DateTimeFormat("vi-VN", {
+  return new Intl.DateTimeFormat(locale, {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
@@ -35,6 +35,8 @@ function formatDate(value?: string | null) {
 }
 
 export default function MerchantDetail() {
+  const { t, i18n } = useTranslation('merchants');
+  const locale = i18n.language === 'vi' ? 'vi-VN' : 'en-US';
   const { id } = useParams<{ id: string }>();
   const nav = useAppNavigation();
   const toast = useToast();
@@ -49,11 +51,11 @@ export default function MerchantDetail() {
     try {
       setDeleting(true);
       await merchantsService.deleteMerchant(data.merchant.id);
-      toast.success(`Đã xoá merchant "${data.merchant.name}"`);
+      toast.success(t('detail.toast.deleted', { name: data.merchant.name }));
       nav.goMerchants();
     } catch (err) {
       toast.error(
-        err instanceof Error ? err.message : "Không thể xoá merchant",
+        err instanceof Error ? err.message : t('detail.toast.delete_failed'),
       );
     } finally {
       setDeleting(false);
@@ -66,7 +68,7 @@ export default function MerchantDetail() {
       <div className="min-h-screen bg-[var(--background)] p-4 md:p-6">
         <Card>
           <p className="text-sm text-[var(--text-secondary)]">
-            Đang tải chi tiết merchant...
+            {t('detail.loading')}
           </p>
         </Card>
       </div>
@@ -82,7 +84,7 @@ export default function MerchantDetail() {
             className="flex items-center gap-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] mb-4 transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
-            <span className="font-medium">Quay lại</span>
+            <span className="font-medium">{t('detail.back')}</span>
           </button>
 
           <Card>
@@ -91,12 +93,12 @@ export default function MerchantDetail() {
                 <AlertTriangle className="w-8 h-8 text-[var(--warning)]" />
               </div>
               <h3 className="font-semibold text-[var(--text-primary)] mb-2">
-                Không tìm thấy merchant
+                {t('detail.not_found.title')}
               </h3>
               <p className="text-sm text-[var(--text-secondary)] mb-6">
-                {error || "Merchant này có thể đã bị xoá hoặc không tồn tại."}
+                {error || t('detail.not_found.description')}
               </p>
-              <Button onClick={nav.goMerchants}>Về danh sách merchant</Button>
+              <Button onClick={nav.goMerchants}>{t('detail.not_found.back_button')}</Button>
             </div>
           </Card>
         </div>
@@ -120,7 +122,7 @@ export default function MerchantDetail() {
             className="flex items-center gap-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] mb-4 transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
-            <span className="font-medium">Quay lại</span>
+            <span className="font-medium">{t('detail.back_to_list')}</span>
           </button>
 
           <div className="flex items-center gap-4">
@@ -135,12 +137,12 @@ export default function MerchantDetail() {
                 </h1>
                 {merchant.isHidden && (
                   <span className="text-[10px] px-2 py-0.5 rounded-full bg-[var(--surface)] border border-[var(--border)] text-[var(--text-tertiary)]">
-                    Đã ẩn
+                    {t('detail.badge_hidden')}
                   </span>
                 )}
               </div>
               <p className="text-sm text-[var(--text-secondary)] mt-1">
-                Chi tiết merchant
+                {t('detail.subtitle')}
               </p>
             </div>
 
@@ -150,7 +152,7 @@ export default function MerchantDetail() {
                 onClick={() => nav.goEditMerchant(merchant.id)}
               >
                 <Edit2 className="w-4 h-4" />
-                <span className="hidden md:inline">Chỉnh sửa</span>
+                <span className="hidden md:inline">{t('detail.actions.edit')}</span>
               </Button>
 
               <Button
@@ -158,12 +160,12 @@ export default function MerchantDetail() {
                 onClick={() => nav.goTransactionsByMerchant(merchant.id)}
               >
                 <ListFilter className="w-4 h-4" />
-                <span className="hidden md:inline">Xem giao dịch</span>
+                <span className="hidden md:inline">{t('detail.actions.view_transactions')}</span>
               </Button>
 
               <Button variant="danger" onClick={() => setDeleteModalOpen(true)}>
                 <Trash2 className="w-4 h-4" />
-                <span className="hidden md:inline">Xoá</span>
+                <span className="hidden md:inline">{t('detail.actions.delete')}</span>
               </Button>
             </div>
           </div>
@@ -172,7 +174,7 @@ export default function MerchantDetail() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card>
             <p className="text-sm text-[var(--text-secondary)] mb-1">
-              Tổng chi
+              {t('detail.stats.total_spent')}
             </p>
             <p className="text-2xl font-semibold text-[var(--text-primary)] tabular-nums">
               {formatMoney(stats.totalSpentMinor)}₫
@@ -181,7 +183,7 @@ export default function MerchantDetail() {
 
           <Card>
             <p className="text-sm text-[var(--text-secondary)] mb-1">
-              Giao dịch
+              {t('detail.stats.transaction_count')}
             </p>
             <p className="text-2xl font-semibold text-[var(--text-primary)] tabular-nums">
               {stats.transactionCount}
@@ -190,7 +192,7 @@ export default function MerchantDetail() {
 
           <Card>
             <p className="text-sm text-[var(--text-secondary)] mb-1">
-              Recurring rules
+              {t('detail.stats.recurring_rules')}
             </p>
             <p className="text-2xl font-semibold text-[var(--text-primary)] tabular-nums">
               {stats.recurringRuleCount}
@@ -199,7 +201,7 @@ export default function MerchantDetail() {
 
           <Card>
             <p className="text-sm text-[var(--text-secondary)] mb-1">
-              Trung bình / giao dịch
+              {t('detail.stats.avg_per_transaction')}
             </p>
             <p className="text-2xl font-semibold text-[var(--text-primary)] tabular-nums">
               {formatMoney(avgTransaction)}₫
@@ -211,13 +213,13 @@ export default function MerchantDetail() {
           <div className="space-y-6">
             <Card>
               <h3 className="font-semibold text-[var(--text-primary)] mb-4">
-                Thông tin
+                {t('detail.info_section.title')}
               </h3>
 
               <div className="space-y-4">
                 <div>
                   <p className="text-sm text-[var(--text-secondary)] mb-1">
-                    Tên merchant
+                    {t('detail.info_section.name_label')}
                   </p>
                   <p className="font-medium text-[var(--text-primary)]">
                     {merchant.name}
@@ -226,7 +228,7 @@ export default function MerchantDetail() {
 
                 <div>
                   <p className="text-sm text-[var(--text-secondary)] mb-1">
-                    Danh mục mặc định
+                    {t('detail.info_section.default_category_label')}
                   </p>
                   {merchant.defaultCategoryInfo ? (
                     <button
@@ -242,24 +244,26 @@ export default function MerchantDetail() {
                     </button>
                   ) : (
                     <p className="text-sm text-[var(--text-tertiary)] italic">
-                      Chưa đặt danh mục mặc định
+                      {t('detail.info_section.no_default_category')}
                     </p>
                   )}
                 </div>
 
                 <div>
                   <p className="text-sm text-[var(--text-secondary)] mb-1">
-                    Giao dịch gần nhất
+                    {t('detail.info_section.last_transaction_label')}
                   </p>
                   <p className="font-medium text-[var(--text-primary)]">
-                    {formatDate(stats.lastTransactionAt)}
+                    {stats.lastTransactionAt
+                      ? formatDateValue(stats.lastTransactionAt, locale)
+                      : t('detail.info_section.date_never')}
                   </p>
                 </div>
 
                 {merchant.note && (
                   <div>
                     <p className="text-sm text-[var(--text-secondary)] mb-1">
-                      Ghi chú
+                      {t('detail.info_section.note_label')}
                     </p>
                     <p className="font-medium text-[var(--text-primary)] whitespace-pre-wrap">
                       {merchant.note}
@@ -273,21 +277,21 @@ export default function MerchantDetail() {
           <Card>
             <div className="flex items-center justify-between gap-3 mb-4">
               <h3 className="font-semibold text-[var(--text-primary)]">
-                Giao dịch gần đây
+                {t('detail.recent_transactions.title')}
               </h3>
 
               <button
                 onClick={() => nav.goTransactionsByMerchant(merchant.id)}
                 className="text-sm font-medium text-[var(--primary)] hover:underline"
               >
-                Xem tất cả
+                {t('detail.recent_transactions.view_all')}
               </button>
             </div>
 
             <div className="space-y-3">
               {data.recentTransactions.length === 0 ? (
                 <p className="text-sm text-[var(--text-secondary)]">
-                  Chưa có giao dịch nào gắn merchant này.
+                  {t('detail.recent_transactions.empty')}
                 </p>
               ) : (
                 data.recentTransactions.map((transaction) => (
@@ -299,7 +303,7 @@ export default function MerchantDetail() {
                     <div className="flex items-start justify-between gap-3 mb-1">
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-[var(--text-primary)] truncate">
-                          {transaction.description || "Giao dịch"}
+                          {transaction.description || t('detail.recent_transactions.fallback_name')}
                         </p>
                         <p className="text-xs text-[var(--text-secondary)] mt-0.5">
                           {transaction.category?.name || "--"}
@@ -332,7 +336,7 @@ export default function MerchantDetail() {
                     </div>
 
                     <p className="text-xs text-[var(--text-tertiary)]">
-                      {formatDate(transaction.occurredAt)}
+                      {formatDateValue(transaction.occurredAt, locale)}
                     </p>
                   </button>
                 ))
@@ -346,10 +350,10 @@ export default function MerchantDetail() {
         isOpen={deleteModalOpen}
         onClose={() => setDeleteModalOpen(false)}
         onConfirm={() => void handleDelete()}
-        title="Xoá merchant?"
-        description={`Bạn có chắc muốn xoá merchant "${merchant.name}"?`}
-        confirmLabel={deleting ? "Đang xoá..." : "Xoá"}
-        cancelLabel="Huỷ"
+        title={t('detail.delete_modal.title')}
+        description={t('detail.delete_modal.description', { name: merchant.name })}
+        confirmLabel={deleting ? t('detail.delete_modal.confirm_deleting') : t('detail.delete_modal.confirm')}
+        cancelLabel={t('detail.delete_modal.cancel')}
         isDangerous
       />
     </div>

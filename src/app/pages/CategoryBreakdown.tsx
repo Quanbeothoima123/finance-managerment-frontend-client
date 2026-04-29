@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import {
   ArrowLeft,
   PieChart as PieChartIcon,
@@ -55,8 +56,11 @@ interface CategoryItemProps {
 }
 
 function CategoryItem({ category, rank }: CategoryItemProps) {
+  const { t, i18n } = useTranslation("insights");
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("vi-VN").format(amount);
+    return new Intl.NumberFormat(
+      i18n.language === "vi" ? "vi-VN" : "en-US",
+    ).format(amount);
   };
 
   return (
@@ -74,7 +78,8 @@ function CategoryItem({ category, rank }: CategoryItemProps) {
             {category.name}
           </p>
           <p className="text-xs text-[var(--text-secondary)]">
-            {category.transactions} giao dịch
+            {category.transactions}{" "}
+            {t("category_breakdown.list.transactions_suffix")}
           </p>
         </div>
       </div>
@@ -91,6 +96,7 @@ function CategoryItem({ category, rank }: CategoryItemProps) {
 }
 
 export default function CategoryBreakdown() {
+  const { t, i18n } = useTranslation("insights");
   const [chartType, setChartType] = useState<"pie" | "bar">("pie");
   const now = new Date();
   const pad = (n: number) => String(n).padStart(2, "0");
@@ -111,10 +117,10 @@ export default function CategoryBreakdown() {
   const { data: tagsData } = useTagsList();
   const tags = useMemo(
     () =>
-      (tagsData?.items ?? []).map((t) => ({
-        id: t.id,
-        name: t.name,
-        color: t.colorHex || t.color || "#6b7280",
+      (tagsData?.items ?? []).map((tag) => ({
+        id: tag.id,
+        name: tag.name,
+        color: tag.colorHex || tag.color || "#6b7280",
       })),
     [tagsData],
   );
@@ -148,7 +154,8 @@ export default function CategoryBreakdown() {
     reload: reloadTxn,
   } = useTransactionsList(txnQuery);
   const transactions = txnData?.items ?? [];
-  const isTruncated = (txnData?.pagination?.total ?? 0) > (txnData?.items?.length ?? 0);
+  const isTruncated =
+    (txnData?.pagination?.total ?? 0) > (txnData?.items?.length ?? 0);
 
   const minor = (s: string | null | undefined) => parseInt(s || "0", 10) || 0;
 
@@ -157,7 +164,9 @@ export default function CategoryBreakdown() {
   };
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("vi-VN").format(amount);
+    return new Intl.NumberFormat(
+      i18n.language === "vi" ? "vi-VN" : "en-US",
+    ).format(amount);
   };
 
   // Build month options (last 12 months)
@@ -169,7 +178,10 @@ export default function CategoryBreakdown() {
       const key = `${d.getFullYear()}-${pad(d.getMonth() + 1)}`;
       result.push({
         id: key,
-        name: `Tháng ${d.getMonth() + 1}, ${d.getFullYear()}`,
+        name: t("category_breakdown.month_option", {
+          month: d.getMonth() + 1,
+          year: d.getFullYear(),
+        }),
       });
     }
     return result;
@@ -178,7 +190,7 @@ export default function CategoryBreakdown() {
   // Build account options
   const accountOptions = useMemo(
     () => [
-      { id: "all", name: "Tất cả tài khoản" },
+      { id: "all", name: t("category_breakdown.filters.all_accounts") },
       ...accounts
         .filter((a) => a.status === "active")
         .map((a) => ({ id: a.id, name: a.name })),
@@ -201,11 +213,12 @@ export default function CategoryBreakdown() {
       { amount: number; transactions: number; name: string; color: string }
     > = {};
 
-    transactions.forEach((t) => {
-      const catId = t.category?.id || "unknown";
-      const catName = t.category?.name || "Không danh mục";
+    transactions.forEach((txn) => {
+      const catId = txn.category?.id || "unknown";
+      const catName =
+        txn.category?.name || t("category_breakdown.list.no_category");
       const catColor =
-        catLookup[catId]?.color || t.category?.colorHex || FALLBACK_COLORS[0];
+        catLookup[catId]?.color || txn.category?.colorHex || FALLBACK_COLORS[0];
       if (!catMap[catId])
         catMap[catId] = {
           amount: 0,
@@ -213,7 +226,7 @@ export default function CategoryBreakdown() {
           name: catName,
           color: catColor,
         };
-      catMap[catId].amount += minor(t.totalAmountMinor);
+      catMap[catId].amount += minor(txn.totalAmountMinor);
       catMap[catId].transactions += 1;
     });
 
@@ -253,7 +266,7 @@ export default function CategoryBreakdown() {
         <div className="text-center">
           <AlertTriangle className="w-10 h-10 text-[var(--danger)] mx-auto mb-3" />
           <p className="text-[var(--text-primary)] font-medium mb-1">
-            Không thể tải dữ liệu
+            {t("category_breakdown.error.load_failed")}
           </p>
           <p className="text-sm text-[var(--text-secondary)] mb-4">
             {txnError}
@@ -262,7 +275,7 @@ export default function CategoryBreakdown() {
             onClick={reloadTxn}
             className="px-4 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white rounded-[var(--radius-lg)] text-sm font-medium transition-colors"
           >
-            Thử lại
+            {t("category_breakdown.error.retry")}
           </button>
         </div>
       </div>
@@ -279,14 +292,14 @@ export default function CategoryBreakdown() {
             className="flex items-center gap-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] mb-4 transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
-            <span className="font-medium">Quay lại</span>
+            <span className="font-medium">{t("category_breakdown.back")}</span>
           </button>
 
           <h1 className="text-2xl font-semibold text-[var(--text-primary)]">
-            Phân tích danh mục
+            {t("category_breakdown.title")}
           </h1>
           <p className="text-sm text-[var(--text-secondary)] mt-1">
-            Chi tiết chi tiêu theo từng danh mục
+            {t("category_breakdown.subtitle")}
           </p>
         </div>
 
@@ -295,8 +308,10 @@ export default function CategoryBreakdown() {
           <div className="flex items-center gap-2 px-4 py-2.5 bg-[var(--warning-light)] border border-[var(--warning)] text-[var(--warning)] rounded-[var(--radius-lg)] text-sm">
             <AlertTriangle className="w-4 h-4 shrink-0" />
             <span>
-              Đang hiển thị {txnData?.items?.length}/{txnData?.pagination?.total} giao dịch.
-              Số liệu có thể chưa đầy đủ.
+              {t("category_breakdown.truncation_warning", {
+                shown: txnData?.items?.length,
+                total: txnData?.pagination?.total,
+              })}
             </span>
           </div>
         )}
@@ -307,7 +322,7 @@ export default function CategoryBreakdown() {
             {/* Month Filter */}
             <div>
               <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-                Thời gian
+                {t("category_breakdown.filters.month_label")}
               </label>
               <div className="relative">
                 <select
@@ -328,7 +343,7 @@ export default function CategoryBreakdown() {
             {/* Account Filter */}
             <div>
               <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-                Tài khoản
+                {t("category_breakdown.filters.account_label")}
               </label>
               <div className="relative">
                 <select
@@ -349,7 +364,7 @@ export default function CategoryBreakdown() {
             {/* Chart Type Toggle */}
             <div>
               <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-                Loại biểu đồ
+                {t("category_breakdown.filters.chart_label")}
               </label>
               <div className="flex gap-2">
                 <button
@@ -361,7 +376,9 @@ export default function CategoryBreakdown() {
                   }`}
                 >
                   <PieChartIcon className="w-4 h-4" />
-                  <span className="text-sm">Tròn</span>
+                  <span className="text-sm">
+                    {t("category_breakdown.filters.chart_types.pie")}
+                  </span>
                 </button>
                 <button
                   onClick={() => setChartType("bar")}
@@ -372,7 +389,9 @@ export default function CategoryBreakdown() {
                   }`}
                 >
                   <BarChart3 className="w-4 h-4" />
-                  <span className="text-sm">Cột</span>
+                  <span className="text-sm">
+                    {t("category_breakdown.filters.chart_types.bar")}
+                  </span>
                 </button>
               </div>
             </div>
@@ -385,7 +404,7 @@ export default function CategoryBreakdown() {
             <div className="flex items-center justify-between flex-wrap gap-3">
               <div className="flex items-center gap-3 flex-wrap">
                 <span className="text-sm font-medium text-[var(--text-primary)]">
-                  Lọc theo tag
+                  {t("category_breakdown.filters.tag_label")}
                 </span>
                 <TagFilterDropdown
                   tags={tags}
@@ -411,7 +430,7 @@ export default function CategoryBreakdown() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Card>
             <p className="text-sm text-[var(--text-secondary)] mb-2">
-              Tổng chi tiêu
+              {t("category_breakdown.summary.total_spending")}
             </p>
             <p className="text-2xl font-bold text-[var(--text-primary)] tabular-nums">
               {formatCurrency(totalAmount)}₫
@@ -420,7 +439,7 @@ export default function CategoryBreakdown() {
 
           <Card>
             <p className="text-sm text-[var(--text-secondary)] mb-2">
-              Số giao dịch
+              {t("category_breakdown.summary.transaction_count")}
             </p>
             <p className="text-2xl font-bold text-[var(--text-primary)] tabular-nums">
               {totalTransactions}
@@ -429,7 +448,7 @@ export default function CategoryBreakdown() {
 
           <Card>
             <p className="text-sm text-[var(--text-secondary)] mb-2">
-              Trung bình/giao dịch
+              {t("category_breakdown.summary.avg_per_transaction")}
             </p>
             <p className="text-2xl font-bold text-[var(--text-primary)] tabular-nums">
               {formatCurrency(Math.round(avgPerTransaction))}₫
@@ -442,7 +461,7 @@ export default function CategoryBreakdown() {
           {categoryData.length === 0 ? (
             <div className="h-80 flex items-center justify-center">
               <p className="text-sm text-[var(--text-tertiary)]">
-                Không có dữ liệu cho khoảng thời gian này
+                {t("category_breakdown.chart.no_data")}
               </p>
             </div>
           ) : chartType === "pie" ? (
@@ -472,7 +491,7 @@ export default function CategoryBreakdown() {
                       }}
                       formatter={(value: number) => [
                         `${formatCurrency(value)}₫`,
-                        "Chi tiêu",
+                        t("category_breakdown.chart.tooltip_label"),
                       ]}
                     />
                   </PieChart>
@@ -491,7 +510,8 @@ export default function CategoryBreakdown() {
                         {category.name}
                       </p>
                       <p className="text-xs text-[var(--text-secondary)]">
-                        {category.transactions} giao dịch
+                        {category.transactions}{" "}
+                        {t("category_breakdown.list.transactions_suffix")}
                       </p>
                     </div>
                     <div className="text-right">
@@ -536,7 +556,7 @@ export default function CategoryBreakdown() {
                     }}
                     formatter={(value: number) => [
                       `${formatCurrency(value)}₫`,
-                      "Chi tiêu",
+                      t("category_breakdown.chart.tooltip_label"),
                     ]}
                   />
                   <Bar dataKey="amount" radius={[0, 8, 8, 0]}>
@@ -554,7 +574,7 @@ export default function CategoryBreakdown() {
         {categoryData.length > 0 && (
           <Card>
             <h3 className="font-semibold text-[var(--text-primary)] mb-4">
-              Danh sách chi tiết ({categoryData.length} danh mục)
+              {t("category_breakdown.list.title")} ({categoryData.length})
             </h3>
             <div className="space-y-0">
               {categoryData.map((category, index) => (

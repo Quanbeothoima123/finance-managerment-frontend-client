@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { useParams } from "react-router";
 import { Link2, Save, Target, X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Card } from "../components/Card";
 import { Input } from "../components/Input";
 import { AmountInput } from "../components/AmountInput";
@@ -42,6 +43,7 @@ export default function AddGoalContribution({
   isModal = true,
   goalInfo,
 }: AddGoalContributionProps) {
+  const { t } = useTranslation("goals");
   const { id } = useParams<{ id: string }>();
   const nav = useAppNavigation();
   const toast = useToast();
@@ -105,7 +107,11 @@ export default function AddGoalContribution({
     if (!formData.note) {
       handleInputChange(
         "note",
-        `Từ: ${transaction.description || "Giao dịch thu nhập"}`,
+        t("contribution.link_transactions.from_prefix", {
+          name:
+            transaction.description ||
+            t("contribution.link_transactions.fallback_name"),
+        }),
       );
     }
   };
@@ -114,11 +120,11 @@ export default function AddGoalContribution({
     const nextErrors: Record<string, string> = {};
 
     if (!formData.amount || Number(formData.amount) <= 0) {
-      nextErrors.amount = "Nhập số tiền đóng góp hợp lệ";
+      nextErrors.amount = t("contribution.errors.amount_invalid");
     }
 
     if (!formData.date) {
-      nextErrors.date = "Vui lòng chọn ngày đóng góp";
+      nextErrors.date = t("contribution.errors.date_required");
     }
 
     setErrors(nextErrors);
@@ -151,7 +157,7 @@ export default function AddGoalContribution({
         });
       } else {
         await submitViaApi();
-        toast.success("Đã thêm đóng góp vào mục tiêu");
+        toast.success(t("contribution.toast.saved"));
       }
 
       if (isModal) {
@@ -161,7 +167,9 @@ export default function AddGoalContribution({
       }
     } catch (err) {
       toast.error(
-        err instanceof Error ? err.message : "Không thể thêm đóng góp",
+        err instanceof Error
+          ? err.message
+          : t("contribution.toast.save_failed"),
       );
     } finally {
       setSaving(false);
@@ -176,10 +184,10 @@ export default function AddGoalContribution({
         <div className="flex items-center justify-between mb-6">
           <div>
             <h2 className="text-xl font-semibold text-[var(--text-primary)]">
-              Thêm đóng góp
+              {t("contribution.title")}
             </h2>
             <p className="text-sm text-[var(--text-secondary)] mt-1">
-              Ghi nhận khoản tiền mới cho mục tiêu.
+              {t("contribution.subtitle")}
             </p>
           </div>
           {isModal && (
@@ -195,7 +203,7 @@ export default function AddGoalContribution({
         {loading && (
           <Card>
             <p className="text-[var(--text-secondary)]">
-              Đang tải dữ liệu mục tiêu...
+              {t("contribution.loading")}
             </p>
           </Card>
         )}
@@ -239,7 +247,7 @@ export default function AddGoalContribution({
                     error={errors.amount}
                   />
                   <Input
-                    label="Ngày đóng góp"
+                    label={t("contribution.date_label")}
                     type="date"
                     value={formData.date}
                     onChange={(event) =>
@@ -250,7 +258,7 @@ export default function AddGoalContribution({
 
                   <div className="flex flex-col gap-1.5">
                     <label className="text-sm font-medium text-[var(--text-primary)]">
-                      Ghi chú
+                      {t("contribution.note_label")}
                     </label>
                     <textarea
                       rows={3}
@@ -258,7 +266,7 @@ export default function AddGoalContribution({
                       onChange={(event) =>
                         handleInputChange("note", event.target.value)
                       }
-                      placeholder="Ví dụ: Trích từ lương tháng này"
+                      placeholder={t("contribution.note_placeholder")}
                       className="w-full px-4 py-3 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-lg)] text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)]"
                     />
                   </div>
@@ -268,7 +276,7 @@ export default function AddGoalContribution({
               {recentTransactions.length > 0 && (
                 <Card>
                   <h3 className="font-semibold text-[var(--text-primary)] mb-4">
-                    Liên kết giao dịch thu gần đây
+                    {t("contribution.link_transactions.title")}
                   </h3>
                   <div className="space-y-2">
                     {recentTransactions.map((transaction) => {
@@ -285,7 +293,9 @@ export default function AddGoalContribution({
                             <div className="min-w-0">
                               <p className="font-medium text-[var(--text-primary)] truncate">
                                 {transaction.description ||
-                                  "Giao dịch thu nhập"}
+                                  t(
+                                    "contribution.link_transactions.fallback_name",
+                                  )}
                               </p>
                               <p className="text-xs text-[var(--text-secondary)] mt-1">
                                 {formatDate(
@@ -315,7 +325,7 @@ export default function AddGoalContribution({
                       }
                       className="mt-3 text-sm text-[var(--danger)] hover:underline"
                     >
-                      Bỏ liên kết giao dịch
+                      {t("contribution.link_transactions.unlink")}
                     </button>
                   )}
                 </Card>
@@ -325,13 +335,13 @@ export default function AddGoalContribution({
                 <div className="flex items-center gap-2 mb-3">
                   <Target className="w-5 h-5 text-[var(--primary)]" />
                   <h3 className="font-semibold text-[var(--text-primary)]">
-                    Xem trước sau khi đóng góp
+                    {t("contribution.preview.title")}
                   </h3>
                 </div>
                 <div className="space-y-3 text-sm">
                   <div className="flex items-center justify-between">
                     <span className="text-[var(--text-secondary)]">
-                      Tổng mới
+                      {t("contribution.preview.new_total")}
                     </span>
                     <span className="font-semibold text-[var(--text-primary)]">
                       {formatCurrency(nextTotal)}₫
@@ -339,7 +349,7 @@ export default function AddGoalContribution({
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-[var(--text-secondary)]">
-                      Tiến độ mới
+                      {t("contribution.preview.new_progress")}
                     </span>
                     <span className="font-semibold text-[var(--primary)]">
                       {nextProgress.toFixed(1)}%
@@ -347,7 +357,7 @@ export default function AddGoalContribution({
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-[var(--text-secondary)]">
-                      Còn lại
+                      {t("contribution.preview.remaining")}
                     </span>
                     <span className="font-semibold text-[var(--text-primary)]">
                       {formatCurrency(remainingAfter)}₫
@@ -363,11 +373,13 @@ export default function AddGoalContribution({
                     variant="secondary"
                     onClick={() => (id ? nav.goGoalDetail(id) : nav.goBack())}
                   >
-                    Huỷ
+                    {t("contribution.actions.cancel")}
                   </Button>
                   <Button type="submit" disabled={saving}>
                     <Save className="w-4 h-4" />
-                    {saving ? "Đang lưu..." : "Lưu đóng góp"}
+                    {saving
+                      ? t("contribution.actions.saving")
+                      : t("contribution.actions.save")}
                   </Button>
                 </div>
               )}
@@ -375,11 +387,13 @@ export default function AddGoalContribution({
               {isModal && (
                 <div className="flex flex-col-reverse sm:flex-row gap-3 justify-end">
                   <Button type="button" variant="secondary" onClick={onClose}>
-                    Huỷ
+                    {t("contribution.actions.cancel")}
                   </Button>
                   <Button type="submit" disabled={saving}>
                     <Save className="w-4 h-4" />
-                    {saving ? "Đang lưu..." : "Lưu đóng góp"}
+                    {saving
+                      ? t("contribution.actions.saving")
+                      : t("contribution.actions.save")}
                   </Button>
                 </div>
               )}

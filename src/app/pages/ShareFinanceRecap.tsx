@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router";
 import { ChevronLeft, Eye, EyeOff, ShieldCheck } from "lucide-react";
 import { useMyProfile } from "../hooks/useMyProfile";
@@ -12,6 +13,8 @@ import { useToast } from "../contexts/ToastContext";
 import type { PostAudience, RecapType } from "../types/community";
 
 export default function ShareFinanceRecap() {
+  const { t, i18n } = useTranslation('reports');
+  const locale = i18n.language === 'vi' ? 'vi-VN' : 'en-US';
   const navigate = useNavigate();
   const { data: myProfile } = useMyProfile();
   const { transactions, budgets, goals } = useAppData();
@@ -30,7 +33,7 @@ export default function ShareFinanceRecap() {
   });
 
   const formatVND = (n: number) =>
-    new Intl.NumberFormat("vi-VN").format(n) + "đ";
+    new Intl.NumberFormat(locale).format(n) + "đ";
 
   const recapTemplates = useMemo((): {
     type: RecapType;
@@ -86,30 +89,33 @@ export default function ShareFinanceRecap() {
       ? Math.round((budgetSpent / activeBudget.amount) * 100)
       : 0;
 
+    const week = 11;
+    const year = 2026;
+    const month = 3;
     return [
       {
         type: "weekly",
-        label: "Recap tuần",
-        description: "Tổng hợp thu chi 7 ngày gần nhất",
+        label: t('share_recap.templates.weekly_label'),
+        description: t('share_recap.templates.weekly_description'),
         data: {
           recapType: "weekly",
-          title: "Recap tuần 11/2026",
+          title: t('share_recap.template_data.weekly_title', { week, year }),
           period: "10/03 - 16/03/2026",
           stats: [
             {
-              label: "Thu nhập",
+              label: t('share_recap.stats_labels.income'),
               value: formatVND(weekIncome),
               trend: "up" as const,
             },
             {
-              label: "Chi tiêu",
+              label: t('share_recap.stats_labels.expense'),
               value: formatVND(weekExpense),
               trend: (weekExpense > weekIncome * 0.7 ? "up" : "down") as
                 | "up"
                 | "down",
             },
             {
-              label: "Tiết kiệm",
+              label: t('share_recap.stats_labels.savings'),
               value: formatVND(Math.max(0, weekSaving)),
               trend: (weekSaving > 0 ? "up" : "down") as "up" | "down",
             },
@@ -123,30 +129,30 @@ export default function ShareFinanceRecap() {
       },
       {
         type: "monthly",
-        label: "Tổng kết tháng",
-        description: "Tổng hợp tài chính tháng này",
+        label: t('share_recap.templates.monthly_label'),
+        description: t('share_recap.templates.monthly_description'),
         data: {
           recapType: "monthly",
-          title: "Tổng kết tháng 3/2026",
-          period: "Tháng 03/2026",
+          title: t('share_recap.template_data.monthly_title', { month, year }),
+          period: t('share_recap.template_data.monthly_period', { month: '03', year }),
           stats: [
             {
-              label: "Tổng thu",
+              label: t('share_recap.stats_labels.total_income'),
               value: formatVND(monthIncome),
               trend: "neutral" as const,
             },
             {
-              label: "Tổng chi",
+              label: t('share_recap.stats_labels.total_expense'),
               value: formatVND(monthExpense),
               trend: "down" as const,
             },
             {
-              label: "Tiết kiệm",
+              label: t('share_recap.stats_labels.savings'),
               value: formatVND(Math.max(0, monthSaving)),
               trend: (monthSaving > 0 ? "up" : "down") as "up" | "down",
             },
             {
-              label: "Tỷ lệ tiết kiệm",
+              label: t('share_recap.stats_labels.savings_rate'),
               value:
                 monthIncome > 0
                   ? `${Math.round(((monthIncome - monthExpense) / monthIncome) * 100)}%`
@@ -159,22 +165,22 @@ export default function ShareFinanceRecap() {
       },
       {
         type: "goal",
-        label: "Tiến độ mục tiêu",
-        description: activeGoal ? activeGoal.name : "Chưa có mục tiêu nào",
+        label: t('share_recap.templates.goal_label'),
+        description: activeGoal ? activeGoal.name : t('share_recap.templates.goal_no_data'),
         data: {
           recapType: "goal",
-          title: `Mục tiêu: ${activeGoal?.name || "Quỹ khẩn cấp"}`,
+          title: t('share_recap.template_data.goal_title', { name: activeGoal?.name || t('share_recap.template_data.goal_fallback') }),
           stats: [
             {
-              label: "Đã tiết kiệm",
+              label: t('share_recap.stats_labels.saved'),
               value: formatVND(activeGoal?.currentAmount || 0),
             },
             {
-              label: "Mục tiêu",
+              label: t('share_recap.stats_labels.target'),
               value: formatVND(activeGoal?.targetAmount || 10000000),
             },
             {
-              label: "Còn lại",
+              label: t('share_recap.stats_labels.remaining'),
               value: formatVND(
                 Math.max(
                   0,
@@ -190,20 +196,20 @@ export default function ShareFinanceRecap() {
       },
       {
         type: "budget",
-        label: "Tiến độ ngân sách",
-        description: activeBudget ? activeBudget.name : "Chưa có ngân sách nào",
+        label: t('share_recap.templates.budget_label'),
+        description: activeBudget ? activeBudget.name : t('share_recap.templates.budget_no_data'),
         data: {
           recapType: "budget",
-          title: `Ngân sách: ${activeBudget?.name || "Ăn uống"}`,
-          period: "Tháng 3/2026",
+          title: t('share_recap.template_data.budget_title', { name: activeBudget?.name || t('share_recap.template_data.budget_fallback') }),
+          period: t('share_recap.template_data.budget_period', { month, year }),
           stats: [
-            { label: "Đã chi", value: formatVND(budgetSpent) },
+            { label: t('share_recap.stats_labels.spent'), value: formatVND(budgetSpent) },
             {
-              label: "Giới hạn",
+              label: t('share_recap.stats_labels.limit'),
               value: formatVND(activeBudget?.amount || 3000000),
             },
             {
-              label: "Còn lại",
+              label: t('share_recap.stats_labels.remaining'),
               value: formatVND(
                 Math.max(0, (activeBudget?.amount || 3000000) - budgetSpent),
               ),
@@ -214,7 +220,7 @@ export default function ShareFinanceRecap() {
         },
       },
     ];
-  }, [transactions, budgets, goals]);
+  }, [transactions, budgets, goals, t, locale]);
 
   const selectedTemplate = recapTemplates.find((t) => t.type === selectedType)!;
 
@@ -245,7 +251,7 @@ export default function ShareFinanceRecap() {
         type: "recap",
         content:
           caption ||
-          `Chia sẻ ${selectedTemplate.label.toLowerCase()} của mình!`,
+          t('share_recap.default_caption', { label: selectedTemplate.label.toLowerCase() }),
         audience,
         topicIds: [],
         recapData: {
@@ -265,10 +271,10 @@ export default function ShareFinanceRecap() {
           })),
         },
       });
-      toast.success("Đã chia sẻ recap lên cộng đồng!");
+      toast.success(t('share_recap.toast.share_success'));
       navigate("/community");
     } catch {
-      toast.error("Không thể chia sẻ recap. Vui lòng thử lại.");
+      toast.error(t('share_recap.toast.share_failed'));
     } finally {
       setSubmitting(false);
     }
@@ -283,17 +289,17 @@ export default function ShareFinanceRecap() {
             onClick={() => navigate(-1)}
             className="flex items-center gap-1 text-sm text-[var(--text-secondary)]"
           >
-            <ChevronLeft className="w-4 h-4" /> Quay lại
+            <ChevronLeft className="w-4 h-4" /> {t('share_recap.back')}
           </button>
           <h1 className="font-semibold text-[var(--text-primary)]">
-            Chia sẻ Recap
+            {t('share_recap.title')}
           </h1>
           <button
             onClick={handleShare}
             disabled={submitting}
             className="px-4 py-1.5 rounded-full text-sm font-semibold bg-[var(--primary)] text-white hover:bg-[var(--primary-hover)] disabled:opacity-50"
           >
-            {submitting ? "Đang đăng..." : "Đăng"}
+            {submitting ? t('share_recap.submitting') : t('share_recap.submit')}
           </button>
         </div>
 
@@ -301,7 +307,7 @@ export default function ShareFinanceRecap() {
           {/* Source Selector */}
           <div>
             <p className="text-sm font-medium text-[var(--text-primary)] mb-2">
-              Chọn nguồn dữ liệu
+              {t('share_recap.source_section')}
             </p>
             <div className="grid grid-cols-2 gap-2">
               {recapTemplates.map((t) => (
@@ -329,11 +335,11 @@ export default function ShareFinanceRecap() {
           <div>
             <div className="flex items-center justify-between mb-2">
               <p className="text-sm font-medium text-[var(--text-primary)]">
-                Xem trước
+                {t('share_recap.preview_section')}
               </p>
               <div className="flex items-center gap-1 text-xs text-[var(--success)]">
                 <ShieldCheck className="w-3.5 h-3.5" />
-                Chia sẻ an toàn
+                {t('share_recap.safe_share_label')}
               </div>
             </div>
             <FinanceRecapCard data={displayData} large showPrivacyHint />
@@ -344,35 +350,35 @@ export default function ShareFinanceRecap() {
             <div className="flex items-center gap-2 mb-1">
               <ShieldCheck className="w-4 h-4 text-[var(--success)]" />
               <p className="text-sm font-semibold text-[var(--text-primary)]">
-                Bảo mật thông tin
+                {t('share_recap.privacy.title')}
               </p>
             </div>
             <p className="text-xs text-[var(--text-tertiary)] -mt-2 mb-2">
-              Chọn dữ liệu bạn muốn hiển thị
+              {t('share_recap.privacy.subtitle')}
             </p>
             {[
               {
                 key: "showExactAmounts" as const,
-                label: "Hiển thị số tiền chính xác",
-                desc: "Mọi người sẽ thấy con số thật",
+                label: t('share_recap.privacy.show_exact_amounts_label'),
+                desc: t('share_recap.privacy.show_exact_amounts_desc'),
                 icon: <Eye className="w-4 h-4" />,
               },
               {
                 key: "showPercentOnly" as const,
-                label: "Chỉ hiển thị phần trăm tiến độ",
-                desc: "Ẩn số tiền, chỉ hiện %",
+                label: t('share_recap.privacy.show_percent_only_label'),
+                desc: t('share_recap.privacy.show_percent_only_desc'),
                 icon: <EyeOff className="w-4 h-4" />,
               },
               {
                 key: "hideSensitiveCategories" as const,
-                label: "Ẩn danh mục nhạy cảm",
-                desc: "Ẩn các danh mục riêng tư",
+                label: t('share_recap.privacy.hide_sensitive_categories_label'),
+                desc: t('share_recap.privacy.hide_sensitive_categories_desc'),
                 icon: <EyeOff className="w-4 h-4" />,
               },
               {
                 key: "hideAccountInfo" as const,
-                label: "Ẩn thông tin tài khoản",
-                desc: "Không hiển thị tên tài khoản",
+                label: t('share_recap.privacy.hide_account_info_label'),
+                desc: t('share_recap.privacy.hide_account_info_desc'),
                 icon: <EyeOff className="w-4 h-4" />,
               },
             ].map((toggle) => (
@@ -421,12 +427,12 @@ export default function ShareFinanceRecap() {
           {/* Caption */}
           <div>
             <p className="text-sm font-medium text-[var(--text-primary)] mb-2">
-              Lời chia sẻ (tùy chọn)
+              {t('share_recap.caption_section')}
             </p>
             <textarea
               value={caption}
               onChange={(e) => setCaption(e.target.value)}
-              placeholder="Thêm lời chia sẻ của bạn..."
+              placeholder={t('share_recap.caption_placeholder')}
               className="w-full h-24 bg-[var(--surface)] rounded-xl p-3 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] resize-none outline-none focus:ring-2 focus:ring-[var(--primary)]"
             />
           </div>
@@ -434,7 +440,7 @@ export default function ShareFinanceRecap() {
           {/* Audience */}
           <div>
             <p className="text-sm font-medium text-[var(--text-primary)] mb-2">
-              Ai có thể thấy?
+              {t('share_recap.audience_section')}
             </p>
             <AudienceSelector value={audience} onChange={setAudience} />
           </div>
@@ -442,8 +448,8 @@ export default function ShareFinanceRecap() {
           {/* Safety Banner */}
           <SensitiveInfoBanner
             variant="info"
-            title="Chia sẻ recap an toàn"
-            description="Recap được tạo tự động từ dữ liệu của bạn. Bạn có thể ẩn số tiền chính xác và chỉ hiển thị phần trăm tiến độ."
+            title={t('share_recap.safety_banner.title')}
+            description={t('share_recap.safety_banner.description')}
           />
 
           {/* CTA */}
@@ -452,7 +458,7 @@ export default function ShareFinanceRecap() {
             disabled={submitting}
             className="w-full py-3.5 bg-[var(--primary)] text-white rounded-2xl font-semibold text-sm hover:bg-[var(--primary-hover)] transition-colors disabled:opacity-50"
           >
-            {submitting ? "Đang đăng..." : "Đăng lên cộng đồng"}
+            {submitting ? t('share_recap.submitting') : t('share_recap.publish')}
           </button>
         </div>
       </div>

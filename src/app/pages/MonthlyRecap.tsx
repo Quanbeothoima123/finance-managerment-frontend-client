@@ -1,4 +1,5 @@
 import React, { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Share2,
   Download,
@@ -21,6 +22,8 @@ import { useBudgetsList } from "../hooks/useBudgetsList";
 import { useGoalsList } from "../hooks/useGoalsList";
 
 export default function MonthlyRecap() {
+  const { t, i18n } = useTranslation('reports');
+  const locale = i18n.language === 'vi' ? 'vi-VN' : 'en-US';
   const toast = useToast();
   const nav = useAppNavigation();
 
@@ -72,10 +75,10 @@ export default function MonthlyRecap() {
   const isLoading = curLoading || prevLoading || budLoading || goalLoading;
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("vi-VN").format(amount);
+    return new Intl.NumberFormat(locale).format(amount);
   };
 
-  const monthLabel = now.toLocaleDateString("vi-VN", {
+  const monthLabel = now.toLocaleDateString(locale, {
     month: "long",
     year: "numeric",
   });
@@ -169,15 +172,15 @@ export default function MonthlyRecap() {
       biggestPurchase: biggest
         ? {
             description:
-              biggest.description || biggest.category?.name || "Giao dịch",
+              biggest.description || biggest.category?.name || t('monthly_recap.biggest_purchase.fallback_description'),
             amount: minor(biggest.totalAmountMinor),
             date: new Date(
               biggest.date || biggest.occurredAt,
-            ).toLocaleDateString("vi-VN"),
+            ).toLocaleDateString(locale),
             category: biggest.category?.name || "",
           }
         : {
-            description: "Chưa có dữ liệu",
+            description: t('monthly_recap.biggest_purchase.no_data'),
             amount: 0,
             date: "",
             category: "",
@@ -205,19 +208,19 @@ export default function MonthlyRecap() {
   // Generate summary message
   const summaryMessage = useMemo(() => {
     if (recapData.comparison.expenseDiff > 0) {
-      return `Tháng này chi tiêu của bạn tăng ${recapData.comparison.expenseDiff}% so với tháng trước. Hãy chú ý kiểm soát chi tiêu để đạt mục tiêu tiết kiệm.`;
+      return t('monthly_recap.summary_card.expense_increased', { diff: recapData.comparison.expenseDiff });
     } else if (recapData.comparison.expenseDiff < 0) {
-      return `Tuyệt vời! Chi tiêu tháng này giảm ${Math.abs(recapData.comparison.expenseDiff)}% so với tháng trước. Hãy tiếp tục duy trì thói quen tốt này!`;
+      return t('monthly_recap.summary_card.expense_decreased', { diff: Math.abs(recapData.comparison.expenseDiff) });
     }
-    return "Chi tiêu tháng này ổn định so với tháng trước. Hãy tiếp tục theo dõi để đạt mục tiêu tài chính.";
-  }, [recapData]);
+    return t('monthly_recap.summary_card.expense_stable');
+  }, [recapData, t]);
 
   const handleShare = () => {
     const text = `Tổng kết ${recapData.month}\nThu nhập: ${formatCurrency(recapData.totalIncome)}₫\nChi tiêu: ${formatCurrency(recapData.totalExpense)}₫\nTiết kiệm: ${formatCurrency(recapData.savings)}₫ (${recapData.savingsRate}%)`;
     if (navigator.clipboard) {
       navigator.clipboard.writeText(text);
     }
-    toast.success("Đã sao chép tổng kết tháng vào clipboard");
+    toast.success(t('monthly_recap.toast.share_copied'));
   };
 
   const handleExport = () => {
@@ -245,7 +248,7 @@ export default function MonthlyRecap() {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    toast.success("Đã xuất báo cáo tổng kết tháng");
+    toast.success(t('monthly_recap.toast.export_done'));
   };
 
   if (isLoading) {
@@ -262,7 +265,7 @@ export default function MonthlyRecap() {
         <div className="text-center">
           <AlertTriangle className="w-10 h-10 text-[var(--danger)] mx-auto mb-3" />
           <p className="text-[var(--text-primary)] font-medium mb-1">
-            Không thể tải dữ liệu
+            {t('monthly_recap.error.title')}
           </p>
           <p className="text-sm text-[var(--text-secondary)] mb-4">
             {curError}
@@ -271,7 +274,7 @@ export default function MonthlyRecap() {
             onClick={reloadCur}
             className="px-4 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white rounded-[var(--radius-lg)] text-sm font-medium transition-colors"
           >
-            Thử lại
+            {t('monthly_recap.error.retry')}
           </button>
         </div>
       </div>
@@ -288,21 +291,21 @@ export default function MonthlyRecap() {
             className="flex items-center gap-2 px-4 py-2.5 bg-white/10 hover:bg-white/20 text-white rounded-[var(--radius-lg)] font-medium transition-colors backdrop-blur-sm"
           >
             <FileText className="w-5 h-5" />
-            <span>Xuất 1 trang</span>
+            <span>{t('monthly_recap.actions.export_one_page')}</span>
           </button>
           <button
             onClick={handleShare}
             className="flex items-center gap-2 px-4 py-2.5 bg-white/10 hover:bg-white/20 text-white rounded-[var(--radius-lg)] font-medium transition-colors backdrop-blur-sm"
           >
             <Share2 className="w-5 h-5" />
-            <span>Chia sẻ</span>
+            <span>{t('monthly_recap.actions.share')}</span>
           </button>
           <button
             onClick={handleExport}
             className="flex items-center gap-2 px-4 py-2.5 bg-white/10 hover:bg-white/20 text-white rounded-[var(--radius-lg)] font-medium transition-colors backdrop-blur-sm"
           >
             <Download className="w-5 h-5" />
-            <span>Xuất file</span>
+            <span>{t('monthly_recap.actions.export_file')}</span>
           </button>
         </div>
 
@@ -311,8 +314,10 @@ export default function MonthlyRecap() {
           <div className="flex items-center gap-2 px-4 py-2.5 mb-4 bg-yellow-500/20 border border-yellow-400/50 text-yellow-200 rounded-[var(--radius-lg)] text-sm">
             <AlertTriangle className="w-4 h-4 shrink-0" />
             <span>
-              Đang hiển thị {curTxnData?.items?.length}/{curTxnData?.pagination?.total} giao
-              dịch. Số liệu có thể chưa đầy đủ.
+              {t('monthly_recap.truncation_warning', {
+                shown: curTxnData?.items?.length,
+                total: curTxnData?.pagination?.total,
+              })}
             </span>
           </div>
         )}
@@ -324,7 +329,7 @@ export default function MonthlyRecap() {
             <div className="inline-flex items-center justify-center w-16 h-16 bg-white/20 rounded-full mb-4">
               <Calendar className="w-8 h-8" />
             </div>
-            <h1 className="text-3xl font-bold mb-2">Tổng kết tháng</h1>
+            <h1 className="text-3xl font-bold mb-2">{t('monthly_recap.header.title')}</h1>
             <p className="text-xl text-white/90">{recapData.month}</p>
           </div>
 
@@ -338,7 +343,7 @@ export default function MonthlyRecap() {
                     <TrendingUp className="w-5 h-5 text-white" />
                   </div>
                   <span className="text-sm font-medium text-[var(--text-secondary)]">
-                    Thu nhập
+                    {t('monthly_recap.stats.income')}
                   </span>
                 </div>
                 <p className="text-2xl font-bold text-[var(--text-primary)] tabular-nums mb-1">
@@ -346,8 +351,9 @@ export default function MonthlyRecap() {
                 </p>
                 {recapData.comparison.incomeDiff !== 0 && (
                   <p className="text-xs text-[var(--text-secondary)]">
-                    {recapData.comparison.incomeDiff >= 0 ? "+" : ""}
-                    {recapData.comparison.incomeDiff}% so với tháng trước
+                    {t('monthly_recap.stats.vs_last_month', {
+                      diff: `${recapData.comparison.incomeDiff >= 0 ? '+' : ''}${recapData.comparison.incomeDiff}`,
+                    })}
                   </p>
                 )}
               </div>
@@ -359,7 +365,7 @@ export default function MonthlyRecap() {
                     <TrendingDown className="w-5 h-5 text-white" />
                   </div>
                   <span className="text-sm font-medium text-[var(--text-secondary)]">
-                    Chi tiêu
+                    {t('monthly_recap.stats.expense')}
                   </span>
                 </div>
                 <p className="text-2xl font-bold text-[var(--text-primary)] tabular-nums mb-1">
@@ -367,8 +373,9 @@ export default function MonthlyRecap() {
                 </p>
                 {recapData.comparison.expenseDiff !== 0 && (
                   <p className="text-xs text-[var(--text-secondary)]">
-                    {recapData.comparison.expenseDiff >= 0 ? "+" : ""}
-                    {recapData.comparison.expenseDiff}% so với tháng trước
+                    {t('monthly_recap.stats.vs_last_month', {
+                      diff: `${recapData.comparison.expenseDiff >= 0 ? '+' : ''}${recapData.comparison.expenseDiff}`,
+                    })}
                   </p>
                 )}
               </div>
@@ -380,14 +387,14 @@ export default function MonthlyRecap() {
                     <DollarSign className="w-5 h-5 text-white" />
                   </div>
                   <span className="text-sm font-medium text-[var(--text-secondary)]">
-                    {recapData.savings >= 0 ? "Tiết kiệm" : "Vượt chi"}
+                    {recapData.savings >= 0 ? t('monthly_recap.stats.savings') : t('monthly_recap.stats.overspend')}
                   </span>
                 </div>
                 <p className="text-2xl font-bold text-[var(--text-primary)] tabular-nums mb-1">
                   {formatCurrency(Math.abs(recapData.savings))}₫
                 </p>
                 <p className="text-xs text-[var(--text-secondary)]">
-                  Tỷ lệ: {recapData.savingsRate}%
+                  {t('monthly_recap.stats.savings_rate', { rate: recapData.savingsRate })}
                 </p>
               </div>
             </div>
@@ -396,7 +403,7 @@ export default function MonthlyRecap() {
             <Card className="bg-[var(--surface)]">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-semibold text-[var(--text-primary)]">
-                  Danh mục chi nhiều nhất
+                  {t('monthly_recap.top_category.title')}
                 </h3>
               </div>
               <div className="flex items-center gap-4">
@@ -408,7 +415,7 @@ export default function MonthlyRecap() {
                     {recapData.topCategory.name}
                   </p>
                   <p className="text-sm text-[var(--text-secondary)]">
-                    {recapData.topCategory.percentage}% tổng chi tiêu
+                    {t('monthly_recap.top_category.percentage_of_total', { percentage: recapData.topCategory.percentage })}
                   </p>
                 </div>
                 <div className="text-right">
@@ -423,7 +430,7 @@ export default function MonthlyRecap() {
             <Card className="bg-[var(--surface)]">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-semibold text-[var(--text-primary)]">
-                  Khoản chi lớn nhất
+                  {t('monthly_recap.biggest_purchase.title')}
                 </h3>
               </div>
               <div className="flex items-center gap-4">
@@ -453,10 +460,10 @@ export default function MonthlyRecap() {
             <Card className="bg-[var(--surface)]">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-semibold text-[var(--text-primary)]">
-                  Tình trạng ngân sách
+                  {t('monthly_recap.budget_status.title')}
                 </h3>
                 <span className="text-sm text-[var(--text-secondary)]">
-                  {recapData.budgetStatus.total} ngân sách
+                  {t('monthly_recap.budget_status.count', { total: recapData.budgetStatus.total })}
                 </span>
               </div>
               <div className="grid grid-cols-3 gap-4">
@@ -467,7 +474,7 @@ export default function MonthlyRecap() {
                     </span>
                   </div>
                   <p className="text-xs text-[var(--text-secondary)]">
-                    Đúng mức
+                    {t('monthly_recap.budget_status.on_track')}
                   </p>
                 </div>
                 <div className="text-center">
@@ -477,7 +484,7 @@ export default function MonthlyRecap() {
                     </span>
                   </div>
                   <p className="text-xs text-[var(--text-secondary)]">
-                    Vượt mức
+                    {t('monthly_recap.budget_status.exceeded')}
                   </p>
                 </div>
                 <div className="text-center">
@@ -487,7 +494,7 @@ export default function MonthlyRecap() {
                     </span>
                   </div>
                   <p className="text-xs text-[var(--text-secondary)]">
-                    Tiết kiệm
+                    {t('monthly_recap.budget_status.under_used')}
                   </p>
                 </div>
               </div>
@@ -497,10 +504,10 @@ export default function MonthlyRecap() {
             <Card className="bg-[var(--surface)]">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-semibold text-[var(--text-primary)]">
-                  Tiến độ mục tiêu
+                  {t('monthly_recap.goal_progress.title')}
                 </h3>
                 <span className="text-sm text-[var(--text-secondary)]">
-                  {recapData.goalProgress.total} mục tiêu
+                  {t('monthly_recap.goal_progress.count', { total: recapData.goalProgress.total })}
                 </span>
               </div>
               <div className="grid grid-cols-3 gap-4">
@@ -511,7 +518,7 @@ export default function MonthlyRecap() {
                     </span>
                   </div>
                   <p className="text-xs text-[var(--text-secondary)]">
-                    Đúng tiến độ
+                    {t('monthly_recap.goal_progress.on_track')}
                   </p>
                 </div>
                 <div className="text-center">
@@ -521,7 +528,7 @@ export default function MonthlyRecap() {
                     </span>
                   </div>
                   <p className="text-xs text-[var(--text-secondary)]">
-                    Cần tăng tốc
+                    {t('monthly_recap.goal_progress.at_risk')}
                   </p>
                 </div>
                 <div className="text-center">
@@ -531,7 +538,7 @@ export default function MonthlyRecap() {
                     </span>
                   </div>
                   <p className="text-xs text-[var(--text-secondary)]">
-                    Hoàn thành
+                    {t('monthly_recap.goal_progress.completed')}
                   </p>
                 </div>
               </div>
@@ -544,20 +551,20 @@ export default function MonthlyRecap() {
                   <Target className="w-6 h-6 text-white" />
                 </div>
                 <h3 className="font-semibold text-[var(--text-primary)] mb-2">
-                  Nhận xét chung
+                  {t('monthly_recap.summary_card.title')}
                 </h3>
                 <p className="text-sm text-[var(--text-secondary)] mb-4">
                   {summaryMessage}
                 </p>
                 <div className="flex items-center justify-center gap-2">
                   <span className="text-xs text-[var(--text-tertiary)]">
-                    Tạo bởi Quản lý tài chính
+                    {t('monthly_recap.summary_card.generated_by')}
                   </span>
                   <span className="text-xs text-[var(--text-tertiary)]">
                     &bull;
                   </span>
                   <span className="text-xs text-[var(--text-tertiary)]">
-                    {now.toLocaleDateString("vi-VN")}
+                    {now.toLocaleDateString(locale)}
                   </span>
                 </div>
               </div>

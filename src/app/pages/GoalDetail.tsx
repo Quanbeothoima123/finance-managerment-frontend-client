@@ -9,6 +9,7 @@ import {
   Target,
   Trash2,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Card } from "../components/Card";
 import { Button } from "../components/Button";
 import { ConfirmationModal } from "../components/ConfirmationModals";
@@ -22,7 +23,6 @@ import {
   formatDate,
   formatMinor,
   getGoalIconComponent,
-  getPriorityLabel,
   getUiStatus,
   getUiStatusMeta,
 } from "../utils/goalHelpers";
@@ -34,6 +34,7 @@ function ContributionRow({
   item: GoalContribution;
   onDelete: () => void;
 }) {
+  const { t } = useTranslation("goals");
   const isWithdrawal = item.eventType === "withdrawal";
 
   return (
@@ -52,12 +53,12 @@ function ContributionRow({
           {item.transactionId && (
             <span className="inline-flex items-center gap-1 text-xs text-[var(--text-secondary)]">
               <Link2 className="w-3 h-3" />
-              Đã liên kết giao dịch
+              {t("detail.contributions.linked_transaction")}
             </span>
           )}
         </div>
         <p className="text-sm text-[var(--text-primary)] mt-1">
-          {item.note || item.notes || "Không có ghi chú"}
+          {item.note || item.notes || t("detail.contributions.no_note")}
         </p>
         <p className="text-xs text-[var(--text-secondary)] mt-1">
           {formatDate(item.date || item.eventAt)}
@@ -65,13 +66,14 @@ function ContributionRow({
       </div>
       <Button variant="danger" size="sm" onClick={onDelete}>
         <Trash2 className="w-4 h-4" />
-        Xoá
+        {t("overview.card.delete_button")}
       </Button>
     </div>
   );
 }
 
 export default function GoalDetail() {
+  const { t } = useTranslation("goals");
   const { id } = useParams<{ id: string }>();
   const nav = useAppNavigation();
   const toast = useToast();
@@ -108,11 +110,13 @@ export default function GoalDetail() {
     try {
       setSubmitting(true);
       await goalsService.deleteGoal(goal.id);
-      toast.success("Đã xoá mục tiêu");
+      toast.success(t("detail.toast.goal_deleted"));
       nav.goGoals();
     } catch (err) {
       toast.error(
-        err instanceof Error ? err.message : "Không thể xoá mục tiêu",
+        err instanceof Error
+          ? err.message
+          : t("detail.toast.goal_delete_failed"),
       );
     } finally {
       setSubmitting(false);
@@ -126,11 +130,13 @@ export default function GoalDetail() {
     try {
       setSubmitting(true);
       await goalsService.deleteContribution(goal.id, contributionToDelete.id);
-      toast.success("Đã xoá đóng góp");
+      toast.success(t("detail.toast.contribution_deleted"));
       await reload();
     } catch (err) {
       toast.error(
-        err instanceof Error ? err.message : "Không thể xoá đóng góp",
+        err instanceof Error
+          ? err.message
+          : t("detail.toast.contribution_delete_failed"),
       );
     } finally {
       setSubmitting(false);
@@ -142,9 +148,7 @@ export default function GoalDetail() {
     return (
       <div className="p-4 md:p-6">
         <Card>
-          <p className="text-[var(--text-secondary)]">
-            Đang tải chi tiết mục tiêu...
-          </p>
+          <p className="text-[var(--text-secondary)]">{t("detail.loading")}</p>
         </Card>
       </div>
     );
@@ -155,7 +159,7 @@ export default function GoalDetail() {
       <div className="p-4 md:p-6">
         <Card>
           <p className="text-[var(--danger)]">
-            {error || "Không tìm thấy mục tiêu"}
+            {error || t("detail.not_found")}
           </p>
         </Card>
       </div>
@@ -171,7 +175,7 @@ export default function GoalDetail() {
             className="inline-flex items-center gap-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors mb-4"
           >
             <ArrowLeft className="w-5 h-5" />
-            Quay lại
+            {t("detail.back")}
           </button>
 
           <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
@@ -197,12 +201,15 @@ export default function GoalDetail() {
                       color: statusMeta.color,
                     }}
                   >
-                    {statusMeta.label}
+                    {t(`status.${status}`)}
                   </span>
                 </div>
                 <p className="text-sm text-[var(--text-secondary)]">
-                  {getPriorityLabel(goal.priority)} • Mục tiêu đến{" "}
-                  {formatDate(goal.targetDate || goal.deadline)}
+                  {t(`priority.${goal.priority || "medium"}`)} •{" "}
+                  {t("detail.priority_target", {
+                    priority: t(`priority.${goal.priority || "medium"}`),
+                    date: formatDate(goal.targetDate || goal.deadline),
+                  })}
                 </p>
                 {goal.note && (
                   <p className="text-sm text-[var(--text-secondary)] mt-2">
@@ -217,11 +224,11 @@ export default function GoalDetail() {
                 onClick={() => nav.goEditGoal(goal.id)}
               >
                 <Edit2 className="w-4 h-4" />
-                Chỉnh sửa
+                {t("detail.edit_button")}
               </Button>
               <Button onClick={() => nav.goAddGoalContribution(goal.id)}>
                 <Plus className="w-4 h-4" />
-                Thêm đóng góp
+                {t("detail.add_contribution_button")}
               </Button>
             </div>
           </div>
@@ -249,25 +256,33 @@ export default function GoalDetail() {
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6 text-sm">
             <div>
-              <p className="text-[var(--text-secondary)]">Đã có</p>
+              <p className="text-[var(--text-secondary)]">
+                {t("detail.progress.current_label")}
+              </p>
               <p className="font-semibold text-[var(--text-primary)] mt-1">
                 {formatCurrency(goal.currentAmount)}₫
               </p>
             </div>
             <div>
-              <p className="text-[var(--text-secondary)]">Mục tiêu</p>
+              <p className="text-[var(--text-secondary)]">
+                {t("detail.progress.target_label")}
+              </p>
               <p className="font-semibold text-[var(--text-primary)] mt-1">
                 {formatCurrency(goal.targetAmount)}₫
               </p>
             </div>
             <div>
-              <p className="text-[var(--text-secondary)]">Còn lại</p>
+              <p className="text-[var(--text-secondary)]">
+                {t("detail.progress.remaining_label")}
+              </p>
               <p className="font-semibold text-[var(--text-primary)] mt-1">
                 {formatCurrency(goal.remainingAmount)}₫
               </p>
             </div>
             <div>
-              <p className="text-[var(--text-secondary)]">Số ngày còn lại</p>
+              <p className="text-[var(--text-secondary)]">
+                {t("detail.progress.days_remaining_label")}
+              </p>
               <p className="font-semibold text-[var(--text-primary)] mt-1">
                 {data?.summary.daysRemaining ?? "—"}
               </p>
@@ -278,11 +293,11 @@ export default function GoalDetail() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <Card className="lg:col-span-2">
             <h2 className="font-semibold text-[var(--text-primary)] mb-4">
-              Lịch sử đóng góp
+              {t("detail.contributions.title")}
             </h2>
             {(data?.contributions || []).length === 0 && (
               <p className="text-sm text-[var(--text-secondary)]">
-                Chưa có đóng góp nào cho mục tiêu này.
+                {t("detail.contributions.empty")}
               </p>
             )}
             {(data?.contributions || []).map((item) => (
@@ -297,30 +312,36 @@ export default function GoalDetail() {
           <div className="space-y-6">
             <Card>
               <h2 className="font-semibold text-[var(--text-primary)] mb-4">
-                Tổng quan
+                {t("detail.summary_card.title")}
               </h2>
               <div className="space-y-3 text-sm">
                 <div className="flex items-center justify-between gap-3">
-                  <span className="text-[var(--text-secondary)]">Tổng nạp</span>
+                  <span className="text-[var(--text-secondary)]">
+                    {t("detail.summary_card.total_deposited")}
+                  </span>
                   <span className="font-semibold text-[var(--success)]">
                     {formatMinor(data?.summary.totalDepositedMinor)}₫
                   </span>
                 </div>
                 <div className="flex items-center justify-between gap-3">
-                  <span className="text-[var(--text-secondary)]">Tổng rút</span>
+                  <span className="text-[var(--text-secondary)]">
+                    {t("detail.summary_card.total_withdrawn")}
+                  </span>
                   <span className="font-semibold text-[var(--danger)]">
                     {formatMinor(data?.summary.totalWithdrawnMinor)}₫
                   </span>
                 </div>
                 <div className="flex items-center justify-between gap-3">
-                  <span className="text-[var(--text-secondary)]">Sự kiện</span>
+                  <span className="text-[var(--text-secondary)]">
+                    {t("detail.summary_card.event_count")}
+                  </span>
                   <span className="font-semibold text-[var(--text-primary)]">
                     {data?.summary.eventCount ?? 0}
                   </span>
                 </div>
                 <div className="flex items-center justify-between gap-3">
                   <span className="text-[var(--text-secondary)]">
-                    Liên kết giao dịch
+                    {t("detail.summary_card.linked_transactions")}
                   </span>
                   <span className="font-semibold text-[var(--text-primary)]">
                     {data?.summary.linkedTransactionCount ?? 0}
@@ -328,7 +349,7 @@ export default function GoalDetail() {
                 </div>
                 <div className="flex items-center justify-between gap-3">
                   <span className="text-[var(--text-secondary)]">
-                    Lần đóng góp gần nhất
+                    {t("detail.summary_card.last_contribution")}
                   </span>
                   <span className="font-semibold text-[var(--text-primary)]">
                     {formatDate(data?.summary.lastContributionAt)}
@@ -339,11 +360,11 @@ export default function GoalDetail() {
 
             <Card>
               <h2 className="font-semibold text-[var(--text-primary)] mb-4">
-                Tiến độ theo thời gian
+                {t("detail.progress_card.title")}
               </h2>
               {chartPoints.length === 0 ? (
                 <p className="text-sm text-[var(--text-secondary)]">
-                  Chưa đủ dữ liệu để hiển thị tiến độ.
+                  {t("detail.progress_card.empty")}
                 </p>
               ) : (
                 <div className="space-y-2 text-sm">
@@ -366,7 +387,7 @@ export default function GoalDetail() {
 
             <Card>
               <h2 className="font-semibold text-[var(--text-primary)] mb-4">
-                Hành động
+                {t("detail.actions_card.title")}
               </h2>
               <div className="space-y-3">
                 <Button
@@ -374,7 +395,7 @@ export default function GoalDetail() {
                   onClick={() => nav.goAddGoalContribution(goal.id)}
                 >
                   <Plus className="w-4 h-4" />
-                  Thêm đóng góp
+                  {t("detail.actions_card.add_contribution")}
                 </Button>
                 <Button
                   variant="secondary"
@@ -382,7 +403,7 @@ export default function GoalDetail() {
                   onClick={() => nav.goEditGoal(goal.id)}
                 >
                   <Edit2 className="w-4 h-4" />
-                  Chỉnh sửa mục tiêu
+                  {t("detail.actions_card.edit_goal")}
                 </Button>
                 <Button
                   variant="danger"
@@ -390,7 +411,7 @@ export default function GoalDetail() {
                   onClick={() => setGoalToDelete(goal)}
                 >
                   <Trash2 className="w-4 h-4" />
-                  Xoá mục tiêu
+                  {t("detail.actions_card.delete_goal")}
                 </Button>
               </div>
             </Card>
@@ -400,7 +421,7 @@ export default function GoalDetail() {
         {(data?.recentTransactions || []).length > 0 && (
           <Card>
             <h2 className="font-semibold text-[var(--text-primary)] mb-4">
-              Giao dịch thu gần đây để liên kết
+              {t("detail.recent_transactions.title")}
             </h2>
             <div className="space-y-3">
               {data.recentTransactions.map((item) => (
@@ -410,7 +431,8 @@ export default function GoalDetail() {
                 >
                   <div className="min-w-0">
                     <p className="font-medium text-[var(--text-primary)] truncate">
-                      {item.description || "Giao dịch thu nhập"}
+                      {item.description ||
+                        t("detail.recent_transactions.fallback_name")}
                     </p>
                     <p className="text-xs text-[var(--text-secondary)] inline-flex items-center gap-1 mt-1">
                       <Calendar className="w-3.5 h-3.5" />
@@ -431,18 +453,22 @@ export default function GoalDetail() {
         isOpen={Boolean(goalToDelete)}
         onClose={() => setGoalToDelete(null)}
         onConfirm={handleDeleteGoal}
-        title="Xoá mục tiêu?"
+        title={t("detail.delete_modal.title")}
         description={
           goalToDelete
-            ? `Bạn có chắc muốn xoá mục tiêu "${goalToDelete.name}"?`
-            : "Bạn có chắc muốn xoá mục tiêu này?"
+            ? t("detail.delete_modal.description", { name: goalToDelete.name })
+            : t("detail.delete_modal.description_generic")
         }
         consequences={[
-          "Tất cả đóng góp liên quan cũng sẽ bị xoá.",
-          "Dữ liệu này không thể khôi phục.",
+          t("detail.delete_modal.consequences.all_contributions"),
+          t("detail.delete_modal.consequences.no_recovery"),
         ]}
-        confirmLabel={submitting ? "Đang xoá..." : "Xoá mục tiêu"}
-        cancelLabel="Huỷ"
+        confirmLabel={
+          submitting
+            ? t("detail.delete_modal.confirm_deleting")
+            : t("detail.delete_modal.confirm")
+        }
+        cancelLabel={t("detail.delete_modal.cancel")}
         isDangerous={true}
       />
 
@@ -450,10 +476,14 @@ export default function GoalDetail() {
         isOpen={Boolean(contributionToDelete)}
         onClose={() => setContributionToDelete(null)}
         onConfirm={handleDeleteContribution}
-        title="Xoá đóng góp?"
-        description="Bạn có chắc muốn xoá đóng góp này? Số dư mục tiêu sẽ được tính lại."
-        confirmLabel={submitting ? "Đang xoá..." : "Xoá đóng góp"}
-        cancelLabel="Huỷ"
+        title={t("detail.contribution_delete_modal.title")}
+        description={t("detail.contribution_delete_modal.description")}
+        confirmLabel={
+          submitting
+            ? t("detail.contribution_delete_modal.confirm_deleting")
+            : t("detail.contribution_delete_modal.confirm")
+        }
+        cancelLabel={t("detail.contribution_delete_modal.cancel")}
         isDangerous={true}
       />
     </div>

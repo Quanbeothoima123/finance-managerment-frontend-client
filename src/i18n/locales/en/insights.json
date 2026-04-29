@@ -1,1 +1,218 @@
-{}
+{
+  "overview": {
+    "title": "Analytics & Reports",
+    "subtitle": "Spending and financial analysis",
+    "export_csv": "Export CSV",
+    "truncation_warning": "Showing {{shown}}/{{total}} transactions. Data may be incomplete.",
+    "month_short": "M{{n}}",
+    "summary": {
+      "total_spending": "Total Spending",
+      "avg_daily": "Daily Average",
+      "avg_daily_projection": "Projected: {{amount}}/month",
+      "savings_rate": "Savings Rate",
+      "savings_label": "Saved",
+      "overspend_label": "Overspent",
+      "vs_prev_month": "vs. last month"
+    },
+    "weekly_recap": {
+      "title": "Weekly Recap",
+      "badge": "3\u20135 highlights",
+      "spending": "Spending",
+      "income": "Income",
+      "net": "Net",
+      "no_data": "No data for this week",
+      "add_transaction": "Add Transaction",
+      "view_recap": "View Recap",
+      "share": "Share",
+      "other": "Other",
+      "bullet_top_category": "Top category: {{name}} {{amount}} ({{percent}}%)",
+      "bullet_biggest_txn": "Biggest transaction: {{name}} {{amount}}",
+      "bullet_peak_day": "Highest spend day: {{day}} {{amount}}",
+      "days": {
+        "0": "Sunday",
+        "1": "Monday",
+        "2": "Tuesday",
+        "3": "Wednesday",
+        "4": "Thursday",
+        "5": "Friday",
+        "6": "Saturday"
+      }
+    },
+    "spending_trend": {
+      "title": "Spending Trend",
+      "tooltip_label": "Spending",
+      "vs_prev_month": "vs. last month"
+    },
+    "top_categories": {
+      "title": "Spending Categories",
+      "no_data": "No data available",
+      "uncategorized": "Uncategorized",
+      "other": "Other"
+    },
+    "income_expense": {
+      "title": "Income & Expenses",
+      "income_label": "Income",
+      "expense_label": "Expenses"
+    },
+    "account_distribution": {
+      "title": "Account Distribution",
+      "tooltip_label": "Balance"
+    },
+    "error": {
+      "title": "Could not load data",
+      "retry": "Retry"
+    },
+    "csv": {
+      "header": "Date,Description,Category,Account,Type,Amount",
+      "type_income": "Income",
+      "type_expense": "Expense",
+      "filename": "report-{{year}}-{{month}}",
+      "success": "Exported {{count}} transactions to CSV"
+    },
+    "account_types": {
+      "bank": "Bank",
+      "cash": "Cash",
+      "credit_card": "Credit Card",
+      "e_wallet": "E-Wallet",
+      "investment": "Investment",
+      "savings": "Savings"
+    }
+  },
+
+  "cashflow": {
+    "title": "Cash Flow",
+    "subtitle": "Balance changes and daily money flow",
+    "back": "Back",
+    "loading": "Loading...",
+    "truncation_warning": "Showing {{shown}}/{{total}} transactions. Data may be incomplete.",
+    "view_type": {
+      "label": "View type",
+      "balance": "Balance",
+      "netflow": "Net Flow"
+    },
+    "filters": {
+      "start_date_label": "From",
+      "end_date_label": "To",
+      "account_label": "Account",
+      "all_accounts": "All Accounts",
+      "tag_label": "Tags"
+    },
+    "balance_stats": {
+      "start_balance": "Opening Balance",
+      "end_balance": "Closing Balance",
+      "change": "Change"
+    },
+    "netflow_stats": {
+      "total_inflow": "Total Inflow",
+      "total_outflow": "Total Outflow",
+      "net_flow": "Net Cash Flow"
+    },
+    "chart": {
+      "balance_title": "Balance Over Time",
+      "balance_subtitle": "Track account balance across the selected period",
+      "netflow_title": "Daily Net Cash Flow",
+      "netflow_subtitle": "Analyse daily money in and out",
+      "no_data": "No data for the selected period",
+      "balance_legend": "Balance",
+      "netflow_legend": "Net Flow",
+      "tooltip_balance": "Balance",
+      "tooltip_netflow": "Cash Flow"
+    },
+    "insight": {
+      "title": "Analysis",
+      "balance_increased": "Your balance increased by {{amount}} ({{percent}}%) over this period.",
+      "balance_decreased": "Your balance decreased by {{amount}} ({{percent}}%) over this period.",
+      "balance_negative_tip": "Consider reviewing your spending to keep your finances stable.",
+      "netflow_summary": "Your net cash flow is {{amount}}.",
+      "netflow_positive": "Great! You have a positive cash flow for this period.",
+      "netflow_negative": "Your spending exceeds your income. Consider adjusting your budget."
+    },
+    "error": {
+      "load_failed": "Could not load data",
+      "retry": "Retry"
+    }
+  },
+
+  "category_breakdown": {
+    "title": "Category Breakdown",
+    "subtitle": "Detailed spending by category",
+    "back": "Back",
+    "truncation_warning": "Showing {{shown}}/{{total}} transactions. Data may be incomplete.",
+    "filters": {
+      "month_label": "Month",
+      "account_label": "Account",
+      "all_accounts": "All Accounts",
+      "chart_label": "Chart Type",
+      "tag_label": "Tags",
+      "chart_types": {
+        "pie": "Pie",
+        "bar": "Bar"
+      }
+    },
+    "month_option": "{{month}} {{year}}",
+    "summary": {
+      "total_spending": "Total Spending",
+      "transaction_count": "Transactions",
+      "avg_per_transaction": "Avg per Transaction"
+    },
+    "chart": {
+      "pie_title": "Category Distribution",
+      "bar_title": "Spending by Category",
+      "tooltip_label": "Spending",
+      "no_data": "No data for this month"
+    },
+    "list": {
+      "title": "Category Detail",
+      "transactions_suffix": "transactions",
+      "no_category": "Uncategorized"
+    },
+    "error": {
+      "load_failed": "Could not load data",
+      "retry": "Retry"
+    }
+  },
+
+  "account_breakdown": {
+    "title": "Account Breakdown",
+    "subtitle": "Spending, income and balance analysis by account",
+    "back": "Back",
+    "truncation_warning": "Showing {{shown}}/{{total}} transactions. Data may be incomplete.",
+    "filters": {
+      "date_range_label": "Date Range",
+      "account_label": "Account",
+      "all_accounts": "All Accounts",
+      "date_ranges": {
+        "this-month": "This Month",
+        "last-month": "Last Month",
+        "last-3-months": "Last 3 Months",
+        "last-6-months": "Last 6 Months",
+        "this-year": "This Year"
+      }
+    },
+    "account_types": {
+      "bank": "Bank",
+      "cash": "Cash",
+      "credit_card": "Credit Card",
+      "e_wallet": "E-Wallet",
+      "investment": "Investment",
+      "savings": "Savings"
+    },
+    "summary": {
+      "total_balance": "Total Balance",
+      "total_income": "Total Income",
+      "total_expense": "Total Expenses",
+      "net_flow": "Net Cash Flow"
+    },
+    "chart": {
+      "title": "Account Comparison",
+      "income_label": "Income",
+      "expense_label": "Expenses",
+      "tooltip_balance": "Balance",
+      "no_data": "No data available"
+    },
+    "error": {
+      "load_failed": "Could not load data",
+      "retry": "Retry"
+    }
+  }
+}

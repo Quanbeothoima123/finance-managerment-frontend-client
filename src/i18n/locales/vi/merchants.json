@@ -1,0 +1,146 @@
+{
+  "list": {
+    "title": "Nhà cung cấp",
+    "subtitle": "Quản lý merchant để tự động gợi ý và phân loại giao dịch.",
+    "add_button": "Thêm merchant",
+    "summary": {
+      "total": "Tổng merchant",
+      "total_usage": "Tổng sử dụng",
+      "total_spent": "Tổng chi",
+      "no_default_category": "Chưa có mặc định"
+    },
+    "filters": {
+      "search_placeholder": "Tìm theo tên merchant...",
+      "category_all": "Tất cả danh mục",
+      "visibility_visible": "Đang hiển thị",
+      "visibility_hidden": "Đã ẩn",
+      "visibility_all": "Tất cả",
+      "sort_usage_desc": "Dùng nhiều nhất",
+      "sort_spent_desc": "Chi nhiều nhất",
+      "sort_recent_desc": "Dùng gần nhất",
+      "sort_name_asc": "Tên A-Z",
+      "sort_created_desc": "Tạo mới nhất"
+    },
+    "card": {
+      "badge_hidden": "Đã ẩn",
+      "no_default_category": "Chưa đặt danh mục mặc định",
+      "stat_usage": "Sử dụng",
+      "stat_total_spent": "Tổng chi",
+      "stat_last_used": "Gần nhất",
+      "date_never": "Chưa có",
+      "view_transactions": "Xem giao dịch"
+    },
+    "loading": "Đang tải danh sách merchant...",
+    "empty": {
+      "title": "Chưa có merchant nào",
+      "subtitle": "Tạo merchant để gán category mặc định và dùng lại trong form giao dịch.",
+      "create_button": "Tạo merchant đầu tiên"
+    },
+    "delete_modal": {
+      "title": "Xoá merchant?",
+      "description": "Bạn có chắc muốn xoá merchant \"{{name}}\"?",
+      "confirm_deleting": "Đang xoá...",
+      "confirm": "Xoá",
+      "cancel": "Huỷ"
+    },
+    "toast": {
+      "deleted": "Đã xoá merchant \"{{name}}\"",
+      "delete_failed": "Không thể xoá merchant"
+    }
+  },
+
+  "form": {
+    "create_title": "Thêm merchant",
+    "edit_title": "Chỉnh sửa merchant",
+    "create_subtitle": "Thêm merchant mới để gợi ý category và dùng lại trong form giao dịch",
+    "edit_subtitle": "Cập nhật thông tin merchant",
+    "back": "Quay lại",
+    "loading": "Đang tải dữ liệu merchant...",
+    "load_error": "Không thể tải dữ liệu merchant",
+    "info_section": "Thông tin",
+    "preview_section": "Xem trước",
+    "fields": {
+      "name_label": "Tên merchant",
+      "name_placeholder": "VD: Highlands Coffee",
+      "default_category_label": "Danh mục mặc định",
+      "default_category_no_default": "Không đặt mặc định",
+      "default_category_hint": "Dùng để gợi ý category khi chọn merchant này trong form giao dịch.",
+      "note_label": "Ghi chú",
+      "note_placeholder": "Ví dụ: Chuỗi cà phê hay dùng",
+      "hidden_label": "Ẩn merchant",
+      "hidden_hint": "Merchant vẫn tồn tại nhưng không hiện mặc định trong danh sách."
+    },
+    "preview": {
+      "name_placeholder": "Tên merchant",
+      "badge_hidden": "Đã ẩn"
+    },
+    "edit_note": {
+      "title": "Lưu ý",
+      "description": "Thay đổi danh mục mặc định chỉ ảnh hưởng đến những giao dịch tạo mới sau này."
+    },
+    "actions": {
+      "cancel": "Huỷ",
+      "saving": "Đang lưu...",
+      "create": "Tạo merchant",
+      "save": "Lưu thay đổi"
+    },
+    "errors": {
+      "name_required": "Vui lòng nhập tên merchant"
+    },
+    "toast": {
+      "created": "Đã tạo merchant mới",
+      "updated": "Đã cập nhật merchant",
+      "save_failed": "Không thể lưu merchant"
+    }
+  },
+
+  "detail": {
+    "back": "Quay lại",
+    "back_to_list": "Về danh sách merchant",
+    "subtitle": "Chi tiết merchant",
+    "badge_hidden": "Đã ẩn",
+    "actions": {
+      "edit": "Chỉnh sửa",
+      "view_transactions": "Xem giao dịch",
+      "delete": "Xoá"
+    },
+    "stats": {
+      "total_spent": "Tổng chi",
+      "transaction_count": "Giao dịch",
+      "recurring_rules": "Recurring rules",
+      "avg_per_transaction": "Trung bình / giao dịch"
+    },
+    "info_section": {
+      "title": "Thông tin",
+      "name_label": "Tên merchant",
+      "default_category_label": "Danh mục mặc định",
+      "no_default_category": "Chưa đặt danh mục mặc định",
+      "last_transaction_label": "Giao dịch gần nhất",
+      "date_never": "Chưa có",
+      "note_label": "Ghi chú"
+    },
+    "recent_transactions": {
+      "title": "Giao dịch gần đây",
+      "view_all": "Xem tất cả",
+      "empty": "Chưa có giao dịch nào gắn merchant này.",
+      "fallback_name": "Giao dịch"
+    },
+    "not_found": {
+      "title": "Không tìm thấy merchant",
+      "description": "Merchant này có thể đã bị xoá hoặc không tồn tại.",
+      "back_button": "Về danh sách merchant"
+    },
+    "loading": "Đang tải chi tiết merchant...",
+    "delete_modal": {
+      "title": "Xoá merchant?",
+      "description": "Bạn có chắc muốn xoá merchant \"{{name}}\"?",
+      "confirm_deleting": "Đang xoá...",
+      "confirm": "Xoá",
+      "cancel": "Huỷ"
+    },
+    "toast": {
+      "deleted": "Đã xoá merchant \"{{name}}\"",
+      "delete_failed": "Không thể xoá merchant"
+    }
+  }
+}

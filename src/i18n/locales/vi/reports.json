@@ -1,0 +1,241 @@
+{
+  "monthly_recap": {
+    "title": "Tổng kết tháng",
+    "actions": {
+      "export_one_page": "Xuất 1 trang",
+      "share": "Chia sẻ",
+      "export_file": "Xuất file"
+    },
+    "truncation_warning": "Đang hiển thị {{shown}}/{{total}} giao dịch. Số liệu có thể chưa đầy đủ.",
+    "error": {
+      "title": "Không thể tải dữ liệu",
+      "retry": "Thử lại"
+    },
+    "header": {
+      "title": "Tổng kết tháng"
+    },
+    "stats": {
+      "income": "Thu nhập",
+      "expense": "Chi tiêu",
+      "savings": "Tiết kiệm",
+      "overspend": "Vượt chi",
+      "savings_rate": "Tỷ lệ: {{rate}}%",
+      "vs_last_month": "{{diff}}% so với tháng trước"
+    },
+    "top_category": {
+      "title": "Danh mục chi nhiều nhất",
+      "percentage_of_total": "{{percentage}}% tổng chi tiêu"
+    },
+    "biggest_purchase": {
+      "title": "Khoản chi lớn nhất",
+      "fallback_description": "Giao dịch",
+      "no_data": "Chưa có dữ liệu"
+    },
+    "budget_status": {
+      "title": "Tình trạng ngân sách",
+      "count": "{{total}} ngân sách",
+      "on_track": "Đúng mức",
+      "exceeded": "Vượt mức",
+      "under_used": "Tiết kiệm"
+    },
+    "goal_progress": {
+      "title": "Tiến độ mục tiêu",
+      "count": "{{total}} mục tiêu",
+      "on_track": "Đúng tiến độ",
+      "at_risk": "Cần tăng tốc",
+      "completed": "Hoàn thành"
+    },
+    "summary_card": {
+      "title": "Nhận xét chung",
+      "generated_by": "Tạo bởi Quản lý tài chính",
+      "expense_increased": "Tháng này chi tiêu của bạn tăng {{diff}}% so với tháng trước. Hãy chú ý kiểm soát chi tiêu để đạt mục tiêu tiết kiệm.",
+      "expense_decreased": "Tuyệt vời! Chi tiêu tháng này giảm {{diff}}% so với tháng trước. Hãy tiếp tục duy trì thói quen tốt này!",
+      "expense_stable": "Chi tiêu tháng này ổn định so với tháng trước. Hãy tiếp tục theo dõi để đạt mục tiêu tài chính."
+    },
+    "toast": {
+      "share_copied": "Đã sao chép tổng kết tháng vào clipboard",
+      "export_done": "Đã xuất báo cáo tổng kết tháng"
+    }
+  },
+
+  "monthly_summary": {
+    "title": "Báo cáo tháng",
+    "this_month": "Tháng này",
+    "last_month": "Tháng trước",
+    "truncation_warning": "Đang hiển thị {{shown}}/{{total}} giao dịch. Số liệu có thể chưa đầy đủ.",
+    "stats": {
+      "expense": "Chi tiêu",
+      "income": "Thu nhập",
+      "net": "Ròng"
+    },
+    "poster": {
+      "header_label": "Tổng kết tháng",
+      "personal_finance": "Tài chính cá nhân",
+      "month_label": "Tháng {{month}}/{{year}}",
+      "highlights_title": "Điểm nổi bật",
+      "top_categories_title": "Top danh mục",
+      "weekly_chart_title": "Chi tiêu theo tuần",
+      "week_label": "Tuần {{n}}",
+      "footer_app": "FinanceApp",
+      "footer_generated": "Generated on {{date}}"
+    },
+    "share_sheet": {
+      "title": "Chia sẻ summary",
+      "download_png": "Tải ảnh (PNG)",
+      "download_pdf": "Tải PDF",
+      "copy_text": "Copy text"
+    },
+    "bottom_actions": {
+      "download_png": "Tải ảnh (PNG)",
+      "copy_text": "Copy text",
+      "share": "Chia sẻ"
+    },
+    "empty": {
+      "title": "Chưa có dữ liệu tháng này",
+      "subtitle": "Thêm giao dịch để tạo summary.",
+      "add_transaction": "Thêm giao dịch"
+    },
+    "bullets": {
+      "savings_rate": "Tỷ lệ tiết kiệm: {{rate}}%",
+      "budget_usage": "{{name}} dùng {{pct}}%",
+      "peak_day": "{{day}} chi nhiều nhất: {{amount}}₫",
+      "day_short": ["CN", "T2", "T3", "T4", "T5", "T6", "T7"]
+    },
+    "tooltip": {
+      "expense": "Chi tiêu"
+    },
+    "toast": {
+      "copy_done": "Đã copy nội dung summary",
+      "copy_failed": "Không thể copy",
+      "png_done": "Đã tạo ảnh monthly summary",
+      "pdf_done": "Đã tạo PDF summary"
+    }
+  },
+
+  "weekly_recap": {
+    "title": "Recap tuần của bạn",
+    "this_week": "Tuần này",
+    "last_week": "Tuần trước",
+    "truncation_warning": "Đang hiển thị {{shown}}/{{total}} giao dịch. Số liệu có thể chưa đầy đủ.",
+    "stats": {
+      "expense": "Chi tiêu",
+      "income": "Thu nhập",
+      "net": "Ròng",
+      "txn_count": "{{count}} giao dịch",
+      "surplus": "Dư",
+      "deficit": "Thiếu"
+    },
+    "highlights": {
+      "title": "Điểm nổi bật",
+      "count_badge": "{{count}} điểm"
+    },
+    "chart": {
+      "title": "Chi tiêu theo ngày",
+      "tooltip_label": "Chi tiêu"
+    },
+    "bullets": {
+      "top_category_headline": "Chi nhiều nhất: {{name}} {{amount}}₫ ({{pct}}%)",
+      "top_category_detail": "{{name}} chiếm {{pct}}% tổng chi tiêu trong tuần.",
+      "biggest_txn_headline": "Giao dịch lớn nhất: {{name}} {{amount}}₫",
+      "biggest_txn_detail": "{{name}} vào ngày {{date}}.",
+      "day_spike_headline": "Ngày chi nhiều nhất: {{day}} {{amount}}₫",
+      "day_spike_detail": "Bạn đã chi nhiều nhất vào {{day}} tuần này.",
+      "account_insight_headline": "{{account}} giảm {{amount}}₫ trong tuần",
+      "account_insight_detail": "Tài khoản {{account}} có biến động lớn nhất.",
+      "budget_warning_headline": "Ngân sách \"{{name}}\" đã dùng {{pct}}%",
+      "budget_warning_detail": "Đã chi {{spent}}₫ / {{limit}}₫ — hãy cân nhắc chi tiêu."
+    },
+    "day_names_short": ["CN", "T2", "T3", "T4", "T5", "T6", "T7"],
+    "day_names_full": ["Chủ nhật", "Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7"],
+    "bottom_actions": {
+      "share": "Chia sẻ recap",
+      "view_transactions": "Xem giao dịch tuần"
+    },
+    "share_sheet": {
+      "title": "Chia sẻ recap",
+      "poster_label": "Recap tuần",
+      "footer_app": "FinanceApp • Weekly Recap",
+      "download_png": "Tải ảnh (PNG)",
+      "copy_text": "Copy text"
+    },
+    "empty": {
+      "title": "Tuần này chưa có dữ liệu",
+      "subtitle": "Thêm giao dịch để xem recap tuần của bạn.",
+      "add_transaction": "Thêm giao dịch"
+    },
+    "toast": {
+      "copy_done": "Đã copy nội dung recap",
+      "copy_failed": "Không thể copy",
+      "png_done": "Đã tạo ảnh recap"
+    }
+  },
+
+  "share_recap": {
+    "back": "Quay lại",
+    "title": "Chia sẻ Recap",
+    "submit": "Đăng",
+    "submitting": "Đang đăng...",
+    "publish": "Đăng lên cộng đồng",
+    "source_section": "Chọn nguồn dữ liệu",
+    "preview_section": "Xem trước",
+    "safe_share_label": "Chia sẻ an toàn",
+    "caption_section": "Lời chia sẻ (tùy chọn)",
+    "caption_placeholder": "Thêm lời chia sẻ của bạn...",
+    "audience_section": "Ai có thể thấy?",
+    "templates": {
+      "weekly_label": "Recap tuần",
+      "weekly_description": "Tổng hợp thu chi 7 ngày gần nhất",
+      "monthly_label": "Tổng kết tháng",
+      "monthly_description": "Tổng hợp tài chính tháng này",
+      "goal_label": "Tiến độ mục tiêu",
+      "goal_no_data": "Chưa có mục tiêu nào",
+      "budget_label": "Tiến độ ngân sách",
+      "budget_no_data": "Chưa có ngân sách nào"
+    },
+    "template_data": {
+      "weekly_title": "Recap tuần {{week}}/{{year}}",
+      "monthly_title": "Tổng kết tháng {{month}}/{{year}}",
+      "monthly_period": "Tháng {{month}}/{{year}}",
+      "goal_title": "Mục tiêu: {{name}}",
+      "goal_fallback": "Quỹ khẩn cấp",
+      "budget_title": "Ngân sách: {{name}}",
+      "budget_fallback": "Ăn uống",
+      "budget_period": "Tháng {{month}}/{{year}}"
+    },
+    "stats_labels": {
+      "income": "Thu nhập",
+      "expense": "Chi tiêu",
+      "savings": "Tiết kiệm",
+      "total_income": "Tổng thu",
+      "total_expense": "Tổng chi",
+      "savings_rate": "Tỷ lệ tiết kiệm",
+      "saved": "Đã tiết kiệm",
+      "target": "Mục tiêu",
+      "remaining": "Còn lại",
+      "spent": "Đã chi",
+      "limit": "Giới hạn",
+      "net": "Ròng"
+    },
+    "privacy": {
+      "title": "Bảo mật thông tin",
+      "subtitle": "Chọn dữ liệu bạn muốn hiển thị",
+      "show_exact_amounts_label": "Hiển thị số tiền chính xác",
+      "show_exact_amounts_desc": "Mọi người sẽ thấy con số thật",
+      "show_percent_only_label": "Chỉ hiển thị phần trăm tiến độ",
+      "show_percent_only_desc": "Ẩn số tiền, chỉ hiện %",
+      "hide_sensitive_categories_label": "Ẩn danh mục nhạy cảm",
+      "hide_sensitive_categories_desc": "Ẩn các danh mục riêng tư",
+      "hide_account_info_label": "Ẩn thông tin tài khoản",
+      "hide_account_info_desc": "Không hiển thị tên tài khoản"
+    },
+    "safety_banner": {
+      "title": "Chia sẻ recap an toàn",
+      "description": "Recap được tạo tự động từ dữ liệu của bạn. Bạn có thể ẩn số tiền chính xác và chỉ hiển thị phần trăm tiến độ."
+    },
+    "default_caption": "Chia sẻ {{label}} của mình!",
+    "toast": {
+      "share_success": "Đã chia sẻ recap lên cộng đồng!",
+      "share_failed": "Không thể chia sẻ recap. Vui lòng thử lại."
+    }
+  }
+}

@@ -14,6 +14,9 @@ import viInsights from './locales/vi/insights.json';
 import viSettings from './locales/vi/settings.json';
 import viCommunity from './locales/vi/community.json';
 import viTagsRules from './locales/vi/tags-rules.json';
+import viReports from './locales/vi/reports.json';
+import viCategories from './locales/vi/categories.json';
+import viMerchants from './locales/vi/merchants.json';
 
 import enCommon from './locales/en/common.json';
 import enAuth from './locales/en/auth.json';
@@ -27,6 +30,9 @@ import enInsights from './locales/en/insights.json';
 import enSettings from './locales/en/settings.json';
 import enCommunity from './locales/en/community.json';
 import enTagsRules from './locales/en/tags-rules.json';
+import enReports from './locales/en/reports.json';
+import enCategories from './locales/en/categories.json';
+import enMerchants from './locales/en/merchants.json';
 
 i18n
   .use(LanguageDetector)
@@ -46,6 +52,9 @@ i18n
         settings: viSettings,
         community: viCommunity,
         tagsRules: viTagsRules,
+        reports: viReports,
+        categories: viCategories,
+        merchants: viMerchants,
       },
       en: {
         common: enCommon,
@@ -60,6 +69,9 @@ i18n
         settings: enSettings,
         community: enCommunity,
         tagsRules: enTagsRules,
+        reports: enReports,
+        categories: enCategories,
+        merchants: enMerchants,
       },
     },
     defaultNS: 'common',

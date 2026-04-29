@@ -1,0 +1,171 @@
+{
+  "list": {
+    "title": "Danh mục",
+    "subtitle": "Quản lý cây danh mục, trạng thái hiển thị và gộp danh mục.",
+    "add_button": "Thêm danh mục",
+    "summary": {
+      "total": "Tổng danh mục",
+      "active": "Đang hiển thị",
+      "hidden": "Đã ẩn",
+      "transactions": "Giao dịch"
+    },
+    "filters": {
+      "search_placeholder": "Tìm theo tên danh mục...",
+      "type_label": "Loại",
+      "type_all": "Tất cả loại",
+      "type_expense": "Chi tiêu",
+      "type_income": "Thu nhập",
+      "type_both": "Cả hai",
+      "visibility_label": "Trạng thái",
+      "visibility_all": "Tất cả trạng thái",
+      "visibility_active": "Đang hiển thị",
+      "visibility_hidden": "Đã ẩn",
+      "visibility_archived": "Đã lưu trữ",
+      "sort_by_label": "Sắp xếp theo",
+      "sort_sort_order": "Theo thứ tự",
+      "sort_name": "Theo tên",
+      "sort_usage": "Theo usage",
+      "sort_created_at": "Theo ngày tạo",
+      "order_asc": "Tăng dần",
+      "order_desc": "Giảm dần"
+    },
+    "row": {
+      "badge_hidden": "Đã ẩn",
+      "badge_children": "{{count}} mục con",
+      "direct_txns": "{{count}} giao dịch trực tiếp",
+      "total_txns": "{{count}} giao dịch toàn cây",
+      "usage_count": "{{count}} liên kết"
+    },
+    "type_labels": {
+      "expense": "Chi tiêu",
+      "income": "Thu nhập",
+      "both": "Cả hai"
+    },
+    "loading": "Đang tải danh sách danh mục...",
+    "empty": {
+      "title": "Chưa có danh mục nào",
+      "subtitle": "Tạo danh mục đầu tiên để bắt đầu phân loại giao dịch.",
+      "create_button": "Tạo danh mục"
+    },
+    "delete_modal": {
+      "title": "Xoá danh mục?",
+      "description": "Bạn có chắc muốn xoá danh mục \"{{name}}\"?",
+      "cascade_label": "Xoá kèm {{count}} danh mục con",
+      "confirm_deleting": "Đang xoá...",
+      "confirm": "Xoá",
+      "cancel": "Huỷ"
+    },
+    "visibility_modal": {
+      "show_title": "Hiện danh mục?",
+      "hide_title": "Ẩn danh mục?",
+      "show_description": "Bạn có chắc muốn hiện lại \"{{name}}\"?",
+      "hide_description": "Bạn có chắc muốn ẩn \"{{name}}\"?",
+      "confirm_updating": "Đang cập nhật...",
+      "confirm": "Xác nhận",
+      "cancel": "Huỷ"
+    },
+    "merge_modal": {
+      "title": "Gộp danh mục",
+      "description": "Chọn danh mục đích để gộp \"{{name}}\" vào.",
+      "loading_targets": "Đang tải danh sách danh mục đích...",
+      "destination_placeholder": "Chọn danh mục đích",
+      "cascade_note": "Hệ thống sẽ gộp cả danh mục con của mục nguồn.",
+      "confirm_merging": "Đang gộp...",
+      "confirm": "Gộp",
+      "cancel": "Huỷ"
+    },
+    "toast": {
+      "deleted": "Đã xoá danh mục \"{{name}}\"",
+      "delete_failed": "Không thể xoá danh mục",
+      "shown": "Đã hiện danh mục \"{{name}}\"",
+      "hidden": "Đã ẩn danh mục \"{{name}}\"",
+      "visibility_failed": "Không thể cập nhật trạng thái danh mục",
+      "merged": "Đã gộp danh mục \"{{name}}\"",
+      "merge_failed": "Không thể gộp danh mục",
+      "merge_load_failed": "Không thể tải dữ liệu gộp danh mục"
+    }
+  },
+
+  "form": {
+    "create_title": "Tạo danh mục mới",
+    "edit_title": "Chỉnh sửa danh mục",
+    "create_subtitle": "Thêm danh mục mới để phân loại giao dịch",
+    "edit_subtitle": "Cập nhật thông tin danh mục",
+    "back": "Quay lại",
+    "loading": "Đang tải dữ liệu danh mục...",
+    "load_error": "Không thể tải dữ liệu danh mục",
+    "basic_info_section": "Thông tin cơ bản",
+    "appearance_section": "Icon & màu sắc",
+    "preview_section": "Xem trước",
+    "fields": {
+      "name_label": "Tên danh mục",
+      "name_placeholder": "VD: Ăn sáng, Mua sắm...",
+      "type_label": "Loại danh mục",
+      "parent_label": "Danh mục cha",
+      "parent_no_parent": "Không có (danh mục gốc)",
+      "parent_hint": "Hiện tại chỉ cho chọn danh mục cha ở cấp gốc để tránh cấu trúc quá sâu.",
+      "active_label": "Đang hoạt động",
+      "active_hint": "Tắt đi nếu bạn muốn ẩn danh mục này khỏi các form chọn nhanh.",
+      "color_label": "Mã màu HEX",
+      "color_placeholder": "#ef4444"
+    },
+    "type_options": {
+      "expense": "Chi tiêu",
+      "income": "Thu nhập",
+      "both": "Cả hai"
+    },
+    "icon_picker": {
+      "show": "Chọn icon",
+      "hide": "Ẩn icon"
+    },
+    "color_picker": {
+      "show": "Chọn màu",
+      "hide": "Ẩn màu"
+    },
+    "preview": {
+      "name_placeholder": "Tên danh mục",
+      "has_parent": "Có danh mục cha",
+      "no_parent": "Danh mục gốc"
+    },
+    "icon_labels": {
+      "shopping": "Mua sắm",
+      "home": "Nhà ở",
+      "car": "Xe cộ",
+      "food": "Đồ ăn",
+      "coffee": "Cà phê",
+      "shirt": "Quần áo",
+      "health": "Sức khỏe",
+      "work": "Công việc",
+      "salary": "Lương",
+      "gift": "Quà tặng",
+      "investment": "Đầu tư",
+      "phone": "Điện thoại",
+      "travel": "Du lịch",
+      "education": "Giáo dục",
+      "entertainment": "Giải trí",
+      "movie": "Phim ảnh",
+      "fitness": "Thể dục",
+      "pet": "Thú cưng",
+      "baby": "Trẻ em",
+      "maintenance": "Bảo trì",
+      "utility": "Tiện ích",
+      "subscription": "Dịch vụ",
+      "delivery": "Giao hàng"
+    },
+    "actions": {
+      "cancel": "Huỷ",
+      "saving": "Đang lưu...",
+      "create": "Tạo danh mục",
+      "save": "Lưu thay đổi"
+    },
+    "errors": {
+      "name_required": "Vui lòng nhập tên danh mục",
+      "color_invalid": "Màu không hợp lệ (vd: #ef4444)"
+    },
+    "toast": {
+      "created": "Đã tạo danh mục mới",
+      "updated": "Đã cập nhật danh mục",
+      "save_failed": "Không thể lưu danh mục"
+    }
+  }
+}

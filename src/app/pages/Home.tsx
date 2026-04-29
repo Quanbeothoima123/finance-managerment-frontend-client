@@ -65,6 +65,14 @@ function addMonth(month: string, delta: number) {
   return `${next.getFullYear()}-${String(next.getMonth() + 1).padStart(2, "0")}`;
 }
 
+function getMonthDateRange(month: string) {
+  const [year, m] = month.split("-").map(Number);
+  const startDate = `${year}-${String(m).padStart(2, "0")}-01`;
+  const lastDay = new Date(year, m, 0).getDate();
+  const endDate = `${year}-${String(m).padStart(2, "0")}-${String(lastDay).padStart(2, "0")}`;
+  return { startDate, endDate };
+}
+
 function formatShortDate(value?: string | null) {
   if (!value) return "--";
   const date = new Date(value);
@@ -355,9 +363,7 @@ export default function Home() {
     return (
       <div className="min-h-screen bg-[var(--background)] p-4 md:p-6">
         <Card>
-          <p className="text-sm text-[var(--text-secondary)]">
-            {t("loading")}
-          </p>
+          <p className="text-sm text-[var(--text-secondary)]">{t("loading")}</p>
         </Card>
       </div>
     );
@@ -451,7 +457,12 @@ export default function Home() {
           </Card>
 
           <Card
-            onClick={() => navigate("/transactions?type=income")}
+            onClick={() => {
+              const { startDate, endDate } = getMonthDateRange(month);
+              navigate(
+                `/transactions?type=income&startDate=${startDate}&endDate=${endDate}`,
+              );
+            }}
             className="cursor-pointer hover:shadow-[var(--shadow-lg)] transition-shadow"
           >
             <div className="flex items-center justify-between">
@@ -483,7 +494,12 @@ export default function Home() {
           </Card>
 
           <Card
-            onClick={() => navigate("/transactions?type=expense")}
+            onClick={() => {
+              const { startDate, endDate } = getMonthDateRange(month);
+              navigate(
+                `/transactions?type=expense&startDate=${startDate}&endDate=${endDate}`,
+              );
+            }}
             className="cursor-pointer hover:shadow-[var(--shadow-lg)] transition-shadow"
           >
             <div className="flex items-center justify-between">

@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import {
   ArrowLeft,
   Share2,
@@ -35,7 +36,7 @@ import { useCategoriesList } from "../hooks/useCategoriesList";
 import { useBudgetsList } from "../hooks/useBudgetsList";
 import { useToast } from "../contexts/ToastContext";
 
-const fmt = (n: number) => new Intl.NumberFormat("vi-VN").format(Math.abs(n));
+const fmt = (n: number, loc = "vi-VN") => new Intl.NumberFormat(loc).format(Math.abs(n));
 
 const CATEGORY_COLORS = [
   "#ef4444",
@@ -64,6 +65,7 @@ function ShareSheet({
   onPng,
   onCopy,
   onPdf,
+  labels,
 }: {
   isOpen: boolean;
   onClose: () => void;
@@ -73,6 +75,11 @@ function ShareSheet({
   onPng: () => void;
   onCopy: () => void;
   onPdf: () => void;
+  labels: {
+    title: string; headerLabel: string; personalFinance: string;
+    expense: string; income: string; net: string;
+    downloadPng: string; downloadPdf: string; copyText: string;
+  };
 }) {
   if (!isOpen) return null;
   return (
@@ -86,7 +93,7 @@ function ShareSheet({
       >
         <div className="flex items-center justify-between mb-5">
           <h3 className="text-lg font-semibold text-[var(--text-primary)]">
-            Chia sẻ summary
+            {labels.title}
           </h3>
           <button
             onClick={onClose}
@@ -99,17 +106,17 @@ function ShareSheet({
         {/* Mini poster thumbnail */}
         <div className="rounded-[var(--radius-lg)] overflow-hidden border border-[var(--border)] mb-5 scale-[0.92] origin-top">
           <div className="bg-gradient-to-br from-[var(--primary)] to-[var(--primary-hover)] p-4 text-white">
-            <p className="text-[10px] text-white/60">Tổng kết tháng</p>
+            <p className="text-[10px] text-white/60">{labels.headerLabel}</p>
             <p className="text-sm font-semibold">{monthLabel}</p>
             <p className="text-[10px] text-white/50 mt-0.5">
-              Tài chính cá nhân
+              {labels.personalFinance}
             </p>
           </div>
           <div className="p-3 bg-[var(--card)]">
             <div className="grid grid-cols-3 gap-2 mb-3">
               <div className="text-center">
                 <p className="text-[9px] text-[var(--text-tertiary)]">
-                  Chi tiêu
+                  {labels.expense}
                 </p>
                 <p className="text-xs font-bold text-[var(--danger)] tabular-nums">
                   {fmt(metrics.spending)}₫
@@ -117,14 +124,14 @@ function ShareSheet({
               </div>
               <div className="text-center">
                 <p className="text-[9px] text-[var(--text-tertiary)]">
-                  Thu nhập
+                  {labels.income}
                 </p>
                 <p className="text-xs font-bold text-[var(--success)] tabular-nums">
                   {fmt(metrics.income)}₫
                 </p>
               </div>
               <div className="text-center">
-                <p className="text-[9px] text-[var(--text-tertiary)]">Ròng</p>
+                <p className="text-[9px] text-[var(--text-tertiary)]">{labels.net}</p>
                 <p
                   className={`text-xs font-bold tabular-nums ${metrics.net >= 0 ? "text-[var(--success)]" : "text-[var(--danger)]"}`}
                 >
@@ -158,7 +165,7 @@ function ShareSheet({
             className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white rounded-[var(--radius-lg)] font-medium transition-colors"
           >
             <Download className="w-4 h-4" />
-            <span>Tải ảnh (PNG)</span>
+            <span>{labels.downloadPng}</span>
           </button>
           <div className="grid grid-cols-2 gap-3">
             <button
@@ -166,14 +173,14 @@ function ShareSheet({
               className="flex items-center justify-center gap-2 px-4 py-2.5 border border-[var(--border)] text-[var(--text-primary)] rounded-[var(--radius-lg)] font-medium hover:bg-[var(--surface)] transition-colors text-sm"
             >
               <FileText className="w-4 h-4" />
-              <span>Tải PDF</span>
+              <span>{labels.downloadPdf}</span>
             </button>
             <button
               onClick={onCopy}
               className="flex items-center justify-center gap-2 px-4 py-2.5 border border-[var(--border)] text-[var(--text-primary)] rounded-[var(--radius-lg)] font-medium hover:bg-[var(--surface)] transition-colors text-sm"
             >
               <Copy className="w-4 h-4" />
-              <span>Copy text</span>
+              <span>{labels.copyText}</span>
             </button>
           </div>
         </div>
@@ -186,6 +193,8 @@ function ShareSheet({
 // MAIN
 // ═══════════════════════════════════════════════════════════════════════════
 export default function MonthlySummaryReport() {
+  const { t, i18n } = useTranslation('reports');
+  const locale = i18n.language === 'vi' ? 'vi-VN' : 'en-US';
   const now = new Date();
   const pad = (n: number) => String(n).padStart(2, "0");
   const [monthDate, setMonthDate] = useState(
@@ -198,7 +207,7 @@ export default function MonthlySummaryReport() {
   const year = monthDate.getFullYear();
   const month = monthDate.getMonth();
   const monthKey = `${year}-${pad(month + 1)}`;
-  const monthLabel = `Tháng ${pad(month + 1)}/${year}`;
+  const monthLabel = t('monthly_summary.poster.month_label', { month: pad(month + 1), year });
 
   const shiftMonth = (delta: number) => {
     const d = new Date(monthDate);
@@ -283,7 +292,7 @@ export default function MonthlySummaryReport() {
         totalSpending > 0 ? Math.round((topCat[1] / totalSpending) * 100) : 0;
       result.push({
         icon: <ShoppingBag className="w-4 h-4" />,
-        label: `${name} ${fmt(topCat[1])}₫ (${pct}%)`,
+        label: `${name} ${fmt(topCat[1], locale)}₫ (${pct}%)`,
         color: "text-[var(--primary)]",
       });
     }
@@ -295,13 +304,13 @@ export default function MonthlySummaryReport() {
     if (biggest) {
       result.push({
         icon: <Receipt className="w-4 h-4" />,
-        label: `${biggest.description || biggest.category?.name || "Giao dịch"} ${fmt(minor(biggest.totalAmountMinor))}₫`,
+        label: `${biggest.description || biggest.category?.name || t('monthly_summary.poster.header_label')} ${fmt(minor(biggest.totalAmountMinor), locale)}₫`,
         color: "text-[var(--warning)]",
       });
     }
 
     // Peak day
-    const DAYS = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"];
+    const DAYS = t('monthly_summary.bullets.day_short', { returnObjects: true }) as string[];
     const dayMap: Record<number, number> = {};
     expenses.forEach((t) => {
       const d = new Date(t.date || t.occurredAt).getDay();
@@ -311,7 +320,7 @@ export default function MonthlySummaryReport() {
     if (peak) {
       result.push({
         icon: <CalendarDays className="w-4 h-4" />,
-        label: `${DAYS[parseInt(peak[0])]} chi nhiều nhất: ${fmt(peak[1])}₫`,
+        label: t('monthly_summary.bullets.peak_day', { day: DAYS[parseInt(peak[0])], amount: fmt(peak[1], locale) }),
         color: "text-[var(--danger)]",
       });
     }
@@ -322,7 +331,7 @@ export default function MonthlySummaryReport() {
       if (b.progressPercent >= 50) {
         result.push({
           icon: <PiggyBank className="w-4 h-4" />,
-          label: `${b.name} dùng ${b.progressPercent}%`,
+          label: t('monthly_summary.bullets.budget_usage', { name: b.name, pct: b.progressPercent }),
           color:
             b.progressPercent >= 80
               ? "text-[var(--danger)]"
@@ -341,7 +350,7 @@ export default function MonthlySummaryReport() {
           ) : (
             <TrendingDown className="w-4 h-4" />
           ),
-        label: `Tỷ lệ tiết kiệm: ${savingsRate.toFixed(1)}%`,
+        label: t('monthly_summary.bullets.savings_rate', { rate: savingsRate.toFixed(1) }),
         color:
           savingsRate >= 0 ? "text-[var(--success)]" : "text-[var(--danger)]",
       });
@@ -355,6 +364,8 @@ export default function MonthlySummaryReport() {
     budgetData,
     totalIncome,
     savingsRate,
+    t,
+    locale,
   ]);
 
   // ── Top 3 categories with colors ──
@@ -395,7 +406,7 @@ export default function MonthlySummaryReport() {
           return td >= d && td <= weekEnd;
         })
         .reduce((s, t) => s + minor(t.totalAmountMinor), 0);
-      weeks.push({ label: `Tuần ${wk}`, amount });
+      weeks.push({ label: t('monthly_summary.poster.week_label', { n: wk }), amount });
       d = new Date(weekEnd);
       d.setDate(d.getDate() + 1);
       wk++;
@@ -418,23 +429,23 @@ export default function MonthlySummaryReport() {
       "",
       ...bullets.map((b) => `• ${b.label}`),
       "",
-      `Generated on ${new Date().toLocaleDateString("vi-VN")}`,
+      t('monthly_summary.poster.footer_generated', { date: new Date().toLocaleDateString(locale) }),
     ];
     navigator.clipboard
       .writeText(lines.join("\n"))
-      .then(() => toast.success("Đã copy nội dung summary"))
-      .catch(() => toast.error("Không thể copy"));
+      .then(() => toast.success(t('monthly_summary.toast.copy_done')))
+      .catch(() => toast.error(t('monthly_summary.toast.copy_failed')));
     setShowShare(false);
   }, [monthLabel, totalSpending, totalIncome, netBalance, bullets, toast]);
 
   const handlePng = useCallback(() => {
-    toast.success("Đã tạo ảnh monthly summary");
+    toast.success(t('monthly_summary.toast.png_done'));
     setShowShare(false);
-  }, [toast]);
+  }, [toast, t]);
   const handlePdf = useCallback(() => {
-    toast.success("Đã tạo PDF summary");
+    toast.success(t('monthly_summary.toast.pdf_done'));
     setShowShare(false);
-  }, [toast]);
+  }, [toast, t]);
 
   if (txnLoading) {
     return (
@@ -458,7 +469,7 @@ export default function MonthlySummaryReport() {
             </button>
             <div>
               <h1 className="text-xl font-semibold text-[var(--text-primary)]">
-                Monthly Summary
+                {t('monthly_summary.title')}
               </h1>
               <p className="text-sm text-[var(--text-secondary)]">
                 {monthLabel}
@@ -487,7 +498,7 @@ export default function MonthlySummaryReport() {
             }
             className={`px-3 py-1.5 rounded-[var(--radius-md)] text-xs font-medium border transition-colors ${isThisMonth ? "border-[var(--primary)] bg-[var(--primary-light)] text-[var(--primary)]" : "border-[var(--border)] text-[var(--text-secondary)] hover:border-[var(--text-tertiary)]"}`}
           >
-            Tháng này
+            {t('monthly_summary.this_month')}
           </button>
           <button
             onClick={() => {
@@ -501,7 +512,7 @@ export default function MonthlySummaryReport() {
             }}
             className={`px-3 py-1.5 rounded-[var(--radius-md)] text-xs font-medium border transition-colors ${isLastMonth ? "border-[var(--primary)] bg-[var(--primary-light)] text-[var(--primary)]" : "border-[var(--border)] text-[var(--text-secondary)] hover:border-[var(--text-tertiary)]"}`}
           >
-            Tháng trước
+            {t('monthly_summary.last_month')}
           </button>
           <div className="flex items-center ml-auto gap-1">
             <button
@@ -527,8 +538,10 @@ export default function MonthlySummaryReport() {
           <div className="flex items-center gap-2 px-4 py-2.5 bg-[var(--warning-light)] border border-[var(--warning)] text-[var(--warning)] rounded-[var(--radius-lg)] text-sm">
             <AlertTriangle className="w-4 h-4 shrink-0" />
             <span>
-              Đang hiển thị {txnData?.items?.length}/{txnData?.pagination?.total} giao dịch.
-              Số liệu có thể chưa đầy đủ.
+              {t('monthly_summary.truncation_warning', {
+                shown: txnData?.items?.length,
+                total: txnData?.pagination?.total,
+              })}
             </span>
           </div>
         )}
@@ -540,17 +553,17 @@ export default function MonthlySummaryReport() {
                 <CalendarDays className="w-8 h-8 text-[var(--text-tertiary)]" />
               </div>
               <h3 className="font-semibold text-[var(--text-primary)] mb-2">
-                Chưa có dữ liệu tháng này
+                {t('monthly_summary.empty.title')}
               </h3>
               <p className="text-sm text-[var(--text-secondary)] mb-6">
-                Thêm giao dịch để tạo summary.
+                {t('monthly_summary.empty.subtitle')}
               </p>
               <button
                 onClick={() => nav.goCreateTransaction()}
                 className="inline-flex items-center gap-2 px-4 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white rounded-[var(--radius-lg)] font-medium transition-colors"
               >
                 <Plus className="w-4 h-4" />
-                <span>Thêm giao dịch</span>
+                <span>{t('monthly_summary.empty.add_transaction')}</span>
               </button>
             </div>
           </Card>
@@ -559,9 +572,9 @@ export default function MonthlySummaryReport() {
           <div className="rounded-[var(--radius-xl)] overflow-hidden border border-[var(--border)] shadow-[var(--shadow-md)]">
             {/* Poster Header */}
             <div className="bg-gradient-to-br from-[var(--primary)] to-[var(--primary-hover)] p-6 text-white">
-              <p className="text-xs text-white/60 mb-1">Tổng kết tháng</p>
+              <p className="text-xs text-white/60 mb-1">{t('monthly_summary.poster.header_label')}</p>
               <h2 className="text-2xl font-bold">{monthLabel}</h2>
-              <p className="text-xs text-white/50 mt-1">Tài chính cá nhân</p>
+              <p className="text-xs text-white/50 mt-1">{t('monthly_summary.poster.personal_finance')}</p>
             </div>
 
             <div className="bg-[var(--card)] p-5 space-y-6">
@@ -569,7 +582,7 @@ export default function MonthlySummaryReport() {
               <div className="grid grid-cols-3 gap-4">
                 <div className="text-center p-3 rounded-[var(--radius-lg)] bg-[var(--danger-light)]">
                   <p className="text-[10px] text-[var(--text-tertiary)] mb-1">
-                    Chi tiêu
+                    {t('monthly_summary.stats.expense')}
                   </p>
                   <p className="text-lg font-bold text-[var(--danger)] tabular-nums">
                     {fmt(totalSpending)}₫
@@ -577,7 +590,7 @@ export default function MonthlySummaryReport() {
                 </div>
                 <div className="text-center p-3 rounded-[var(--radius-lg)] bg-[var(--success-light)]">
                   <p className="text-[10px] text-[var(--text-tertiary)] mb-1">
-                    Thu nhập
+                    {t('monthly_summary.stats.income')}
                   </p>
                   <p className="text-lg font-bold text-[var(--success)] tabular-nums">
                     {fmt(totalIncome)}₫
@@ -587,7 +600,7 @@ export default function MonthlySummaryReport() {
                   className={`text-center p-3 rounded-[var(--radius-lg)] ${netBalance >= 0 ? "bg-[var(--success-light)]" : "bg-[var(--danger-light)]"}`}
                 >
                   <p className="text-[10px] text-[var(--text-tertiary)] mb-1">
-                    Ròng
+                    {t('monthly_summary.stats.net')}
                   </p>
                   <p
                     className={`text-lg font-bold tabular-nums ${netBalance >= 0 ? "text-[var(--success)]" : "text-[var(--danger)]"}`}
@@ -602,7 +615,7 @@ export default function MonthlySummaryReport() {
               {bullets.length > 0 && (
                 <div>
                   <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-3">
-                    Điểm nổi bật
+                    {t('monthly_summary.poster.highlights_title')}
                   </h3>
                   <div className="space-y-2.5">
                     {bullets.map((b, i) => (
@@ -625,7 +638,7 @@ export default function MonthlySummaryReport() {
               {top3Cats.length > 0 && (
                 <div>
                   <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-3">
-                    Top danh mục
+                    {t('monthly_summary.poster.top_categories_title')}
                   </h3>
                   <div className="space-y-3">
                     {top3Cats.map((cat, i) => (
@@ -662,7 +675,7 @@ export default function MonthlySummaryReport() {
               {weeklyChart.length > 0 && (
                 <div>
                   <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-3">
-                    Chi tiêu theo tuần
+                    {t('monthly_summary.poster.weekly_chart_title')}
                   </h3>
                   <div className="h-40">
                     <ResponsiveContainer width="100%" height="100%">
@@ -703,7 +716,7 @@ export default function MonthlySummaryReport() {
                             borderRadius: "var(--radius-lg)",
                             fontSize: 12,
                           }}
-                          formatter={(v: number) => [`${fmt(v)}₫`, "Chi tiêu"]}
+                          formatter={(v: number) => [`${fmt(v, locale)}₫`, t('monthly_summary.tooltip.expense')]}
                         />
                         <Bar
                           key="bar-amount"
@@ -731,10 +744,10 @@ export default function MonthlySummaryReport() {
               {/* Footer */}
               <div className="pt-4 border-t border-[var(--divider)] flex items-center justify-between">
                 <span className="text-[10px] text-[var(--text-tertiary)]">
-                  FinanceApp
+                  {t('monthly_summary.poster.footer_app')}
                 </span>
                 <span className="text-[10px] text-[var(--text-tertiary)]">
-                  Generated on {new Date().toLocaleDateString("vi-VN")}
+                  {t('monthly_summary.poster.footer_generated', { date: new Date().toLocaleDateString(locale) })}
                 </span>
               </div>
             </div>
@@ -749,21 +762,21 @@ export default function MonthlySummaryReport() {
               className="flex items-center justify-center gap-2 px-4 py-3 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white rounded-[var(--radius-lg)] font-medium transition-colors"
             >
               <Download className="w-4 h-4" />
-              <span>Tải ảnh (PNG)</span>
+              <span>{t('monthly_summary.bottom_actions.download_png')}</span>
             </button>
             <button
               onClick={handleCopyText}
               className="flex items-center justify-center gap-2 px-4 py-3 border border-[var(--border)] text-[var(--text-primary)] rounded-[var(--radius-lg)] font-medium hover:bg-[var(--surface)] transition-colors"
             >
               <Copy className="w-4 h-4" />
-              <span>Copy text</span>
+              <span>{t('monthly_summary.bottom_actions.copy_text')}</span>
             </button>
             <button
               onClick={() => setShowShare(true)}
               className="flex items-center justify-center gap-2 px-4 py-3 border border-[var(--border)] text-[var(--text-primary)] rounded-[var(--radius-lg)] font-medium hover:bg-[var(--surface)] transition-colors col-span-2 md:col-span-1"
             >
               <Share2 className="w-4 h-4" />
-              <span>Chia sẻ</span>
+              <span>{t('monthly_summary.bottom_actions.share')}</span>
             </button>
           </div>
         )}
@@ -781,6 +794,17 @@ export default function MonthlySummaryReport() {
           onPng={handlePng}
           onCopy={handleCopyText}
           onPdf={handlePdf}
+          labels={{
+            title: t('monthly_summary.share_sheet.title'),
+            headerLabel: t('monthly_summary.poster.header_label'),
+            personalFinance: t('monthly_summary.poster.personal_finance'),
+            expense: t('monthly_summary.stats.expense'),
+            income: t('monthly_summary.stats.income'),
+            net: t('monthly_summary.stats.net'),
+            downloadPng: t('monthly_summary.share_sheet.download_png'),
+            downloadPdf: t('monthly_summary.share_sheet.download_pdf'),
+            copyText: t('monthly_summary.share_sheet.copy_text'),
+          }}
         />
       </div>
     </div>

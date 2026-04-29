@@ -6,6 +6,40 @@
     "budgets": "Budgets",
     "more": "More"
   },
+  "sidebar": {
+    "brand_tagline": "Personal Finance",
+    "nav": {
+      "home": "Home",
+      "transactions": "Transactions",
+      "accounts": "Accounts",
+      "categories": "Categories",
+      "tags": "Tags",
+      "merchants": "Merchants",
+      "budgets": "Budgets",
+      "goals": "Goals",
+      "insights": "Reports",
+      "auto_rules": "Auto Rules",
+      "recurring": "Recurring",
+      "attachments": "Attachments",
+      "export": "Export Data",
+      "settings": "Settings",
+      "about": "About",
+      "community": "Community"
+    },
+    "sections": {
+      "accounts": "Accounts",
+      "categories": "Categories",
+      "planning": "Planning",
+      "insights": "Analytics",
+      "automation": "Automation",
+      "community": "Community",
+      "other": "More"
+    },
+    "user_menu": {
+      "settings": "Settings",
+      "logout": "Log out"
+    }
+  },
   "actions": {
     "save": "Save",
     "save_changes": "Save Changes",

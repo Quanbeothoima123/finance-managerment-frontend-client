@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { ChevronRight, Edit2, Plus, Search, Store, Trash2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Card } from "../components/Card";
 import { Button } from "../components/Button";
 import { ConfirmationModal } from "../components/ConfirmationModals";
@@ -14,11 +15,10 @@ function formatMoney(value?: string | number | null) {
   return new Intl.NumberFormat("vi-VN").format(Number(value || 0));
 }
 
-function formatDate(value?: string | null) {
-  if (!value) return "Chưa có";
+function formatDateValue(value: string, locale: string) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
-  return new Intl.DateTimeFormat("vi-VN", {
+  return new Intl.DateTimeFormat(locale, {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
@@ -38,6 +38,9 @@ function MerchantCard({
   onDelete: () => void;
   onViewTransactions: () => void;
 }) {
+  const { t, i18n } = useTranslation('merchants');
+  const locale = i18n.language === 'vi' ? 'vi-VN' : 'en-US';
+
   return (
     <Card
       className="cursor-pointer hover:shadow-[var(--shadow-lg)] transition-shadow"
@@ -56,12 +59,12 @@ function MerchantCard({
               </p>
               {merchant.isHidden && (
                 <span className="text-[10px] px-2 py-0.5 rounded-full bg-[var(--surface)] border border-[var(--border)] text-[var(--text-tertiary)]">
-                  Đã ẩn
+                  {t('list.card.badge_hidden')}
                 </span>
               )}
             </div>
             <p className="text-xs text-[var(--text-secondary)] mt-1 truncate">
-              {merchant.categoryName || "Chưa đặt danh mục mặc định"}
+              {merchant.categoryName || t('list.card.no_default_category')}
             </p>
           </div>
         </div>
@@ -71,21 +74,23 @@ function MerchantCard({
 
       <div className="grid grid-cols-3 gap-3 text-center mb-3">
         <div>
-          <p className="text-xs text-[var(--text-tertiary)]">Sử dụng</p>
+          <p className="text-xs text-[var(--text-tertiary)]">{t('list.card.stat_usage')}</p>
           <p className="text-sm font-semibold text-[var(--text-primary)] tabular-nums mt-1">
             {merchant.transactionCount}
           </p>
         </div>
         <div>
-          <p className="text-xs text-[var(--text-tertiary)]">Tổng chi</p>
+          <p className="text-xs text-[var(--text-tertiary)]">{t('list.card.stat_total_spent')}</p>
           <p className="text-sm font-semibold text-[var(--text-primary)] tabular-nums mt-1">
             {formatMoney(merchant.totalSpentMinor)}₫
           </p>
         </div>
         <div>
-          <p className="text-xs text-[var(--text-tertiary)]">Gần nhất</p>
+          <p className="text-xs text-[var(--text-tertiary)]">{t('list.card.stat_last_used')}</p>
           <p className="text-sm font-semibold text-[var(--text-primary)] mt-1">
-            {formatDate(merchant.lastTransactionAt)}
+            {merchant.lastTransactionAt
+              ? formatDateValue(merchant.lastTransactionAt, locale)
+              : t('list.card.date_never')}
           </p>
         </div>
       </div>
@@ -98,7 +103,7 @@ function MerchantCard({
           }}
           className="text-sm font-medium text-[var(--primary)] hover:underline"
         >
-          Xem giao dịch
+          {t('list.card.view_transactions')}
         </button>
 
         <div className="flex items-center gap-2">
@@ -127,6 +132,7 @@ function MerchantCard({
 }
 
 export default function MerchantsList() {
+  const { t } = useTranslation('merchants');
   const nav = useAppNavigation();
   const toast = useToast();
 
@@ -166,12 +172,12 @@ export default function MerchantsList() {
     try {
       setDeleting(true);
       await merchantsService.deleteMerchant(deleteTarget.id);
-      toast.success(`Đã xoá merchant "${deleteTarget.name}"`);
+      toast.success(t('list.toast.deleted', { name: deleteTarget.name }));
       setDeleteTarget(null);
       await reload();
     } catch (err) {
       toast.error(
-        err instanceof Error ? err.message : "Không thể xoá merchant",
+        err instanceof Error ? err.message : t('list.toast.delete_failed'),
       );
     } finally {
       setDeleting(false);
@@ -184,23 +190,23 @@ export default function MerchantsList() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl font-semibold text-[var(--text-primary)]">
-              Nhà cung cấp
+              {t('list.title')}
             </h1>
             <p className="text-sm text-[var(--text-secondary)] mt-1">
-              Quản lý merchant để tự động gợi ý và phân loại giao dịch.
+              {t('list.subtitle')}
             </p>
           </div>
 
           <Button onClick={nav.goCreateMerchant}>
             <Plus className="w-4 h-4" />
-            Thêm merchant
+            {t('list.add_button')}
           </Button>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card>
             <p className="text-sm text-[var(--text-secondary)] mb-1">
-              Tổng merchant
+              {t('list.summary.total')}
             </p>
             <p className="text-2xl font-semibold text-[var(--text-primary)] tabular-nums">
               {summary.total}
@@ -209,7 +215,7 @@ export default function MerchantsList() {
 
           <Card>
             <p className="text-sm text-[var(--text-secondary)] mb-1">
-              Tổng sử dụng
+              {t('list.summary.total_usage')}
             </p>
             <p className="text-2xl font-semibold text-[var(--text-primary)] tabular-nums">
               {summary.totalUsage}
@@ -218,7 +224,7 @@ export default function MerchantsList() {
 
           <Card>
             <p className="text-sm text-[var(--text-secondary)] mb-1">
-              Tổng chi
+              {t('list.summary.total_spent')}
             </p>
             <p className="text-2xl font-semibold text-[var(--text-primary)] tabular-nums">
               {formatMoney(summary.totalSpentMinor)}₫
@@ -227,7 +233,7 @@ export default function MerchantsList() {
 
           <Card>
             <p className="text-sm text-[var(--text-secondary)] mb-1">
-              Chưa có mặc định
+              {t('list.summary.no_default_category')}
             </p>
             <p className="text-2xl font-semibold text-[var(--text-primary)] tabular-nums">
               {summary.noDefaultCategoryCount}
@@ -241,7 +247,7 @@ export default function MerchantsList() {
               <Search className="w-4 h-4 text-[var(--text-tertiary)] absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
-                placeholder="Tìm theo tên merchant..."
+                placeholder={t('list.filters.search_placeholder')}
                 value={searchQuery}
                 onChange={(event) => setSearchQuery(event.target.value)}
                 className="w-full pl-10 pr-4 py-2.5 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-lg)]"
@@ -254,7 +260,7 @@ export default function MerchantsList() {
                 onChange={(event) => setCategoryId(event.target.value)}
                 className="w-full px-4 py-2.5 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-lg)]"
               >
-                <option value="">Tất cả danh mục</option>
+                <option value="">{t('list.filters.category_all')}</option>
                 {(metaData?.categories || []).map((category) => (
                   <option key={category.id} value={category.id}>
                     {category.name}
@@ -273,9 +279,9 @@ export default function MerchantsList() {
                 }
                 className="w-full px-4 py-2.5 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-lg)]"
               >
-                <option value="visible">Đang hiển thị</option>
-                <option value="hidden">Đã ẩn</option>
-                <option value="all">Tất cả</option>
+                <option value="visible">{t('list.filters.visibility_visible')}</option>
+                <option value="hidden">{t('list.filters.visibility_hidden')}</option>
+                <option value="all">{t('list.filters.visibility_all')}</option>
               </select>
             </div>
           </div>
@@ -295,11 +301,11 @@ export default function MerchantsList() {
               }}
               className="w-full md:w-auto px-4 py-2.5 bg-[var(--input-background)] border border-[var(--border)] rounded-[var(--radius-lg)]"
             >
-              <option value="usage:desc">Dùng nhiều nhất</option>
-              <option value="spent:desc">Chi nhiều nhất</option>
-              <option value="recent:desc">Dùng gần nhất</option>
-              <option value="name:asc">Tên A-Z</option>
-              <option value="createdAt:desc">Tạo mới nhất</option>
+              <option value="usage:desc">{t('list.filters.sort_usage_desc')}</option>
+              <option value="spent:desc">{t('list.filters.sort_spent_desc')}</option>
+              <option value="recent:desc">{t('list.filters.sort_recent_desc')}</option>
+              <option value="name:asc">{t('list.filters.sort_name_asc')}</option>
+              <option value="createdAt:desc">{t('list.filters.sort_created_desc')}</option>
             </select>
           </div>
         </Card>
@@ -307,7 +313,7 @@ export default function MerchantsList() {
         {loading && (
           <Card>
             <p className="text-sm text-[var(--text-secondary)]">
-              Đang tải danh sách merchant...
+              {t('list.loading')}
             </p>
           </Card>
         )}
@@ -325,15 +331,14 @@ export default function MerchantsList() {
                 <Store className="w-6 h-6 text-[var(--text-tertiary)]" />
               </div>
               <h3 className="text-lg font-semibold text-[var(--text-primary)]">
-                Chưa có merchant nào
+                {t('list.empty.title')}
               </h3>
               <p className="text-sm text-[var(--text-secondary)] mt-2 mb-5">
-                Tạo merchant để gán category mặc định và dùng lại trong form
-                giao dịch.
+                {t('list.empty.subtitle')}
               </p>
               <Button onClick={nav.goCreateMerchant}>
                 <Plus className="w-4 h-4" />
-                Tạo merchant đầu tiên
+                {t('list.empty.create_button')}
               </Button>
             </div>
           </Card>
@@ -361,10 +366,10 @@ export default function MerchantsList() {
         isOpen={Boolean(deleteTarget)}
         onClose={() => setDeleteTarget(null)}
         onConfirm={() => void handleDelete()}
-        title="Xoá merchant?"
-        description={`Bạn có chắc muốn xoá merchant "${deleteTarget?.name || ""}"?`}
-        confirmLabel={deleting ? "Đang xoá..." : "Xoá"}
-        cancelLabel="Huỷ"
+        title={t('list.delete_modal.title')}
+        description={t('list.delete_modal.description', { name: deleteTarget?.name || "" })}
+        confirmLabel={deleting ? t('list.delete_modal.confirm_deleting') : t('list.delete_modal.confirm')}
+        cancelLabel={t('list.delete_modal.cancel')}
         isDangerous
       />
     </div>

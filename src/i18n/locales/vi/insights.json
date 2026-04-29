@@ -1,1 +1,218 @@
-{}
+{
+  "overview": {
+    "title": "Thống kê & Báo cáo",
+    "subtitle": "Phân tích chi tiêu và tài chính",
+    "export_csv": "Xuất CSV",
+    "truncation_warning": "Đang hiển thị {{shown}}/{{total}} giao dịch. Số liệu có thể chưa đầy đủ.",
+    "month_short": "T{{n}}",
+    "summary": {
+      "total_spending": "Tổng chi tiêu",
+      "avg_daily": "Trung bình/ngày",
+      "avg_daily_projection": "Dự kiến: {{amount}}/tháng",
+      "savings_rate": "Tỷ lệ tiết kiệm",
+      "savings_label": "Tiết kiệm",
+      "overspend_label": "Vượt chi",
+      "vs_prev_month": "so với tháng trước"
+    },
+    "weekly_recap": {
+      "title": "Recap tuần",
+      "badge": "3\u20135 điểm nổi bật",
+      "spending": "Chi tiêu",
+      "income": "Thu nhập",
+      "net": "Ròng",
+      "no_data": "Tuần này chưa có dữ liệu",
+      "add_transaction": "Thêm giao dịch",
+      "view_recap": "Xem recap",
+      "share": "Chia sẻ",
+      "other": "Khác",
+      "bullet_top_category": "Chi nhiều nhất: {{name}} {{amount}} ({{percent}}%)",
+      "bullet_biggest_txn": "Giao dịch lớn nhất: {{name}} {{amount}}",
+      "bullet_peak_day": "Ngày chi nhiều nhất: {{day}} {{amount}}",
+      "days": {
+        "0": "Chủ nhật",
+        "1": "Thứ 2",
+        "2": "Thứ 3",
+        "3": "Thứ 4",
+        "4": "Thứ 5",
+        "5": "Thứ 6",
+        "6": "Thứ 7"
+      }
+    },
+    "spending_trend": {
+      "title": "Xu hướng chi tiêu",
+      "tooltip_label": "Chi tiêu",
+      "vs_prev_month": "so với tháng trước"
+    },
+    "top_categories": {
+      "title": "Danh mục chi tiêu",
+      "no_data": "Chưa có dữ liệu",
+      "uncategorized": "Không danh mục",
+      "other": "Khác"
+    },
+    "income_expense": {
+      "title": "Thu nhập & Chi tiêu",
+      "income_label": "Thu nhập",
+      "expense_label": "Chi tiêu"
+    },
+    "account_distribution": {
+      "title": "Phân bổ tài khoản",
+      "tooltip_label": "Số dư"
+    },
+    "error": {
+      "title": "Không thể tải dữ liệu",
+      "retry": "Thử lại"
+    },
+    "csv": {
+      "header": "Ngày,Mô tả,Danh mục,Tài khoản,Loại,Số tiền",
+      "type_income": "Thu nhập",
+      "type_expense": "Chi tiêu",
+      "filename": "thong-ke-{{year}}-{{month}}",
+      "success": "Đã xuất {{count}} giao dịch ra file CSV"
+    },
+    "account_types": {
+      "bank": "Ngân hàng",
+      "cash": "Tiền mặt",
+      "credit_card": "Tín dụng",
+      "e_wallet": "Ví điện tử",
+      "investment": "Đầu tư",
+      "savings": "Tiết kiệm"
+    }
+  },
+
+  "cashflow": {
+    "title": "Dòng tiền",
+    "subtitle": "Biến động số dư và luồng tiền vào ra",
+    "back": "Quay lại",
+    "loading": "Đang tải...",
+    "truncation_warning": "Đang hiển thị {{shown}}/{{total}} giao dịch. Số liệu có thể chưa đầy đủ.",
+    "view_type": {
+      "label": "Chế độ xem",
+      "balance": "Số dư",
+      "netflow": "Dòng tiền ròng"
+    },
+    "filters": {
+      "start_date_label": "Từ ngày",
+      "end_date_label": "Đến ngày",
+      "account_label": "Tài khoản",
+      "all_accounts": "Tất cả tài khoản",
+      "tag_label": "Thẻ"
+    },
+    "balance_stats": {
+      "start_balance": "Số dư đầu kỳ",
+      "end_balance": "Số dư cuối kỳ",
+      "change": "Thay đổi"
+    },
+    "netflow_stats": {
+      "total_inflow": "Tổng tiền vào",
+      "total_outflow": "Tổng tiền ra",
+      "net_flow": "Dòng tiền ròng"
+    },
+    "chart": {
+      "balance_title": "Biến động số dư",
+      "balance_subtitle": "Theo dõi số dư tài khoản theo thời gian",
+      "netflow_title": "Dòng tiền ròng hàng ngày",
+      "netflow_subtitle": "Phân tích luồng tiền vào ra hàng ngày",
+      "no_data": "Không có dữ liệu trong khoảng thời gian này",
+      "balance_legend": "Số dư",
+      "netflow_legend": "Dòng tiền ròng",
+      "tooltip_balance": "Số dư",
+      "tooltip_netflow": "Dòng tiền"
+    },
+    "insight": {
+      "title": "Phân tích",
+      "balance_increased": "Số dư của bạn đã tăng {{amount}} ({{percent}}%) trong khoảng thời gian này.",
+      "balance_decreased": "Số dư của bạn đã giảm {{amount}} ({{percent}}%) trong khoảng thời gian này.",
+      "balance_negative_tip": "Hãy xem xét chi tiêu của bạn để duy trì tài chính ổn định.",
+      "netflow_summary": "Dòng tiền ròng của bạn là {{amount}}.",
+      "netflow_positive": "Tốt lắm! Bạn đang có dòng tiền dương trong kỳ này.",
+      "netflow_negative": "Chi tiêu đang cao hơn thu nhập. Hãy xem xét điều chỉnh ngân sách."
+    },
+    "error": {
+      "load_failed": "Không thể tải dữ liệu",
+      "retry": "Thử lại"
+    }
+  },
+
+  "category_breakdown": {
+    "title": "Phân tích danh mục",
+    "subtitle": "Chi tiết chi tiêu theo từng danh mục",
+    "back": "Quay lại",
+    "truncation_warning": "Đang hiển thị {{shown}}/{{total}} giao dịch. Số liệu có thể chưa đầy đủ.",
+    "filters": {
+      "month_label": "Tháng",
+      "account_label": "Tài khoản",
+      "all_accounts": "Tất cả tài khoản",
+      "chart_label": "Loại biểu đồ",
+      "tag_label": "Thẻ",
+      "chart_types": {
+        "pie": "Tròn",
+        "bar": "Cột"
+      }
+    },
+    "month_option": "Tháng {{month}}, {{year}}",
+    "summary": {
+      "total_spending": "Tổng chi tiêu",
+      "transaction_count": "Số giao dịch",
+      "avg_per_transaction": "Trung bình/giao dịch"
+    },
+    "chart": {
+      "pie_title": "Phân bổ theo danh mục",
+      "bar_title": "Chi tiêu theo danh mục",
+      "tooltip_label": "Chi tiêu",
+      "no_data": "Không có dữ liệu cho tháng này"
+    },
+    "list": {
+      "title": "Chi tiết danh mục",
+      "transactions_suffix": "giao dịch",
+      "no_category": "Không danh mục"
+    },
+    "error": {
+      "load_failed": "Không thể tải dữ liệu",
+      "retry": "Thử lại"
+    }
+  },
+
+  "account_breakdown": {
+    "title": "Phân tích tài khoản",
+    "subtitle": "Phân tích chi tiêu, thu nhập và số dư theo tài khoản",
+    "back": "Quay lại",
+    "truncation_warning": "Đang hiển thị {{shown}}/{{total}} giao dịch. Số liệu có thể chưa đầy đủ.",
+    "filters": {
+      "date_range_label": "Khoảng thời gian",
+      "account_label": "Tài khoản",
+      "all_accounts": "Tất cả tài khoản",
+      "date_ranges": {
+        "this-month": "Tháng này",
+        "last-month": "Tháng trước",
+        "last-3-months": "3 tháng qua",
+        "last-6-months": "6 tháng qua",
+        "this-year": "Năm nay"
+      }
+    },
+    "account_types": {
+      "bank": "Ngân hàng",
+      "cash": "Tiền mặt",
+      "credit_card": "Tín dụng",
+      "e_wallet": "Ví điện tử",
+      "investment": "Đầu tư",
+      "savings": "Tiết kiệm"
+    },
+    "summary": {
+      "total_balance": "Tổng số dư",
+      "total_income": "Tổng thu nhập",
+      "total_expense": "Tổng chi tiêu",
+      "net_flow": "Dòng tiền ròng"
+    },
+    "chart": {
+      "title": "So sánh tài khoản",
+      "income_label": "Thu nhập",
+      "expense_label": "Chi tiêu",
+      "tooltip_balance": "Số dư",
+      "no_data": "Không có dữ liệu"
+    },
+    "error": {
+      "load_failed": "Không thể tải dữ liệu",
+      "retry": "Thử lại"
+    }
+  }
+}

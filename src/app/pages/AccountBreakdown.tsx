@@ -47,9 +47,11 @@ interface AccountItemProps {
 }
 
 function AccountItem({ account }: AccountItemProps) {
-  const { t } = useTranslation("accounts");
+  const { t, i18n } = useTranslation("accounts");
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("vi-VN").format(amount);
+    return new Intl.NumberFormat(
+      i18n.language === "vi" ? "vi-VN" : "en-US",
+    ).format(amount);
   };
 
   return (
@@ -104,7 +106,7 @@ function AccountItem({ account }: AccountItemProps) {
 export default function AccountBreakdown() {
   const [dateRange, setDateRange] = useState("this-month");
   const nav = useAppNavigation();
-  const { t } = useTranslation("accounts");
+  const { t, i18n } = useTranslation("accounts");
 
   const ACCOUNT_TYPE_LABELS: Record<string, string> = {
     bank: t("breakdown.account_types.bank"),
@@ -136,7 +138,9 @@ export default function AccountBreakdown() {
   };
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("vi-VN").format(amount);
+    return new Intl.NumberFormat(
+      i18n.language === "vi" ? "vi-VN" : "en-US",
+    ).format(amount);
   };
 
   // Get date range bounds
@@ -188,8 +192,8 @@ export default function AccountBreakdown() {
   const accountData: AccountDisplayData[] = useMemo(() => {
     return accounts.map((acc) => {
       const netFlow = transactions
-        .filter((t) => t.account?.id === acc.id)
-        .reduce((sum, t) => sum + minor(t.signedAmountMinor), 0);
+        .filter((txn) => txn.account?.id === acc.id)
+        .reduce((sum, txn) => sum + minor(txn.signedAmountMinor), 0);
 
       const currentBalance = minor(acc.currentBalanceMinor);
       const previousBalance = currentBalance - netFlow;
