@@ -1,1 +1,354 @@
-{}
+{
+  "feed": {
+    "title": "Cộng đồng",
+    "tabs": {
+      "for_you": "Dành cho bạn",
+      "following": "Đang theo dõi"
+    },
+    "topic_filter_all": "Tất cả",
+    "empty": {
+      "title": "Chưa có bài viết nào",
+      "description_following": "Hãy theo dõi những người dùng khác để thấy bài viết của họ.",
+      "description_default": "Chưa có bài viết nào phù hợp với bộ lọc của bạn.",
+      "discover_action": "Khám phá cộng đồng"
+    }
+  },
+
+  "discover": {
+    "title": "Khám phá",
+    "search_placeholder": "Tìm kiếm bài viết, chủ đề...",
+    "search_tabs": {
+      "posts": "Bài viết",
+      "topics": "Chủ đề"
+    },
+    "recent_searches": {
+      "title": "Tìm kiếm gần đây",
+      "clear_all": "Xóa tất cả"
+    },
+    "suggested_searches": {
+      "title": "Gợi ý tìm kiếm"
+    },
+    "suggested_search_terms": [
+      "tiết kiệm mua nhà",
+      "ngân sách sinh viên",
+      "quy tắc 50/30/20",
+      "quỹ khẩn cấp",
+      "meal prep"
+    ],
+    "trending_topics": {
+      "title": "Chủ đề nổi bật",
+      "posts_count": "{{count}} bài viết"
+    },
+    "trending_posts": {
+      "title": "Bài viết xu hướng"
+    },
+    "no_results": {
+      "title": "Không tìm thấy kết quả",
+      "description": "Không có kết quả nào phù hợp với \"{{query}}\". Thử tìm với từ khóa khác."
+    },
+    "no_posts": "Không có bài viết phù hợp",
+    "no_topics": "Không tìm thấy chủ đề"
+  },
+
+  "create_post": {
+    "title": "Tạo bài viết",
+    "cancel": "Hủy",
+    "post_button": "Đăng",
+    "save_draft_button": "Lưu nháp",
+    "post_types": {
+      "article": "Bài viết",
+      "photo": "Ảnh",
+      "recap": "Recap",
+      "milestone": "Cột mốc",
+      "question": "Câu hỏi"
+    },
+    "placeholders": {
+      "article": "Chia sẻ kinh nghiệm quản lý tài chính của bạn...",
+      "photo": "Thêm mô tả cho ảnh...",
+      "recap": "Chia sẻ cảm nghĩ về kết quả tài chính tuần/tháng này...",
+      "milestone": "Chia sẻ cột mốc tài chính bạn đã đạt được...",
+      "question": "Bạn muốn hỏi gì về tài chính..."
+    },
+    "audience": {
+      "label": "Ai có thể thấy bài viết này?",
+      "close": "Đóng",
+      "public": "Công khai",
+      "followers": "Người theo dõi",
+      "private": "Riêng tư"
+    },
+    "image_upload": {
+      "add_image": "Thêm ảnh",
+      "uploading": "Đang tải ảnh lên...",
+      "choose_image": "Chọn ảnh để tải lên",
+      "max_hint": "Tối đa 5 ảnh, mỗi ảnh không quá 10MB",
+      "max_error": "Tối đa 5 ảnh cho mỗi bài viết",
+      "upload_failed": "Upload ảnh thất bại"
+    },
+    "recap_attach": {
+      "section_label": "Recap đính kèm",
+      "customize": "Tùy chỉnh",
+      "attach_recap": "Đính kèm Recap",
+      "attach_progress": "Đính kèm tiến độ",
+      "card_hint": "Tạo card từ dữ liệu của bạn",
+      "customize_recap": "Tùy chỉnh Recap",
+      "customize_hint": "Chọn dữ liệu hiển thị",
+      "detach_toast": "Đã gỡ recap đính kèm",
+      "attach_toast": "Đã đính kèm recap tài chính"
+    },
+    "topics_section": "Chủ đề",
+    "preview": {
+      "back": "← Chỉnh sửa",
+      "title": "Xem trước",
+      "just_now": "Vừa xong",
+      "footer_hint": "Đây là cách bài viết sẽ hiển thị trong cộng đồng"
+    },
+    "toast": {
+      "posted": "Bài viết đã được đăng thành công!",
+      "draft_saved": "Đã lưu bản nháp!",
+      "draft_save_info": "Đã lưu bản nháp",
+      "post_failed": "Không thể đăng bài viết",
+      "draft_failed": "Không thể lưu bản nháp"
+    }
+  },
+
+  "post_detail": {
+    "title": "Bài viết",
+    "loading": "Đang tải...",
+    "not_found": {
+      "title": "Bài viết không tồn tại",
+      "description": "Bài viết này có thể đã bị xóa hoặc không khả dụng.",
+      "back_button": "Quay lại"
+    },
+    "stats": {
+      "likes": "{{count}} lượt thích",
+      "comments": "{{count}} bình luận",
+      "saves": "{{count}} đã lưu",
+      "shares": "{{count}} chia sẻ"
+    },
+    "actions": {
+      "like": "Thích",
+      "comment": "Bình luận",
+      "save": "Lưu",
+      "share": "Chia sẻ"
+    },
+    "comments": {
+      "section_title": "Bình luận ({{count}})",
+      "empty_title": "Chưa có bình luận nào",
+      "empty_hint": "Hãy là người đầu tiên chia sẻ ý kiến!",
+      "reply": "Trả lời",
+      "like": "Thích",
+      "input_placeholder": "Viết bình luận...",
+      "send_success": "Đã gửi bình luận",
+      "send_failed": "Không thể gửi bình luận"
+    },
+    "action_sheet": {
+      "own_post_title": "Bài viết của bạn",
+      "others_post_title": "Tùy chọn",
+      "others_post_subtitle": "Bài viết bởi {{name}}",
+      "delete_label": "Xóa bài viết",
+      "delete_description": "Bài viết sẽ bị xóa vĩnh viễn",
+      "report_label": "Báo cáo bài viết",
+      "report_description": "Bài viết vi phạm quy tắc cộng đồng",
+      "hide_label": "Ẩn bài viết này",
+      "hide_description": "Bạn sẽ không thấy bài viết này nữa",
+      "block_label": "Chặn {{name}}",
+      "block_description": "Bạn sẽ không thấy nội dung từ người này"
+    },
+    "toast": {
+      "deleted": "Đã xóa bài viết",
+      "delete_failed": "Không thể xóa bài viết",
+      "reported": "Đã gửi báo cáo. Cảm ơn bạn!",
+      "report_failed": "Không thể gửi báo cáo",
+      "hidden": "Đã ẩn bài viết",
+      "blocked": "Đã chặn {{name}}",
+      "block_failed": "Không thể chặn người dùng"
+    },
+    "time_ago": {
+      "minutes": "{{n}} phút trước",
+      "hours": "{{n}} giờ trước",
+      "days": "{{n}} ngày trước"
+    }
+  },
+
+  "topic_detail": {
+    "stats": "{{posts}} bài viết · {{followers}} người theo dõi",
+    "related_topics_label": "Chủ đề liên quan",
+    "follow": "Theo dõi",
+    "unfollow": "Đã theo dõi",
+    "empty": {
+      "title": "Chưa có bài viết nào",
+      "description": "Chưa có bài viết nào với chủ đề #{{name}}. Hãy là người đầu tiên chia sẻ!",
+      "create_action": "Tạo bài viết"
+    },
+    "toast": {
+      "followed": "Đã theo dõi #{{name}}",
+      "unfollowed": "Đã bỏ theo dõi #{{name}}"
+    }
+  },
+
+  "public_profile": {
+    "action_sheet_title": "Tùy chọn",
+    "badge_labels": {
+      "verified": "Đã xác minh",
+      "expert": "Chuyên gia"
+    },
+    "tabs": {
+      "posts": "Bài viết",
+      "recaps": "Recap"
+    },
+    "empty_posts": "Bắt đầu chia sẻ kinh nghiệm tài chính với cộng đồng!",
+    "empty_recaps": "Chia sẻ recap tài chính để theo dõi tiến trình và truyền cảm hứng!",
+    "empty_recaps_own": "Recap tài chính sẽ hiển thị ở đây.",
+    "actions": {
+      "share_recap": "Chia sẻ Recap",
+      "create_post": "Tạo bài viết",
+      "report": "Báo cáo người dùng",
+      "report_description": "Vi phạm quy tắc cộng đồng",
+      "block": "Chặn người dùng",
+      "block_description": "Bạn sẽ không thấy nội dung từ người này"
+    },
+    "toast": {
+      "reported": "Đã gửi báo cáo. Cảm ơn bạn!",
+      "block_failed": "Không thể chặn người dùng"
+    }
+  },
+
+  "followers_list": {
+    "tabs": {
+      "followers": "Người theo dõi",
+      "following": "Đang theo dõi"
+    },
+    "search_placeholder": "Tìm kiếm...",
+    "empty": {
+      "no_followers_title": "Chưa có người theo dõi",
+      "no_followers_description": "Chia sẻ bài viết chất lượng để thu hút người theo dõi!",
+      "no_following_title": "Bạn chưa theo dõi ai",
+      "no_following_description": "Khám phá cộng đồng để tìm người dùng thú vị.",
+      "discover_action": "Khám phá cộng đồng"
+    }
+  },
+
+  "saved_posts": {
+    "title": "Bài viết đã lưu",
+    "filter": {
+      "all": "Tất cả",
+      "question": "Câu hỏi"
+    },
+    "empty": {
+      "title": "Chưa có bài viết nào được lưu",
+      "description": "Khi bạn lưu bài viết, chúng sẽ xuất hiện ở đây để bạn đọc lại sau.",
+      "discover_action": "Khám phá bài viết"
+    }
+  },
+
+  "onboarding": {
+    "steps": {
+      "welcome": "welcome",
+      "topics": "topics",
+      "people": "people"
+    },
+    "welcome": {
+      "title": "Chào mừng đến Cộng đồng!",
+      "description": "Chia sẻ hành trình tài chính cá nhân, học hỏi từ cộng đồng và theo dõi tiến trình của nhau.",
+      "privacy_title": "Cam kết bảo mật",
+      "privacy_items": [
+        "Bạn quyết định chia sẻ gì — mọi bài viết đều có tùy chọn audience",
+        "Số liệu tài chính có thể ẩn hoặc chỉ hiển thị phần trăm",
+        "Không bao giờ chia sẻ số tài khoản, mật khẩu hay thông tin nhạy cảm"
+      ],
+      "start_button": "Bắt đầu thiết lập"
+    },
+    "topics": {
+      "title": "Chọn chủ đề quan tâm",
+      "description": "Chúng tôi sẽ gợi ý nội dung phù hợp với bạn.",
+      "posts_count": "{{count}} bài viết",
+      "next_button": "Tiếp tục",
+      "skip_button": "Bỏ qua"
+    },
+    "people": {
+      "title": "Theo dõi ai đó",
+      "description": "Gợi ý một số người dùng đang chia sẻ kinh nghiệm tài chính.",
+      "discover_later": "Bạn sẽ khám phá thêm người dùng sau khi hoàn tất thiết lập.",
+      "finish_button": "Bắt đầu khám phá",
+      "skip_button": "Bỏ qua"
+    },
+    "toast": {
+      "failed": "Không thể hoàn tất thiết lập"
+    }
+  },
+
+  "social_notifications": {
+    "title": "Thông báo",
+    "groups": {
+      "today": "Hôm nay",
+      "yesterday": "Hôm qua",
+      "earlier": "Trước đó"
+    },
+    "empty": {
+      "title": "Chưa có thông báo",
+      "description": "Khi có người tương tác với bài viết của bạn, thông báo sẽ xuất hiện ở đây."
+    }
+  },
+
+  "notifications_inbox": {
+    "title": "Thông báo",
+    "bulk_select": "Chọn nhiều",
+    "bulk_cancel": "Huỷ chọn nhiều",
+    "mark_all_read": "Đánh dấu đã đọc tất cả",
+    "clear_read": "Xoá đã đọc",
+    "groups": {
+      "today": "Hôm nay",
+      "yesterday": "Hôm qua",
+      "earlier": "Trước đó"
+    },
+    "swipe": {
+      "mark_read": "Đã đọc",
+      "delete": "Xoá"
+    },
+    "empty": {
+      "no_new": "Không có thông báo mới",
+      "none": "Chưa có thông báo nào"
+    },
+    "recurring_actions": {
+      "confirm": "Xác nhận",
+      "skip": "Bỏ qua"
+    },
+    "budget_actions": {
+      "view": "Xem ngân sách"
+    },
+    "goal_actions": {
+      "contribute": "Thêm đóng góp",
+      "view": "Xem mục tiêu"
+    },
+    "clear_modal": {
+      "title": "Xoá tất cả thông báo đã đọc?",
+      "description": "{{count}} thông báo đã đọc sẽ bị xoá vĩnh viễn. Thao tác này không thể hoàn tác.",
+      "confirm": "Xoá tất cả",
+      "cancel": "Huỷ"
+    },
+    "bulk_delete_modal": {
+      "title": "Xoá {{count}} thông báo?",
+      "description": "{{count}} thông báo đã chọn sẽ bị xoá vĩnh viễn. Thao tác này không thể hoàn tác.",
+      "confirm": "Xoá",
+      "cancel": "Huỷ"
+    },
+    "time_ago": {
+      "just_now": "Vừa xong",
+      "minutes": "{{n}} phút trước",
+      "hours": "{{n}} giờ trước",
+      "days": "{{n}} ngày trước"
+    },
+    "toast": {
+      "mark_all_read": "Đánh dấu đã đọc tất cả",
+      "mark_bulk_read": "Đánh dấu đã đọc {{count}} thông báo",
+      "cleared_read": "Đã xoá tất cả thông báo đã đọc",
+      "deleted": "Đã xoá thông báo",
+      "bulk_deleted": "Đã xoá {{count}} thông báo",
+      "created_transaction": "Đã tạo giao dịch",
+      "create_transaction_failed": "Không thể tạo giao dịch",
+      "skipped_run": "Đã bỏ qua lần chạy",
+      "skip_run_failed": "Không thể bỏ qua lần chạy",
+      "rule_not_found": "Quy tắc không tồn tại"
+    }
+  }
+}

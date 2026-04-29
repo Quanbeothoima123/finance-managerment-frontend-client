@@ -1,11 +1,13 @@
-import React from "react";
+﻿import React from "react";
+import { useTranslation } from "react-i18next";
 import { Layout } from "../components/Layout";
-import CreateEditAccount from "./CreateEditAccount";
+import EditAccount from "./EditAccount";
 
 export default function EditAccountWithLayout() {
+  const { t } = useTranslation("common");
   return (
-    <Layout title="Chỉnh sửa tài khoản">
-      <CreateEditAccount mode="edit" />
+    <Layout title={t("page_titles.edit_account")}>
+      <EditAccount />
     </Layout>
   );
 }

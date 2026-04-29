@@ -1,6 +1,7 @@
 import React from "react";
 import { Bell, Menu } from "lucide-react";
 import { useNavigate } from "react-router";
+import { useTranslation } from "react-i18next";
 import { ThemeSwitcher } from "./ThemeSwitcher";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { useNotifications } from "../contexts/NotificationContext";
@@ -10,9 +11,11 @@ interface TopbarProps {
   onMenuClick?: () => void;
 }
 
-export function Topbar({ title = "Tổng quan", onMenuClick }: TopbarProps) {
+export function Topbar({ title, onMenuClick }: TopbarProps) {
   const navigate = useNavigate();
+  const { t } = useTranslation("common");
   const { unreadCount } = useNotifications();
+  const displayTitle = title ?? t("page_titles.home");
 
   return (
     <header className="h-16 bg-[var(--background)] border-b border-[var(--border)] flex items-center justify-between px-4 md:px-6">
@@ -29,7 +32,7 @@ export function Topbar({ title = "Tổng quan", onMenuClick }: TopbarProps) {
         )}
 
         <h2 className="text-lg md:text-xl font-semibold text-[var(--text-primary)]">
-          {title}
+          {displayTitle}
         </h2>
       </div>
 

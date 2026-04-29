@@ -1,11 +1,13 @@
-import React from "react";
+﻿import React from "react";
+import { useTranslation } from "react-i18next";
 import { Layout } from "../components/Layout";
-import CreateEditGoal from "./CreateEditGoal";
+import CreateGoal from "./CreateGoal";
 
 export default function CreateGoalWithLayout() {
+  const { t } = useTranslation("common");
   return (
-    <Layout title="Tạo mục tiêu">
-      <CreateEditGoal mode="create" />
+    <Layout title={t("page_titles.create_goal")}>
+      <CreateGoal />
     </Layout>
   );
 }

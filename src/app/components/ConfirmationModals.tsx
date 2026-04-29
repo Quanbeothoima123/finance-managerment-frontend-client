@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { AlertTriangle, Trash2, X } from 'lucide-react';
+import { AlertTriangle, X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '../components/Button';
 import { Card } from '../components/Card';
 
@@ -25,14 +26,19 @@ export function ConfirmationModal({
   title,
   description,
   consequences,
-  confirmLabel = 'Xác nhận',
-  cancelLabel = 'Huỷ',
+  confirmLabel,
+  cancelLabel,
   isDangerous = false,
   requireCheckbox = false,
-  checkboxLabel = 'Tôi hiểu',
+  checkboxLabel,
   children,
 }: ConfirmationModalProps) {
+  const { t } = useTranslation('common');
   const [isChecked, setIsChecked] = useState(false);
+  const resolvedConfirmLabel = confirmLabel ?? t('actions.confirm');
+  const resolvedCancelLabel = cancelLabel ?? t('actions.cancel');
+  const resolvedCheckboxLabel =
+    checkboxLabel ?? t('confirmation_modals.defaults.checkbox_label');
 
   if (!isOpen) return null;
 
@@ -101,7 +107,7 @@ export function ConfirmationModal({
                 }`}
               >
                 <p className="text-sm font-medium text-[var(--text-primary)] mb-2">
-                  Hậu quả:
+                  {t('confirmation_modals.defaults.consequences_label')}
                 </p>
                 <ul className="text-sm text-[var(--text-secondary)] space-y-1">
                   {consequences.map((consequence, index) => (
@@ -123,7 +129,7 @@ export function ConfirmationModal({
                   className="w-5 h-5 rounded border-[var(--border)] text-[var(--danger)] focus:ring-[var(--focus-ring)]"
                 />
                 <span className="text-sm font-medium text-[var(--text-primary)]">
-                  {checkboxLabel}
+                  {resolvedCheckboxLabel}
                 </span>
               </label>
             )}
@@ -136,7 +142,7 @@ export function ConfirmationModal({
 
             <div className="flex flex-col-reverse sm:flex-row gap-3">
               <Button onClick={handleClose} variant="secondary" className="flex-1">
-                {cancelLabel}
+                {resolvedCancelLabel}
               </Button>
               <Button
                 onClick={handleConfirm}
@@ -147,7 +153,7 @@ export function ConfirmationModal({
                     : ''
                 } disabled:opacity-50 disabled:cursor-not-allowed`}
               >
-                {confirmLabel}
+                {resolvedConfirmLabel}
               </Button>
             </div>
           </Card>
@@ -170,18 +176,25 @@ export function DeleteTransactionModal({
   isOpen,
   onClose,
   onConfirm,
-  transactionDescription = 'giao dịch này',
+  transactionDescription,
   transactionAmount = '0₫',
 }: DeleteTransactionModalProps) {
+  const { t } = useTranslation('common');
+  const resolvedDescription =
+    transactionDescription ?? t('confirmation_modals.delete_transaction.fallback_name');
+
   return (
     <ConfirmationModal
       isOpen={isOpen}
       onClose={onClose}
       onConfirm={onConfirm}
-      title="Xoá giao dịch?"
-      description={`Bạn có chắc muốn xoá "${transactionDescription}" (${transactionAmount})? Hành động này không thể hoàn tác.`}
-      confirmLabel="Xoá"
-      cancelLabel="Huỷ"
+      title={t('confirmation_modals.delete_transaction.title')}
+      description={t('confirmation_modals.delete_transaction.description', {
+        description: resolvedDescription,
+        amount: transactionAmount,
+      })}
+      confirmLabel={t('actions.delete')}
+      cancelLabel={t('actions.cancel')}
       isDangerous={true}
     />
   );
@@ -201,27 +214,37 @@ export function DeleteAccountModal({
   isOpen,
   onClose,
   onConfirm,
-  accountName = 'tài khoản này',
+  accountName,
   accountBalance = '0₫',
   transactionCount = 0,
 }: DeleteAccountModalProps) {
+  const { t } = useTranslation('common');
+  const resolvedAccountName =
+    accountName ?? t('confirmation_modals.delete_account.fallback_name');
+
   return (
     <ConfirmationModal
       isOpen={isOpen}
       onClose={onClose}
       onConfirm={onConfirm}
-      title="Xoá tài khoản?"
-      description={`Bạn có chắc muốn xoá tài khoản "${accountName}"? Đây là hành động nguy hiểm và không thể hoàn tác.`}
+      title={t('confirmation_modals.delete_account.title')}
+      description={t('confirmation_modals.delete_account.description', {
+        accountName: resolvedAccountName,
+      })}
       consequences={[
-        `Số dư hiện tại: ${accountBalance} sẽ bị xoá`,
-        `${transactionCount} giao dịch liên quan sẽ bị xoá`,
-        'Dữ liệu không thể khôi phục',
+        t('confirmation_modals.delete_account.consequences.balance', {
+          balance: accountBalance,
+        }),
+        t('confirmation_modals.delete_account.consequences.transactions', {
+          count: transactionCount,
+        }),
+        t('confirmation_modals.delete_account.consequences.data'),
       ]}
-      confirmLabel="Xoá tài khoản"
-      cancelLabel="Huỷ"
+      confirmLabel={t('confirmation_modals.delete_account.confirm')}
+      cancelLabel={t('actions.cancel')}
       isDangerous={true}
       requireCheckbox={true}
-      checkboxLabel="Tôi hiểu và chấp nhận hậu quả"
+      checkboxLabel={t('confirmation_modals.defaults.accept_consequences')}
     />
   );
 }
@@ -238,17 +261,23 @@ export function DeleteBudgetModal({
   isOpen,
   onClose,
   onConfirm,
-  budgetName = 'ngân sách này',
+  budgetName,
 }: DeleteBudgetModalProps) {
+  const { t } = useTranslation('common');
+  const resolvedBudgetName =
+    budgetName ?? t('confirmation_modals.delete_budget.fallback_name');
+
   return (
     <ConfirmationModal
       isOpen={isOpen}
       onClose={onClose}
       onConfirm={onConfirm}
-      title="Xoá ngân sách?"
-      description={`Bạn có chắc muốn xoá ngân sách "${budgetName}"? Lịch sử chi tiêu sẽ vẫn được giữ lại.`}
-      confirmLabel="Xoá"
-      cancelLabel="Huỷ"
+      title={t('confirmation_modals.delete_budget.title')}
+      description={t('confirmation_modals.delete_budget.description', {
+        budgetName: resolvedBudgetName,
+      })}
+      confirmLabel={t('actions.delete')}
+      cancelLabel={t('actions.cancel')}
       isDangerous={true}
     />
   );
@@ -267,22 +296,29 @@ export function DeleteGoalModal({
   isOpen,
   onClose,
   onConfirm,
-  goalName = 'mục tiêu này',
+  goalName,
   goalProgress = '0%',
 }: DeleteGoalModalProps) {
+  const { t } = useTranslation('common');
+  const resolvedGoalName =
+    goalName ?? t('confirmation_modals.delete_goal.fallback_name');
+
   return (
     <ConfirmationModal
       isOpen={isOpen}
       onClose={onClose}
       onConfirm={onConfirm}
-      title="Xoá mục tiêu?"
-      description={`Bạn có chắc muốn xoá mục tiêu "${goalName}"? Bạn đã hoàn thành ${goalProgress} tiến độ.`}
+      title={t('confirmation_modals.delete_goal.title')}
+      description={t('confirmation_modals.delete_goal.description', {
+        goalName: resolvedGoalName,
+        goalProgress,
+      })}
       consequences={[
-        'Tất cả lịch sử đóng góp sẽ bị xoá',
-        'Tiến độ hiện tại sẽ bị mất',
+        t('confirmation_modals.delete_goal.consequences.contributions'),
+        t('confirmation_modals.delete_goal.consequences.progress'),
       ]}
-      confirmLabel="Xoá"
-      cancelLabel="Huỷ"
+      confirmLabel={t('actions.delete')}
+      cancelLabel={t('actions.cancel')}
       isDangerous={true}
     />
   );
@@ -301,25 +337,33 @@ export function DeleteCategoryModal({
   isOpen,
   onClose,
   onConfirm,
-  categoryName = 'danh mục này',
+  categoryName,
   transactionCount = 0,
 }: DeleteCategoryModalProps) {
+  const { t } = useTranslation('common');
+  const resolvedCategoryName =
+    categoryName ?? t('confirmation_modals.delete_category.fallback_name');
+
   return (
     <ConfirmationModal
       isOpen={isOpen}
       onClose={onClose}
       onConfirm={onConfirm}
-      title="Xoá danh mục?"
-      description={`Bạn có chắc muốn xoá danh mục "${categoryName}"?`}
+      title={t('confirmation_modals.delete_category.title')}
+      description={t('confirmation_modals.delete_category.description', {
+        categoryName: resolvedCategoryName,
+      })}
       consequences={[
-        `${transactionCount} giao dịch sẽ chuyển về "Chưa phân loại"`,
-        'Dữ liệu ngân sách liên quan sẽ bị ảnh hưởng',
+        t('confirmation_modals.delete_category.consequences.transactions', {
+          count: transactionCount,
+        }),
+        t('confirmation_modals.delete_category.consequences.budget_data'),
       ]}
-      confirmLabel="Xoá"
-      cancelLabel="Huỷ"
+      confirmLabel={t('actions.delete')}
+      cancelLabel={t('actions.cancel')}
       isDangerous={true}
       requireCheckbox={transactionCount > 50}
-      checkboxLabel="Tôi hiểu và chấp nhận hậu quả"
+      checkboxLabel={t('confirmation_modals.defaults.accept_consequences')}
     />
   );
 }
@@ -332,15 +376,17 @@ interface LogoutModalProps {
 }
 
 export function LogoutModal({ isOpen, onClose, onConfirm }: LogoutModalProps) {
+  const { t } = useTranslation('common');
+
   return (
     <ConfirmationModal
       isOpen={isOpen}
       onClose={onClose}
       onConfirm={onConfirm}
-      title="Đăng xuất?"
-      description="Bạn có chắc muốn đăng xuất khỏi ứng dụng?"
-      confirmLabel="Đăng xuất"
-      cancelLabel="Huỷ"
+      title={t('confirmation_modals.logout.title')}
+      description={t('confirmation_modals.logout.description')}
+      confirmLabel={t('sidebar.user_menu.logout')}
+      cancelLabel={t('actions.cancel')}
       isDangerous={false}
     />
   );
@@ -354,15 +400,17 @@ interface DiscardChangesModalProps {
 }
 
 export function DiscardChangesModal({ isOpen, onClose, onConfirm }: DiscardChangesModalProps) {
+  const { t } = useTranslation('common');
+
   return (
     <ConfirmationModal
       isOpen={isOpen}
       onClose={onClose}
       onConfirm={onConfirm}
-      title="Huỷ thay đổi?"
-      description="Bạn có thay đổi chưa được lưu. Bạn có chắc muốn huỷ?"
-      confirmLabel="Huỷ thay đổi"
-      cancelLabel="Tiếp tục chỉnh sửa"
+      title={t('confirmation_modals.discard_changes.title')}
+      description={t('confirmation_modals.discard_changes.description')}
+      confirmLabel={t('confirmation_modals.discard_changes.confirm')}
+      cancelLabel={t('confirmation_modals.discard_changes.cancel')}
       isDangerous={false}
     />
   );

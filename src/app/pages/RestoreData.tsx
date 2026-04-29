@@ -27,6 +27,7 @@ import { Card } from "../components/Card";
 import { useAppNavigation } from "../hooks/useAppNavigation";
 import { useAppData } from "../contexts/AppDataContext";
 import { useToast } from "../contexts/ToastContext";
+import { useTranslation } from "react-i18next";
 
 const APP_VERSION = "1.0";
 
@@ -57,15 +58,11 @@ interface ParsedBackup {
 
 type RestoreMode = "replace" | "merge";
 
-const STEPS = [
-  { label: "Chọn file", icon: Upload },
-  { label: "Xem trước", icon: Eye },
-  { label: "Xác nhận", icon: CheckCircle },
-];
-
 // ═══════════════════════════════════════════════════════════════════════════
 export default function RestoreData() {
   const nav = useAppNavigation();
+  const { t, i18n } = useTranslation("misc");
+  const locale = i18n.language === "vi" ? "vi-VN" : "en-US";
   const toast = useToast();
   const {
     restoreFullData,
@@ -80,6 +77,12 @@ export default function RestoreData() {
     recurringRules,
   } = useAppData();
   const fileRef = useRef<HTMLInputElement>(null);
+
+  const STEPS = [
+    { label: t("restore.steps.0"), icon: Upload },
+    { label: t("restore.steps.1"), icon: Eye },
+    { label: t("restore.steps.2"), icon: CheckCircle },
+  ];
 
   const [step, setStep] = useState(0);
   const [error, setError] = useState<string | null>(null);
@@ -128,7 +131,7 @@ export default function RestoreData() {
     setFileName(file.name);
 
     if (!file.name.endsWith(".json")) {
-      setError("File không hợp lệ.");
+      setError(t("restore.errors.invalid_file"));
       return;
     }
 
@@ -139,7 +142,7 @@ export default function RestoreData() {
 
         // Validate schema
         if (!json.data || typeof json.data !== "object") {
-          setError("Không nhận diện được file sao lưu.");
+          setError(t("restore.errors.unrecognized_backup"));
           return;
         }
 
@@ -171,7 +174,7 @@ export default function RestoreData() {
         setParsed({ meta, data, counts });
         setStep(1);
       } catch {
-        setError("File không hợp lệ.");
+        setError(t("restore.errors.invalid_file"));
       }
     };
     reader.readAsText(file);
@@ -223,9 +226,7 @@ export default function RestoreData() {
         setRestoring(false);
       } catch {
         setRestoring(false);
-        setError(
-          "Phiên bản sao lưu không tương thích. Vui lòng cập nhật app hoặc tạo lại sao lưu.",
-        );
+        setError(t("restore.errors.incompatible_version"));
         setStep(0);
         setParsed(null);
       }
@@ -235,16 +236,40 @@ export default function RestoreData() {
   // ── Count label helpers ──
   const countLabels: Record<string, { label: string; icon: React.ReactNode }> =
     {
-      transactions: { label: "Giao dịch", icon: <List className="w-4 h-4" /> },
-      accounts: { label: "Tài khoản", icon: <Wallet className="w-4 h-4" /> },
-      categories: { label: "Danh mục", icon: <Tag className="w-4 h-4" /> },
-      tags: { label: "Nhãn", icon: <Tag className="w-4 h-4" /> },
-      merchants: { label: "NCC", icon: <Database className="w-4 h-4" /> },
-      budgets: { label: "Ngân sách", icon: <Target className="w-4 h-4" /> },
-      goals: { label: "Mục tiêu", icon: <Target className="w-4 h-4" /> },
-      autoRules: { label: "Rules", icon: <Bot className="w-4 h-4" /> },
+      transactions: {
+        label: t("restore.count_labels.transactions"),
+        icon: <List className="w-4 h-4" />,
+      },
+      accounts: {
+        label: t("restore.count_labels.accounts"),
+        icon: <Wallet className="w-4 h-4" />,
+      },
+      categories: {
+        label: t("restore.count_labels.categories"),
+        icon: <Tag className="w-4 h-4" />,
+      },
+      tags: {
+        label: t("restore.count_labels.tags"),
+        icon: <Tag className="w-4 h-4" />,
+      },
+      merchants: {
+        label: t("restore.count_labels.merchants"),
+        icon: <Database className="w-4 h-4" />,
+      },
+      budgets: {
+        label: t("restore.count_labels.budgets"),
+        icon: <Target className="w-4 h-4" />,
+      },
+      goals: {
+        label: t("restore.count_labels.goals"),
+        icon: <Target className="w-4 h-4" />,
+      },
+      autoRules: {
+        label: t("restore.count_labels.auto_rules"),
+        icon: <Bot className="w-4 h-4" />,
+      },
       recurringRules: {
-        label: "Recurring",
+        label: t("restore.count_labels.recurring_rules"),
         icon: <Repeat className="w-4 h-4" />,
       },
     };
@@ -259,11 +284,12 @@ export default function RestoreData() {
           </div>
           <div>
             <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-2">
-              Khôi phục thành công 🎉
+              {t("restore.success.title")}
             </h2>
             <p className="text-sm text-[var(--text-secondary)]">
-              Dữ liệu đã được {restoreMode === "replace" ? "thay thế" : "gộp"}{" "}
-              thành công.
+              {restoreMode === "replace"
+                ? t("restore.success.description_replace")
+                : t("restore.success.description_merge")}
             </p>
           </div>
 
@@ -294,14 +320,14 @@ export default function RestoreData() {
               className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white rounded-[var(--radius-lg)] font-medium transition-colors"
             >
               <Home className="w-4 h-4" />
-              <span>Về trang chủ</span>
+              <span>{t("restore.success.go_home")}</span>
             </button>
             <button
               onClick={() => nav.goTransactions()}
               className="flex-1 flex items-center justify-center gap-2 px-4 py-3 border border-[var(--border)] text-[var(--text-primary)] rounded-[var(--radius-lg)] font-medium hover:bg-[var(--surface)] transition-colors"
             >
               <List className="w-4 h-4" />
-              <span>Xem giao dịch</span>
+              <span>{t("restore.success.view_transactions")}</span>
             </button>
           </div>
         </div>
@@ -319,10 +345,10 @@ export default function RestoreData() {
           </div>
           <div>
             <h2 className="text-xl font-semibold text-[var(--text-primary)] mb-2">
-              Đang khôi phục…
+              {t("restore.progress.title")}
             </h2>
             <p className="text-sm text-[var(--text-secondary)]">
-              Vui lòng không đóng ứng dụng.
+              {t("restore.progress.subtitle")}
             </p>
           </div>
           <div className="h-3 bg-[var(--surface)] rounded-full overflow-hidden">
@@ -352,10 +378,10 @@ export default function RestoreData() {
           </button>
           <div>
             <h1 className="text-xl font-semibold text-[var(--text-primary)]">
-              Khôi phục dữ liệu
+              {t("restore.title")}
             </h1>
             <p className="text-sm text-[var(--text-secondary)]">
-              3 bước: Chọn file → Xem trước → Xác nhận
+              {t("restore.subtitle")}
             </p>
           </div>
         </div>
@@ -398,7 +424,7 @@ export default function RestoreData() {
         {step === 0 && (
           <Card>
             <h3 className="font-semibold text-[var(--text-primary)] mb-4">
-              Chọn file sao lưu
+              {t("restore.step0.title")}
             </h3>
 
             <div
@@ -411,10 +437,10 @@ export default function RestoreData() {
                 <Upload className="w-7 h-7 text-[var(--text-tertiary)]" />
               </div>
               <p className="text-sm font-medium text-[var(--text-primary)] mb-1">
-                Kéo thả hoặc nhấn để chọn file
+                {t("restore.step0.drop_label")}
               </p>
               <p className="text-xs text-[var(--text-tertiary)]">
-                Chỉ chấp nhận file .json
+                {t("restore.step0.accept_hint")}
               </p>
               <input
                 ref={fileRef}
@@ -426,7 +452,7 @@ export default function RestoreData() {
             </div>
 
             <p className="text-xs text-[var(--text-tertiary)] mt-3">
-              File sao lưu được tạo từ mục Sao lưu.
+              {t("restore.step0.source_hint")}
             </p>
 
             {/* Error */}
@@ -446,7 +472,7 @@ export default function RestoreData() {
                     }}
                     className="text-xs text-[var(--primary)] mt-1 underline"
                   >
-                    Chọn file khác
+                    {t("restore.step0.choose_another")}
                   </button>
                 </div>
               </div>
@@ -459,13 +485,13 @@ export default function RestoreData() {
           <div className="space-y-6">
             <Card>
               <h3 className="font-semibold text-[var(--text-primary)] mb-4">
-                Thông tin file sao lưu
+                {t("restore.step1.file_info_title")}
               </h3>
 
               <div className="space-y-3 mb-4">
                 <div className="flex justify-between">
                   <span className="text-sm text-[var(--text-secondary)]">
-                    File
+                    {t("restore.step1.file_label")}
                   </span>
                   <span className="text-sm font-medium text-[var(--text-primary)]">
                     {fileName}
@@ -473,7 +499,7 @@ export default function RestoreData() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-sm text-[var(--text-secondary)]">
-                    Version
+                    {t("restore.step1.version_label")}
                   </span>
                   <span className="text-sm font-medium text-[var(--text-primary)]">
                     {parsed.meta.version}
@@ -481,17 +507,17 @@ export default function RestoreData() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-sm text-[var(--text-secondary)]">
-                    Tạo lúc
+                    {t("restore.step1.exported_at_label")}
                   </span>
                   <span className="text-sm font-medium text-[var(--text-primary)]">
                     {parsed.meta.exportedAt !== "unknown"
-                      ? new Date(parsed.meta.exportedAt).toLocaleString("vi-VN")
+                      ? new Date(parsed.meta.exportedAt).toLocaleString(locale)
                       : "—"}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-sm text-[var(--text-secondary)]">
-                    Timezone
+                    {t("restore.step1.timezone_label")}
                   </span>
                   <span className="text-sm font-medium text-[var(--text-primary)]">
                     {parsed.meta.timezone || "—"}
@@ -503,8 +529,9 @@ export default function RestoreData() {
                 <div className="p-3 bg-[var(--warning-light)] border border-[var(--warning)] rounded-[var(--radius-lg)] mb-4">
                   <p className="text-xs text-[var(--text-secondary)]">
                     <AlertTriangle className="w-3.5 h-3.5 inline mr-1 text-[var(--warning)]" />
-                    File sao lưu từ phiên bản {parsed.meta.version}. Một số dữ
-                    liệu có thể không khớp.
+                    {t("restore.step1.version_mismatch_warning", {
+                      version: parsed.meta.version,
+                    })}
                   </p>
                 </div>
               )}
@@ -512,7 +539,7 @@ export default function RestoreData() {
 
             <Card>
               <h3 className="font-semibold text-[var(--text-primary)] mb-4">
-                Nội dung sao lưu
+                {t("restore.step1.content_title")}
               </h3>
               <div className="space-y-2">
                 {Object.entries(parsed.counts).map(([key, count]) => (
@@ -545,13 +572,14 @@ export default function RestoreData() {
                 }}
                 className="px-6 py-3 border border-[var(--border)] text-[var(--text-secondary)] rounded-[var(--radius-lg)] font-medium hover:bg-[var(--surface)] transition-colors"
               >
-                Quay lại
+                {t("restore.back_button")}
               </button>
               <button
                 onClick={() => setStep(2)}
                 className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white rounded-[var(--radius-lg)] font-medium transition-colors"
               >
-                Tiếp tục <ChevronRight className="w-4 h-4" />
+                {t("restore.continue_button")}{" "}
+                <ChevronRight className="w-4 h-4" />
               </button>
             </div>
           </div>
@@ -562,7 +590,7 @@ export default function RestoreData() {
           <div className="space-y-6">
             <Card>
               <h3 className="font-semibold text-[var(--text-primary)] mb-4">
-                Chọn phương thức khôi phục
+                {t("restore.step2.title")}
               </h3>
 
               <div className="space-y-3">
@@ -589,13 +617,13 @@ export default function RestoreData() {
                     </div>
                     <div>
                       <p className="font-semibold text-[var(--text-primary)]">
-                        Ghi đè toàn bộ{" "}
+                        {t("restore.step2.replace_title")}{" "}
                         <span className="text-xs font-normal text-[var(--text-tertiary)] ml-1">
-                          (Khuyến nghị)
+                          {t("restore.step2.replace_recommended")}
                         </span>
                       </p>
                       <p className="text-sm text-[var(--text-secondary)] mt-0.5">
-                        Xoá dữ liệu hiện tại và thay bằng dữ liệu từ file.
+                        {t("restore.step2.replace_description")}
                       </p>
                     </div>
                   </div>
@@ -624,11 +652,10 @@ export default function RestoreData() {
                     </div>
                     <div>
                       <p className="font-semibold text-[var(--text-primary)]">
-                        Gộp dữ liệu
+                        {t("restore.step2.merge_title")}
                       </p>
                       <p className="text-sm text-[var(--text-secondary)] mt-0.5">
-                        Giữ dữ liệu hiện tại và thêm dữ liệu từ file. Trùng id
-                        sẽ bỏ qua.
+                        {t("restore.step2.merge_description")}
                       </p>
                     </div>
                   </div>
@@ -639,7 +666,7 @@ export default function RestoreData() {
                 <div className="mt-4 p-3 bg-[var(--danger-light)] border border-[var(--danger)] rounded-[var(--radius-lg)]">
                   <p className="text-xs text-[var(--danger)] font-medium">
                     <AlertTriangle className="w-3.5 h-3.5 inline mr-1" />
-                    Hành động này không thể hoàn tác.
+                    {t("restore.step2.irreversible_warning")}
                   </p>
                 </div>
               )}
@@ -648,12 +675,12 @@ export default function RestoreData() {
             {/* Current data summary */}
             <Card className="bg-[var(--surface)]">
               <h3 className="font-semibold text-[var(--text-primary)] mb-3">
-                Dữ liệu hiện tại
+                {t("restore.step2.current_data_title")}
               </h3>
               <div className="grid grid-cols-3 gap-2 text-center">
                 <div>
                   <p className="text-xs text-[var(--text-tertiary)]">
-                    Giao dịch
+                    {t("restore.count_labels.transactions")}
                   </p>
                   <p className="text-sm font-bold text-[var(--text-primary)] tabular-nums">
                     {currentCounts.transactions}
@@ -661,7 +688,7 @@ export default function RestoreData() {
                 </div>
                 <div>
                   <p className="text-xs text-[var(--text-tertiary)]">
-                    Tài khoản
+                    {t("restore.count_labels.accounts")}
                   </p>
                   <p className="text-sm font-bold text-[var(--text-primary)] tabular-nums">
                     {currentCounts.accounts}
@@ -669,7 +696,7 @@ export default function RestoreData() {
                 </div>
                 <div>
                   <p className="text-xs text-[var(--text-tertiary)]">
-                    Mục tiêu
+                    {t("restore.count_labels.goals")}
                   </p>
                   <p className="text-sm font-bold text-[var(--text-primary)] tabular-nums">
                     {currentCounts.goals}
@@ -683,7 +710,7 @@ export default function RestoreData() {
                 onClick={() => setStep(1)}
                 className="px-6 py-3 border border-[var(--border)] text-[var(--text-secondary)] rounded-[var(--radius-lg)] font-medium hover:bg-[var(--surface)] transition-colors"
               >
-                Quay lại
+                {t("restore.back_button")}
               </button>
               <button
                 onClick={() => setShowConfirmModal(true)}
@@ -693,7 +720,7 @@ export default function RestoreData() {
                     : "bg-[var(--primary)] hover:bg-[var(--primary-hover)]"
                 }`}
               >
-                Khôi phục
+                {t("restore.restore_button")}
               </button>
             </div>
           </div>
@@ -711,7 +738,7 @@ export default function RestoreData() {
             >
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-[var(--text-primary)]">
-                  Xác nhận khôi phục
+                  {t("restore.confirm_modal.title")}
                 </h3>
                 <button
                   onClick={() => setShowConfirmModal(false)}
@@ -724,13 +751,13 @@ export default function RestoreData() {
               <div className="space-y-3 mb-5">
                 <p className="text-sm text-[var(--text-secondary)]">
                   {restoreMode === "replace"
-                    ? "Dữ liệu hiện tại sẽ bị xoá và thay thế hoàn toàn bằng dữ liệu từ file sao lưu."
-                    : "Dữ liệu từ file sao lưu sẽ được thêm vào dữ liệu hiện tại. Các mục trùng ID sẽ bỏ qua."}
+                    ? t("restore.confirm_modal.replace_description")
+                    : t("restore.confirm_modal.merge_description")}
                 </p>
 
                 <div className="p-3 bg-[var(--surface)] rounded-[var(--radius-lg)]">
                   <p className="text-xs text-[var(--text-tertiary)] mb-2">
-                    Sẽ khôi phục:
+                    {t("restore.confirm_modal.will_restore")}
                   </p>
                   <div className="flex flex-wrap gap-2">
                     {Object.entries(parsed.counts)
@@ -750,7 +777,7 @@ export default function RestoreData() {
                   <div className="p-3 bg-[var(--danger-light)] rounded-[var(--radius-lg)]">
                     <p className="text-xs text-[var(--danger)] font-medium">
                       <AlertTriangle className="w-3.5 h-3.5 inline mr-1" />
-                      Hành động này không thể hoàn tác.
+                      {t("restore.step2.irreversible_warning")}
                     </p>
                   </div>
                 )}
@@ -761,7 +788,7 @@ export default function RestoreData() {
                   onClick={() => setShowConfirmModal(false)}
                   className="flex-1 px-4 py-2.5 border border-[var(--border)] text-[var(--text-secondary)] rounded-[var(--radius-lg)] font-medium hover:bg-[var(--surface)] transition-colors"
                 >
-                  Huỷ
+                  {t("restore.confirm_modal.cancel")}
                 </button>
                 <button
                   onClick={executeRestore}
@@ -771,7 +798,7 @@ export default function RestoreData() {
                       : "bg-[var(--primary)] hover:bg-[var(--primary-hover)]"
                   }`}
                 >
-                  Khôi phục
+                  {t("restore.confirm_modal.confirm")}
                 </button>
               </div>
             </div>

@@ -32,20 +32,22 @@ import {
 import { useToast } from "../contexts/ToastContext";
 import { recurringService } from "../services/recurringService";
 import { useAppNavigation } from "../hooks/useAppNavigation";
+import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-function timeAgo(dateStr: string): string {
+function timeAgo(dateStr: string, t: TFunction): string {
   const now = Date.now();
   const diff = now - new Date(dateStr).getTime();
   const mins = Math.floor(diff / 60000);
-  if (mins < 1) return "Vừa xong";
-  if (mins < 60) return `${mins} phút trước`;
+  if (mins < 1) return t("notifications_inbox.time_ago.just_now");
+  if (mins < 60) return t("notifications_inbox.time_ago.minutes", { n: mins });
   const hours = Math.floor(mins / 60);
-  if (hours < 24) return `${hours} giờ trước`;
+  if (hours < 24) return t("notifications_inbox.time_ago.hours", { n: hours });
   const days = Math.floor(hours / 24);
-  if (days < 7) return `${days} ngày trước`;
-  return new Date(dateStr).toLocaleDateString("vi-VN");
+  if (days < 7) return t("notifications_inbox.time_ago.days", { n: days });
+  return new Date(dateStr).toLocaleDateString();
 }
 
 function getDateGroup(dateStr: string): "today" | "yesterday" | "earlier" {
@@ -62,9 +64,9 @@ function getDateGroup(dateStr: string): "today" | "yesterday" | "earlier" {
 }
 
 const GROUP_LABELS: Record<string, string> = {
-  today: "Hôm nay",
-  yesterday: "Hôm qua",
-  earlier: "Trước đó",
+  today: "notifications_inbox.group_labels.today",
+  yesterday: "notifications_inbox.group_labels.yesterday",
+  earlier: "notifications_inbox.group_labels.earlier",
 };
 
 function getNotifIcon(type: AppNotification["type"]) {
@@ -112,6 +114,7 @@ function HeaderMenu({
   hasNotifications: boolean;
   bulkMode: boolean;
 }) {
+  const { t } = useTranslation("community");
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -143,7 +146,9 @@ function HeaderMenu({
               className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-[var(--text-primary)] hover:bg-[var(--surface)] transition-colors"
             >
               <SquareCheck className="w-4 h-4 text-[var(--text-secondary)]" />
-              {bulkMode ? "Huỷ chọn nhiều" : "Chọn nhiều"}
+              {bulkMode
+                ? t("notifications_inbox.header_menu.bulk_cancel")
+                : t("notifications_inbox.header_menu.bulk_select")}
             </button>
           )}
           <button
@@ -154,7 +159,7 @@ function HeaderMenu({
             className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-[var(--text-primary)] hover:bg-[var(--surface)] transition-colors"
           >
             <CheckCheck className="w-4 h-4 text-[var(--text-secondary)]" />
-            Đánh dấu đã đọc tất cả
+            {t("notifications_inbox.header_menu.mark_all_read")}
           </button>
           {hasRead && (
             <button
@@ -165,7 +170,7 @@ function HeaderMenu({
               className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-[var(--danger)] hover:bg-[var(--danger-light)] transition-colors"
             >
               <XCircle className="w-4 h-4" />
-              Xoá tất cả đã đọc
+              {t("notifications_inbox.header_menu.clear_read")}
             </button>
           )}
           <div className="border-t border-[var(--border)] my-1" />
@@ -177,7 +182,7 @@ function HeaderMenu({
             className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-[var(--text-primary)] hover:bg-[var(--surface)] transition-colors"
           >
             <Settings className="w-4 h-4 text-[var(--text-secondary)]" />
-            Cài đặt thông báo
+            {t("notifications_inbox.header_menu.settings")}
           </button>
         </div>
       )}
@@ -212,6 +217,7 @@ function NotificationCard({
   selected,
   onToggleSelect,
 }: NotificationCardProps) {
+  const { t } = useTranslation("community");
   const swipeActions = bulkMode
     ? []
     : [
@@ -219,7 +225,7 @@ function NotificationCard({
           ? [
               {
                 icon: <Check className="w-5 h-5" />,
-                label: "Đã đọc",
+                label: t("notifications_inbox.swipe_actions.mark_read"),
                 color: "#FFFFFF",
                 bgColor: "var(--primary)",
                 onClick: onMarkRead,
@@ -228,7 +234,7 @@ function NotificationCard({
           : []),
         {
           icon: <Trash2 className="w-5 h-5" />,
-          label: "Xoá",
+          label: t("notifications_inbox.swipe_actions.delete"),
           color: "#FFFFFF",
           bgColor: "var(--danger)",
           onClick: onDelete,
@@ -312,7 +318,7 @@ function NotificationCard({
                     className="text-xs text-[var(--text-tertiary)] hover:text-[var(--primary)] flex items-center gap-1 transition-colors"
                   >
                     <Check className="w-3.5 h-3.5" />
-                    Đã đọc
+                    {t("notifications_inbox.card.mark_read")}
                   </button>
                 )}
                 <button
@@ -320,7 +326,7 @@ function NotificationCard({
                   className="text-xs text-[var(--text-tertiary)] hover:text-[var(--danger)] flex items-center gap-1 transition-colors"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
-                  Xoá
+                  {t("notifications_inbox.card.delete")}
                 </button>
               </div>
 
@@ -331,14 +337,14 @@ function NotificationCard({
                   className="ml-auto text-xs text-[var(--text-tertiary)] hover:text-[var(--primary)] flex items-center gap-1 transition-colors md:hidden"
                 >
                   <Check className="w-3.5 h-3.5" />
-                  Đã đọc
+                  {t("notifications_inbox.card.mark_read")}
                 </button>
               )}
             </div>
           )}
 
           <p className="text-[10px] text-[var(--text-tertiary)] mt-2">
-            {timeAgo(notification.createdAt)}
+            {timeAgo(notification.createdAt, t)}
           </p>
         </div>
       </div>
@@ -378,6 +384,7 @@ function BulkToolbar({
   onDelete: () => void;
   onCancel: () => void;
 }) {
+  const { t } = useTranslation("community");
   const allSelected = selectedCount === totalCount && totalCount > 0;
 
   return (
@@ -403,7 +410,9 @@ function BulkToolbar({
               )}
             </button>
             <span className="text-sm font-medium text-[var(--text-primary)] truncate">
-              {selectedCount} đã chọn
+              {t("notifications_inbox.bulk_toolbar.selected_count", {
+                count: selectedCount,
+              })}
             </span>
           </div>
 
@@ -415,7 +424,9 @@ function BulkToolbar({
               className="flex items-center gap-1.5 px-3 py-2 rounded-[var(--radius-md)] text-sm font-medium text-[var(--primary)] bg-[var(--primary-light)] hover:opacity-80 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <CheckCheck className="w-4 h-4" />
-              <span className="hidden sm:inline">Đã đọc</span>
+              <span className="hidden sm:inline">
+                {t("notifications_inbox.bulk_toolbar.mark_read")}
+              </span>
             </button>
             <button
               onClick={onDelete}
@@ -423,7 +434,9 @@ function BulkToolbar({
               className="flex items-center gap-1.5 px-3 py-2 rounded-[var(--radius-md)] text-sm font-medium text-[var(--danger)] bg-[var(--danger-light)] hover:opacity-80 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <Trash2 className="w-4 h-4" />
-              <span className="hidden sm:inline">Xoá</span>
+              <span className="hidden sm:inline">
+                {t("notifications_inbox.bulk_toolbar.delete")}
+              </span>
             </button>
             <button
               onClick={onCancel}
@@ -442,6 +455,7 @@ function BulkToolbar({
 
 export default function NotificationsInbox() {
   const nav = useAppNavigation();
+  const { t } = useTranslation("community");
   const toast = useToast();
   const {
     notifications,
@@ -518,7 +532,7 @@ export default function NotificationsInbox() {
       [];
     for (const key of groupOrder) {
       if (buckets[key].length > 0) {
-        groups.push({ key, label: GROUP_LABELS[key], items: buckets[key] });
+        groups.push({ key, label: t(GROUP_LABELS[key]), items: buckets[key] });
       }
     }
     return groups;
@@ -527,7 +541,7 @@ export default function NotificationsInbox() {
   // ── Handlers ─────────────────────────────────────────────────────
   const handleMarkAllRead = () => {
     markAllAsRead();
-    toast.success("Đánh dấu đã đọc tất cả");
+    toast.success(t("notifications_inbox.toasts.mark_all_read"));
   };
 
   const handleClearAllRead = () => {
@@ -536,20 +550,24 @@ export default function NotificationsInbox() {
 
   const confirmClearAllRead = () => {
     clearAllRead();
-    toast.success("Đã xoá tất cả thông báo đã đọc");
+    toast.success(t("notifications_inbox.toasts.clear_all_read"));
     setShowClearModal(false);
   };
 
   const handleDelete = (notif: AppNotification) => {
     removeNotification(notif.id);
-    toast.success("Đã xoá thông báo");
+    toast.success(t("notifications_inbox.toasts.delete_single"));
   };
 
   // ── Bulk action handlers ─────────────────────────────────────────
   const handleBulkMarkRead = () => {
     if (selectedIds.size === 0) return;
     markAsReadMultiple(Array.from(selectedIds));
-    toast.success(`Đánh dấu đã đọc ${selectedIds.size} thông báo`);
+    toast.success(
+      t("notifications_inbox.toasts.bulk_mark_read", {
+        count: selectedIds.size,
+      }),
+    );
     exitBulkMode();
   };
 
@@ -561,7 +579,7 @@ export default function NotificationsInbox() {
   const confirmBulkDelete = () => {
     const count = selectedIds.size;
     removeNotifications(Array.from(selectedIds));
-    toast.success(`Đã xoá ${count} thông báo`);
+    toast.success(t("notifications_inbox.toasts.bulk_delete", { count }));
     setShowBulkDeleteModal(false);
     exitBulkMode();
   };
@@ -570,16 +588,16 @@ export default function NotificationsInbox() {
 
   const handleRecurringConfirm = async (notif: AppNotification) => {
     if (!notif.recurringRuleId) {
-      toast.info("Quy tắc không tồn tại");
+      toast.info(t("notifications_inbox.toasts.recurring_no_rule"));
       markAsRead(notif.id);
       return;
     }
     try {
       await recurringService.runRecurringRuleNow(notif.recurringRuleId);
-      toast.success("Đã tạo giao dịch");
+      toast.success(t("notifications_inbox.toasts.recurring_created"));
       markAsRead(notif.id);
     } catch {
-      toast.error("Không thể tạo giao dịch");
+      toast.error(t("notifications_inbox.toasts.recurring_confirm_error"));
     }
   };
 
@@ -590,10 +608,10 @@ export default function NotificationsInbox() {
     }
     try {
       await recurringService.skipNextOccurrence(notif.recurringRuleId);
-      toast.success("Đã bỏ qua lần chạy");
+      toast.success(t("notifications_inbox.toasts.recurring_skip_success"));
       markAsRead(notif.id);
     } catch {
-      toast.error("Không thể bỏ qua lần chạy");
+      toast.error(t("notifications_inbox.toasts.recurring_skip_error"));
     }
   };
 
@@ -631,8 +649,8 @@ export default function NotificationsInbox() {
           <NotificationCard
             key={notif.id}
             {...commonProps}
-            primaryLabel="Xác nhận"
-            secondaryLabel="Bỏ qua"
+            primaryLabel={t("notifications_inbox.actions.recurring_confirm")}
+            secondaryLabel={t("notifications_inbox.actions.recurring_skip")}
             onPrimaryAction={() => handleRecurringConfirm(notif)}
             onSecondaryAction={() => handleRecurringSkip(notif)}
           />
@@ -642,7 +660,7 @@ export default function NotificationsInbox() {
           <NotificationCard
             key={notif.id}
             {...commonProps}
-            primaryLabel="Xem ngân sách"
+            primaryLabel={t("notifications_inbox.actions.budget_view")}
             onPrimaryAction={() => handleBudgetView(notif)}
           />
         );
@@ -651,7 +669,7 @@ export default function NotificationsInbox() {
           <NotificationCard
             key={notif.id}
             {...commonProps}
-            primaryLabel="Thêm đóng góp"
+            primaryLabel={t("notifications_inbox.actions.goal_contribute")}
             onPrimaryAction={() => handleGoalContribute(notif)}
           />
         );
@@ -660,7 +678,7 @@ export default function NotificationsInbox() {
           <NotificationCard
             key={notif.id}
             {...commonProps}
-            primaryLabel="Xem mục tiêu"
+            primaryLabel={t("notifications_inbox.actions.goal_view")}
             onPrimaryAction={() => {
               markAsRead(notif.id);
               if (notif.goalId) nav.goGoalDetail(notif.goalId);
@@ -689,14 +707,18 @@ export default function NotificationsInbox() {
             </button>
             <div>
               <h1 className="text-2xl font-semibold text-[var(--text-primary)]">
-                Thông báo
+                {t("notifications_inbox.title")}
               </h1>
               <p className="text-sm text-[var(--text-secondary)] mt-0.5">
                 {bulkMode
-                  ? `${selectedIds.size} đã chọn`
+                  ? t("notifications_inbox.subtitle.selected", {
+                      count: selectedIds.size,
+                    })
                   : unreadCount > 0
-                    ? `${unreadCount} chưa đọc`
-                    : "Không có thông báo mới"}
+                    ? t("notifications_inbox.subtitle.unread", {
+                        count: unreadCount,
+                      })
+                    : t("notifications_inbox.subtitle.all_read")}
               </p>
             </div>
           </div>
@@ -714,7 +736,7 @@ export default function NotificationsInbox() {
         {/* Swipe hint (mobile only, not in bulk mode) */}
         {!bulkMode && (
           <p className="text-[10px] text-[var(--text-tertiary)] text-center md:hidden">
-            Vuốt sang trái để đánh dấu đã đọc hoặc xoá
+            {t("notifications_inbox.swipe_hint")}
           </p>
         )}
 
@@ -723,8 +745,7 @@ export default function NotificationsInbox() {
           <div className="flex items-center gap-3 px-4 py-3 bg-[var(--primary-light)] border border-[var(--primary)] rounded-[var(--radius-lg)]">
             <SquareCheck className="w-5 h-5 text-[var(--primary)] flex-shrink-0" />
             <p className="text-sm text-[var(--primary)]">
-              Chạm vào thông báo để chọn. Dùng thanh công cụ bên dưới để thực
-              hiện hành động.
+              {t("notifications_inbox.bulk_mode_hint")}
             </p>
           </div>
         )}
@@ -742,7 +763,7 @@ export default function NotificationsInbox() {
                 : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
             }`}
           >
-            Chưa đọc
+            {t("notifications_inbox.tabs.unread")}
             {unreadCount > 0 && (
               <span className="ml-1.5 inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-[var(--danger)] text-white text-[10px] font-bold">
                 {unreadCount}
@@ -760,7 +781,7 @@ export default function NotificationsInbox() {
                 : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
             }`}
           >
-            Tất cả
+            {t("notifications_inbox.tabs.all")}
           </button>
         </div>
 
@@ -772,11 +793,11 @@ export default function NotificationsInbox() {
             </div>
             <h3 className="font-semibold text-[var(--text-primary)] mb-1">
               {tab === "unread"
-                ? "Không có thông báo mới"
-                : "Chưa có thông báo nào"}
+                ? t("notifications_inbox.empty.unread_title")
+                : t("notifications_inbox.empty.all_title")}
             </h3>
             <p className="text-sm text-[var(--text-secondary)]">
-              Bạn đã cập nhật xong rồi!
+              {t("notifications_inbox.empty.subtitle")}
             </p>
           </div>
         ) : (
@@ -825,7 +846,7 @@ export default function NotificationsInbox() {
               className="flex items-center gap-2 px-4 py-2 rounded-[var(--radius-lg)] border border-[var(--border)] text-sm text-[var(--text-secondary)] hover:text-[var(--danger)] hover:border-[var(--danger)] transition-colors"
             >
               <Trash2 className="w-4 h-4" />
-              Xoá {readCount} thông báo đã đọc
+              {t("notifications_inbox.clear_read_button", { count: readCount })}
             </button>
           </div>
         )}
@@ -835,10 +856,12 @@ export default function NotificationsInbox() {
           isOpen={showClearModal}
           onClose={() => setShowClearModal(false)}
           onConfirm={confirmClearAllRead}
-          title="Xoá tất cả thông báo đã đọc?"
-          description={`${readCount} thông báo đã đọc sẽ bị xoá vĩnh viễn. Thao tác này không thể hoàn tác.`}
-          confirmLabel="Xoá tất cả"
-          cancelLabel="Huỷ"
+          title={t("notifications_inbox.clear_modal.title")}
+          description={t("notifications_inbox.clear_modal.description", {
+            count: readCount,
+          })}
+          confirmLabel={t("notifications_inbox.clear_modal.confirm")}
+          cancelLabel={t("notifications_inbox.clear_modal.cancel")}
           isDangerous
         />
 
@@ -847,10 +870,14 @@ export default function NotificationsInbox() {
           isOpen={showBulkDeleteModal}
           onClose={() => setShowBulkDeleteModal(false)}
           onConfirm={confirmBulkDelete}
-          title={`Xoá ${selectedIds.size} thông báo?`}
-          description={`${selectedIds.size} thông báo đã chọn sẽ bị xoá vĩnh viễn. Thao tác này không thể hoàn tác.`}
-          confirmLabel="Xoá"
-          cancelLabel="Huỷ"
+          title={t("notifications_inbox.bulk_delete_modal.title", {
+            count: selectedIds.size,
+          })}
+          description={t("notifications_inbox.bulk_delete_modal.description", {
+            count: selectedIds.size,
+          })}
+          confirmLabel={t("notifications_inbox.bulk_delete_modal.confirm")}
+          cancelLabel={t("notifications_inbox.bulk_delete_modal.cancel")}
           isDangerous
         />
       </div>

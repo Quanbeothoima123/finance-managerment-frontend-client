@@ -25,6 +25,7 @@ import { TopicChip } from "../components/social/TopicChip";
 import { FinanceRecapCard } from "../components/social/FinanceRecapCard";
 import { SensitiveInfoBanner } from "../components/social/SensitiveInfoBanner";
 import { useToast } from "../contexts/ToastContext";
+import { useTranslation } from "react-i18next";
 
 interface UploadedImage {
   url: string;
@@ -32,22 +33,6 @@ interface UploadedImage {
   file?: File;
   previewUrl: string;
 }
-
-const POST_TYPES: { type: PostType; label: string; icon: React.ReactNode }[] = [
-  {
-    type: "article",
-    label: "Bài viết",
-    icon: <FileText className="w-4 h-4" />,
-  },
-  { type: "photo", label: "Ảnh", icon: <Image className="w-4 h-4" /> },
-  { type: "recap", label: "Recap", icon: <BarChart3 className="w-4 h-4" /> },
-  { type: "milestone", label: "Cột mốc", icon: <Target className="w-4 h-4" /> },
-  {
-    type: "question",
-    label: "Câu hỏi",
-    icon: <HelpCircle className="w-4 h-4" />,
-  },
-];
 
 const TOPIC_OPTIONS = [
   "Tiết kiệm",
@@ -59,31 +44,67 @@ const TOPIC_OPTIONS = [
   "Đầu tư cơ bản",
 ];
 
-const audienceConfig: Record<
-  PostAudience,
-  { label: string; icon: React.ReactNode }
-> = {
-  public: { label: "Công khai", icon: <Globe className="w-3.5 h-3.5" /> },
-  followers: {
-    label: "Người theo dõi",
-    icon: <Users className="w-3.5 h-3.5" />,
-  },
-  private: { label: "Riêng tư", icon: <Lock className="w-3.5 h-3.5" /> },
-};
-
-const placeholders: Record<PostType, string> = {
-  article: "Chia sẻ kinh nghiệm quản lý tài chính của bạn...",
-  photo: "Thêm mô tả cho ảnh...",
-  recap: "Chia sẻ cảm nghĩ về kết quả tài chính tuần/tháng này...",
-  milestone: "Chia sẻ cột mốc tài chính bạn đã đạt được...",
-  question: "Bạn muốn hỏi gì về tài chính...",
-};
-
 export default function CreatePost() {
   const navigate = useNavigate();
+  const { t } = useTranslation("community");
   const { data: myProfile } = useMyProfile();
   const { data: topicsList } = useSocialTopics();
   const toast = useToast();
+
+  const POST_TYPES: { type: PostType; label: string; icon: React.ReactNode }[] =
+    [
+      {
+        type: "article",
+        label: t("create_post.post_types.article"),
+        icon: <FileText className="w-4 h-4" />,
+      },
+      {
+        type: "photo",
+        label: t("create_post.post_types.photo"),
+        icon: <Image className="w-4 h-4" />,
+      },
+      {
+        type: "recap",
+        label: t("create_post.post_types.recap"),
+        icon: <BarChart3 className="w-4 h-4" />,
+      },
+      {
+        type: "milestone",
+        label: t("create_post.post_types.milestone"),
+        icon: <Target className="w-4 h-4" />,
+      },
+      {
+        type: "question",
+        label: t("create_post.post_types.question"),
+        icon: <HelpCircle className="w-4 h-4" />,
+      },
+    ];
+
+  const audienceConfig: Record<
+    PostAudience,
+    { label: string; icon: React.ReactNode }
+  > = {
+    public: {
+      label: t("create_post.audience.public"),
+      icon: <Globe className="w-3.5 h-3.5" />,
+    },
+    followers: {
+      label: t("create_post.audience.followers"),
+      icon: <Users className="w-3.5 h-3.5" />,
+    },
+    private: {
+      label: t("create_post.audience.private"),
+      icon: <Lock className="w-3.5 h-3.5" />,
+    },
+  };
+
+  const placeholders: Record<PostType, string> = {
+    article: t("create_post.placeholders.article"),
+    photo: t("create_post.placeholders.photo"),
+    recap: t("create_post.placeholders.recap"),
+    milestone: t("create_post.placeholders.milestone"),
+    question: t("create_post.placeholders.question"),
+  };
 
   const [postType, setPostType] = useState<PostType>("article");
   const [content, setContent] = useState("");
@@ -124,7 +145,7 @@ export default function CreatePost() {
 
     const remaining = 5 - images.length;
     if (remaining <= 0) {
-      toast.error("Tối đa 5 ảnh cho mỗi bài viết");
+      toast.error(t("create_post.image_upload.max_error"));
       return;
     }
 
@@ -141,7 +162,7 @@ export default function CreatePost() {
         setImages((prev) => [...prev, ...newImages]);
       }
     } catch {
-      toast.error("Upload ảnh thất bại");
+      toast.error(t("create_post.image_upload.upload_failed"));
     } finally {
       setUploading(false);
       // Reset input so same file can be selected again
@@ -187,11 +208,13 @@ export default function CreatePost() {
           : {}),
       });
       toast.success(
-        isDraft ? "Đã lưu bản nháp!" : "Bài viết đã được đăng thành công!",
+        isDraft
+          ? t("create_post.toast.draft_saved")
+          : t("create_post.toast.posted"),
       );
       navigate("/community");
     } catch {
-      toast.error("Không thể đăng bài viết");
+      toast.error(t("create_post.toast.post_failed"));
     } finally {
       setSubmitting(false);
     }
@@ -208,10 +231,10 @@ export default function CreatePost() {
         isDraft: true,
         topicIds: selectedTopicIds,
       });
-      toast.info("Đã lưu bản nháp");
+      toast.info(t("create_post.toast.draft_save_info"));
       navigate("/community");
     } catch {
-      toast.error("Không thể lưu bản nháp");
+      toast.error(t("create_post.toast.draft_failed"));
     } finally {
       setSubmitting(false);
     }
@@ -231,7 +254,7 @@ export default function CreatePost() {
       progressPercent: 72,
       color: "#16A34A",
     });
-    toast.success("Đã đính kèm recap tài chính");
+    toast.success(t("create_post.recap_attach.attach_toast"));
   };
 
   if (showPreview) {
@@ -243,17 +266,19 @@ export default function CreatePost() {
               onClick={() => setShowPreview(false)}
               className="text-sm font-medium text-[var(--text-secondary)]"
             >
-              ← Chỉnh sửa
+              {t("create_post.preview.back")}
             </button>
             <h1 className="font-semibold text-[var(--text-primary)]">
-              Xem trước
+              {t("create_post.preview.title")}
             </h1>
             <button
               onClick={handlePost}
               disabled={!canPost}
               className="px-4 py-1.5 rounded-full text-sm font-semibold bg-[var(--primary)] text-white hover:bg-[var(--primary-hover)]"
             >
-              {isDraft ? "Lưu nháp" : "Đăng"}
+              {isDraft
+                ? t("create_post.save_draft_button")
+                : t("create_post.post_button")}
             </button>
           </div>
 
@@ -271,7 +296,7 @@ export default function CreatePost() {
                   </p>
                   <div className="flex items-center gap-2 mt-0.5">
                     <span className="text-xs text-[var(--text-tertiary)]">
-                      Vừa xong
+                      {t("create_post.preview.just_now")}
                     </span>
                     <span
                       className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium ${
@@ -326,7 +351,7 @@ export default function CreatePost() {
               )}
             </div>
             <p className="text-xs text-[var(--text-tertiary)] text-center mt-4">
-              Đây là cách bài viết sẽ hiển thị trong cộng đồng
+              {t("create_post.preview.footer_hint")}
             </p>
           </div>
         </div>
@@ -343,10 +368,10 @@ export default function CreatePost() {
             onClick={() => navigate(-1)}
             className="text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
           >
-            Hủy
+            {t("create_post.cancel")}
           </button>
           <h1 className="font-semibold text-[var(--text-primary)]">
-            Tạo bài viết
+            {t("create_post.title")}
           </h1>
           <div className="flex items-center gap-2">
             {canPost && (
@@ -366,7 +391,9 @@ export default function CreatePost() {
                   : "bg-[var(--surface)] text-[var(--text-tertiary)]"
               }`}
             >
-              {isDraft ? "Lưu nháp" : "Đăng"}
+              {isDraft
+                ? t("create_post.save_draft_button")
+                : t("create_post.post_button")}
             </button>
           </div>
         </div>
@@ -470,7 +497,9 @@ export default function CreatePost() {
                       ) : (
                         <>
                           <Plus className="w-6 h-6" />
-                          <span className="text-xs">Thêm ảnh</span>
+                          <span className="text-xs">
+                            {t("create_post.image_upload.add_image")}
+                          </span>
                         </>
                       )}
                     </button>
@@ -489,10 +518,12 @@ export default function CreatePost() {
                     <Image className="w-8 h-8 mx-auto text-[var(--text-tertiary)] mb-2" />
                   )}
                   <p className="text-sm font-medium text-[var(--text-secondary)]">
-                    {uploading ? "Đang tải ảnh lên..." : "Chọn ảnh để tải lên"}
+                    {uploading
+                      ? t("create_post.image_upload.uploading")
+                      : t("create_post.image_upload.choose_image")}
                   </p>
                   <p className="text-xs text-[var(--text-tertiary)] mt-1">
-                    Tối đa 5 ảnh, mỗi ảnh không quá 10MB
+                    {t("create_post.image_upload.max_hint")}
                   </p>
                 </button>
               )}
@@ -504,13 +535,13 @@ export default function CreatePost() {
             <div>
               <div className="flex items-center justify-between mb-2">
                 <p className="text-sm font-medium text-[var(--text-primary)]">
-                  Recap đính kèm
+                  {t("create_post.recap_attach.section_label")}
                 </p>
                 <button
                   onClick={() => navigate("/community/share-recap")}
                   className="text-xs text-[var(--primary)] font-medium"
                 >
-                  Tùy chỉnh
+                  {t("create_post.recap_attach.customize")}
                 </button>
               </div>
               <FinanceRecapCard
@@ -518,7 +549,7 @@ export default function CreatePost() {
                 showPrivacyHint
                 onRemove={() => {
                   setAttachedRecap(null);
-                  toast.info("Đã gỡ recap đính kèm");
+                  toast.info(t("create_post.recap_attach.detach_toast"));
                 }}
               />
             </div>
@@ -535,11 +566,11 @@ export default function CreatePost() {
                   <BarChart3 className="w-7 h-7 mx-auto text-[var(--text-tertiary)] mb-1.5" />
                   <p className="text-sm font-medium text-[var(--text-secondary)]">
                     {postType === "recap"
-                      ? "Đính kèm Recap"
-                      : "Đính kèm tiến độ"}
+                      ? t("create_post.recap_attach.attach_recap")
+                      : t("create_post.recap_attach.attach_progress")}
                   </p>
                   <p className="text-xs text-[var(--text-tertiary)] mt-0.5">
-                    Tạo card từ dữ liệu của bạn
+                    {t("create_post.recap_attach.card_hint")}
                   </p>
                 </button>
                 <button
@@ -548,10 +579,10 @@ export default function CreatePost() {
                 >
                   <Target className="w-7 h-7 mx-auto text-[var(--text-tertiary)] mb-1.5" />
                   <p className="text-sm font-medium text-[var(--text-secondary)]">
-                    Tùy chỉnh Recap
+                    {t("create_post.recap_attach.customize_recap")}
                   </p>
                   <p className="text-xs text-[var(--text-tertiary)] mt-0.5">
-                    Chọn dữ liệu hiển thị
+                    {t("create_post.recap_attach.customize_hint")}
                   </p>
                 </button>
               </div>
@@ -560,7 +591,7 @@ export default function CreatePost() {
           {/* Topic Selector */}
           <div>
             <p className="text-sm font-medium text-[var(--text-primary)] mb-2">
-              Chủ đề
+              {t("create_post.topics_section")}
             </p>
             <div className="flex flex-wrap gap-2">
               {topicOptions.map((topic) => (
@@ -583,7 +614,7 @@ export default function CreatePost() {
               onClick={handleSaveDraft}
               className="w-full py-3 text-sm font-medium text-[var(--text-secondary)] bg-[var(--surface)] rounded-2xl hover:bg-[var(--border)] transition-colors"
             >
-              Lưu bản nháp
+              {t("create_post.save_draft_button")}
             </button>
           )}
         </div>
@@ -601,7 +632,7 @@ export default function CreatePost() {
               </div>
               <div className="p-6 pt-4">
                 <h3 className="font-semibold text-[var(--text-primary)] mb-4">
-                  Ai có thể thấy bài viết này?
+                  {t("create_post.audience.label")}
                 </h3>
                 <AudienceSelector
                   value={audience}
@@ -614,7 +645,7 @@ export default function CreatePost() {
                   onClick={() => setShowAudienceSheet(false)}
                   className="w-full mt-4 py-3 text-sm font-medium text-[var(--text-secondary)] bg-[var(--surface)] rounded-2xl"
                 >
-                  Đóng
+                  {t("create_post.audience.close")}
                 </button>
               </div>
             </div>

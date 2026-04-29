@@ -9,11 +9,13 @@ import { PostCard } from "../components/social/PostCard";
 import { TopicChip } from "../components/social/TopicChip";
 import { PostSkeleton } from "../components/social/PostSkeleton";
 import { SocialEmptyState } from "../components/social/SocialEmptyState";
+import { useTranslation } from "react-i18next";
 
 type FeedTab = "foryou" | "following";
 
 export default function CommunityFeed() {
   const navigate = useNavigate();
+  const { t } = useTranslation("community");
 
   const { data: myProfile } = useMyProfile();
   const { count: unreadNotificationsCount } = useSocialUnreadCount();
@@ -52,7 +54,9 @@ export default function CommunityFeed() {
   }, [feedData, hiddenPostIds]);
 
   const topicFilters = useMemo(() => {
-    const all = [{ id: undefined as string | undefined, name: "Tất cả" }];
+    const all = [
+      { id: undefined as string | undefined, name: t("feed.topic_filter_all") },
+    ];
     if (topicsList)
       all.push(
         ...topicsList.map((t) => ({
@@ -61,13 +65,13 @@ export default function CommunityFeed() {
         })),
       );
     return all;
-  }, [topicsList]);
+  }, [topicsList, t]);
 
   if (myProfile && !hasCompletedOnboarding) return null;
 
   const tabs: { key: FeedTab; label: string }[] = [
-    { key: "foryou", label: "Dành cho bạn" },
-    { key: "following", label: "Đang theo dõi" },
+    { key: "foryou", label: t("feed.tabs.for_you") },
+    { key: "following", label: t("feed.tabs.following") },
   ];
 
   return (
@@ -77,7 +81,7 @@ export default function CommunityFeed() {
         <div className="sticky top-0 z-20 bg-[var(--background)]/95 backdrop-blur-sm border-b border-[var(--border)]">
           <div className="px-4 pt-4 pb-2 flex items-center justify-between">
             <h1 className="text-xl font-bold text-[var(--text-primary)]">
-              Cộng đồng
+              {t("feed.title")}
             </h1>
             <div className="flex items-center gap-2">
               <button
@@ -148,14 +152,14 @@ export default function CommunityFeed() {
           ) : filteredPosts.length === 0 ? (
             <SocialEmptyState
               icon={<Sparkles className="w-8 h-8" />}
-              title="Chưa có bài viết nào"
+              title={t("feed.empty.title")}
               description={
                 activeTab === "following"
-                  ? "Hãy theo dõi những người dùng khác để thấy bài viết của họ."
-                  : "Chưa có bài viết nào phù hợp với bộ lọc của bạn."
+                  ? t("feed.empty.description_following")
+                  : t("feed.empty.description_default")
               }
               action={{
-                label: "Khám phá cộng đồng",
+                label: t("feed.empty.discover_action"),
                 onClick: () => navigate("/community/discover"),
               }}
             />

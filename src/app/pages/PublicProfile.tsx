@@ -25,10 +25,12 @@ import {
   type BottomSheetAction,
 } from "../components/social/BottomSheetActions";
 import { useToast } from "../contexts/ToastContext";
+import { useTranslation } from "react-i18next";
 
 type ProfileTab = "posts" | "recaps";
 
 function BadgeIcon({ badge }: { badge?: string | null }) {
+  const { t } = useTranslation("community");
   if (!badge) return null;
   const map: Record<
     string,
@@ -37,12 +39,12 @@ function BadgeIcon({ badge }: { badge?: string | null }) {
     verified: {
       icon: <CheckCircle className="w-4 h-4" />,
       color: "text-[var(--primary)]",
-      label: "Đã xác minh",
+      label: t("public_profile.badge_labels.verified"),
     },
     expert: {
       icon: <Award className="w-4 h-4" />,
       color: "text-[var(--warning)]",
-      label: "Chuyên gia",
+      label: t("public_profile.badge_labels.expert"),
     },
     mentor: {
       icon: <Shield className="w-4 h-4" />,
@@ -64,6 +66,7 @@ function BadgeIcon({ badge }: { badge?: string | null }) {
 
 export default function PublicProfile() {
   const navigate = useNavigate();
+  const { t } = useTranslation("community");
   const { id } = useParams<{ id: string }>();
   const {
     data: profile,
@@ -119,7 +122,7 @@ export default function PublicProfile() {
       toast.success(`Đã chặn ${profile.displayName || profile.username}`);
       navigate(-1);
     } catch {
-      toast.error("Không thể chặn người dùng");
+      toast.error(t("public_profile.toast.block_failed"));
     }
   };
 
@@ -176,34 +179,42 @@ export default function PublicProfile() {
   const visitorActions: BottomSheetAction[] = [
     {
       icon: <Flag className="w-5 h-5" />,
-      label: "Báo cáo người dùng",
-      description: "Vi phạm quy tắc cộng đồng",
+      label: t("public_profile.actions.report"),
+      description: t("public_profile.actions.report_description"),
       destructive: true,
-      onClick: () => toast.info("Đã gửi báo cáo. Cảm ơn bạn!"),
+      onClick: () => toast.info(t("public_profile.toast.reported")),
     },
     {
       icon: <Ban className="w-5 h-5" />,
-      label: `Chặn ${displayName}`,
-      description: "Bạn sẽ không thấy nội dung từ người này",
+      label: t("public_profile.actions.block"),
+      description: t("public_profile.actions.block_description"),
       destructive: true,
       onClick: handleBlock,
     },
   ];
 
   const tabs: { key: ProfileTab; label: string; count: number }[] = [
-    { key: "posts", label: "Bài viết", count: userPosts.length },
-    { key: "recaps", label: "Recap", count: userRecaps.length },
+    {
+      key: "posts",
+      label: t("public_profile.tabs.posts"),
+      count: userPosts.length,
+    },
+    {
+      key: "recaps",
+      label: t("public_profile.tabs.recaps"),
+      count: userRecaps.length,
+    },
   ];
 
   const emptyConfig = {
     posts: {
       title: isMe ? "Chưa có bài viết nào" : `${displayName} chưa có bài viết`,
       desc: isMe
-        ? "Bắt đầu chia sẻ kinh nghiệm tài chính với cộng đồng!"
+        ? t("public_profile.empty_posts")
         : `${displayName} chưa đăng bài viết nào.`,
       action: isMe
         ? {
-            label: "Tạo bài viết",
+            label: t("public_profile.actions.create_post"),
             onClick: () => navigate("/community/create"),
           }
         : undefined,
@@ -211,11 +222,11 @@ export default function PublicProfile() {
     recaps: {
       title: isMe ? "Chưa có recap nào" : `${displayName} chưa chia sẻ recap`,
       desc: isMe
-        ? "Chia sẻ recap tài chính để theo dõi tiến trình và truyền cảm hứng!"
-        : "Recap tài chính sẽ hiển thị ở đây.",
+        ? t("public_profile.empty_recaps")
+        : t("public_profile.empty_recaps_own"),
       action: isMe
         ? {
-            label: "Chia sẻ Recap",
+            label: t("public_profile.actions.share_recap"),
             onClick: () => navigate("/community/share-recap"),
           }
         : undefined,
@@ -317,7 +328,7 @@ export default function PublicProfile() {
                   className="flex items-center gap-2 px-6 py-2.5 bg-[var(--primary)] text-white rounded-2xl font-semibold text-sm hover:bg-[var(--primary-hover)] transition-colors"
                 >
                   <PenSquare className="w-4 h-4" />
-                  Tạo bài viết
+                  {t("public_profile.actions.create_post")}
                 </button>
                 <button
                   onClick={() => navigate("/community/saved")}
@@ -397,7 +408,7 @@ export default function PublicProfile() {
           <BottomSheetActions
             open={showActionSheet}
             onClose={() => setShowActionSheet(false)}
-            title="Tùy chọn"
+            title={t("public_profile.action_sheet_title")}
             subtitle={`Hồ sơ của ${displayName}`}
             actions={visitorActions}
           />

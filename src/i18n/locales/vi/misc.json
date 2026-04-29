@@ -1,0 +1,110 @@
+{
+  "about": {
+    "title": "Giới thiệu",
+    "subtitle": "Thông tin về ứng dụng và điều khoản",
+    "back": "Quay lại",
+    "app_info": {
+      "name": "Quản lý Tài chính",
+      "tagline": "Ứng dụng quản lý tài chính cá nhân thông minh",
+      "version_label": "Phiên bản"
+    },
+    "legal": {
+      "section_title": "Thông tin pháp lý",
+      "privacy_policy": "Chính sách bảo mật",
+      "terms_of_service": "Điều khoản sử dụng",
+      "open_source_licenses": "Giấy phép mã nguồn mở"
+    },
+    "contact": {
+      "section_title": "Liên hệ & Hỗ trợ",
+      "support_email_label": "Email hỗ trợ"
+    },
+    "toast": {
+      "opening_link": "Đang mở liên kết..."
+    }
+  },
+
+  "restore": {
+    "title": "Khôi phục dữ liệu",
+    "subtitle": "3 bước: Chọn file → Xem trước → Xác nhận",
+    "back": "Quay lại",
+    "steps": {
+      "choose_file": "Chọn file",
+      "preview": "Xem trước",
+      "confirm": "Xác nhận"
+    },
+    "step0": {
+      "section_title": "Chọn file sao lưu",
+      "drop_label": "Kéo thả hoặc nhấn để chọn file",
+      "drop_hint": "Chỉ chấp nhận file .json",
+      "source_hint": "File sao lưu được tạo từ mục Sao lưu.",
+      "choose_another": "Chọn file khác"
+    },
+    "step1": {
+      "section_title": "Thông tin file sao lưu",
+      "field_file": "File",
+      "field_version": "Version",
+      "field_created_at": "Tạo lúc",
+      "field_timezone": "Timezone",
+      "version_mismatch": "File sao lưu từ phiên bản {{version}}. Một số dữ liệu có thể không khớp.",
+      "content_title": "Nội dung sao lưu",
+      "back_button": "Quay lại",
+      "next_button": "Tiếp tục"
+    },
+    "step2": {
+      "section_title": "Chọn phương thức khôi phục",
+      "mode_replace_label": "Ghi đè toàn bộ",
+      "mode_replace_recommended": "(Khuyến nghị)",
+      "mode_replace_description": "Xoá dữ liệu hiện tại và thay bằng dữ liệu từ file.",
+      "mode_merge_label": "Gộp dữ liệu",
+      "mode_merge_description": "Giữ dữ liệu hiện tại và thêm dữ liệu từ file. Trùng id sẽ bỏ qua.",
+      "irreversible_warning": "Hành động này không thể hoàn tác.",
+      "current_data_title": "Dữ liệu hiện tại",
+      "will_restore_label": "Sẽ khôi phục:",
+      "back_button": "Quay lại",
+      "restore_button": "Khôi phục"
+    },
+    "confirm_modal": {
+      "title": "Xác nhận khôi phục",
+      "description_replace": "Dữ liệu hiện tại sẽ bị xoá và thay thế hoàn toàn bằng dữ liệu từ file sao lưu.",
+      "description_merge": "Dữ liệu từ file sao lưu sẽ được thêm vào dữ liệu hiện tại. Các mục trùng ID sẽ bỏ qua.",
+      "irreversible_warning": "Hành động này không thể hoàn tác.",
+      "cancel": "Huỷ",
+      "confirm": "Khôi phục"
+    },
+    "progress": {
+      "title": "Đang khôi phục…",
+      "hint": "Vui lòng không đóng ứng dụng."
+    },
+    "success": {
+      "title": "Khôi phục thành công 🎉",
+      "description_replace": "Dữ liệu đã được thay thế thành công.",
+      "description_merge": "Dữ liệu đã được gộp thành công.",
+      "go_home": "Về trang chủ",
+      "view_transactions": "Xem giao dịch"
+    },
+    "count_labels": {
+      "transactions": "Giao dịch",
+      "accounts": "Tài khoản",
+      "categories": "Danh mục",
+      "tags": "Nhãn",
+      "merchants": "NCC",
+      "budgets": "Ngân sách",
+      "goals": "Mục tiêu",
+      "autoRules": "Rules",
+      "recurringRules": "Recurring"
+    },
+    "errors": {
+      "invalid_file": "File không hợp lệ.",
+      "unrecognized_file": "Không nhận diện được file sao lưu.",
+      "version_incompatible": "Phiên bản sao lưu không tương thích. Vui lòng cập nhật app hoặc tạo lại sao lưu."
+    }
+  },
+
+  "not_found": {
+    "code": "404",
+    "title": "Không tìm thấy trang",
+    "description": "Trang bạn đang tìm kiếm không tồn tại hoặc đã bị di chuyển.",
+    "go_back": "Quay lại",
+    "go_home": "Về trang chủ"
+  }
+}

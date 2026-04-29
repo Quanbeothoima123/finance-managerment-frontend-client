@@ -11,6 +11,7 @@ import {
 import { getSidebarRoutes } from "../routes";
 import { Button } from "./Button";
 import { useRecurringDueCount } from "../hooks/useRecurringDueCount";
+import { useTranslation } from "react-i18next";
 
 interface BottomNavigationProps {
   activePath?: string;
@@ -25,6 +26,7 @@ export function BottomNavigation({
   const navigate = useNavigate();
   const [showMoreDrawer, setShowMoreDrawer] = useState(false);
   const recurringDueCount = useRecurringDueCount(1);
+  const { t } = useTranslation("common");
 
   const currentPath = activePath || location.pathname;
   const allRoutes = getSidebarRoutes();
@@ -40,11 +42,11 @@ export function BottomNavigation({
 
   // Primary 5 tabs for bottom nav
   const primaryTabs = [
-    { icon: Home, label: "Trang chủ", path: "/home" },
-    { icon: Receipt, label: "Giao dịch", path: "/transactions" }, // Placeholder - will be implemented
-    { icon: Plus, label: "Thêm", path: "/add-transaction" }, // Placeholder - will be implemented
-    { icon: PiggyBank, label: "Ngân sách", path: "/budgets" },
-    { icon: MoreHorizontal, label: "Thêm", path: "MORE_DRAWER" },
+    { icon: Home, label: t("nav.home"), path: "/home" },
+    { icon: Receipt, label: t("nav.transactions"), path: "/transactions" }, // Placeholder - will be implemented
+    { icon: Plus, label: t("nav.add"), path: "/add-transaction" }, // Placeholder - will be implemented
+    { icon: PiggyBank, label: t("nav.budgets"), path: "/budgets" },
+    { icon: MoreHorizontal, label: t("nav.more"), path: "MORE_DRAWER" },
   ];
 
   // Routes to show in More drawer (excluding primary tabs)
@@ -126,7 +128,7 @@ export function BottomNavigation({
           <div className="fixed bottom-0 left-0 right-0 bg-[var(--card)] rounded-t-[var(--radius-xl)] z-50 md:hidden max-h-[70vh] overflow-y-auto safe-area-inset-bottom animate-in slide-in-from-bottom duration-300">
             <div className="sticky top-0 bg-[var(--card)] border-b border-[var(--border)] px-6 py-4 flex items-center justify-between">
               <h3 className="text-lg font-semibold text-[var(--text-primary)]">
-                Thêm
+                {t("nav.more")}
               </h3>
               <button
                 onClick={() => setShowMoreDrawer(false)}
@@ -141,7 +143,7 @@ export function BottomNavigation({
               {groupedMoreRoutes.accounts.length > 0 && (
                 <div>
                   <div className="text-xs font-semibold text-[var(--text-tertiary)] uppercase tracking-wider mb-3">
-                    Tài khoản
+                    {t("sidebar.sections.accounts")}
                   </div>
                   <div className="space-y-2">
                     {groupedMoreRoutes.accounts.map((route) => {
@@ -169,7 +171,7 @@ export function BottomNavigation({
               {groupedMoreRoutes.categories.length > 0 && (
                 <div>
                   <div className="text-xs font-semibold text-[var(--text-tertiary)] uppercase tracking-wider mb-3">
-                    Phân loại
+                    {t("sidebar.sections.categories")}
                   </div>
                   <div className="space-y-2">
                     {groupedMoreRoutes.categories.map((route) => {
@@ -197,7 +199,7 @@ export function BottomNavigation({
               {groupedMoreRoutes.goals.length > 0 && (
                 <div>
                   <div className="text-xs font-semibold text-[var(--text-tertiary)] uppercase tracking-wider mb-3">
-                    Mục tiêu
+                    {t("sidebar.sections.goals")}
                   </div>
                   <div className="space-y-2">
                     {groupedMoreRoutes.goals.map((route) => {
@@ -225,7 +227,7 @@ export function BottomNavigation({
               {groupedMoreRoutes.insights.length > 0 && (
                 <div>
                   <div className="text-xs font-semibold text-[var(--text-tertiary)] uppercase tracking-wider mb-3">
-                    Phân tích
+                    {t("sidebar.sections.insights")}
                   </div>
                   <div className="space-y-2">
                     {groupedMoreRoutes.insights.map((route) => {
@@ -253,7 +255,7 @@ export function BottomNavigation({
               {groupedMoreRoutes.rules.length > 0 && (
                 <div>
                   <div className="text-xs font-semibold text-[var(--text-tertiary)] uppercase tracking-wider mb-3">
-                    Tự động hoá
+                    {t("sidebar.sections.automation")}
                   </div>
                   <div className="space-y-2">
                     {groupedMoreRoutes.rules.map((route) => {
@@ -289,7 +291,7 @@ export function BottomNavigation({
               {groupedMoreRoutes.community.length > 0 && (
                 <div>
                   <div className="text-xs font-semibold text-[var(--text-tertiary)] uppercase tracking-wider mb-3">
-                    Cộng đồng
+                    {t("sidebar.sections.community")}
                   </div>
                   <div className="space-y-2">
                     {groupedMoreRoutes.community.map((route) => {
@@ -317,7 +319,7 @@ export function BottomNavigation({
               {groupedMoreRoutes.settings.length > 0 && (
                 <div>
                   <div className="text-xs font-semibold text-[var(--text-tertiary)] uppercase tracking-wider mb-3">
-                    Cài đặt
+                    {t("sidebar.sections.settings")}
                   </div>
                   <div className="space-y-2">
                     {groupedMoreRoutes.settings.map((route) => {

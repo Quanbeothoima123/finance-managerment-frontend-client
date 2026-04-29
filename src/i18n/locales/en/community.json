@@ -1,1 +1,354 @@
-{}
+{
+  "feed": {
+    "title": "Community",
+    "tabs": {
+      "for_you": "For You",
+      "following": "Following"
+    },
+    "topic_filter_all": "All",
+    "empty": {
+      "title": "No posts yet",
+      "description_following": "Follow other users to see their posts here.",
+      "description_default": "No posts match your current filter.",
+      "discover_action": "Explore community"
+    }
+  },
+
+  "discover": {
+    "title": "Discover",
+    "search_placeholder": "Search posts, topics...",
+    "search_tabs": {
+      "posts": "Posts",
+      "topics": "Topics"
+    },
+    "recent_searches": {
+      "title": "Recent searches",
+      "clear_all": "Clear all"
+    },
+    "suggested_searches": {
+      "title": "Suggested searches"
+    },
+    "suggested_search_terms": [
+      "saving for a house",
+      "student budget",
+      "50/30/20 rule",
+      "emergency fund",
+      "meal prep"
+    ],
+    "trending_topics": {
+      "title": "Trending topics",
+      "posts_count": "{{count}} posts"
+    },
+    "trending_posts": {
+      "title": "Trending posts"
+    },
+    "no_results": {
+      "title": "No results found",
+      "description": "Nothing matched \"{{query}}\". Try a different keyword."
+    },
+    "no_posts": "No posts found",
+    "no_topics": "No topics found"
+  },
+
+  "create_post": {
+    "title": "Create post",
+    "cancel": "Cancel",
+    "post_button": "Post",
+    "save_draft_button": "Save draft",
+    "post_types": {
+      "article": "Article",
+      "photo": "Photo",
+      "recap": "Recap",
+      "milestone": "Milestone",
+      "question": "Question"
+    },
+    "placeholders": {
+      "article": "Share your personal finance experience...",
+      "photo": "Add a description for this photo...",
+      "recap": "Share your thoughts on this week's/month's financial results...",
+      "milestone": "Share a financial milestone you've achieved...",
+      "question": "What do you want to ask about finance..."
+    },
+    "audience": {
+      "label": "Who can see this post?",
+      "close": "Close",
+      "public": "Public",
+      "followers": "Followers",
+      "private": "Private"
+    },
+    "image_upload": {
+      "add_image": "Add image",
+      "uploading": "Uploading...",
+      "choose_image": "Choose an image to upload",
+      "max_hint": "Up to 5 images, 10MB each",
+      "max_error": "Maximum 5 images per post",
+      "upload_failed": "Image upload failed"
+    },
+    "recap_attach": {
+      "section_label": "Attached recap",
+      "customize": "Customize",
+      "attach_recap": "Attach Recap",
+      "attach_progress": "Attach progress",
+      "card_hint": "Create a card from your data",
+      "customize_recap": "Customize Recap",
+      "customize_hint": "Choose what data to display",
+      "detach_toast": "Recap detached",
+      "attach_toast": "Finance recap attached"
+    },
+    "topics_section": "Topics",
+    "preview": {
+      "back": "← Edit",
+      "title": "Preview",
+      "just_now": "Just now",
+      "footer_hint": "This is how your post will appear in the community"
+    },
+    "toast": {
+      "posted": "Post published successfully!",
+      "draft_saved": "Draft saved!",
+      "draft_save_info": "Draft saved",
+      "post_failed": "Could not publish post",
+      "draft_failed": "Could not save draft"
+    }
+  },
+
+  "post_detail": {
+    "title": "Post",
+    "loading": "Loading...",
+    "not_found": {
+      "title": "Post not found",
+      "description": "This post may have been deleted or is unavailable.",
+      "back_button": "Go back"
+    },
+    "stats": {
+      "likes": "{{count}} likes",
+      "comments": "{{count}} comments",
+      "saves": "{{count}} saves",
+      "shares": "{{count}} shares"
+    },
+    "actions": {
+      "like": "Like",
+      "comment": "Comment",
+      "save": "Save",
+      "share": "Share"
+    },
+    "comments": {
+      "section_title": "Comments ({{count}})",
+      "empty_title": "No comments yet",
+      "empty_hint": "Be the first to share your thoughts!",
+      "reply": "Reply",
+      "like": "Like",
+      "input_placeholder": "Write a comment...",
+      "send_success": "Comment posted",
+      "send_failed": "Could not post comment"
+    },
+    "action_sheet": {
+      "own_post_title": "Your post",
+      "others_post_title": "Options",
+      "others_post_subtitle": "Post by {{name}}",
+      "delete_label": "Delete post",
+      "delete_description": "This post will be permanently deleted",
+      "report_label": "Report post",
+      "report_description": "Post violates community guidelines",
+      "hide_label": "Hide this post",
+      "hide_description": "You won't see this post again",
+      "block_label": "Block {{name}}",
+      "block_description": "You won't see content from this person"
+    },
+    "toast": {
+      "deleted": "Post deleted",
+      "delete_failed": "Could not delete post",
+      "reported": "Report submitted. Thank you!",
+      "report_failed": "Could not submit report",
+      "hidden": "Post hidden",
+      "blocked": "{{name}} blocked",
+      "block_failed": "Could not block user"
+    },
+    "time_ago": {
+      "minutes": "{{n}} min ago",
+      "hours": "{{n}}h ago",
+      "days": "{{n}}d ago"
+    }
+  },
+
+  "topic_detail": {
+    "stats": "{{posts}} posts · {{followers}} followers",
+    "related_topics_label": "Related topics",
+    "follow": "Follow",
+    "unfollow": "Following",
+    "empty": {
+      "title": "No posts yet",
+      "description": "No posts with topic #{{name}} yet. Be the first to share!",
+      "create_action": "Create post"
+    },
+    "toast": {
+      "followed": "Following #{{name}}",
+      "unfollowed": "Unfollowed #{{name}}"
+    }
+  },
+
+  "public_profile": {
+    "action_sheet_title": "Options",
+    "badge_labels": {
+      "verified": "Verified",
+      "expert": "Expert"
+    },
+    "tabs": {
+      "posts": "Posts",
+      "recaps": "Recaps"
+    },
+    "empty_posts": "Start sharing your financial journey with the community!",
+    "empty_recaps": "Share finance recaps to track progress and inspire others!",
+    "empty_recaps_own": "Finance recaps will appear here.",
+    "actions": {
+      "share_recap": "Share Recap",
+      "create_post": "Create post",
+      "report": "Report user",
+      "report_description": "Violates community guidelines",
+      "block": "Block user",
+      "block_description": "You won't see content from this person"
+    },
+    "toast": {
+      "reported": "Report submitted. Thank you!",
+      "block_failed": "Could not block user"
+    }
+  },
+
+  "followers_list": {
+    "tabs": {
+      "followers": "Followers",
+      "following": "Following"
+    },
+    "search_placeholder": "Search...",
+    "empty": {
+      "no_followers_title": "No followers yet",
+      "no_followers_description": "Share quality posts to attract followers!",
+      "no_following_title": "Not following anyone",
+      "no_following_description": "Explore the community to find interesting users.",
+      "discover_action": "Explore community"
+    }
+  },
+
+  "saved_posts": {
+    "title": "Saved posts",
+    "filter": {
+      "all": "All",
+      "question": "Questions"
+    },
+    "empty": {
+      "title": "No saved posts",
+      "description": "When you save posts, they'll appear here to read later.",
+      "discover_action": "Explore posts"
+    }
+  },
+
+  "onboarding": {
+    "steps": {
+      "welcome": "welcome",
+      "topics": "topics",
+      "people": "people"
+    },
+    "welcome": {
+      "title": "Welcome to Community!",
+      "description": "Share your personal finance journey, learn from the community, and track each other's progress.",
+      "privacy_title": "Privacy commitment",
+      "privacy_items": [
+        "You decide what to share — every post has audience settings",
+        "Financial figures can be hidden or shown as percentages only",
+        "Never share account numbers, passwords, or sensitive information"
+      ],
+      "start_button": "Get started"
+    },
+    "topics": {
+      "title": "Choose topics you like",
+      "description": "We'll suggest relevant content for you.",
+      "posts_count": "{{count}} posts",
+      "next_button": "Continue",
+      "skip_button": "Skip"
+    },
+    "people": {
+      "title": "Follow someone",
+      "description": "A few suggested users sharing their finance experience.",
+      "discover_later": "You'll discover more users after finishing setup.",
+      "finish_button": "Start exploring",
+      "skip_button": "Skip"
+    },
+    "toast": {
+      "failed": "Could not complete setup"
+    }
+  },
+
+  "social_notifications": {
+    "title": "Notifications",
+    "groups": {
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "earlier": "Earlier"
+    },
+    "empty": {
+      "title": "No notifications",
+      "description": "When someone interacts with your posts, notifications will appear here."
+    }
+  },
+
+  "notifications_inbox": {
+    "title": "Notifications",
+    "bulk_select": "Select",
+    "bulk_cancel": "Cancel",
+    "mark_all_read": "Mark all as read",
+    "clear_read": "Clear read",
+    "groups": {
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "earlier": "Earlier"
+    },
+    "swipe": {
+      "mark_read": "Read",
+      "delete": "Delete"
+    },
+    "empty": {
+      "no_new": "No new notifications",
+      "none": "No notifications yet"
+    },
+    "recurring_actions": {
+      "confirm": "Confirm",
+      "skip": "Skip"
+    },
+    "budget_actions": {
+      "view": "View budget"
+    },
+    "goal_actions": {
+      "contribute": "Add contribution",
+      "view": "View goal"
+    },
+    "clear_modal": {
+      "title": "Clear all read notifications?",
+      "description": "{{count}} read notifications will be permanently deleted. This cannot be undone.",
+      "confirm": "Clear all",
+      "cancel": "Cancel"
+    },
+    "bulk_delete_modal": {
+      "title": "Delete {{count}} notifications?",
+      "description": "{{count}} selected notifications will be permanently deleted. This cannot be undone.",
+      "confirm": "Delete",
+      "cancel": "Cancel"
+    },
+    "time_ago": {
+      "just_now": "Just now",
+      "minutes": "{{n}} min ago",
+      "hours": "{{n}}h ago",
+      "days": "{{n}}d ago"
+    },
+    "toast": {
+      "mark_all_read": "All marked as read",
+      "mark_bulk_read": "{{count}} notifications marked as read",
+      "cleared_read": "All read notifications cleared",
+      "deleted": "Notification deleted",
+      "bulk_deleted": "{{count}} notifications deleted",
+      "created_transaction": "Transaction created",
+      "create_transaction_failed": "Could not create transaction",
+      "skipped_run": "Run skipped",
+      "skip_run_failed": "Could not skip run",
+      "rule_not_found": "Rule no longer exists"
+    }
+  }
+}

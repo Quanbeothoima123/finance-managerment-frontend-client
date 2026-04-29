@@ -1,6 +1,7 @@
-import React from 'react';
-import { Home, Receipt, PiggyBank, Target, Plus, FileText } from 'lucide-react';
-import { Button } from '../components/Button';
+import React from "react";
+import { Home, Receipt, PiggyBank, Target, Plus, FileText } from "lucide-react";
+import { Button } from "../components/Button";
+import { useTranslation } from "react-i18next";
 
 interface EmptyStateProps {
   icon?: React.ReactNode;
@@ -31,8 +32,12 @@ export function EmptyState({
         </div>
       )}
 
-      <h3 className="text-xl font-semibold text-[var(--text-primary)] mb-2">{title}</h3>
-      <p className="text-sm text-[var(--text-secondary)] max-w-md mb-6">{description}</p>
+      <h3 className="text-xl font-semibold text-[var(--text-primary)] mb-2">
+        {title}
+      </h3>
+      <p className="text-sm text-[var(--text-secondary)] max-w-md mb-6">
+        {description}
+      </p>
 
       <div className="flex flex-col sm:flex-row gap-3">
         {primaryAction && (
@@ -54,18 +59,19 @@ export function EmptyState({
 
 // Empty State: Home Dashboard (No Data)
 export function EmptyStateHome() {
+  const { t } = useTranslation("common");
   return (
     <EmptyState
       icon={<Home className="w-12 h-12 text-[var(--text-secondary)]" />}
-      title="Chào mừng đến với Quản lý Tài chính!"
-      description="Bắt đầu theo dõi chi tiêu của bạn bằng cách thêm giao dịch đầu tiên hoặc thiết lập tài khoản."
+      title={t("empty_states.home.title")}
+      description={t("empty_states.home.description")}
       primaryAction={{
-        label: 'Thêm giao dịch',
-        onClick: () => console.log('Add transaction'),
+        label: t("empty_states.home.add_transaction"),
+        onClick: () => console.log("Add transaction"),
       }}
       secondaryAction={{
-        label: 'Thiết lập tài khoản',
-        onClick: () => console.log('Setup account'),
+        label: t("empty_states.home.setup_account"),
+        onClick: () => console.log("Setup account"),
       }}
     />
   );
@@ -73,18 +79,19 @@ export function EmptyStateHome() {
 
 // Empty State: Transactions List
 export function EmptyStateTransactions() {
+  const { t } = useTranslation("common");
   return (
     <EmptyState
       icon={<Receipt className="w-12 h-12 text-[var(--text-secondary)]" />}
-      title="Chưa có giao dịch nào"
-      description="Giao dịch của bạn sẽ hiển thị ở đây. Thêm giao dịch đầu tiên để bắt đầu theo dõi chi tiêu."
+      title={t("empty_states.transactions.title")}
+      description={t("empty_states.transactions.description")}
       primaryAction={{
-        label: 'Thêm giao dịch',
-        onClick: () => console.log('Add transaction'),
+        label: t("empty_states.transactions.add"),
+        onClick: () => console.log("Add transaction"),
       }}
       secondaryAction={{
-        label: 'Nhập từ file',
-        onClick: () => console.log('Import transactions'),
+        label: t("empty_states.transactions.import"),
+        onClick: () => console.log("Import transactions"),
       }}
     />
   );
@@ -92,14 +99,15 @@ export function EmptyStateTransactions() {
 
 // Empty State: Transactions List (Filtered - No Results)
 export function EmptyStateTransactionsFiltered() {
+  const { t } = useTranslation("common");
   return (
     <EmptyState
       icon={<Receipt className="w-12 h-12 text-[var(--text-secondary)]" />}
-      title="Không tìm thấy giao dịch"
-      description="Không có giao dịch nào khớp với bộ lọc hiện tại. Thử thay đổi bộ lọc hoặc tìm kiếm với từ khoá khác."
+      title={t("empty_states.transactions_filtered.title")}
+      description={t("empty_states.transactions_filtered.description")}
       secondaryAction={{
-        label: 'Xoá bộ lọc',
-        onClick: () => console.log('Clear filters'),
+        label: t("empty_states.transactions_filtered.clear_filters"),
+        onClick: () => console.log("Clear filters"),
       }}
     />
   );
@@ -107,18 +115,19 @@ export function EmptyStateTransactionsFiltered() {
 
 // Empty State: Budgets
 export function EmptyStateBudgets() {
+  const { t } = useTranslation("common");
   return (
     <EmptyState
       icon={<PiggyBank className="w-12 h-12 text-[var(--text-secondary)]" />}
-      title="Chưa có ngân sách nào"
-      description="Tạo ngân sách để kiểm soát chi tiêu và đạt được mục tiêu tài chính của bạn."
+      title={t("empty_states.budgets.title")}
+      description={t("empty_states.budgets.description")}
       primaryAction={{
-        label: 'Tạo ngân sách',
-        onClick: () => console.log('Create budget'),
+        label: t("empty_states.budgets.create"),
+        onClick: () => console.log("Create budget"),
       }}
       secondaryAction={{
-        label: 'Tìm hiểu về ngân sách',
-        onClick: () => console.log('Learn about budgets'),
+        label: t("empty_states.budgets.learn"),
+        onClick: () => console.log("Learn about budgets"),
       }}
     />
   );
@@ -126,18 +135,19 @@ export function EmptyStateBudgets() {
 
 // Empty State: Goals
 export function EmptyStateGoals() {
+  const { t } = useTranslation("common");
   return (
     <EmptyState
       icon={<Target className="w-12 h-12 text-[var(--text-secondary)]" />}
-      title="Chưa có mục tiêu nào"
-      description="Đặt mục tiêu tiết kiệm để theo dõi tiến độ và đạt được ước mơ tài chính của bạn."
+      title={t("empty_states.goals.title")}
+      description={t("empty_states.goals.description")}
       primaryAction={{
-        label: 'Tạo mục tiêu',
-        onClick: () => console.log('Create goal'),
+        label: t("empty_states.goals.create"),
+        onClick: () => console.log("Create goal"),
       }}
       secondaryAction={{
-        label: 'Xem ví dụ',
-        onClick: () => console.log('View examples'),
+        label: t("empty_states.goals.examples"),
+        onClick: () => console.log("View examples"),
       }}
     />
   );
@@ -145,14 +155,15 @@ export function EmptyStateGoals() {
 
 // Empty State: Search Results
 export function EmptyStateSearch() {
+  const { t } = useTranslation("common");
   return (
     <EmptyState
       icon={<FileText className="w-12 h-12 text-[var(--text-secondary)]" />}
-      title="Không tìm thấy kết quả"
-      description="Không tìm thấy kết quả nào cho từ khoá tìm kiếm. Thử với từ khoá khác."
+      title={t("empty_states.search.title")}
+      description={t("empty_states.search.description")}
       secondaryAction={{
-        label: 'Xoá tìm kiếm',
-        onClick: () => console.log('Clear search'),
+        label: t("empty_states.search.clear"),
+        onClick: () => console.log("Clear search"),
       }}
     />
   );
@@ -160,16 +171,15 @@ export function EmptyStateSearch() {
 
 // Empty State: Accounts
 export function EmptyStateAccounts() {
+  const { t } = useTranslation("common");
   return (
     <EmptyState
-      icon={
-        <div className="text-4xl">💳</div>
-      }
-      title="Chưa có tài khoản nào"
-      description="Thêm tài khoản ngân hàng, ví điện tử, hoặc tiền mặt để bắt đầu quản lý tài chính."
+      icon={<div className="text-4xl">💳</div>}
+      title={t("empty_states.accounts.title")}
+      description={t("empty_states.accounts.description")}
       primaryAction={{
-        label: 'Thêm tài khoản',
-        onClick: () => console.log('Add account'),
+        label: t("empty_states.accounts.add"),
+        onClick: () => console.log("Add account"),
       }}
     />
   );
@@ -177,16 +187,15 @@ export function EmptyStateAccounts() {
 
 // Empty State: Categories
 export function EmptyStateCategories() {
+  const { t } = useTranslation("common");
   return (
     <EmptyState
-      icon={
-        <div className="text-4xl">📁</div>
-      }
-      title="Chưa có danh mục nào"
-      description="Tạo danh mục để phân loại và theo dõi chi tiêu của bạn."
+      icon={<div className="text-4xl">📁</div>}
+      title={t("empty_states.categories.title")}
+      description={t("empty_states.categories.description")}
       primaryAction={{
-        label: 'Tạo danh mục',
-        onClick: () => console.log('Add category'),
+        label: t("empty_states.categories.create"),
+        onClick: () => console.log("Add category"),
       }}
     />
   );
@@ -194,16 +203,15 @@ export function EmptyStateCategories() {
 
 // Empty State: Tags
 export function EmptyStateTags() {
+  const { t } = useTranslation("common");
   return (
     <EmptyState
-      icon={
-        <div className="text-4xl">🏷️</div>
-      }
-      title="Chưa có tag nào"
-      description="Tạo tag để gắn nhãn và tổ chức giao dịch linh hoạt hơn."
+      icon={<div className="text-4xl">🏷️</div>}
+      title={t("empty_states.tags.title")}
+      description={t("empty_states.tags.description")}
       primaryAction={{
-        label: 'Tạo tag',
-        onClick: () => console.log('Add tag'),
+        label: t("empty_states.tags.create"),
+        onClick: () => console.log("Add tag"),
       }}
     />
   );
@@ -211,16 +219,15 @@ export function EmptyStateTags() {
 
 // Empty State: Merchants
 export function EmptyStateMerchants() {
+  const { t } = useTranslation("common");
   return (
     <EmptyState
-      icon={
-        <div className="text-4xl">🏪</div>
-      }
-      title="Chưa có merchant nào"
-      description="Merchant sẽ được tự động tạo khi bạn thêm giao dịch."
+      icon={<div className="text-4xl">🏪</div>}
+      title={t("empty_states.merchants.title")}
+      description={t("empty_states.merchants.description")}
       secondaryAction={{
-        label: 'Thêm giao dịch',
-        onClick: () => console.log('Add transaction'),
+        label: t("empty_states.merchants.add_transaction"),
+        onClick: () => console.log("Add transaction"),
       }}
     />
   );
@@ -228,16 +235,15 @@ export function EmptyStateMerchants() {
 
 // Empty State: Attachments
 export function EmptyStateAttachments() {
+  const { t } = useTranslation("common");
   return (
     <EmptyState
-      icon={
-        <div className="text-4xl">📷</div>
-      }
-      title="Chưa có hoá đơn nào"
-      description="Thêm ảnh hoá đơn vào giao dịch để lưu trữ chứng từ."
+      icon={<div className="text-4xl">📷</div>}
+      title={t("empty_states.attachments.title")}
+      description={t("empty_states.attachments.description")}
       primaryAction={{
-        label: 'Thêm hoá đơn',
-        onClick: () => console.log('Add attachment'),
+        label: t("empty_states.attachments.add"),
+        onClick: () => console.log("Add attachment"),
       }}
     />
   );

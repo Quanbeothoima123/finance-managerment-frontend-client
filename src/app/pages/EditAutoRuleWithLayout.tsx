@@ -1,11 +1,13 @@
-import React from "react";
+﻿import React from "react";
+import { useTranslation } from "react-i18next";
 import { Layout } from "../components/Layout";
-import CreateAutoRule from "./CreateAutoRule";
+import EditAutoRule from "./EditAutoRule";
 
 export default function EditAutoRuleWithLayout() {
+  const { t } = useTranslation("common");
   return (
-    <Layout title="Chỉnh sửa quy tắc">
-      <CreateAutoRule mode="edit" />
+    <Layout title={t("page_titles.edit_auto_rule")}>
+      <EditAutoRule />
     </Layout>
   );
 }

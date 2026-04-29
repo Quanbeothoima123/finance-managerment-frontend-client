@@ -1,10 +1,12 @@
-import React from "react";
+﻿import React from "react";
+import { useTranslation } from "react-i18next";
 import { Layout } from "../components/Layout";
 import BudgetsOverview from "./BudgetsOverview";
 
 export default function BudgetsOverviewWithLayout() {
+  const { t } = useTranslation("common");
   return (
-    <Layout title="Ngân sách">
+    <Layout title={t("page_titles.budgets")}>
       <BudgetsOverview />
     </Layout>
   );

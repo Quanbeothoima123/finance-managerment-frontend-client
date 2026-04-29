@@ -130,7 +130,10 @@ export default function AttachmentLibrary() {
 
   const formatMonthHeader = (monthKey: string) => {
     const [year, month] = monthKey.split("-");
-    return `Tháng ${parseInt(month, 10).toString().padStart(2, "0")}/${year}`;
+    return t("attachments.month.header", {
+      month: parseInt(month, 10).toString().padStart(2, "0"),
+      year,
+    });
   };
 
   const formatFileSize = (bytes: number) => {
@@ -248,7 +251,9 @@ export default function AttachmentLibrary() {
           <div className="flex items-center gap-4 mt-3 text-xs text-[var(--text-tertiary)]">
             <span className="flex items-center gap-1">
               <Files className="w-3.5 h-3.5" />
-              {filteredItems.length} ảnh
+              {t("attachments.stats.image_count", {
+                count: filteredItems.length,
+              })}
             </span>
             {hasAdvancedFilters && (
               <button
@@ -281,7 +286,7 @@ export default function AttachmentLibrary() {
               </p>
               {allItems.length === 0 && (
                 <Button onClick={() => goCreateTransaction()}>
-                  Thêm đính kèm từ giao dịch
+                  {t("attachments.empty.add_from_transaction")}
                 </Button>
               )}
             </div>
@@ -296,7 +301,9 @@ export default function AttachmentLibrary() {
                       <Calendar className="w-4 h-4" />
                       {formatMonthHeader(monthKey)}
                       <span className="text-[var(--text-tertiary)] font-normal">
-                        ({items.length} tệp)
+                        {t("attachments.month.file_count", {
+                          count: items.length,
+                        })}
                       </span>
                     </h2>
                   </div>
@@ -385,12 +392,12 @@ export default function AttachmentLibrary() {
               {/* Date Range */}
               <div>
                 <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-                  Khoảng thời gian
+                  {t("attachments.filters.date_range")}
                 </label>
                 <div className="flex gap-2 mb-2">
                   {[
                     {
-                      label: "30 ngày",
+                      label: t("attachments.filters.presets.last_30_days"),
                       start: (() => {
                         const d = new Date();
                         d.setDate(d.getDate() - 30);
@@ -399,7 +406,7 @@ export default function AttachmentLibrary() {
                       end: new Date().toISOString().split("T")[0],
                     },
                     {
-                      label: "Tháng này",
+                      label: t("attachments.filters.presets.this_month"),
                       start: (() => {
                         const d = new Date();
                         return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-01`;
@@ -407,7 +414,7 @@ export default function AttachmentLibrary() {
                       end: new Date().toISOString().split("T")[0],
                     },
                     {
-                      label: "Tháng trước",
+                      label: t("attachments.filters.presets.last_month"),
                       start: (() => {
                         const d = new Date();
                         d.setMonth(d.getMonth() - 1);
@@ -456,7 +463,7 @@ export default function AttachmentLibrary() {
               {/* Account filter */}
               <div>
                 <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-                  Tài khoản
+                  {t("attachments.filters.account")}
                 </label>
                 <div className="flex flex-wrap gap-2">
                   {accountsWithAttachments.map((acc) => {
@@ -483,7 +490,7 @@ export default function AttachmentLibrary() {
                   })}
                   {accountsWithAttachments.length === 0 && (
                     <p className="text-xs text-[var(--text-tertiary)]">
-                      Chưa có tài khoản nào có đính kèm
+                      {t("attachments.filters.no_accounts")}
                     </p>
                   )}
                 </div>
@@ -630,7 +637,7 @@ export default function AttachmentLibrary() {
                       }}
                       className="flex-shrink-0 px-4 py-2 bg-white text-black rounded-[var(--radius-lg)] text-sm font-medium hover:bg-white/90 transition-colors"
                     >
-                      Xem giao dịch
+                      {t("attachments.item.view_transaction")}
                     </button>
                   </div>
                 </div>

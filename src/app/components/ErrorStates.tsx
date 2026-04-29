@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   AlertTriangle,
   XCircle,
@@ -7,9 +7,10 @@ import {
   WifiOff,
   RefreshCw,
   Mail,
-} from 'lucide-react';
-import { Button } from '../components/Button';
-import { Card } from '../components/Card';
+} from "lucide-react";
+import { Button } from "../components/Button";
+import { Card } from "../components/Card";
+import { useTranslation } from "react-i18next";
 
 interface ErrorStateProps {
   icon?: React.ReactNode;
@@ -32,6 +33,7 @@ export function ErrorState({
   showRetry = true,
   showSupport = true,
 }: ErrorStateProps) {
+  const { t } = useTranslation("common");
   return (
     <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
       {icon && (
@@ -40,12 +42,16 @@ export function ErrorState({
         </div>
       )}
 
-      <h3 className="text-xl font-semibold text-[var(--text-primary)] mb-2">{title}</h3>
-      <p className="text-sm text-[var(--text-secondary)] max-w-md mb-6">{description}</p>
+      <h3 className="text-xl font-semibold text-[var(--text-primary)] mb-2">
+        {title}
+      </h3>
+      <p className="text-sm text-[var(--text-secondary)] max-w-md mb-6">
+        {description}
+      </p>
 
       {errorCode && (
         <p className="text-xs text-[var(--text-tertiary)] font-mono mb-6">
-          Mã lỗi: {errorCode}
+          {t("error_states.error_code_label")} {errorCode}
         </p>
       )}
 
@@ -53,14 +59,14 @@ export function ErrorState({
         {showRetry && onRetry && (
           <Button onClick={onRetry}>
             <RefreshCw className="w-5 h-5" />
-            Thử lại
+            {t("actions.retry")}
           </Button>
         )}
 
         {showSupport && onContactSupport && (
           <Button onClick={onContactSupport} variant="secondary">
             <Mail className="w-5 h-5" />
-            Liên hệ hỗ trợ
+            {t("error_states.contact_support")}
           </Button>
         )}
       </div>
@@ -70,28 +76,30 @@ export function ErrorState({
 
 // Error State: Database Connection Error
 export function ErrorStateDatabase() {
+  const { t } = useTranslation("common");
   return (
     <ErrorState
       icon={<Database className="w-12 h-12 text-[var(--danger)]" />}
-      title="Lỗi kết nối cơ sở dữ liệu"
-      description="Không thể kết nối đến cơ sở dữ liệu. Vui lòng kiểm tra kết nối mạng và thử lại."
+      title={t("error_states.database.title")}
+      description={t("error_states.database.description")}
       errorCode="DB_CONNECTION_FAILED"
-      onRetry={() => console.log('Retry database connection')}
-      onContactSupport={() => console.log('Contact support')}
+      onRetry={() => console.log("Retry database connection")}
+      onContactSupport={() => console.log("Contact support")}
     />
   );
 }
 
 // Error State: Permission Denied
 export function ErrorStatePermission() {
+  const { t } = useTranslation("common");
   return (
     <ErrorState
       icon={<Shield className="w-12 h-12 text-[var(--danger)]" />}
-      title="Không có quyền truy cập"
-      description="Bạn không có quyền truy cập tài nguyên này. Vui lòng liên hệ quản trị viên nếu bạn cho rằng đây là lỗi."
+      title={t("error_states.permission.title")}
+      description={t("error_states.permission.description")}
       errorCode="PERMISSION_DENIED"
-      onRetry={() => console.log('Retry permission')}
-      onContactSupport={() => console.log('Contact support')}
+      onRetry={() => console.log("Retry permission")}
+      onContactSupport={() => console.log("Contact support")}
       showRetry={false}
     />
   );
@@ -99,42 +107,45 @@ export function ErrorStatePermission() {
 
 // Error State: Unexpected Error
 export function ErrorStateUnexpected() {
+  const { t } = useTranslation("common");
   return (
     <ErrorState
       icon={<XCircle className="w-12 h-12 text-[var(--danger)]" />}
-      title="Đã xảy ra lỗi không mong muốn"
-      description="Xin lỗi, có lỗi không mong muốn đã xảy ra. Chúng tôi đã ghi nhận và sẽ khắc phục sớm nhất."
+      title={t("error_states.unexpected.title")}
+      description={t("error_states.unexpected.description")}
       errorCode="UNEXPECTED_ERROR_500"
-      onRetry={() => console.log('Retry operation')}
-      onContactSupport={() => console.log('Contact support')}
+      onRetry={() => console.log("Retry operation")}
+      onContactSupport={() => console.log("Contact support")}
     />
   );
 }
 
 // Error State: Network Error
 export function ErrorStateNetwork() {
+  const { t } = useTranslation("common");
   return (
     <ErrorState
       icon={<WifiOff className="w-12 h-12 text-[var(--danger)]" />}
-      title="Không có kết nối mạng"
-      description="Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối internet và thử lại."
+      title={t("error_states.network.title")}
+      description={t("error_states.network.description")}
       errorCode="NETWORK_ERROR"
-      onRetry={() => console.log('Retry network')}
-      onContactSupport={() => console.log('Contact support')}
+      onRetry={() => console.log("Retry network")}
+      onContactSupport={() => console.log("Contact support")}
     />
   );
 }
 
 // Error State: Not Found
 export function ErrorStateNotFound() {
+  const { t } = useTranslation("common");
   return (
     <ErrorState
       icon={<AlertTriangle className="w-12 h-12 text-[var(--warning)]" />}
-      title="Không tìm thấy trang"
-      description="Trang bạn đang tìm kiếm không tồn tại hoặc đã bị xoá."
+      title={t("error_states.not_found.title")}
+      description={t("error_states.not_found.description")}
       errorCode="404_NOT_FOUND"
-      onRetry={() => console.log('Go back')}
-      onContactSupport={() => console.log('Contact support')}
+      onRetry={() => console.log("Go back")}
+      onContactSupport={() => console.log("Contact support")}
       showRetry={false}
       showSupport={false}
     />
@@ -145,40 +156,41 @@ export function ErrorStateNotFound() {
 interface ErrorModalProps {
   isOpen: boolean;
   onClose: () => void;
-  type?: 'database' | 'permission' | 'unexpected' | 'network';
+  type?: "database" | "permission" | "unexpected" | "network";
 }
 
-export function ErrorModal({ isOpen, onClose, type = 'unexpected' }: ErrorModalProps) {
+export function ErrorModal({
+  isOpen,
+  onClose,
+  type = "unexpected",
+}: ErrorModalProps) {
+  const { t } = useTranslation("common");
   if (!isOpen) return null;
 
   const errorStates = {
     database: {
       icon: <Database className="w-12 h-12 text-[var(--danger)]" />,
-      title: 'Lỗi kết nối cơ sở dữ liệu',
-      description:
-        'Không thể kết nối đến cơ sở dữ liệu. Vui lòng kiểm tra kết nối mạng và thử lại.',
-      errorCode: 'DB_CONNECTION_FAILED',
+      title: t("error_states.database.title"),
+      description: t("error_states.database.description"),
+      errorCode: "DB_CONNECTION_FAILED",
     },
     permission: {
       icon: <Shield className="w-12 h-12 text-[var(--danger)]" />,
-      title: 'Không có quyền truy cập',
-      description:
-        'Bạn không có quyền truy cập tài nguyên này. Vui lòng liên hệ quản trị viên nếu bạn cho rằng đây là lỗi.',
-      errorCode: 'PERMISSION_DENIED',
+      title: t("error_states.permission.title"),
+      description: t("error_states.permission.description"),
+      errorCode: "PERMISSION_DENIED",
     },
     unexpected: {
       icon: <XCircle className="w-12 h-12 text-[var(--danger)]" />,
-      title: 'Đã xảy ra lỗi không mong muốn',
-      description:
-        'Xin lỗi, có lỗi không mong muốn đã xảy ra. Chúng tôi đã ghi nhận và sẽ khắc phục sớm nhất.',
-      errorCode: 'UNEXPECTED_ERROR_500',
+      title: t("error_states.unexpected.title"),
+      description: t("error_states.unexpected.description"),
+      errorCode: "UNEXPECTED_ERROR_500",
     },
     network: {
       icon: <WifiOff className="w-12 h-12 text-[var(--danger)]" />,
-      title: 'Không có kết nối mạng',
-      description:
-        'Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối internet và thử lại.',
-      errorCode: 'NETWORK_ERROR',
+      title: t("error_states.network.title"),
+      description: t("error_states.network.description"),
+      errorCode: "NETWORK_ERROR",
     },
   };
 
@@ -205,35 +217,41 @@ export function ErrorModal({ isOpen, onClose, type = 'unexpected' }: ErrorModalP
               <h3 className="text-xl font-semibold text-[var(--text-primary)] mb-2">
                 {error.title}
               </h3>
-              <p className="text-sm text-[var(--text-secondary)] mb-4">{error.description}</p>
+              <p className="text-sm text-[var(--text-secondary)] mb-4">
+                {error.description}
+              </p>
 
               {error.errorCode && (
                 <p className="text-xs text-[var(--text-tertiary)] font-mono mb-6">
-                  Mã lỗi: {error.errorCode}
+                  {t("error_states.error_code_label")} {error.errorCode}
                 </p>
               )}
 
               <div className="flex flex-col-reverse sm:flex-row gap-3">
-                <Button onClick={onClose} variant="secondary" className="flex-1">
-                  Đóng
+                <Button
+                  onClick={onClose}
+                  variant="secondary"
+                  className="flex-1"
+                >
+                  {t("actions.close")}
                 </Button>
                 <Button
                   onClick={() => {
-                    console.log('Retry operation');
+                    console.log("Retry operation");
                     onClose();
                   }}
                   className="flex-1"
                 >
                   <RefreshCw className="w-5 h-5" />
-                  Thử lại
+                  {t("actions.retry")}
                 </Button>
               </div>
 
               <button
-                onClick={() => console.log('Contact support')}
+                onClick={() => console.log("Contact support")}
                 className="mt-4 text-sm text-[var(--primary)] hover:text-[var(--primary-hover)] font-medium transition-colors"
               >
-                Liên hệ hỗ trợ
+                {t("error_states.contact_support")}
               </button>
             </div>
           </Card>
@@ -250,6 +268,7 @@ interface InlineErrorProps {
 }
 
 export function InlineError({ message, onRetry }: InlineErrorProps) {
+  const { t } = useTranslation("common");
   return (
     <div className="flex items-start gap-3 p-4 bg-[var(--danger-light)] border border-[var(--danger)] rounded-[var(--radius-lg)]">
       <AlertTriangle className="w-5 h-5 text-[var(--danger)] flex-shrink-0 mt-0.5" />
@@ -260,7 +279,7 @@ export function InlineError({ message, onRetry }: InlineErrorProps) {
             onClick={onRetry}
             className="mt-2 text-sm text-[var(--danger)] hover:text-[var(--danger)]/80 font-medium transition-colors"
           >
-            Thử lại
+            {t("actions.retry")}
           </button>
         )}
       </div>
@@ -278,7 +297,11 @@ interface BannerErrorProps {
   };
 }
 
-export function BannerError({ message, onDismiss, onAction }: BannerErrorProps) {
+export function BannerError({
+  message,
+  onDismiss,
+  onAction,
+}: BannerErrorProps) {
   return (
     <div className="bg-[var(--danger)] text-white">
       <div className="max-w-7xl mx-auto px-4 py-3">

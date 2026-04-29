@@ -30,9 +30,11 @@
       "accounts": "Tài khoản",
       "categories": "Phân loại",
       "planning": "Lập kế hoạch",
+      "goals": "Mục tiêu",
       "insights": "Phân tích",
       "automation": "Tự động hoá",
       "community": "Cộng đồng",
+      "settings": "Cài đặt",
       "other": "Khác"
     },
     "user_menu": {
@@ -132,9 +134,150 @@
     "cannot_undo": "Dữ liệu này không thể khôi phục.",
     "action": "Xoá"
   },
+  "confirmation_modals": {
+    "defaults": {
+      "checkbox_label": "Tôi hiểu",
+      "consequences_label": "Hậu quả:",
+      "accept_consequences": "Tôi hiểu và chấp nhận hậu quả"
+    },
+    "delete_transaction": {
+      "fallback_name": "giao dịch này",
+      "title": "Xoá giao dịch?",
+      "description": "Bạn có chắc muốn xoá \"{{description}}\" ({{amount}})? Hành động này không thể hoàn tác."
+    },
+    "delete_account": {
+      "fallback_name": "tài khoản này",
+      "title": "Xoá tài khoản?",
+      "description": "Bạn có chắc muốn xoá tài khoản \"{{accountName}}\"? Đây là hành động nguy hiểm và không thể hoàn tác.",
+      "confirm": "Xoá tài khoản",
+      "consequences": {
+        "balance": "Số dư hiện tại: {{balance}} sẽ bị xoá",
+        "transactions": "{{count}} giao dịch liên quan sẽ bị xoá",
+        "data": "Dữ liệu không thể khôi phục"
+      }
+    },
+    "delete_budget": {
+      "fallback_name": "ngân sách này",
+      "title": "Xoá ngân sách?",
+      "description": "Bạn có chắc muốn xoá ngân sách \"{{budgetName}}\"? Lịch sử chi tiêu sẽ vẫn được giữ lại."
+    },
+    "delete_goal": {
+      "fallback_name": "mục tiêu này",
+      "title": "Xoá mục tiêu?",
+      "description": "Bạn có chắc muốn xoá mục tiêu \"{{goalName}}\"? Bạn đã hoàn thành {{goalProgress}} tiến độ.",
+      "consequences": {
+        "contributions": "Tất cả lịch sử đóng góp sẽ bị xoá",
+        "progress": "Tiến độ hiện tại sẽ bị mất"
+      }
+    },
+    "delete_category": {
+      "fallback_name": "danh mục này",
+      "title": "Xoá danh mục?",
+      "description": "Bạn có chắc muốn xoá danh mục \"{{categoryName}}\"?",
+      "consequences": {
+        "transactions": "{{count}} giao dịch sẽ chuyển về \"Chưa phân loại\"",
+        "budget_data": "Dữ liệu ngân sách liên quan sẽ bị ảnh hưởng"
+      }
+    },
+    "logout": {
+      "title": "Đăng xuất?",
+      "description": "Bạn có chắc muốn đăng xuất khỏi ứng dụng?"
+    },
+    "discard_changes": {
+      "title": "Huỷ thay đổi?",
+      "description": "Bạn có thay đổi chưa được lưu. Bạn có chắc muốn huỷ?",
+      "confirm": "Huỷ thay đổi",
+      "cancel": "Tiếp tục chỉnh sửa"
+    }
+  },
   "empty": {
     "no_data": "Chưa có dữ liệu",
     "no_results": "Không tìm thấy kết quả"
+  },
+  "empty_states": {
+    "home": {
+      "title": "Chào mừng đến với Quản lý Tài chính!",
+      "description": "Bắt đầu theo dõi chi tiêu của bạn bằng cách thêm giao dịch đầu tiên hoặc thiết lập tài khoản.",
+      "add_transaction": "Thêm giao dịch",
+      "setup_account": "Thiết lập tài khoản"
+    },
+    "transactions": {
+      "title": "Chưa có giao dịch nào",
+      "description": "Giao dịch của bạn sẽ hiển thị ở đây. Thêm giao dịch đầu tiên để bắt đầu theo dõi chi tiêu.",
+      "add": "Thêm giao dịch",
+      "import": "Nhập từ file"
+    },
+    "transactions_filtered": {
+      "title": "Không tìm thấy giao dịch",
+      "description": "Không có giao dịch nào khớp với bộ lọc hiện tại. Thử thay đổi bộ lọc hoặc tìm kiếm với từ khoá khác.",
+      "clear_filters": "Xoá bộ lọc"
+    },
+    "budgets": {
+      "title": "Chưa có ngân sách nào",
+      "description": "Tạo ngân sách để kiểm soát chi tiêu và đạt được mục tiêu tài chính của bạn.",
+      "create": "Tạo ngân sách",
+      "learn": "Tìm hiểu về ngân sách"
+    },
+    "goals": {
+      "title": "Chưa có mục tiêu nào",
+      "description": "Đặt mục tiêu tiết kiệm để theo dõi tiến độ và đạt được ước mơ tài chính của bạn.",
+      "create": "Tạo mục tiêu",
+      "examples": "Xem ví dụ"
+    },
+    "search": {
+      "title": "Không tìm thấy kết quả",
+      "description": "Không tìm thấy kết quả nào cho từ khoá tìm kiếm. Thử với từ khoá khác.",
+      "clear": "Xoá tìm kiếm"
+    },
+    "accounts": {
+      "title": "Chưa có tài khoản nào",
+      "description": "Thêm tài khoản ngân hàng, ví điện tử, hoặc tiền mặt để bắt đầu quản lý tài chính.",
+      "add": "Thêm tài khoản"
+    },
+    "categories": {
+      "title": "Chưa có danh mục nào",
+      "description": "Tạo danh mục để phân loại và theo dõi chi tiêu của bạn.",
+      "create": "Tạo danh mục"
+    },
+    "tags": {
+      "title": "Chưa có tag nào",
+      "description": "Tạo tag để gắn nhãn và tổ chức giao dịch linh hoạt hơn.",
+      "create": "Tạo tag"
+    },
+    "merchants": {
+      "title": "Chưa có merchant nào",
+      "description": "Merchant sẽ được tự động tạo khi bạn thêm giao dịch.",
+      "add_transaction": "Thêm giao dịch"
+    },
+    "attachments": {
+      "title": "Chưa có hoá đơn nào",
+      "description": "Thêm ảnh hoá đơn vào giao dịch để lưu trữ chứng từ.",
+      "add": "Thêm hoá đơn"
+    }
+  },
+  "error_states": {
+    "error_code_label": "Mã lỗi:",
+    "contact_support": "Liên hệ hỗ trợ",
+    "database": {
+      "title": "Lỗi kết nối cơ sở dữ liệu",
+      "description": "Không thể kết nối đến cơ sở dữ liệu. Vui lòng kiểm tra kết nối mạng và thử lại."
+    },
+    "permission": {
+      "title": "Không có quyền truy cập",
+      "description": "Bạn không có quyền truy cập tài nguyên này. Vui lòng liên hệ quản trị viên nếu bạn cho rằng đây là lỗi."
+    },
+    "unexpected": {
+      "title": "Đã xảy ra lỗi không mong muốn",
+      "description": "Xin lỗi, có lỗi không mong muốn đã xảy ra. Chúng tôi đã ghi nhận và sẽ khắc phục sớm nhất."
+    },
+    "network": {
+      "title": "Không có kết nối mạng",
+      "description": "Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối internet và thử lại."
+    },
+    "not_found": {
+      "title": "Không tìm thấy trang",
+      "description": "Trang bạn đang tìm kiếm không tồn tại hoặc đã bị xoá."
+    }
   },
   "currency": {
     "vnd": "VND",
@@ -156,5 +299,69 @@
     "none_selected": "Chưa chọn",
     "other": "Khác",
     "not_available": "N/A"
+  },
+  "page_titles": {
+    "home": "Tổng quan",
+    "transactions": "Giao dịch",
+    "add_edit_transaction": "Giao dịch",
+    "add_transfer": "Chuyển tiền",
+    "accounts_overview": "Ví & Tài khoản",
+    "account_detail": "Chi tiết tài khoản",
+    "account_breakdown": "Phân tích tài khoản",
+    "create_account": "Tạo tài khoản",
+    "edit_account": "Chỉnh sửa tài khoản",
+    "categories": "Danh mục",
+    "category_breakdown": "Phân tích danh mục",
+    "create_category": "Tạo danh mục",
+    "edit_category": "Chỉnh sửa danh mục",
+    "tags": "Nhãn",
+    "create_tag": "Tạo nhãn",
+    "edit_tag": "Chỉnh sửa nhãn",
+    "merchants": "Nhà cung cấp",
+    "merchant_detail": "Chi tiết nhà cung cấp",
+    "create_merchant": "Thêm nhà cung cấp",
+    "edit_merchant": "Chỉnh sửa nhà cung cấp",
+    "budgets": "Ngân sách",
+    "budget_detail": "Chi tiết ngân sách",
+    "create_budget": "Tạo ngân sách",
+    "edit_budget": "Chỉnh sửa ngân sách",
+    "add_budget_item": "Thêm danh mục ngân sách",
+    "goals": "Mục tiêu",
+    "goal_detail": "Chi tiết mục tiêu",
+    "create_goal": "Tạo mục tiêu",
+    "edit_goal": "Chỉnh sửa mục tiêu",
+    "add_goal_contribution": "Thêm đóng góp",
+    "insights": "Thống kê & Báo cáo",
+    "cashflow_chart": "Biểu đồ dòng tiền",
+    "auto_rules": "Quy tắc tự động",
+    "create_auto_rule": "Tạo quy tắc",
+    "edit_auto_rule": "Chỉnh sửa quy tắc",
+    "recurring_rules": "Giao dịch định kỳ",
+    "recurring_rule_detail": "Chi tiết giao dịch định kỳ",
+    "create_recurring_rule": "Tạo định kỳ",
+    "edit_recurring_rule": "Chỉnh sửa giao dịch định kỳ",
+    "attachments": "Đính kèm",
+    "export": "Xuất dữ liệu",
+    "settings": "Cài đặt",
+    "security_settings": "Bảo mật",
+    "notification_settings": "Cài đặt thông báo",
+    "data_backup_settings": "Dữ liệu & Sao lưu",
+    "about": "Giới thiệu",
+    "notifications_inbox": "Thông báo",
+    "community_feed": "Cộng đồng",
+    "community_discover": "Khám phá",
+    "create_post": "Tạo bài viết",
+    "post_detail": "Bài viết",
+    "public_profile": "Hồ sơ",
+    "followers_list": "Người theo dõi",
+    "saved_posts": "Đã lưu",
+    "topic_detail": "Chủ đề",
+    "social_notifications": "Thông báo cộng đồng",
+    "share_finance_recap": "Chia sẻ Recap",
+    "transaction_detail": "Chi tiết giao dịch",
+    "monthly_recap": "Tổng kết tháng",
+    "monthly_summary_report": "Báo cáo tháng",
+    "restore_data": "Khôi phục dữ liệu",
+    "weekly_recap_detail": "Tổng kết tuần"
   }
 }

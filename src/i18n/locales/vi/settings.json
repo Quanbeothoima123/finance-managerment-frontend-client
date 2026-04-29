@@ -290,17 +290,34 @@
       "type_all": "Tất cả",
       "type_image": "Ảnh",
       "open_advanced": "Bộ lọc nâng cao",
+      "date_range": "Khoảng thời gian",
+      "account": "Tài khoản",
+      "no_accounts": "Chưa có tài khoản nào có đính kèm",
       "clear": "Xoá bộ lọc",
-      "apply": "Áp dụng"
+      "apply": "Áp dụng",
+      "presets": {
+        "last_30_days": "30 ngày",
+        "this_month": "Tháng này",
+        "last_month": "Tháng trước"
+      }
+    },
+    "month": {
+      "header": "Tháng {{month}}/{{year}}",
+      "file_count": "({{count}} tệp)"
+    },
+    "stats": {
+      "image_count": "{{count}} ảnh"
     },
     "item": {
       "open_in_browser": "Mở trong trình duyệt",
-      "download": "Tải về"
+      "download": "Tải về",
+      "view_transaction": "Xem giao dịch"
     },
     "empty": {
       "title": "Chưa có đính kèm nào.",
       "no_attachments": "Thêm ảnh hoá đơn hoặc file vào giao dịch để xem ở đây.",
-      "no_results": "Không tìm thấy đính kèm phù hợp bộ lọc."
+      "no_results": "Không tìm thấy đính kèm phù hợp bộ lọc.",
+      "add_from_transaction": "Thêm đính kèm từ giao dịch"
     },
     "loading": "Đang tải thư viện đính kèm..."
   }

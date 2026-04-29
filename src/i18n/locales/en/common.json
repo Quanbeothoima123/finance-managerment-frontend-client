@@ -30,9 +30,11 @@
       "accounts": "Accounts",
       "categories": "Categories",
       "planning": "Planning",
+      "goals": "Goals",
       "insights": "Analytics",
       "automation": "Automation",
       "community": "Community",
+      "settings": "Settings",
       "other": "More"
     },
     "user_menu": {
@@ -132,9 +134,150 @@
     "cannot_undo": "This action cannot be undone.",
     "action": "Delete"
   },
+  "confirmation_modals": {
+    "defaults": {
+      "checkbox_label": "I understand",
+      "consequences_label": "Consequences:",
+      "accept_consequences": "I understand and accept the consequences"
+    },
+    "delete_transaction": {
+      "fallback_name": "this transaction",
+      "title": "Delete transaction?",
+      "description": "Are you sure you want to delete \"{{description}}\" ({{amount}})? This action cannot be undone."
+    },
+    "delete_account": {
+      "fallback_name": "this account",
+      "title": "Delete account?",
+      "description": "Are you sure you want to delete account \"{{accountName}}\"? This is a dangerous action and cannot be undone.",
+      "confirm": "Delete account",
+      "consequences": {
+        "balance": "Current balance: {{balance}} will be deleted",
+        "transactions": "{{count}} related transactions will be deleted",
+        "data": "Data cannot be recovered"
+      }
+    },
+    "delete_budget": {
+      "fallback_name": "this budget",
+      "title": "Delete budget?",
+      "description": "Are you sure you want to delete budget \"{{budgetName}}\"? Spending history will be kept."
+    },
+    "delete_goal": {
+      "fallback_name": "this goal",
+      "title": "Delete goal?",
+      "description": "Are you sure you want to delete goal \"{{goalName}}\"? You have completed {{goalProgress}} progress.",
+      "consequences": {
+        "contributions": "All contribution history will be deleted",
+        "progress": "Current progress will be lost"
+      }
+    },
+    "delete_category": {
+      "fallback_name": "this category",
+      "title": "Delete category?",
+      "description": "Are you sure you want to delete category \"{{categoryName}}\"?",
+      "consequences": {
+        "transactions": "{{count}} transactions will move to \"Uncategorized\"",
+        "budget_data": "Related budget data will be affected"
+      }
+    },
+    "logout": {
+      "title": "Log out?",
+      "description": "Are you sure you want to log out of the app?"
+    },
+    "discard_changes": {
+      "title": "Discard changes?",
+      "description": "You have unsaved changes. Are you sure you want to discard them?",
+      "confirm": "Discard changes",
+      "cancel": "Continue editing"
+    }
+  },
   "empty": {
     "no_data": "No data yet",
     "no_results": "No results found"
+  },
+  "empty_states": {
+    "home": {
+      "title": "Welcome to Personal Finance!",
+      "description": "Start tracking your spending by adding your first transaction or setting up an account.",
+      "add_transaction": "Add Transaction",
+      "setup_account": "Set Up Account"
+    },
+    "transactions": {
+      "title": "No transactions yet",
+      "description": "Your transactions will appear here. Add your first transaction to start tracking your spending.",
+      "add": "Add Transaction",
+      "import": "Import from file"
+    },
+    "transactions_filtered": {
+      "title": "No transactions found",
+      "description": "No transactions match the current filters. Try changing the filters or searching with a different keyword.",
+      "clear_filters": "Clear filters"
+    },
+    "budgets": {
+      "title": "No budgets yet",
+      "description": "Create a budget to control your spending and achieve your financial goals.",
+      "create": "Create Budget",
+      "learn": "Learn about budgets"
+    },
+    "goals": {
+      "title": "No goals yet",
+      "description": "Set savings goals to track your progress and achieve your financial dreams.",
+      "create": "Create Goal",
+      "examples": "View examples"
+    },
+    "search": {
+      "title": "No results found",
+      "description": "No results found for your search keyword. Try a different keyword.",
+      "clear": "Clear search"
+    },
+    "accounts": {
+      "title": "No accounts yet",
+      "description": "Add a bank account, e-wallet, or cash account to start managing your finances.",
+      "add": "Add Account"
+    },
+    "categories": {
+      "title": "No categories yet",
+      "description": "Create categories to classify and track your spending.",
+      "create": "Create Category"
+    },
+    "tags": {
+      "title": "No tags yet",
+      "description": "Create tags to label and organise transactions more flexibly.",
+      "create": "Create Tag"
+    },
+    "merchants": {
+      "title": "No merchants yet",
+      "description": "Merchants will be created automatically when you add transactions.",
+      "add_transaction": "Add Transaction"
+    },
+    "attachments": {
+      "title": "No receipts yet",
+      "description": "Add receipt photos to transactions to keep records.",
+      "add": "Add Receipt"
+    }
+  },
+  "error_states": {
+    "error_code_label": "Error code:",
+    "contact_support": "Contact Support",
+    "database": {
+      "title": "Database connection error",
+      "description": "Could not connect to the database. Please check your network connection and try again."
+    },
+    "permission": {
+      "title": "Access denied",
+      "description": "You do not have permission to access this resource. Please contact an administrator if you believe this is an error."
+    },
+    "unexpected": {
+      "title": "An unexpected error occurred",
+      "description": "Sorry, an unexpected error has occurred. We have been notified and will fix it as soon as possible."
+    },
+    "network": {
+      "title": "No network connection",
+      "description": "Could not connect to the server. Please check your internet connection and try again."
+    },
+    "not_found": {
+      "title": "Page not found",
+      "description": "The page you are looking for does not exist or has been removed."
+    }
   },
   "currency": {
     "vnd": "VND",
@@ -156,5 +299,69 @@
     "none_selected": "None selected",
     "other": "Other",
     "not_available": "N/A"
+  },
+  "page_titles": {
+    "home": "Overview",
+    "transactions": "Transactions",
+    "add_edit_transaction": "Transaction",
+    "add_transfer": "Transfer",
+    "accounts_overview": "Wallets & Accounts",
+    "account_detail": "Account Detail",
+    "account_breakdown": "Account Analysis",
+    "create_account": "Create Account",
+    "edit_account": "Edit Account",
+    "categories": "Categories",
+    "category_breakdown": "Category Analysis",
+    "create_category": "Create Category",
+    "edit_category": "Edit Category",
+    "tags": "Tags",
+    "create_tag": "Create Tag",
+    "edit_tag": "Edit Tag",
+    "merchants": "Merchants",
+    "merchant_detail": "Merchant Detail",
+    "create_merchant": "Add Merchant",
+    "edit_merchant": "Edit Merchant",
+    "budgets": "Budgets",
+    "budget_detail": "Budget Detail",
+    "create_budget": "Create Budget",
+    "edit_budget": "Edit Budget",
+    "add_budget_item": "Add Budget Category",
+    "goals": "Goals",
+    "goal_detail": "Goal Detail",
+    "create_goal": "Create Goal",
+    "edit_goal": "Edit Goal",
+    "add_goal_contribution": "Add Contribution",
+    "insights": "Statistics & Reports",
+    "cashflow_chart": "Cash Flow Chart",
+    "auto_rules": "Auto Rules",
+    "create_auto_rule": "Create Rule",
+    "edit_auto_rule": "Edit Rule",
+    "recurring_rules": "Recurring Transactions",
+    "recurring_rule_detail": "Recurring Transaction Detail",
+    "create_recurring_rule": "Create Recurring",
+    "edit_recurring_rule": "Edit Recurring Transaction",
+    "attachments": "Attachments",
+    "export": "Export Data",
+    "settings": "Settings",
+    "security_settings": "Security",
+    "notification_settings": "Notification Settings",
+    "data_backup_settings": "Data & Backup",
+    "about": "About",
+    "notifications_inbox": "Notifications",
+    "community_feed": "Community",
+    "community_discover": "Discover",
+    "create_post": "Create Post",
+    "post_detail": "Post",
+    "public_profile": "Profile",
+    "followers_list": "Followers",
+    "saved_posts": "Saved",
+    "topic_detail": "Topic",
+    "social_notifications": "Community Notifications",
+    "share_finance_recap": "Share Recap",
+    "transaction_detail": "Transaction Detail",
+    "monthly_recap": "Monthly Recap",
+    "monthly_summary_report": "Monthly Report",
+    "restore_data": "Restore Data",
+    "weekly_recap_detail": "Weekly Recap"
   }
 }

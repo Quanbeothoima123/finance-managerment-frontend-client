@@ -1,11 +1,13 @@
-import React from "react";
+﻿import React from "react";
+import { useTranslation } from "react-i18next";
 import { Layout } from "../components/Layout";
-import CreateEditAccount from "./CreateEditAccount";
+import CreateAccount from "./CreateAccount";
 
 export default function CreateAccountWithLayout() {
+  const { t } = useTranslation("common");
   return (
-    <Layout title="Tạo tài khoản">
-      <CreateEditAccount mode="create" />
+    <Layout title={t("page_titles.create_account")}>
+      <CreateAccount />
     </Layout>
   );
 }

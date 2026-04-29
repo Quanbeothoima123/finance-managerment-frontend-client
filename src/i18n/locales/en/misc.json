@@ -1,0 +1,110 @@
+{
+  "about": {
+    "title": "About",
+    "subtitle": "App information and terms",
+    "back": "Back",
+    "app_info": {
+      "name": "Finance Manager",
+      "tagline": "Smart personal finance management app",
+      "version_label": "Version"
+    },
+    "legal": {
+      "section_title": "Legal information",
+      "privacy_policy": "Privacy Policy",
+      "terms_of_service": "Terms of Service",
+      "open_source_licenses": "Open Source Licenses"
+    },
+    "contact": {
+      "section_title": "Contact & Support",
+      "support_email_label": "Support email"
+    },
+    "toast": {
+      "opening_link": "Opening link..."
+    }
+  },
+
+  "restore": {
+    "title": "Restore data",
+    "subtitle": "3 steps: Choose file → Preview → Confirm",
+    "back": "Back",
+    "steps": {
+      "choose_file": "Choose file",
+      "preview": "Preview",
+      "confirm": "Confirm"
+    },
+    "step0": {
+      "section_title": "Choose backup file",
+      "drop_label": "Drag & drop or click to choose file",
+      "drop_hint": "Only .json files accepted",
+      "source_hint": "Backup files are created from the Backup section.",
+      "choose_another": "Choose another file"
+    },
+    "step1": {
+      "section_title": "Backup file info",
+      "field_file": "File",
+      "field_version": "Version",
+      "field_created_at": "Created at",
+      "field_timezone": "Timezone",
+      "version_mismatch": "Backup from version {{version}}. Some data may not match.",
+      "content_title": "Backup contents",
+      "back_button": "Back",
+      "next_button": "Continue"
+    },
+    "step2": {
+      "section_title": "Choose restore method",
+      "mode_replace_label": "Replace all",
+      "mode_replace_recommended": "(Recommended)",
+      "mode_replace_description": "Delete current data and replace with data from the file.",
+      "mode_merge_label": "Merge data",
+      "mode_merge_description": "Keep current data and add data from the file. Duplicate IDs will be skipped.",
+      "irreversible_warning": "This action cannot be undone.",
+      "current_data_title": "Current data",
+      "will_restore_label": "Will restore:",
+      "back_button": "Back",
+      "restore_button": "Restore"
+    },
+    "confirm_modal": {
+      "title": "Confirm restore",
+      "description_replace": "Current data will be permanently deleted and replaced with data from the backup file.",
+      "description_merge": "Data from the backup file will be added to your current data. Duplicate IDs will be skipped.",
+      "irreversible_warning": "This action cannot be undone.",
+      "cancel": "Cancel",
+      "confirm": "Restore"
+    },
+    "progress": {
+      "title": "Restoring…",
+      "hint": "Please don't close the app."
+    },
+    "success": {
+      "title": "Restore successful 🎉",
+      "description_replace": "Data replaced successfully.",
+      "description_merge": "Data merged successfully.",
+      "go_home": "Go home",
+      "view_transactions": "View transactions"
+    },
+    "count_labels": {
+      "transactions": "Transactions",
+      "accounts": "Accounts",
+      "categories": "Categories",
+      "tags": "Tags",
+      "merchants": "Merchants",
+      "budgets": "Budgets",
+      "goals": "Goals",
+      "autoRules": "Rules",
+      "recurringRules": "Recurring"
+    },
+    "errors": {
+      "invalid_file": "Invalid file.",
+      "unrecognized_file": "Unrecognized backup file.",
+      "version_incompatible": "Incompatible backup version. Please update the app or create a new backup."
+    }
+  },
+
+  "not_found": {
+    "code": "404",
+    "title": "Page not found",
+    "description": "The page you're looking for doesn't exist or has been moved.",
+    "go_back": "Go back",
+    "go_home": "Go home"
+  }
+}

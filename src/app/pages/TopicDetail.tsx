@@ -10,9 +10,11 @@ import { TopicChip } from "../components/social/TopicChip";
 import { PostSkeleton } from "../components/social/PostSkeleton";
 import { SocialEmptyState } from "../components/social/SocialEmptyState";
 import { useToast } from "../contexts/ToastContext";
+import { useTranslation } from "react-i18next";
 
 export default function TopicDetail() {
   const navigate = useNavigate();
+  const { t } = useTranslation("community");
   const { name } = useParams<{ name: string }>();
   const toast = useToast();
   const { data: myProfile } = useMyProfile();
@@ -65,7 +67,9 @@ export default function TopicDetail() {
       if (was) await socialTopicsService.unfollowTopic(topic.id);
       else await socialTopicsService.followTopic(topic.id);
       toast.success(
-        was ? `Đã bỏ theo dõi #${topic.name}` : `Đã theo dõi #${topic.name}`,
+        was
+          ? t("topic_detail.toast.unfollowed", { name: topic.name })
+          : t("topic_detail.toast.followed", { name: topic.name }),
       );
     } catch {
       setIsFollowing(was);
@@ -110,14 +114,10 @@ export default function TopicDetail() {
                   #{topic.name}
                 </h2>
                 <p className="text-xs text-[var(--text-tertiary)]">
-                  <span className="tabular-nums">
-                    {topic.postsCount.toLocaleString()}
-                  </span>{" "}
-                  bài viết ·{" "}
-                  <span className="tabular-nums">
-                    {topic.followersCount.toLocaleString()}
-                  </span>{" "}
-                  người theo dõi
+                  {t("topic_detail.stats", {
+                    posts: topic.postsCount.toLocaleString(),
+                    followers: topic.followersCount.toLocaleString(),
+                  })}
                 </p>
               </div>
               <button
@@ -128,7 +128,9 @@ export default function TopicDetail() {
                     : "bg-[var(--primary)] text-white hover:bg-[var(--primary-hover)]"
                 }`}
               >
-                {isFollowing ? "Đã theo dõi" : "Theo dõi"}
+                {isFollowing
+                  ? t("topic_detail.unfollow")
+                  : t("topic_detail.follow")}
               </button>
             </div>
             {topic.description && (
@@ -143,7 +145,7 @@ export default function TopicDetail() {
         {relatedTopics.length > 0 && (
           <div className="px-4 py-3 border-b border-[var(--border)]">
             <p className="text-xs font-semibold text-[var(--text-tertiary)] uppercase mb-2">
-              Chủ đề liên quan
+              {t("topic_detail.related_topics_label")}
             </p>
             <div className="flex flex-wrap gap-2">
               {relatedTopics.map((t) => (
@@ -168,10 +170,10 @@ export default function TopicDetail() {
           ) : filteredPosts.length === 0 ? (
             <SocialEmptyState
               icon={<Hash className="w-8 h-8" />}
-              title="Chưa có bài viết nào"
-              description={`Chưa có bài viết nào với chủ đề #${name}. Hãy là người đầu tiên chia sẻ!`}
+              title={t("topic_detail.empty.title")}
+              description={t("topic_detail.empty.description", { name })}
               action={{
-                label: "Tạo bài viết",
+                label: t("topic_detail.empty.create_action"),
                 onClick: () => navigate("/community/create"),
               }}
             />

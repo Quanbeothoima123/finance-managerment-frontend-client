@@ -10,9 +10,11 @@ import {
 import { Card } from "../components/Card";
 import { useAppNavigation } from "../hooks/useAppNavigation";
 import { useToast } from "../contexts/ToastContext";
+import { useTranslation } from "react-i18next";
 
 export default function AboutPage() {
   const nav = useAppNavigation();
+  const { t } = useTranslation("misc");
   const toast = useToast();
 
   const handleBack = () => {
@@ -20,7 +22,7 @@ export default function AboutPage() {
   };
 
   const handleLink = (link: string) => {
-    toast.info("Đang mở liên kết...");
+    toast.info(t("about.opening_link"));
   };
 
   return (
@@ -33,14 +35,14 @@ export default function AboutPage() {
             className="flex items-center gap-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] mb-4 transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
-            <span className="font-medium">Quay lại</span>
+            <span className="font-medium">{t("about.back")}</span>
           </button>
 
           <h1 className="text-2xl font-semibold text-[var(--text-primary)]">
-            Giới thiệu
+            {t("about.title")}
           </h1>
           <p className="text-sm text-[var(--text-secondary)] mt-1">
-            Thông tin về ứng dụng và điều khoản
+            {t("about.subtitle")}
           </p>
         </div>
 
@@ -51,15 +53,15 @@ export default function AboutPage() {
           </div>
 
           <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-1">
-            Quản lý Tài chính
+            {t("about.app_name")}
           </h2>
           <p className="text-sm text-[var(--text-secondary)] mb-4">
-            Ứng dụng quản lý tài chính cá nhân thông minh
+            {t("about.app_tagline")}
           </p>
 
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--surface)] rounded-[var(--radius-lg)]">
             <span className="text-sm font-medium text-[var(--text-secondary)]">
-              Phiên bản
+              {t("about.version_label")}
             </span>
             <span className="text-sm font-bold text-[var(--primary)] tabular-nums">
               1.0.0
@@ -68,9 +70,9 @@ export default function AboutPage() {
 
           <div className="mt-6 pt-6 border-t border-[var(--divider)]">
             <p className="text-xs text-[var(--text-secondary)]">
-              Build 2026.02.12 • Made with{" "}
-              <Heart className="w-3 h-3 inline text-[var(--danger)]" /> in
-              Vietnam
+              {t("about.build_info")}{" "}
+              <Heart className="w-3 h-3 inline text-[var(--danger)]" />{" "}
+              {t("about.made_in")}
             </p>
           </div>
         </Card>
@@ -78,7 +80,7 @@ export default function AboutPage() {
         {/* Links Section */}
         <Card>
           <h3 className="font-semibold text-[var(--text-primary)] mb-4">
-            Thông tin pháp lý
+            {t("about.legal.title")}
           </h3>
 
           <div className="space-y-1">
@@ -89,7 +91,7 @@ export default function AboutPage() {
               <div className="flex items-center gap-3">
                 <Shield className="w-5 h-5 text-[var(--text-secondary)]" />
                 <span className="text-sm font-medium text-[var(--text-primary)]">
-                  Chính sách bảo mật
+                  {t("about.legal.privacy_policy")}
                 </span>
               </div>
               <ExternalLink className="w-4 h-4 text-[var(--text-secondary)]" />
@@ -102,7 +104,7 @@ export default function AboutPage() {
               <div className="flex items-center gap-3">
                 <FileText className="w-5 h-5 text-[var(--text-secondary)]" />
                 <span className="text-sm font-medium text-[var(--text-primary)]">
-                  Điều khoản sử dụng
+                  {t("about.legal.terms_of_use")}
                 </span>
               </div>
               <ExternalLink className="w-4 h-4 text-[var(--text-secondary)]" />
@@ -115,7 +117,7 @@ export default function AboutPage() {
               <div className="flex items-center gap-3">
                 <FileText className="w-5 h-5 text-[var(--text-secondary)]" />
                 <span className="text-sm font-medium text-[var(--text-primary)]">
-                  Giấy phép mã nguồn mở
+                  {t("about.legal.open_source_licenses")}
                 </span>
               </div>
               <ExternalLink className="w-4 h-4 text-[var(--text-secondary)]" />
@@ -126,7 +128,7 @@ export default function AboutPage() {
         {/* Contact Section */}
         <Card>
           <h3 className="font-semibold text-[var(--text-primary)] mb-4">
-            Liên hệ & Hỗ trợ
+            {t("about.contact.title")}
           </h3>
 
           <div className="space-y-1">
@@ -138,7 +140,7 @@ export default function AboutPage() {
                 <Mail className="w-5 h-5 text-[var(--text-secondary)]" />
                 <div className="text-left">
                   <p className="text-sm font-medium text-[var(--text-primary)]">
-                    Email hỗ trợ
+                    {t("about.contact.support_email")}
                   </p>
                   <p className="text-xs text-[var(--text-secondary)]">
                     support@quanlytaichinh.vn
@@ -156,10 +158,10 @@ export default function AboutPage() {
                 <FileText className="w-5 h-5 text-[var(--text-secondary)]" />
                 <div className="text-left">
                   <p className="text-sm font-medium text-[var(--text-primary)]">
-                    Gửi phản hồi
+                    {t("about.contact.send_feedback")}
                   </p>
                   <p className="text-xs text-[var(--text-secondary)]">
-                    Giúp chúng tôi cải thiện ứng dụng
+                    {t("about.contact.feedback_description")}
                   </p>
                 </div>
               </div>
@@ -171,13 +173,13 @@ export default function AboutPage() {
         {/* Technical Info */}
         <Card className="bg-[var(--surface)]">
           <h3 className="font-semibold text-[var(--text-primary)] mb-4">
-            Thông tin kỹ thuật
+            {t("about.tech_info.title")}
           </h3>
 
           <div className="space-y-3 text-sm">
             <div className="flex justify-between">
               <span className="text-[var(--text-secondary)]">
-                Phiên bản ứng dụng
+                {t("about.tech_info.app_version")}
               </span>
               <span className="font-mono font-semibold text-[var(--text-primary)]">
                 1.0.0
@@ -185,21 +187,27 @@ export default function AboutPage() {
             </div>
 
             <div className="flex justify-between">
-              <span className="text-[var(--text-secondary)]">Build number</span>
+              <span className="text-[var(--text-secondary)]">
+                {t("about.tech_info.build_number")}
+              </span>
               <span className="font-mono font-semibold text-[var(--text-primary)]">
                 2026.02.12
               </span>
             </div>
 
             <div className="flex justify-between">
-              <span className="text-[var(--text-secondary)]">Framework</span>
+              <span className="text-[var(--text-secondary)]">
+                {t("about.tech_info.framework")}
+              </span>
               <span className="font-semibold text-[var(--text-primary)]">
                 React 18.3.1
               </span>
             </div>
 
             <div className="flex justify-between">
-              <span className="text-[var(--text-secondary)]">Dung lượng</span>
+              <span className="text-[var(--text-secondary)]">
+                {t("about.tech_info.size")}
+              </span>
               <span className="font-semibold text-[var(--text-primary)]">
                 14.8 MB
               </span>
@@ -210,7 +218,7 @@ export default function AboutPage() {
         {/* Credits */}
         <Card>
           <h3 className="font-semibold text-[var(--text-primary)] mb-4">
-            Thư viện & Công nghệ
+            {t("about.credits.title")}
           </h3>
 
           <div className="grid grid-cols-2 gap-3 text-sm">
@@ -247,17 +255,17 @@ export default function AboutPage() {
             onClick={() => handleLink("all-licenses")}
             className="mt-4 w-full text-center text-sm text-[var(--primary)] hover:text-[var(--primary-hover)] font-medium transition-colors"
           >
-            Xem tất cả giấy phép →
+            {t("about.credits.view_all_licenses")}
           </button>
         </Card>
 
         {/* Copyright */}
         <div className="text-center py-6">
           <p className="text-sm text-[var(--text-secondary)]">
-            © 2026 Quản lý Tài chính. Đã đăng ký Bản quyền.
+            {t("about.copyright")}
           </p>
           <p className="text-xs text-[var(--text-tertiary)] mt-1">
-            Được phát triển tại Việt Nam 🇻🇳
+            {t("about.developed_in")}
           </p>
         </div>
       </div>

@@ -7,11 +7,13 @@ import { socialFollowsService } from "../services/socialFollowsService";
 import type { FollowerItem, FollowingItem } from "../types/community";
 import { ProfileRow } from "../components/social/ProfileRow";
 import { SocialEmptyState } from "../components/social/SocialEmptyState";
+import { useTranslation } from "react-i18next";
 
 type Tab = "followers" | "following";
 
 export default function FollowersList() {
   const navigate = useNavigate();
+  const { t } = useTranslation("community");
   const { id } = useParams<{ id: string }>();
   const { data: profile } = usePublicProfile(id);
   const { data: myProfile } = useMyProfile();
@@ -113,7 +115,7 @@ export default function FollowersList() {
               <span className="tabular-nums">
                 {profile.followersCount.toLocaleString()}
               </span>{" "}
-              Người theo dõi
+              {t("followers_list.tabs.followers")}
             </button>
             <button
               onClick={() => setActiveTab("following")}
@@ -124,7 +126,7 @@ export default function FollowersList() {
               }`}
             >
               <span className="tabular-nums">{profile.followingCount}</span>{" "}
-              Đang theo dõi
+              {t("followers_list.tabs.following")}
             </button>
           </div>
 
@@ -134,7 +136,7 @@ export default function FollowersList() {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-tertiary)]" />
               <input
                 type="text"
-                placeholder="Tìm kiếm..."
+                placeholder={t("followers_list.search_placeholder")}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-9 pr-4 py-2.5 bg-[var(--surface)] rounded-xl text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] outline-none focus:ring-2 focus:ring-[var(--primary)]"
@@ -177,21 +179,21 @@ export default function FollowersList() {
               title={
                 activeTab === "followers"
                   ? isMe
-                    ? "Chưa có người theo dõi"
+                    ? t("followers_list.empty.no_followers_title")
                     : `${profile.displayName || profile.username} chưa có người theo dõi`
                   : isMe
-                    ? "Bạn chưa theo dõi ai"
+                    ? t("followers_list.empty.no_following_title")
                     : `${profile.displayName || profile.username} chưa theo dõi ai`
               }
               description={
                 activeTab === "followers"
-                  ? "Chia sẻ bài viết chất lượng để thu hút người theo dõi!"
-                  : "Khám phá cộng đồng để tìm người dùng thú vị."
+                  ? t("followers_list.empty.no_followers_description")
+                  : t("followers_list.empty.no_following_description")
               }
               action={
                 isMe
                   ? {
-                      label: "Khám phá cộng đồng",
+                      label: t("followers_list.empty.discover_action"),
                       onClick: () => navigate("/community/discover"),
                     }
                   : undefined

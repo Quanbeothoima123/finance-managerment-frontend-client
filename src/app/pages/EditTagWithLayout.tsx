@@ -1,11 +1,13 @@
-import React from "react";
+﻿import React from "react";
+import { useTranslation } from "react-i18next";
 import { Layout } from "../components/Layout";
-import CreateEditTag from "./CreateEditTag";
+import EditTag from "./EditTag";
 
 export default function EditTagWithLayout() {
+  const { t } = useTranslation("common");
   return (
-    <Layout title="Chỉnh sửa nhãn">
-      <CreateEditTag mode="edit" />
+    <Layout title={t("page_titles.edit_tag")}>
+      <EditTag />
     </Layout>
   );
 }

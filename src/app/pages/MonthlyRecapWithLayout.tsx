@@ -1,7 +1,13 @@
-import React from "react";
+﻿import React from "react";
+import { useTranslation } from "react-i18next";
+import { Layout } from "../components/Layout";
 import MonthlyRecap from "./MonthlyRecap";
 
-// Note: Monthly Recap has its own special layout without the regular Layout component
 export default function MonthlyRecapWithLayout() {
-  return <MonthlyRecap />;
+  const { t } = useTranslation("common");
+  return (
+    <Layout title={t("page_titles.monthly_recap")}>
+      <MonthlyRecap />
+    </Layout>
+  );
 }

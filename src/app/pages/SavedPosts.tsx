@@ -7,11 +7,13 @@ import type { SavedPostItem } from "../types/community";
 import { PostCard } from "../components/social/PostCard";
 import { PostSkeleton } from "../components/social/PostSkeleton";
 import { SocialEmptyState } from "../components/social/SocialEmptyState";
+import { useTranslation } from "react-i18next";
 
 type FilterType = "all" | "recap" | "tips" | "question";
 
 export default function SavedPosts() {
   const navigate = useNavigate();
+  const { t } = useTranslation("community");
   const { data: myProfile } = useMyProfile();
   const [savedItems, setSavedItems] = useState<SavedPostItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -53,7 +55,7 @@ export default function SavedPosts() {
   );
 
   const filters: { key: FilterType; label: string; count: number }[] = [
-    { key: "all", label: "Tất cả", count: items.length },
+    { key: "all", label: t("saved_posts.filter.all"), count: items.length },
     {
       key: "recap",
       label: "Recap",
@@ -68,7 +70,7 @@ export default function SavedPosts() {
     },
     {
       key: "question",
-      label: "Câu hỏi",
+      label: t("saved_posts.filter.question"),
       count: items.filter((i) => i.post.type === "question").length,
     },
   ];
@@ -84,7 +86,9 @@ export default function SavedPosts() {
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
-            <h1 className="font-semibold text-[var(--text-primary)]">Đã lưu</h1>
+            <h1 className="font-semibold text-[var(--text-primary)]">
+              {t("saved_posts.title")}
+            </h1>
             <span className="text-xs text-[var(--text-tertiary)] ml-auto tabular-nums">
               {items.length} bài viết
             </span>
@@ -120,10 +124,10 @@ export default function SavedPosts() {
           ) : filteredItems.length === 0 ? (
             <SocialEmptyState
               icon={<Bookmark className="w-8 h-8" />}
-              title="Chưa có bài viết nào được lưu"
-              description="Khi bạn lưu bài viết, chúng sẽ xuất hiện ở đây để bạn đọc lại sau."
+              title={t("saved_posts.empty.title")}
+              description={t("saved_posts.empty.description")}
               action={{
-                label: "Khám phá bài viết",
+                label: t("saved_posts.empty.discover_action"),
                 onClick: () => navigate("/community/discover"),
               }}
             />

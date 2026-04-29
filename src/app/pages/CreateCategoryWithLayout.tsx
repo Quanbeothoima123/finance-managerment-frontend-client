@@ -1,11 +1,13 @@
-import React from "react";
+﻿import React from "react";
+import { useTranslation } from "react-i18next";
 import { Layout } from "../components/Layout";
-import CreateEditCategory from "./CreateEditCategory";
+import CreateCategory from "./CreateCategory";
 
 export default function CreateCategoryWithLayout() {
+  const { t } = useTranslation("common");
   return (
-    <Layout title="Tạo danh mục">
-      <CreateEditCategory mode="create" />
+    <Layout title={t("page_titles.create_category")}>
+      <CreateCategory />
     </Layout>
   );
 }

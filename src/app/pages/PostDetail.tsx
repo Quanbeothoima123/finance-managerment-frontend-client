@@ -33,17 +33,19 @@ import {
   type BottomSheetAction,
 } from "../components/social/BottomSheetActions";
 import { useToast } from "../contexts/ToastContext";
+import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 
-function formatTimeAgo(dateStr: string): string {
+function formatTimeAgo(dateStr: string, t: TFunction): string {
   const now = new Date();
   const date = new Date(dateStr);
   const diff = now.getTime() - date.getTime();
   const mins = Math.floor(diff / 60000);
-  if (mins < 60) return `${mins} phút trước`;
+  if (mins < 60) return t("post_detail.time_ago.minutes", { n: mins });
   const hours = Math.floor(mins / 60);
-  if (hours < 24) return `${hours} giờ trước`;
+  if (hours < 24) return t("post_detail.time_ago.hours", { n: hours });
   const days = Math.floor(hours / 24);
-  return `${days} ngày trước`;
+  return t("post_detail.time_ago.days", { n: days });
 }
 
 function BadgeIcon({ badge }: { badge?: string | null }) {
@@ -69,6 +71,7 @@ function BadgeIcon({ badge }: { badge?: string | null }) {
 
 export default function PostDetail() {
   const navigate = useNavigate();
+  const { t } = useTranslation("community");
   const { id } = useParams<{ id: string }>();
   const { data: post, loading, error } = usePostDetail(id);
   const { data: myProfile } = useMyProfile();
@@ -128,7 +131,7 @@ export default function PostDetail() {
               <ChevronLeft className="w-5 h-5" />
             </button>
             <h1 className="font-semibold text-[var(--text-primary)]">
-              Bài viết
+              {t("post_detail.title")}
             </h1>
           </div>
           <div className="px-4 py-4">
@@ -147,16 +150,16 @@ export default function PostDetail() {
           <MessageCircle className="w-8 h-8 text-[var(--text-tertiary)]" />
         </div>
         <h3 className="font-semibold text-[var(--text-primary)] mb-2">
-          Bài viết không tồn tại
+          {t("post_detail.not_found.title")}
         </h3>
         <p className="text-sm text-[var(--text-secondary)] text-center mb-6">
-          Bài viết này có thể đã bị xóa hoặc không khả dụng.
+          {t("post_detail.not_found.description")}
         </p>
         <button
           onClick={() => navigate(-1)}
           className="px-6 py-2.5 bg-[var(--primary)] text-white rounded-2xl font-semibold text-sm"
         >
-          Quay lại
+          {t("post_detail.not_found.back_button")}
         </button>
       </div>
     );
@@ -178,7 +181,7 @@ export default function PostDetail() {
               <ChevronLeft className="w-5 h-5" />
             </button>
             <h1 className="font-semibold text-[var(--text-primary)]">
-              Bài viết
+              {t("post_detail.title")}
             </h1>
           </div>
           <RestrictedContent
@@ -259,9 +262,9 @@ export default function PostDetail() {
       });
       setComments((prev) => [...prev, newComment]);
       setCommentText("");
-      toast.success("Đã gửi bình luận");
+      toast.success(t("post_detail.comments.send_success"));
     } catch {
-      toast.error("Không thể gửi bình luận");
+      toast.error(t("post_detail.comments.send_failed"));
     }
   };
 
@@ -269,16 +272,16 @@ export default function PostDetail() {
     ? [
         {
           icon: <Trash2 className="w-5 h-5" />,
-          label: "Xóa bài viết",
-          description: "Bài viết sẽ bị xóa vĩnh viễn",
+          label: t("post_detail.action_sheet.delete_label"),
+          description: t("post_detail.action_sheet.delete_description"),
           destructive: true,
           onClick: async () => {
             try {
               await communityPostsService.deletePost(post.id);
-              toast.success("Đã xóa bài viết");
+              toast.success(t("post_detail.toast.deleted"));
               navigate(-1);
             } catch {
-              toast.error("Không thể xóa bài viết");
+              toast.error(t("post_detail.toast.delete_failed"));
             }
           },
         },
@@ -286,41 +289,47 @@ export default function PostDetail() {
     : [
         {
           icon: <Flag className="w-5 h-5" />,
-          label: "Báo cáo bài viết",
-          description: "Bài viết vi phạm quy tắc cộng đồng",
+          label: t("post_detail.action_sheet.report_label"),
+          description: t("post_detail.action_sheet.report_description"),
           destructive: true,
           onClick: async () => {
             try {
               await communityInteractionsService.reportPost(post.id, {
                 reason: "spam",
               });
-              toast.info("Đã gửi báo cáo. Cảm ơn bạn!");
+              toast.info(t("post_detail.toast.reported"));
             } catch {
-              toast.error("Không thể gửi báo cáo");
+              toast.error(t("post_detail.toast.report_failed"));
             }
           },
         },
         {
           icon: <EyeOff className="w-5 h-5" />,
-          label: "Ẩn bài viết này",
-          description: "Bạn sẽ không thấy bài viết này nữa",
+          label: t("post_detail.action_sheet.hide_label"),
+          description: t("post_detail.action_sheet.hide_description"),
           onClick: () => {
-            toast.success("Đã ẩn bài viết");
+            toast.success(t("post_detail.toast.hidden"));
             navigate(-1);
           },
         },
         {
           icon: <Ban className="w-5 h-5" />,
-          label: `Chặn ${author.displayName || author.username}`,
-          description: "Bạn sẽ không thấy nội dung từ người này",
+          label: t("post_detail.action_sheet.block_label", {
+            name: author.displayName || author.username,
+          }),
+          description: t("post_detail.action_sheet.block_description"),
           destructive: true,
           onClick: async () => {
             try {
               await socialFollowsService.blockUser(post.authorId);
-              toast.success(`Đã chặn ${author.displayName || author.username}`);
+              toast.success(
+                t("post_detail.toast.blocked", {
+                  name: author.displayName || author.username,
+                }),
+              );
               navigate(-1);
             } catch {
-              toast.error("Không thể chặn người dùng");
+              toast.error(t("post_detail.toast.block_failed"));
             }
           },
         },
@@ -337,7 +346,9 @@ export default function PostDetail() {
           >
             <ChevronLeft className="w-5 h-5" />
           </button>
-          <h1 className="font-semibold text-[var(--text-primary)]">Bài viết</h1>
+          <h1 className="font-semibold text-[var(--text-primary)]">
+            {t("post_detail.title")}
+          </h1>
           <button
             onClick={() => setShowActionSheet(true)}
             className="p-2 rounded-xl hover:bg-[var(--surface)] text-[var(--text-secondary)]"
@@ -374,7 +385,7 @@ export default function PostDetail() {
                 </div>
                 <div className="flex items-center gap-2 mt-0.5">
                   <p className="text-xs text-[var(--text-tertiary)]">
-                    @{author.username} · {formatTimeAgo(post.createdAt)}
+                    @{author.username} · {formatTimeAgo(post.createdAt, t)}
                   </p>
                   <AudienceBadge audience={post.audience} />
                 </div>
@@ -408,12 +419,20 @@ export default function PostDetail() {
 
             {/* Stats */}
             <div className="flex items-center gap-4 py-3 border-t border-b border-[var(--divider)] text-sm text-[var(--text-tertiary)]">
-              <span className="tabular-nums">{likesCount} lượt thích</span>
               <span className="tabular-nums">
-                {comments.length || post.commentsCount} bình luận
+                {t("post_detail.stats.likes", { count: likesCount })}
               </span>
-              <span className="tabular-nums">{savesCount} đã lưu</span>
-              <span className="tabular-nums">{post.sharesCount} chia sẻ</span>
+              <span className="tabular-nums">
+                {t("post_detail.stats.comments", {
+                  count: comments.length || post.commentsCount,
+                })}
+              </span>
+              <span className="tabular-nums">
+                {t("post_detail.stats.saves", { count: savesCount })}
+              </span>
+              <span className="tabular-nums">
+                {t("post_detail.stats.shares", { count: post.sharesCount })}
+              </span>
             </div>
 
             {/* Action Bar */}
@@ -423,11 +442,13 @@ export default function PostDetail() {
                 className={`flex items-center gap-2 py-2 px-3 rounded-xl transition-colors ${liked ? "text-[var(--danger)]" : "text-[var(--text-secondary)] hover:text-[var(--danger)]"}`}
               >
                 <Heart className={`w-5 h-5 ${liked ? "fill-current" : ""}`} />
-                <span className="text-sm">Thích</span>
+                <span className="text-sm">{t("post_detail.actions.like")}</span>
               </button>
               <button className="flex items-center gap-2 py-2 px-3 rounded-xl text-[var(--text-secondary)]">
                 <MessageCircle className="w-5 h-5" />
-                <span className="text-sm">Bình luận</span>
+                <span className="text-sm">
+                  {t("post_detail.actions.comment")}
+                </span>
               </button>
               <button
                 onClick={handleToggleSave}
@@ -436,11 +457,13 @@ export default function PostDetail() {
                 <Bookmark
                   className={`w-5 h-5 ${saved ? "fill-current" : ""}`}
                 />
-                <span className="text-sm">Lưu</span>
+                <span className="text-sm">{t("post_detail.actions.save")}</span>
               </button>
               <button className="flex items-center gap-2 py-2 px-3 rounded-xl text-[var(--text-secondary)] hover:text-[var(--primary)]">
                 <Share2 className="w-5 h-5" />
-                <span className="text-sm">Chia sẻ</span>
+                <span className="text-sm">
+                  {t("post_detail.actions.share")}
+                </span>
               </button>
             </div>
           </div>
@@ -448,16 +471,18 @@ export default function PostDetail() {
           {/* Comments */}
           <div className="px-4 py-3">
             <h3 className="font-semibold text-sm text-[var(--text-primary)] mb-3">
-              Bình luận ({comments.length || post.commentsCount})
+              {t("post_detail.comments.section_title", {
+                count: comments.length || post.commentsCount,
+              })}
             </h3>
             {comments.length === 0 ? (
               <div className="text-center py-8">
                 <MessageCircle className="w-8 h-8 text-[var(--text-tertiary)] mx-auto mb-2" />
                 <p className="text-sm text-[var(--text-tertiary)]">
-                  Chưa có bình luận nào
+                  {t("post_detail.comments.empty_title")}
                 </p>
                 <p className="text-xs text-[var(--text-tertiary)] mt-1">
-                  Hãy là người đầu tiên chia sẻ ý kiến!
+                  {t("post_detail.comments.empty_hint")}
                 </p>
               </div>
             ) : (
@@ -492,7 +517,7 @@ export default function PostDetail() {
                           </div>
                           <div className="flex items-center gap-3 mt-1 px-2">
                             <span className="text-xs text-[var(--text-tertiary)]">
-                              {formatTimeAgo(comment.createdAt)}
+                              {formatTimeAgo(comment.createdAt, t)}
                             </span>
                             <button
                               onClick={() =>
@@ -503,12 +528,12 @@ export default function PostDetail() {
                               }
                               className={`text-xs font-medium ${comment.isLiked ? "text-[var(--danger)]" : "text-[var(--text-tertiary)]"}`}
                             >
-                              Thích{" "}
+                              {t("post_detail.comments.like")}{" "}
                               {comment.likesCount > 0 &&
                                 `(${comment.likesCount})`}
                             </button>
                             <button className="text-xs font-medium text-[var(--text-tertiary)]">
-                              Trả lời
+                              {t("post_detail.comments.reply")}
                             </button>
                           </div>
 
@@ -541,10 +566,10 @@ export default function PostDetail() {
                                     </div>
                                     <div className="flex items-center gap-3 mt-1 px-2">
                                       <span className="text-xs text-[var(--text-tertiary)]">
-                                        {formatTimeAgo(reply.createdAt)}
+                                        {formatTimeAgo(reply.createdAt, t)}
                                       </span>
                                       <button className="text-xs font-medium text-[var(--text-tertiary)]">
-                                        Thích
+                                        {t("post_detail.comments.like")}
                                       </button>
                                     </div>
                                   </div>
@@ -571,7 +596,7 @@ export default function PostDetail() {
             />
             <input
               type="text"
-              placeholder="Viết bình luận..."
+              placeholder={t("post_detail.comments.input_placeholder")}
               value={commentText}
               onChange={(e) => setCommentText(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSendComment()}
@@ -591,11 +616,17 @@ export default function PostDetail() {
         <BottomSheetActions
           open={showActionSheet}
           onClose={() => setShowActionSheet(false)}
-          title={isOwnPost ? "Bài viết của bạn" : "Tùy chọn"}
+          title={
+            isOwnPost
+              ? t("post_detail.action_sheet.own_post_title")
+              : t("post_detail.action_sheet.others_post_title")
+          }
           subtitle={
             isOwnPost
               ? undefined
-              : `Bài viết bởi ${author.displayName || author.username}`
+              : t("post_detail.action_sheet.others_post_subtitle", {
+                  name: author.displayName || author.username,
+                })
           }
           actions={moreActions}
         />

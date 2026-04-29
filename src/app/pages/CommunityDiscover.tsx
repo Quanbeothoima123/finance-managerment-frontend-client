@@ -18,19 +18,13 @@ import { PostCard } from "../components/social/PostCard";
 import { Card } from "../components/Card";
 import { SocialEmptyState } from "../components/social/SocialEmptyState";
 import type { CommunityPost, SocialTopic } from "../types/community";
+import { useTranslation } from "react-i18next";
 
 type SearchTab = "posts" | "topics";
 
-const SUGGESTED_SEARCHES = [
-  "tiết kiệm mua nhà",
-  "ngân sách sinh viên",
-  "quy tắc 50/30/20",
-  "quỹ khẩn cấp",
-  "meal prep",
-];
-
 export default function CommunityDiscover() {
   const navigate = useNavigate();
+  const { t } = useTranslation("community");
   const { data: myProfile } = useMyProfile();
   const { data: topics, loading: topicsLoading } = useSocialTopics();
   const { data: feedData, loading: feedLoading } = useCommunityFeed("for-you");
@@ -112,9 +106,21 @@ export default function CommunityDiscover() {
   };
 
   const searchTabs: { key: SearchTab; label: string; count: number }[] = [
-    { key: "posts", label: "Bài viết", count: searchResults.posts.length },
-    { key: "topics", label: "Chủ đề", count: searchResults.topics.length },
+    {
+      key: "posts",
+      label: t("discover.search_tabs.posts"),
+      count: searchResults.posts.length,
+    },
+    {
+      key: "topics",
+      label: t("discover.search_tabs.topics"),
+      count: searchResults.topics.length,
+    },
   ];
+
+  const SUGGESTED_SEARCHES = t("discover.suggested_search_terms", {
+    returnObjects: true,
+  }) as string[];
 
   const loading = topicsLoading || feedLoading;
 
@@ -131,14 +137,14 @@ export default function CommunityDiscover() {
               <ChevronLeft className="w-5 h-5" />
             </button>
             <h1 className="text-lg font-bold text-[var(--text-primary)]">
-              Khám phá
+              {t("discover.title")}
             </h1>
           </div>
           <div className="relative">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-tertiary)]" />
             <input
               type="text"
-              placeholder="Tìm kiếm bài viết, chủ đề..."
+              placeholder={t("discover.search_placeholder")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSearch(searchQuery)}
@@ -193,13 +199,15 @@ export default function CommunityDiscover() {
             {totalResults === 0 ? (
               <SocialEmptyState
                 icon={<Search className="w-8 h-8" />}
-                title="Không tìm thấy kết quả"
-                description={`Không có kết quả nào phù hợp với "${searchQuery}". Thử tìm với từ khóa khác.`}
+                title={t("discover.no_results.title")}
+                description={t("discover.no_results.description", {
+                  query: searchQuery,
+                })}
               />
             ) : searchTab === "posts" ? (
               searchResults.posts.length === 0 ? (
                 <p className="text-center py-8 text-sm text-[var(--text-tertiary)]">
-                  Không có bài viết phù hợp
+                  {t("discover.no_posts")}
                 </p>
               ) : (
                 searchResults.posts.map((post) => (
@@ -216,7 +224,7 @@ export default function CommunityDiscover() {
               )
             ) : searchResults.topics.length === 0 ? (
               <p className="text-center py-8 text-sm text-[var(--text-tertiary)]">
-                Không tìm thấy chủ đề
+                {t("discover.no_topics")}
               </p>
             ) : (
               <div className="grid grid-cols-2 gap-3">
@@ -239,7 +247,9 @@ export default function CommunityDiscover() {
                       #{topic.name}
                     </p>
                     <p className="text-xs text-[var(--text-tertiary)]">
-                      {topic.postsCount.toLocaleString()} bài viết
+                      {t("discover.trending_topics.posts_count", {
+                        count: topic.postsCount.toLocaleString(),
+                      })}
                     </p>
                   </button>
                 ))}
@@ -254,13 +264,13 @@ export default function CommunityDiscover() {
                 <div className="flex items-center justify-between mb-2">
                   <h2 className="font-semibold text-[var(--text-primary)] flex items-center gap-2">
                     <Clock className="w-4 h-4 text-[var(--text-tertiary)]" />
-                    Tìm kiếm gần đây
+                    {t("discover.recent_searches.title")}
                   </h2>
                   <button
                     onClick={clearRecentSearches}
                     className="text-xs text-[var(--primary)] font-medium"
                   >
-                    Xóa tất cả
+                    {t("discover.recent_searches.clear_all")}
                   </button>
                 </div>
                 <div className="flex flex-wrap gap-2">
@@ -281,7 +291,7 @@ export default function CommunityDiscover() {
             <section>
               <h2 className="font-semibold text-[var(--text-primary)] mb-2 flex items-center gap-2">
                 <Search className="w-4 h-4 text-[var(--text-tertiary)]" />
-                Gợi ý tìm kiếm
+                {t("discover.suggested_searches.title")}
               </h2>
               <div className="flex flex-wrap gap-2">
                 {SUGGESTED_SEARCHES.map((s, i) => (
@@ -301,7 +311,7 @@ export default function CommunityDiscover() {
               <section>
                 <h2 className="font-semibold text-[var(--text-primary)] mb-3 flex items-center gap-2">
                   <Flame className="w-4 h-4 text-[var(--warning)]" />
-                  Chủ đề nổi bật
+                  {t("discover.trending_topics.title")}
                 </h2>
                 <div className="grid grid-cols-2 gap-3">
                   {topics.slice(0, 6).map((topic) => (
@@ -325,7 +335,9 @@ export default function CommunityDiscover() {
                         #{topic.name}
                       </p>
                       <p className="text-xs text-[var(--text-tertiary)]">
-                        {topic.postsCount.toLocaleString()} bài viết
+                        {t("discover.trending_topics.posts_count", {
+                          count: topic.postsCount.toLocaleString(),
+                        })}
                       </p>
                     </button>
                   ))}
@@ -338,7 +350,7 @@ export default function CommunityDiscover() {
               <section>
                 <h2 className="font-semibold text-[var(--text-primary)] mb-3 flex items-center gap-2">
                   <TrendingUp className="w-4 h-4 text-[var(--success)]" />
-                  Bài viết xu hướng
+                  {t("discover.trending_posts.title")}
                 </h2>
                 <div className="space-y-4">
                   {trendingPosts.map((post) => (

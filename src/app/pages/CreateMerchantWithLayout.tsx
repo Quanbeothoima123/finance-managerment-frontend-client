@@ -1,11 +1,13 @@
-import React from "react";
+﻿import React from "react";
+import { useTranslation } from "react-i18next";
 import { Layout } from "../components/Layout";
-import CreateEditMerchant from "./CreateEditMerchant";
+import CreateMerchant from "./CreateMerchant";
 
 export default function CreateMerchantWithLayout() {
+  const { t } = useTranslation("common");
   return (
-    <Layout title="Thêm nhà cung cấp">
-      <CreateEditMerchant mode="create" />
+    <Layout title={t("page_titles.create_merchant")}>
+      <CreateMerchant />
     </Layout>
   );
 }

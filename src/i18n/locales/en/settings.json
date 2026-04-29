@@ -290,17 +290,34 @@
       "type_all": "All",
       "type_image": "Images",
       "open_advanced": "Advanced filters",
+      "date_range": "Date range",
+      "account": "Account",
+      "no_accounts": "No accounts have attachments yet",
       "clear": "Clear filters",
-      "apply": "Apply"
+      "apply": "Apply",
+      "presets": {
+        "last_30_days": "30 days",
+        "this_month": "This month",
+        "last_month": "Last month"
+      }
+    },
+    "month": {
+      "header": "{{month}}/{{year}}",
+      "file_count": "({{count}} files)"
+    },
+    "stats": {
+      "image_count": "{{count}} images"
     },
     "item": {
       "open_in_browser": "Open in browser",
-      "download": "Download"
+      "download": "Download",
+      "view_transaction": "View transaction"
     },
     "empty": {
       "title": "No attachments yet.",
       "no_attachments": "Add receipt photos or files to transactions to view them here.",
-      "no_results": "No attachments match the current filter."
+      "no_results": "No attachments match the current filter.",
+      "add_from_transaction": "Add attachment from transaction"
     },
     "loading": "Loading attachment library..."
   }
