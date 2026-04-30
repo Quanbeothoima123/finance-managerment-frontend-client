@@ -296,6 +296,50 @@
     "bulk_cancel": "Cancel",
     "mark_all_read": "Mark all as read",
     "clear_read": "Clear read",
+    "subtitle": {
+      "selected": "{{count}} selected",
+      "unread": "{{count}} unread notifications",
+      "all_read": "All caught up"
+    },
+    "swipe_hint": "Swipe left or right on a notification for quick actions",
+    "bulk_mode_hint": "Bulk selection is on. Pick notifications, then mark as read or delete.",
+    "tabs": {
+      "unread": "Unread",
+      "all": "All"
+    },
+    "group_labels": {
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "earlier": "Earlier"
+    },
+    "header_menu": {
+      "bulk_select": "Select notifications",
+      "bulk_cancel": "Cancel selection",
+      "mark_all_read": "Mark all as read",
+      "clear_read": "Clear read",
+      "settings": "Notification settings"
+    },
+    "swipe_actions": {
+      "mark_read": "Mark as read",
+      "delete": "Delete"
+    },
+    "card": {
+      "mark_read": "Mark read",
+      "delete": "Delete"
+    },
+    "bulk_toolbar": {
+      "selected_count": "{{count}} selected",
+      "mark_read": "Mark read",
+      "delete": "Delete"
+    },
+    "actions": {
+      "recurring_confirm": "Confirm",
+      "recurring_skip": "Skip",
+      "budget_view": "View budget",
+      "goal_contribute": "Add contribution",
+      "goal_view": "View goal"
+    },
+    "clear_read_button": "Clear {{count}} read",
     "groups": {
       "today": "Today",
       "yesterday": "Yesterday",
@@ -306,6 +350,9 @@
       "delete": "Delete"
     },
     "empty": {
+      "unread_title": "No unread notifications",
+      "all_title": "No notifications yet",
+      "subtitle": "When new activity happens, notifications will appear here.",
       "no_new": "No new notifications",
       "none": "No notifications yet"
     },
@@ -349,6 +396,18 @@
       "skipped_run": "Run skipped",
       "skip_run_failed": "Could not skip run",
       "rule_not_found": "Rule no longer exists"
+    },
+    "toasts": {
+      "mark_all_read": "All marked as read",
+      "clear_all_read": "All read notifications cleared",
+      "delete_single": "Notification deleted",
+      "bulk_mark_read": "{{count}} notifications marked as read",
+      "bulk_delete": "{{count}} notifications deleted",
+      "recurring_no_rule": "Rule no longer exists",
+      "recurring_created": "Transaction created",
+      "recurring_confirm_error": "Could not create transaction",
+      "recurring_skip_success": "Run skipped",
+      "recurring_skip_error": "Could not skip run"
     }
   }
 }

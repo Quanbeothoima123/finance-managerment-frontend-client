@@ -296,6 +296,50 @@
     "bulk_cancel": "Huỷ chọn nhiều",
     "mark_all_read": "Đánh dấu đã đọc tất cả",
     "clear_read": "Xoá đã đọc",
+    "subtitle": {
+      "selected": "Đã chọn {{count}}",
+      "unread": "{{count}} thông báo chưa đọc",
+      "all_read": "Bạn đã xem hết thông báo"
+    },
+    "swipe_hint": "Vuốt trái hoặc phải trên thông báo để thao tác nhanh",
+    "bulk_mode_hint": "Đang ở chế độ chọn nhiều. Chọn thông báo rồi đánh dấu đã đọc hoặc xoá.",
+    "tabs": {
+      "unread": "Chưa đọc",
+      "all": "Tất cả"
+    },
+    "group_labels": {
+      "today": "Hôm nay",
+      "yesterday": "Hôm qua",
+      "earlier": "Trước đó"
+    },
+    "header_menu": {
+      "bulk_select": "Chọn thông báo",
+      "bulk_cancel": "Huỷ chọn",
+      "mark_all_read": "Đánh dấu đã đọc tất cả",
+      "clear_read": "Xoá đã đọc",
+      "settings": "Cài đặt thông báo"
+    },
+    "swipe_actions": {
+      "mark_read": "Đánh dấu đã đọc",
+      "delete": "Xoá"
+    },
+    "card": {
+      "mark_read": "Đánh dấu đã đọc",
+      "delete": "Xoá"
+    },
+    "bulk_toolbar": {
+      "selected_count": "Đã chọn {{count}}",
+      "mark_read": "Đánh dấu đọc",
+      "delete": "Xoá"
+    },
+    "actions": {
+      "recurring_confirm": "Xác nhận",
+      "recurring_skip": "Bỏ qua",
+      "budget_view": "Xem ngân sách",
+      "goal_contribute": "Thêm đóng góp",
+      "goal_view": "Xem mục tiêu"
+    },
+    "clear_read_button": "Xoá {{count}} đã đọc",
     "groups": {
       "today": "Hôm nay",
       "yesterday": "Hôm qua",
@@ -306,6 +350,9 @@
       "delete": "Xoá"
     },
     "empty": {
+      "unread_title": "Không có thông báo chưa đọc",
+      "all_title": "Chưa có thông báo nào",
+      "subtitle": "Khi có hoạt động mới, thông báo sẽ hiển thị tại đây.",
       "no_new": "Không có thông báo mới",
       "none": "Chưa có thông báo nào"
     },
@@ -349,6 +396,18 @@
       "skipped_run": "Đã bỏ qua lần chạy",
       "skip_run_failed": "Không thể bỏ qua lần chạy",
       "rule_not_found": "Quy tắc không tồn tại"
+    },
+    "toasts": {
+      "mark_all_read": "Đánh dấu đã đọc tất cả",
+      "clear_all_read": "Đã xoá tất cả thông báo đã đọc",
+      "delete_single": "Đã xoá thông báo",
+      "bulk_mark_read": "Đánh dấu đã đọc {{count}} thông báo",
+      "bulk_delete": "Đã xoá {{count}} thông báo",
+      "recurring_no_rule": "Quy tắc không tồn tại",
+      "recurring_created": "Đã tạo giao dịch",
+      "recurring_confirm_error": "Không thể tạo giao dịch",
+      "recurring_skip_success": "Đã bỏ qua lần chạy",
+      "recurring_skip_error": "Không thể bỏ qua lần chạy"
     }
   }
 }

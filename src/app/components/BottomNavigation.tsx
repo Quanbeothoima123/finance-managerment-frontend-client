@@ -27,6 +27,7 @@ export function BottomNavigation({
   const [showMoreDrawer, setShowMoreDrawer] = useState(false);
   const recurringDueCount = useRecurringDueCount(1);
   const { t } = useTranslation("common");
+  const addTransactionPath = "/transactions/create";
 
   const currentPath = activePath || location.pathname;
   const allRoutes = getSidebarRoutes();
@@ -44,7 +45,7 @@ export function BottomNavigation({
   const primaryTabs = [
     { icon: Home, label: t("nav.home"), path: "/home" },
     { icon: Receipt, label: t("nav.transactions"), path: "/transactions" }, // Placeholder - will be implemented
-    { icon: Plus, label: t("nav.add"), path: "/add-transaction" }, // Placeholder - will be implemented
+    { icon: Plus, label: t("nav.add"), path: addTransactionPath },
     { icon: PiggyBank, label: t("nav.budgets"), path: "/budgets" },
     { icon: MoreHorizontal, label: t("nav.more"), path: "MORE_DRAWER" },
   ];
@@ -53,7 +54,7 @@ export function BottomNavigation({
   const primaryPaths = [
     "/home",
     "/transactions",
-    "/add-transaction",
+    addTransactionPath,
     "/budgets",
   ];
   const moreRoutes = allRoutes.filter(
@@ -99,14 +100,14 @@ export function BottomNavigation({
                     : "text-[var(--text-tertiary)]"
                 }`}
               >
-                {item.path === "/add-transaction" ? (
+                {item.path === addTransactionPath ? (
                   <div className="w-12 h-12 -mt-6 bg-[var(--primary)] rounded-full flex items-center justify-center shadow-lg">
                     <Icon className="w-6 h-6 text-white" />
                   </div>
                 ) : (
                   <Icon className="w-6 h-6" />
                 )}
-                {item.path !== "/add-transaction" && (
+                {item.path !== addTransactionPath && (
                   <span className="text-xs font-medium">{item.label}</span>
                 )}
               </button>
