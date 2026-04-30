@@ -203,11 +203,9 @@ export default function TransactionsList() {
 
   const activeCategoryLabel = useMemo(() => {
     if (!categoryId) return "";
-    return (
-      (metaData?.categories || []).find((item) => item.id === categoryId)
-        ?.name || ""
-    );
-  }, [categoryId, metaData?.categories]);
+    const cat = (metaData?.categories || []).find((item) => item.id === categoryId);
+    return cat ? localName(cat) : "";
+  }, [categoryId, metaData?.categories, localName]);
 
   const activeMerchantLabel = useMemo(() => {
     if (!merchantId) return "";
@@ -221,8 +219,8 @@ export default function TransactionsList() {
     if (!selectedTagIds.length) return [];
     return (metaData?.tags || [])
       .filter((tag) => selectedTagIds.includes(tag.id))
-      .map((tag) => tag.name);
-  }, [selectedTagIds, metaData?.tags]);
+      .map((tag) => localName(tag));
+  }, [selectedTagIds, metaData?.tags, localName]);
 
   const handleResetFilters = () => {
     setSearch("");
@@ -695,6 +693,7 @@ export default function TransactionsList() {
                                   <TagChip
                                     key={tag.id}
                                     name={tag.name}
+                                    nameEn={tag.nameEn}
                                     color={tag.colorHex || "#64748b"}
                                   />
                                 ))}

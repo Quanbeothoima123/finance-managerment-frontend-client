@@ -170,21 +170,29 @@ export default function ExportCenter() {
     lines.push(`         ${t("export.txt_headers.report_title")}`);
     lines.push("═══════════════════════════════════════");
     lines.push("");
-    lines.push(`Khoảng thời gian: ${startDate} → ${endDate}`);
+    lines.push(`${t("export.txt_report.period")}: ${startDate} → ${endDate}`);
     lines.push(
-      `Tài khoản: ${selectedAccount === "all" ? t("export.filters.account_all") : accounts.find((a: any) => a.id === selectedAccount)?.name || selectedAccount}`,
+      `${t("export.txt_report.account")}: ${selectedAccount === "all" ? t("export.filters.account_all") : accounts.find((a: any) => a.id === selectedAccount)?.name || selectedAccount}`,
     );
-    lines.push(`Ngày xuất: ${new Date().toLocaleDateString(locale)}`);
+    lines.push(
+      `${t("export.txt_report.export_date")}: ${new Date().toLocaleDateString(locale)}`,
+    );
     lines.push("");
     lines.push("───────────────────────────────────────");
     lines.push(`  ${t("export.txt_headers.summary")}`);
     lines.push("───────────────────────────────────────");
-    lines.push(`  Tổng thu nhập:   +${formatCurrency(totalIncome)}₫`);
-    lines.push(`  Tổng chi tiêu:   -${formatCurrency(totalExpense)}₫`);
     lines.push(
-      `  Cân đối:         ${formatCurrency(totalIncome - totalExpense)}₫`,
+      `  ${t("export.txt_report.total_income")}:   +${formatCurrency(totalIncome)}₫`,
     );
-    lines.push(`  Số giao dịch:    ${filteredTransactions.length}`);
+    lines.push(
+      `  ${t("export.txt_report.total_expense")}:   -${formatCurrency(totalExpense)}₫`,
+    );
+    lines.push(
+      `  ${t("export.txt_report.balance")}:         ${formatCurrency(totalIncome - totalExpense)}₫`,
+    );
+    lines.push(
+      `  ${t("export.txt_report.transaction_count")}:    ${filteredTransactions.length}`,
+    );
     lines.push("");
     lines.push("───────────────────────────────────────");
     lines.push(`  ${t("export.txt_headers.details")}`);
@@ -235,7 +243,7 @@ export default function ExportCenter() {
         <div className="text-center">
           <AlertTriangle className="w-10 h-10 text-[var(--danger)] mx-auto mb-3" />
           <p className="text-[var(--text-primary)] font-medium mb-1">
-            Không thể tải dữ liệu
+            {t("export.error.load_failed")}
           </p>
           <p className="text-sm text-[var(--text-secondary)] mb-4">
             {txnError}
@@ -244,7 +252,7 @@ export default function ExportCenter() {
             onClick={reloadTxn}
             className="px-4 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white rounded-[var(--radius-lg)] text-sm font-medium transition-colors"
           >
-            Thử lại
+            {t("export.error.retry")}
           </button>
         </div>
       </div>
@@ -256,10 +264,10 @@ export default function ExportCenter() {
       <div className="max-w-4xl mx-auto p-4 md:p-6 pb-20 md:pb-6 space-y-6">
         <div>
           <h1 className="text-2xl font-semibold text-[var(--text-primary)]">
-            Trung tâm xuất dữ liệu
+            {t("export.page_title")}
           </h1>
           <p className="text-sm text-[var(--text-secondary)] mt-1">
-            Xuất giao dịch và báo cáo theo định dạng mong muốn
+            {t("export.page_subtitle")}
           </p>
         </div>
 
@@ -268,9 +276,10 @@ export default function ExportCenter() {
           <div className="flex items-center gap-2 px-4 py-2.5 bg-[var(--warning-light)] border border-[var(--warning)] text-[var(--warning)] rounded-[var(--radius-lg)] text-sm">
             <AlertTriangle className="w-4 h-4 shrink-0" />
             <span>
-              Đang hiển thị {txnData?.items?.length}/
-              {txnData?.pagination?.total} giao dịch. File xuất có thể chưa đầy
-              đủ.
+              {t("export.truncation_warning", {
+                shown: txnData?.items?.length,
+                total: txnData?.pagination?.total,
+              })}
             </span>
           </div>
         )}
@@ -283,17 +292,17 @@ export default function ExportCenter() {
             </div>
             <div className="flex-1">
               <h3 className="font-semibold text-[var(--text-primary)]">
-                Monthly Summary (1 trang)
+                {t("export.monthly_summary.title")}
               </h3>
               <p className="text-sm text-[var(--text-secondary)] mt-0.5">
-                Ảnh/PDF đẹp để chia sẻ
+                {t("export.monthly_summary.description")}
               </p>
             </div>
             <button
               onClick={() => nav.goMonthlySummary()}
               className="flex items-center gap-2 px-4 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white rounded-[var(--radius-lg)] font-medium transition-colors text-sm flex-shrink-0"
             >
-              Tạo summary
+              {t("export.monthly_summary.button")}
             </button>
           </div>
         </Card>
@@ -301,7 +310,7 @@ export default function ExportCenter() {
         {/* Export Type Selection */}
         <Card>
           <h3 className="font-semibold text-[var(--text-primary)] mb-4">
-            Định dạng xuất
+            {t("export.sections.format")}
           </h3>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -325,11 +334,10 @@ export default function ExportCenter() {
                 </div>
                 <div className="flex-1 text-left">
                   <h4 className="font-semibold text-[var(--text-primary)] mb-1">
-                    Xuất CSV
+                    {t("export.csv_label")}
                   </h4>
                   <p className="text-sm text-[var(--text-secondary)]">
-                    Xuất danh sách giao dịch dạng bảng để phân tích trong Excel
-                    hoặc Google Sheets
+                    {t("export.csv_description")}
                   </p>
                 </div>
               </div>
@@ -355,11 +363,10 @@ export default function ExportCenter() {
                 </div>
                 <div className="flex-1 text-left">
                   <h4 className="font-semibold text-[var(--text-primary)] mb-1">
-                    Xuất báo cáo văn bản
+                    {t("export.txt_label")}
                   </h4>
                   <p className="text-sm text-[var(--text-secondary)]">
-                    Xuất báo cáo tháng với tổng quan thu chi và danh sách giao
-                    dịch chi tiết
+                    {t("export.txt_description")}
                   </p>
                 </div>
               </div>
@@ -371,13 +378,13 @@ export default function ExportCenter() {
         <Card>
           <h3 className="font-semibold text-[var(--text-primary)] mb-4">
             <Calendar className="w-5 h-5 inline mr-2" />
-            Khoảng thời gian
+            {t("export.sections.date_range")}
           </h3>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-                Từ ngày
+                {t("export.date_range.from")}
               </label>
               <Input
                 type="date"
@@ -388,7 +395,7 @@ export default function ExportCenter() {
 
             <div>
               <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-                Đến ngày
+                {t("export.date_range.to")}
               </label>
               <Input
                 type="date"
@@ -452,12 +459,12 @@ export default function ExportCenter() {
         <Card>
           <h3 className="font-semibold text-[var(--text-primary)] mb-4">
             <Filter className="w-5 h-5 inline mr-2" />
-            Bộ lọc
+            {t("export.sections.filters")}
           </h3>
 
           <div>
             <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-              Tài khoản
+              {t("export.filters_account_label")}
             </label>
             <select
               value={selectedAccount}
@@ -476,7 +483,7 @@ export default function ExportCenter() {
         {/* Export Options */}
         <Card>
           <h3 className="font-semibold text-[var(--text-primary)] mb-4">
-            Tuỳ chọn xuất
+            {t("export.sections.options")}
           </h3>
 
           <div className="space-y-4">
@@ -491,10 +498,10 @@ export default function ExportCenter() {
                   />
                   <div className="flex-1">
                     <span className="text-sm font-medium text-[var(--text-primary)] block">
-                      Bao gồm danh mục
+                      {t("export.options.include_categories")}
                     </span>
                     <span className="text-xs text-[var(--text-secondary)]">
-                      Thêm cột danh mục cho mỗi giao dịch
+                      {t("export.options.include_categories_hint")}
                     </span>
                   </div>
                 </label>
@@ -508,10 +515,10 @@ export default function ExportCenter() {
                   />
                   <div className="flex-1">
                     <span className="text-sm font-medium text-[var(--text-primary)] block">
-                      Bao gồm tags
+                      {t("export.options.include_tags")}
                     </span>
                     <span className="text-xs text-[var(--text-secondary)]">
-                      Thêm cột tags cho mỗi giao dịch
+                      {t("export.options.include_tags_hint")}
                     </span>
                   </div>
                 </label>
@@ -527,12 +534,12 @@ export default function ExportCenter() {
               />
               <div className="flex-1">
                 <span className="text-sm font-medium text-[var(--text-primary)] block">
-                  Bao gồm hoá đơn đính kèm
+                  {t("export.options.include_attachments")}
                 </span>
                 <span className="text-xs text-[var(--text-secondary)]">
                   {exportType === "csv"
-                    ? "Thêm cột đánh dấu giao dịch có đính kèm"
-                    : "Ghi chú giao dịch có đính kèm trong báo cáo"}
+                    ? t("export.options.include_attachments_hint")
+                    : t("export.options.include_attachments_hint_txt")}
                 </span>
               </div>
             </label>
@@ -542,22 +549,22 @@ export default function ExportCenter() {
         {/* Preview Summary */}
         <Card className="bg-[var(--surface)]">
           <h3 className="font-semibold text-[var(--text-primary)] mb-4">
-            Xem trước xuất
+            {t("export.preview.title")}
           </h3>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div>
               <p className="text-xs text-[var(--text-secondary)] mb-1">
-                Định dạng
+                {t("export.preview.format_label")}
               </p>
               <p className="text-sm font-semibold text-[var(--text-primary)]">
-                {exportType === "csv" ? "CSV" : "Báo cáo TXT"}
+                {exportType === "csv" ? "CSV" : t("export.preview.format_txt")}
               </p>
             </div>
 
             <div>
               <p className="text-xs text-[var(--text-secondary)] mb-1">
-                Số giao dịch
+                {t("export.preview.transaction_count")}
               </p>
               <p className="text-sm font-semibold text-[var(--primary)] tabular-nums">
                 {filteredTransactions.length}
@@ -566,7 +573,7 @@ export default function ExportCenter() {
 
             <div>
               <p className="text-xs text-[var(--text-secondary)] mb-1">
-                Tổng thu
+                {t("export.preview.total_income")}
               </p>
               <p className="text-sm font-semibold text-[var(--success)] tabular-nums">
                 +{formatCurrency(totalIncome)}₫
@@ -575,7 +582,7 @@ export default function ExportCenter() {
 
             <div>
               <p className="text-xs text-[var(--text-secondary)] mb-1">
-                Tổng chi
+                {t("export.preview.total_expense")}
               </p>
               <p className="text-sm font-semibold text-[var(--danger)] tabular-nums">
                 -{formatCurrency(totalExpense)}₫
@@ -616,12 +623,12 @@ export default function ExportCenter() {
             </div>
             <div className="flex-1">
               <h4 className="font-semibold text-[var(--text-primary)] mb-1">
-                Mẹo sử dụng
+                {t("export.tips.title")}
               </h4>
               <ul className="text-sm text-[var(--text-secondary)] space-y-1">
-                <li>• File CSV có thể mở bằng Excel, Google Sheets, Numbers</li>
-                <li>• Báo cáo văn bản thích hợp để xem nhanh hoặc chia sẻ</li>
-                <li>• Dữ liệu xuất là bản sao, không ảnh hưởng dữ liệu gốc</li>
+                <li>• {t("export.tips.csv")}</li>
+                <li>• {t("export.tips.txt")}</li>
+                <li>• {t("export.tips.data")}</li>
               </ul>
             </div>
           </div>

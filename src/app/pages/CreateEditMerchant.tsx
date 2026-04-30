@@ -57,7 +57,7 @@ export default function CreateEditMerchant({
     });
 
     return options;
-  }, [metaData?.categories, t]);
+  }, [metaData?.categories, t, localName]);
 
   useEffect(() => {
     if (!detailData?.merchant || !isEditMode) return;

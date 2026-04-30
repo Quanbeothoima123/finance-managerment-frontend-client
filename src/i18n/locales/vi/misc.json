@@ -3,20 +3,43 @@
     "title": "Giới thiệu",
     "subtitle": "Thông tin về ứng dụng và điều khoản",
     "back": "Quay lại",
+    "app_name": "Quản lý Tài chính",
+    "app_tagline": "Ứng dụng quản lý tài chính cá nhân thông minh",
+    "version_label": "Phiên bản",
+    "build_info": "Xây dựng với",
+    "made_in": "Việt Nam",
+    "opening_link": "Đang mở liên kết...",
     "app_info": {
       "name": "Quản lý Tài chính",
       "tagline": "Ứng dụng quản lý tài chính cá nhân thông minh",
       "version_label": "Phiên bản"
     },
     "legal": {
+      "title": "Pháp lý",
       "section_title": "Thông tin pháp lý",
       "privacy_policy": "Chính sách bảo mật",
+      "terms_of_use": "Điều khoản sử dụng",
       "terms_of_service": "Điều khoản sử dụng",
       "open_source_licenses": "Giấy phép mã nguồn mở"
     },
     "contact": {
+      "title": "Liên hệ & Hỗ trợ",
       "section_title": "Liên hệ & Hỗ trợ",
-      "support_email_label": "Email hỗ trợ"
+      "support_email": "Email hỗ trợ",
+      "support_email_label": "Email hỗ trợ",
+      "send_feedback": "Gửi phản hồi",
+      "feedback_description": "Chia sẻ ý kiến và đề xuất của bạn"
+    },
+    "tech_info": {
+      "title": "Thông tin kỹ thuật",
+      "app_version": "Phiên bản ứng dụng",
+      "build_number": "Số bản dựng",
+      "framework": "Framework",
+      "size": "Dung lượng"
+    },
+    "credits": {
+      "title": "Thư viện sử dụng",
+      "view_all_licenses": "Xem tất cả giấy phép"
     },
     "toast": {
       "opening_link": "Đang mở liên kết..."

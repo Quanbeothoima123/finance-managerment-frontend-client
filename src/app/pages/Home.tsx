@@ -265,8 +265,90 @@ function InsightSection({
   insight: HomeInsightCard;
   onClick: () => void;
 }) {
+  const { t, i18n } = useTranslation("home");
   const styles = getInsightVariantClasses(insight.variant);
   const Icon = styles.Icon;
+
+  const { insightKey, comparison } = insight;
+
+  const getCategoryName = (
+    cat: { name: string; nameEn: string | null } | null,
+  ) => {
+    if (!cat) return "";
+    return i18n.language === "en" && cat.nameEn ? cat.nameEn : cat.name;
+  };
+
+  const title = (() => {
+    if (insightKey === "positive") return t("insights.positive.title");
+    if (insightKey === "warning") return t("insights.warning.title");
+    if (insightKey === "neutral") return t("insights.neutral.title");
+    if (insightKey === "no_data") return t("insights.no_data.title");
+    return insight.title;
+  })();
+
+  const message = (() => {
+    const topCat = comparison?.topCategory ?? null;
+    const amount = formatMoney(Math.abs(Number(comparison?.deltaMinor || 0)));
+    if (insightKey === "positive") {
+      return topCat
+        ? t("insights.positive.message_with_category", {
+            amount,
+            category: getCategoryName(topCat),
+          })
+        : t("insights.positive.message_without_category", { amount });
+    }
+    if (insightKey === "warning") {
+      return t("insights.warning.message", { amount });
+    }
+    if (insightKey === "neutral") return t("insights.neutral.message");
+    if (insightKey === "no_data") return t("insights.no_data.message");
+    return insight.message;
+  })();
+
+  const badges = (() => {
+    const topCat = comparison?.topCategory ?? null;
+    const result: string[] = [];
+    if (insightKey === "positive") {
+      if (
+        comparison?.deltaPercent !== null &&
+        comparison?.deltaPercent !== undefined
+      ) {
+        result.push(
+          t("insights.badges.decrease_this_week", {
+            percent: comparison.deltaPercent,
+          }),
+        );
+      }
+      if (topCat) {
+        if (topCat.deltaPercent !== null && topCat.deltaPercent !== undefined) {
+          result.push(
+            t("insights.badges.decrease_category", {
+              percent: topCat.deltaPercent,
+              category: getCategoryName(topCat),
+            }),
+          );
+        } else {
+          result.push(
+            t("insights.badges.saving_category", {
+              category: getCategoryName(topCat),
+            }),
+          );
+        }
+      }
+    } else if (insightKey === "warning") {
+      if (
+        comparison?.deltaPercent !== null &&
+        comparison?.deltaPercent !== undefined
+      ) {
+        result.push(
+          t("insights.badges.increase_this_week", {
+            percent: comparison.deltaPercent,
+          }),
+        );
+      }
+    }
+    return result;
+  })();
 
   return (
     <Card
@@ -280,15 +362,15 @@ function InsightSection({
 
         <div className="flex-1 min-w-0">
           <h4 className="font-medium text-[var(--text-primary)] mb-1">
-            {insight.title}
+            {title}
           </h4>
           <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-            {insight.message}
+            {message}
           </p>
 
-          {!!insight.badges.length && (
+          {!!badges.length && (
             <div className="flex flex-wrap gap-2 mt-3">
-              {insight.badges.map((badge) => (
+              {badges.map((badge) => (
                 <span
                   key={badge}
                   className={`px-2.5 py-1 rounded-[var(--radius-md)] text-xs font-medium ${styles.badgeBg} ${styles.badgeText}`}
@@ -306,6 +388,7 @@ function InsightSection({
 
 function UpcomingRecurringCard({ item }: { item: HomeRecurringPreview }) {
   const isIncome = item.txnType === "income";
+  const localName = useLocalizedName();
 
   return (
     <Card>
@@ -446,7 +529,7 @@ export default function Home() {
                       {getTrendValueText(netTrend)}
                     </span>
                     <span className="text-xs text-[var(--text-secondary)]">
-                      {netTrend.comparedLabel}
+                      {t("summary.vs_last_month")}
                     </span>
                   </div>
                 )}
@@ -483,7 +566,7 @@ export default function Home() {
                       {getTrendValueText(incomeTrend)}
                     </span>
                     <span className="text-xs text-[var(--text-secondary)]">
-                      {incomeTrend.comparedLabel}
+                      {t("summary.vs_last_month")}
                     </span>
                   </div>
                 )}
@@ -523,7 +606,7 @@ export default function Home() {
                       {getTrendValueText(expenseTrend)}
                     </span>
                     <span className="text-xs text-[var(--text-secondary)]">
-                      {expenseTrend.comparedLabel}
+                      {t("summary.vs_last_month")}
                     </span>
                   </div>
                 )}

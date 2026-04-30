@@ -279,6 +279,56 @@
       "success": "Đã xuất thành công!",
       "all_success": "Đã xuất toàn bộ dữ liệu thành công",
       "failed": "Xuất thất bại"
+    },
+    "page_title": "Trung tâm xuất dữ liệu",
+    "page_subtitle": "Xuất giao dịch và báo cáo theo định dạng mong muốn",
+    "truncation_warning": "Đang hiển thị {{shown}}/{{total}} giao dịch. File xuất có thể chưa đầy đủ.",
+    "error": {
+      "load_failed": "Không thể tải dữ liệu",
+      "retry": "Thử lại"
+    },
+    "monthly_summary": {
+      "title": "Monthly Summary",
+      "description": "Ảnh/PDF đẹp để chia sẻ",
+      "button": "Tạo summary"
+    },
+    "csv_label": "Xuất CSV",
+    "csv_description": "Xuất danh sách giao dịch dạng bảng để phân tích trong Excel hoặc Google Sheets",
+    "txt_label": "Xuất báo cáo văn bản",
+    "txt_description": "Xuất báo cáo tháng với tổng quan thu chi và danh sách giao dịch chi tiết",
+    "date_range": {
+      "from": "Từ ngày",
+      "to": "Đến ngày"
+    },
+    "filters_account_label": "Tài khoản",
+    "options": {
+      "include_categories": "Bao gồm danh mục",
+      "include_categories_hint": "Thêm cột danh mục cho mỗi giao dịch",
+      "include_tags_hint": "Thêm cột tags cho mỗi giao dịch",
+      "include_attachments_hint_txt": "Ghi chú giao dịch có đính kèm trong báo cáo"
+    },
+    "preview": {
+      "title": "Xem trước xuất",
+      "format_label": "Định dạng",
+      "format_txt": "Báo cáo TXT",
+      "transaction_count": "Số giao dịch",
+      "total_income": "Tổng thu",
+      "total_expense": "Tổng chi"
+    },
+    "tips": {
+      "title": "Mẹo sử dụng",
+      "csv": "File CSV có thể mở bằng Excel, Google Sheets, Numbers",
+      "txt": "Báo cáo văn bản thích hợp để xem nhanh hoặc chia sẻ",
+      "data": "Dữ liệu xuất là bản sao, không ảnh hưởng dữ liệu gốc"
+    },
+    "txt_report": {
+      "period": "Khoảng thời gian",
+      "account": "Tài khoản",
+      "export_date": "Ngày xuất",
+      "total_income": "Tổng thu nhập",
+      "total_expense": "Tổng chi tiêu",
+      "balance": "Cân đối",
+      "transaction_count": "Số giao dịch"
     }
   },
 

@@ -13,7 +13,8 @@
     "income_short": "Thu",
     "expense": "Chi tiêu",
     "expense_short": "Chi",
-    "no_comparison": "Không có dữ liệu so sánh"
+    "no_comparison": "Không có dữ liệu so sánh",
+    "vs_last_month": "so với tháng trước"
   },
   "chart": {
     "daily_expense": "Chi tiêu theo ngày",
@@ -46,7 +47,30 @@
   },
   "insights": {
     "title": "Nhận xét",
-    "weekly_title": "Gợi ý tuần này"
+    "weekly_title": "Gợi ý tuần này",
+    "no_data": {
+      "title": "Chưa có nhiều dữ liệu tuần này",
+      "message": "Khi có thêm giao dịch chi tiêu, hệ thống sẽ đưa ra gợi ý tuần cho bạn."
+    },
+    "positive": {
+      "title": "Chi tiêu tốt hơn tuần trước",
+      "message_with_category": "Bạn đang chi ít hơn tuần trước {{amount}}\u20ab. Danh mục \"{{category}}\" giảm mạnh nhất.",
+      "message_without_category": "Bạn đang chi ít hơn tuần trước {{amount}}\u20ab. Tiếp tục duy trì nhé!"
+    },
+    "warning": {
+      "title": "Chi tiêu tăng so với tuần trước",
+      "message": "Tuần này bạn đang chi nhiều hơn {{amount}}\u20ab so với tuần trước. Hãy kiểm tra lại các khoản chi lớn để tránh vượt kế hoạch."
+    },
+    "neutral": {
+      "title": "Chi tiêu ổn định so với tuần trước",
+      "message": "Mức chi tuần này gần như không đổi so với tuần trước."
+    },
+    "badges": {
+      "decrease_this_week": "-{{percent}}% tuần này",
+      "increase_this_week": "+{{percent}}% tuần này",
+      "decrease_category": "-{{percent}}% {{category}}",
+      "saving_category": "Tiết kiệm ở {{category}}"
+    }
   },
   "actions": {
     "add_transaction": "Thêm giao dịch",

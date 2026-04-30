@@ -3,20 +3,43 @@
     "title": "About",
     "subtitle": "App information and terms",
     "back": "Back",
+    "app_name": "Finance Manager",
+    "app_tagline": "Smart personal finance management app",
+    "version_label": "Version",
+    "build_info": "Built with",
+    "made_in": "Vietnam",
+    "opening_link": "Opening link...",
     "app_info": {
       "name": "Finance Manager",
       "tagline": "Smart personal finance management app",
       "version_label": "Version"
     },
     "legal": {
+      "title": "Legal",
       "section_title": "Legal information",
       "privacy_policy": "Privacy Policy",
+      "terms_of_use": "Terms of Use",
       "terms_of_service": "Terms of Service",
       "open_source_licenses": "Open Source Licenses"
     },
     "contact": {
+      "title": "Contact & Support",
       "section_title": "Contact & Support",
-      "support_email_label": "Support email"
+      "support_email": "Support Email",
+      "support_email_label": "Support email",
+      "send_feedback": "Send Feedback",
+      "feedback_description": "Share your thoughts and suggestions"
+    },
+    "tech_info": {
+      "title": "Technical Info",
+      "app_version": "App Version",
+      "build_number": "Build Number",
+      "framework": "Framework",
+      "size": "Size"
+    },
+    "credits": {
+      "title": "Credits",
+      "view_all_licenses": "View all licenses"
     },
     "toast": {
       "opening_link": "Opening link..."

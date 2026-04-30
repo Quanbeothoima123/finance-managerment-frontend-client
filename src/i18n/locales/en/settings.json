@@ -279,6 +279,56 @@
       "success": "Exported successfully!",
       "all_success": "All data exported successfully",
       "failed": "Export failed"
+    },
+    "page_title": "Export Center",
+    "page_subtitle": "Export transactions and reports in your preferred format",
+    "truncation_warning": "Showing {{shown}}/{{total}} transactions. The exported file may be incomplete.",
+    "error": {
+      "load_failed": "Could not load data",
+      "retry": "Try again"
+    },
+    "monthly_summary": {
+      "title": "Monthly Summary",
+      "description": "Beautiful image/PDF for sharing",
+      "button": "Create summary"
+    },
+    "csv_label": "Export CSV",
+    "csv_description": "Export transaction list as a table for analysis in Excel or Google Sheets",
+    "txt_label": "Export Text Report",
+    "txt_description": "Export monthly report with income/expense overview and detailed transaction list",
+    "date_range": {
+      "from": "From date",
+      "to": "To date"
+    },
+    "filters_account_label": "Account",
+    "options": {
+      "include_categories": "Include categories",
+      "include_categories_hint": "Add a category column for each transaction",
+      "include_tags_hint": "Add a tags column for each transaction",
+      "include_attachments_hint_txt": "Note transactions with attachments in the report"
+    },
+    "preview": {
+      "title": "Export preview",
+      "format_label": "Format",
+      "format_txt": "TXT Report",
+      "transaction_count": "Transactions",
+      "total_income": "Total income",
+      "total_expense": "Total expense"
+    },
+    "tips": {
+      "title": "Tips",
+      "csv": "CSV files can be opened in Excel, Google Sheets, or Numbers",
+      "txt": "Text reports are great for quick viewing or sharing",
+      "data": "Exported data is a copy and does not affect your original data"
+    },
+    "txt_report": {
+      "period": "Period",
+      "account": "Account",
+      "export_date": "Export date",
+      "total_income": "Total income",
+      "total_expense": "Total expense",
+      "balance": "Balance",
+      "transaction_count": "Transactions"
     }
   },
 

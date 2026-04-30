@@ -135,6 +135,7 @@ function MerchantCard({
 
 export default function MerchantsList() {
   const { t } = useTranslation('merchants');
+  const localName = useLocalizedName();
   const nav = useAppNavigation();
   const toast = useToast();
 

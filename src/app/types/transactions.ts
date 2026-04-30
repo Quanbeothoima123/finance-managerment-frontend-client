@@ -28,6 +28,7 @@ export interface TransactionAccountOption {
 export interface TransactionCategoryOption {
   id: string;
   name: string;
+  nameEn: string | null;
   categoryType: "income" | "expense" | "both" | string;
   parentId: string | null;
   iconKey: string | null;
@@ -49,6 +50,7 @@ export interface TransactionMerchantOption {
 export interface TransactionTagOption {
   id: string;
   name: string;
+  nameEn: string | null;
   colorHex: string | null;
 }
 

@@ -13,7 +13,8 @@
     "income_short": "Inc",
     "expense": "Expenses",
     "expense_short": "Exp",
-    "no_comparison": "No comparison data"
+    "no_comparison": "No comparison data",
+    "vs_last_month": "vs last month"
   },
   "chart": {
     "daily_expense": "Daily Spending",
@@ -46,7 +47,30 @@
   },
   "insights": {
     "title": "Insights",
-    "weekly_title": "This Week's Insights"
+    "weekly_title": "This Week's Insights",
+    "no_data": {
+      "title": "Not enough data yet",
+      "message": "Once you have more expense transactions, weekly suggestions will appear here."
+    },
+    "positive": {
+      "title": "Spending better than last week",
+      "message_with_category": "You spent {{amount}}\u20ab less than last week. \"{{category}}\" dropped the most.",
+      "message_without_category": "You spent {{amount}}\u20ab less than last week. Keep it up!"
+    },
+    "warning": {
+      "title": "Spending up vs last week",
+      "message": "This week you spent {{amount}}\u20ab more than last week. Review your large expenses to stay on budget."
+    },
+    "neutral": {
+      "title": "Stable spending vs last week",
+      "message": "This week\u2019s spending is about the same as last week."
+    },
+    "badges": {
+      "decrease_this_week": "-{{percent}}% this week",
+      "increase_this_week": "+{{percent}}% this week",
+      "decrease_category": "-{{percent}}% {{category}}",
+      "saving_category": "Saved in {{category}}"
+    }
   },
   "actions": {
     "add_transaction": "Add Transaction",

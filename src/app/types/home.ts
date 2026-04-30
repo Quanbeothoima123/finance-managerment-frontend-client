@@ -41,6 +41,7 @@ export interface HomeBudgetPreview {
 }
 
 export interface HomeInsightCard {
+  insightKey: "positive" | "warning" | "neutral" | "no_data" | string;
   variant: "positive" | "warning" | "neutral" | string;
   title: string;
   message: string;
@@ -53,6 +54,7 @@ export interface HomeInsightCard {
     topCategory: {
       id: string;
       name: string;
+      nameEn: string | null;
       savedMinor: string;
       deltaPercent: number | null;
     } | null;
