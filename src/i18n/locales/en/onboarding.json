@@ -5,7 +5,8 @@
     "tagline": "Smart spending control",
     "initializing": "Initialising app...",
     "syncing": "Syncing session...",
-    "redirecting": "Redirecting..."
+    "redirecting": "Redirecting...",
+    "version": "Version {{version}}"
   },
   "welcome": {
     "headline": "Smarter\nFinancial Management",

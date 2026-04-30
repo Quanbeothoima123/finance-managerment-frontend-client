@@ -152,7 +152,7 @@ function ShareSheet({
             </div>
             <div className="pt-2 border-t border-[var(--divider)] text-center">
               <span className="text-[9px] text-[var(--text-tertiary)]">
-                FinanceApp • Monthly Summary
+                {t('monthly_summary.poster.footer_app')} • {t('monthly_summary.poster.header_label')}
               </span>
             </div>
           </div>

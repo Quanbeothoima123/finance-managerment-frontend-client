@@ -174,7 +174,7 @@ export default function Splash() {
         transition={{ duration: 0.6, delay: 0.6 }}
         className="absolute bottom-8 text-xs text-[var(--text-tertiary)]"
       >
-        Version 1.0.0
+        {t('splash.version', { version: '1.0.0' })}
       </motion.div>
     </div>
   );

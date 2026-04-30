@@ -279,6 +279,11 @@
       "description": "Trang bạn đang tìm kiếm không tồn tại hoặc đã bị xoá."
     }
   },
+  "theme": {
+    "dark": "Tối",
+    "light": "Sáng",
+    "toggle": "Chuyển đổi chủ đề"
+  },
   "currency": {
     "vnd": "VND",
     "usd": "USD",

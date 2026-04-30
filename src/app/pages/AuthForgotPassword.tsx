@@ -308,7 +308,7 @@ export default function AuthForgotPassword() {
                 <Wallet className="w-7 h-7 text-white" />
               </div>
               <span className="text-white/90 text-xl font-semibold">
-                FinanceApp
+                {t('app_name')}
               </span>
             </div>
             <h2 className="text-3xl text-white font-semibold mb-4">

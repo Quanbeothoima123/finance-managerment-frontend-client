@@ -33,9 +33,9 @@ function addMonth(monthKey: string, delta: number) {
   return `${next.getFullYear()}-${String(next.getMonth() + 1).padStart(2, "0")}`;
 }
 
-function formatMonthLabel(value: string) {
+function formatMonthLabel(value: string, locale: string) {
   const [year, month] = value.split("-").map(Number);
-  return new Intl.DateTimeFormat("vi-VN", {
+  return new Intl.DateTimeFormat(locale, {
     month: "long",
     year: "numeric",
   }).format(new Date(year, month - 1, 1));
@@ -195,7 +195,7 @@ function BudgetCard({
 export default function BudgetsOverview() {
   const nav = useAppNavigation();
   const toast = useToast();
-  const { t } = useTranslation("budgets");
+  const { t, i18n } = useTranslation("budgets");
 
   const [month, setMonth] = useState(getCurrentMonthKey());
   const [status, setStatus] = useState<
@@ -268,7 +268,7 @@ export default function BudgetsOverview() {
 
             <div>
               <h1 className="text-2xl font-semibold text-[var(--text-primary)] capitalize">
-                {formatMonthLabel(month)}
+                {formatMonthLabel(month, i18n.language)}
               </h1>
               <p className="text-sm text-[var(--text-secondary)] mt-1">
                 {t("overview.budget_subtitle")}

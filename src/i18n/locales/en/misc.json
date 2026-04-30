@@ -105,6 +105,8 @@
     "title": "Page not found",
     "description": "The page you're looking for doesn't exist or has been moved.",
     "go_back": "Go back",
-    "go_home": "Go home"
+    "go_home": "Go home",
+    "back_button": "Go back",
+    "home_button": "Go home"
   }
 }

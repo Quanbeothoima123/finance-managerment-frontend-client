@@ -313,7 +313,7 @@ export default function AuthVerifyOtp() {
                 <Wallet className="w-7 h-7 text-white" />
               </div>
               <span className="text-white/90 text-xl font-semibold">
-                FinanceApp
+                {t('app_name')}
               </span>
             </div>
 

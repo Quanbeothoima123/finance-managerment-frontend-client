@@ -5,7 +5,8 @@
     "tagline": "Kiểm soát chi tiêu thông minh",
     "initializing": "Đang khởi tạo ứng dụng...",
     "syncing": "Đang đồng bộ phiên đăng nhập...",
-    "redirecting": "Đang chuyển hướng..."
+    "redirecting": "Đang chuyển hướng...",
+    "version": "Phiên bản {{version}}"
   },
   "welcome": {
     "headline": "Quản lý tài chính\nthông minh hơn",

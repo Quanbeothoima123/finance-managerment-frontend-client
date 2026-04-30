@@ -105,6 +105,8 @@
     "title": "Không tìm thấy trang",
     "description": "Trang bạn đang tìm kiếm không tồn tại hoặc đã bị di chuyển.",
     "go_back": "Quay lại",
-    "go_home": "Về trang chủ"
+    "go_home": "Về trang chủ",
+    "back_button": "Quay lại",
+    "home_button": "Về trang chủ"
   }
 }
