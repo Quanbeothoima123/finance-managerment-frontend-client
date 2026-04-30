@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { ArrowLeft, Save, Store } from "lucide-react";
 import { useParams } from "react-router";
 import { useTranslation } from "react-i18next";
+import { useLocalizedName } from "../utils/localizedName";
 import { Card } from "../components/Card";
 import { Input } from "../components/Input";
 import { Button } from "../components/Button";
@@ -19,6 +20,7 @@ export default function CreateEditMerchant({
   mode = "create",
 }: CreateEditMerchantProps) {
   const { t } = useTranslation('merchants');
+  const localName = useLocalizedName();
   const { id } = useParams<{ id: string }>();
   const nav = useAppNavigation();
   const toast = useToast();
@@ -50,7 +52,7 @@ export default function CreateEditMerchant({
     (metaData?.categories || []).forEach((category) => {
       options.push({
         value: category.id,
-        label: category.name,
+        label: localName(category),
       });
     });
 

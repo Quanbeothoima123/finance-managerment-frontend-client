@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useLocalizedName } from "../utils/localizedName";
 import { useParams } from "react-router";
 import {
   ArrowDownLeft,
@@ -105,6 +106,7 @@ function getAmountColor(type: string) {
 
 export default function TransactionDetail() {
   const { t } = useTranslation("transactions");
+  const localName = useLocalizedName();
   const { id } = useParams<{ id: string }>();
   const toast = useToast();
   const nav = useAppNavigation();
@@ -443,6 +445,7 @@ export default function TransactionDetail() {
                   >
                     <TagChip
                       name={tag.name}
+                      nameEn={tag.nameEn}
                       color={tag.colorHex || "#64748b"}
                       className="hover:scale-[1.02] transition-transform"
                     />

@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { ChevronRight, Edit2, Plus, Search, Store, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { useLocalizedName } from "../utils/localizedName";
 import { Card } from "../components/Card";
 import { Button } from "../components/Button";
 import { ConfirmationModal } from "../components/ConfirmationModals";
@@ -39,6 +40,7 @@ function MerchantCard({
   onViewTransactions: () => void;
 }) {
   const { t, i18n } = useTranslation('merchants');
+  const localName = useLocalizedName();
   const locale = i18n.language === 'vi' ? 'vi-VN' : 'en-US';
 
   return (
@@ -263,7 +265,7 @@ export default function MerchantsList() {
                 <option value="">{t('list.filters.category_all')}</option>
                 {(metaData?.categories || []).map((category) => (
                   <option key={category.id} value={category.id}>
-                    {category.name}
+                    {localName(category)}
                   </option>
                 ))}
               </select>

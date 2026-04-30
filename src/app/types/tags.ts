@@ -2,6 +2,7 @@ export interface TagItem {
   id: string;
   ledgerId: string;
   name: string;
+  nameEn: string | null;
   colorHex: string | null;
   color: string | null;
   transactionCount: number;
@@ -36,6 +37,7 @@ export interface TagsListQuery {
 
 export interface CreateTagPayload {
   name: string;
+  nameEn?: string | null;
   colorHex?: string | null;
   color?: string | null;
 }

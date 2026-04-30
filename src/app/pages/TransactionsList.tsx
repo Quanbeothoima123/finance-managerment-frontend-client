@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useLocalizedName } from "../utils/localizedName";
 import { useNavigate, useSearchParams } from "react-router";
 import {
   ArrowDownLeft,
@@ -87,6 +88,7 @@ function getSignedDisplay(item: TransactionListItem) {
 
 export default function TransactionsList() {
   const { t } = useTranslation("transactions");
+  const localName = useLocalizedName();
   const navigate = useNavigate();
   const toast = useToast();
   const [searchParams] = useSearchParams();
@@ -380,7 +382,7 @@ export default function TransactionsList() {
                 <option value="">{t("common:status.all")}</option>
                 {(metaData?.categories || []).map((category) => (
                   <option key={category.id} value={category.id}>
-                    {category.name}
+                    {localName(category)}
                   </option>
                 ))}
               </select>
@@ -524,6 +526,7 @@ export default function TransactionsList() {
                       >
                         <TagChip
                           name={tag.name}
+                          nameEn={tag.nameEn}
                           color={tag.colorHex || "#64748b"}
                           className={
                             active ? "ring-2 ring-[var(--primary)]/25" : ""

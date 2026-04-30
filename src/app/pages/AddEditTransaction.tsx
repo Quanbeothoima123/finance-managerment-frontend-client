@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useLocalizedName } from "../utils/localizedName";
 import { useNavigate, useParams, useSearchParams } from "react-router";
 import {
   ArrowLeft,
@@ -62,6 +63,7 @@ function formatMoney(value?: string | number | null) {
 
 export default function AddEditTransaction() {
   const { t } = useTranslation("transactions");
+  const localName = useLocalizedName();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const toast = useToast();
@@ -595,7 +597,7 @@ export default function AddEditTransaction() {
                   <option value="">{t("form.category_placeholder")}</option>
                   {categories.map((category) => (
                     <option key={category.id} value={category.id}>
-                      {category.name}
+                      {localName(category)}
                     </option>
                   ))}
                 </select>
@@ -840,6 +842,7 @@ export default function AddEditTransaction() {
                     >
                       <TagChip
                         name={tag.name}
+                        nameEn={tag.nameEn}
                         color={tag.colorHex || "#64748b"}
                         className={
                           active ? "ring-2 ring-[var(--primary)]/25" : ""

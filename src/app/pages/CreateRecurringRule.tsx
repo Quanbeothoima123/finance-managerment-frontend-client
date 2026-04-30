@@ -10,6 +10,7 @@ import {
   Zap,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { useLocalizedName } from "../utils/localizedName";
 import { Card } from "../components/Card";
 import { Button } from "../components/Button";
 import { AmountInput } from "../components/AmountInput";
@@ -39,6 +40,7 @@ function formatNextRun(dateStr?: string | null, locale = "vi-VN") {
 
 export default function CreateRecurringRule() {
   const { t, i18n } = useTranslation("tags-rules");
+  const localName = useLocalizedName();
   const locale = i18n.language === "vi" ? "vi-VN" : "en-US";
 
   const { id } = useParams<{ id: string }>();
@@ -545,7 +547,7 @@ export default function CreateRecurringRule() {
                   )
                   .map((category) => (
                     <option key={category.id} value={category.id}>
-                      {category.name}
+                      {localName(category)}
                     </option>
                   ))}
               </select>
@@ -618,7 +620,7 @@ export default function CreateRecurringRule() {
                       : undefined
                   }
                 >
-                  <span>{tag.name}</span>
+                  <span>{localName(tag)}</span>
                 </button>
               );
             })}
@@ -629,6 +631,7 @@ export default function CreateRecurringRule() {
                 <TagChip
                   key={tag.id}
                   name={tag.name}
+                  nameEn={tag.nameEn}
                   color={tag.colorHex || "#3b82f6"}
                   onRemove={() => toggleTag(tag.id)}
                 />

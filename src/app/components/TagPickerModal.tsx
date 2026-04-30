@@ -2,6 +2,7 @@ import React, { useState, useMemo } from "react";
 import { X, Search, Plus, Check, Clock, TrendingUp } from "lucide-react";
 import { useAppData, Tag } from "../contexts/AppDataContext";
 import { useToast } from "../contexts/ToastContext";
+import { useLocalizedName } from "../utils/localizedName";
 
 interface TagPickerModalProps {
   isOpen: boolean;
@@ -31,6 +32,7 @@ export function TagPickerModal({
 }: TagPickerModalProps) {
   const { tags, transactions, addTag } = useAppData();
   const toast = useToast();
+  const localName = useLocalizedName();
 
   const [localSelected, setLocalSelected] = useState<string[]>(selectedTagIds);
   const [searchQuery, setSearchQuery] = useState("");
@@ -128,7 +130,7 @@ export function TagPickerModal({
         className={`w-2 h-2 rounded-full flex-shrink-0 ${isSelected ? "hidden" : ""}`}
         style={{ backgroundColor: tag.color }}
       />
-      {tag.name}
+      {localName(tag)}
     </button>
   );
 

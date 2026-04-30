@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
 import { useNavigate } from "react-router";
 import { useTranslation } from "react-i18next";
+import { useLocalizedName } from "../utils/localizedName";
 import {
   AlertCircle,
   AreaChart as AreaChartIcon,
@@ -329,7 +330,7 @@ function UpcomingRecurringCard({ item }: { item: HomeRecurringPreview }) {
           </p>
           <p className="text-xs text-[var(--text-secondary)]">
             {getRelativeRecurringLabel(item.nextRunAt)}
-            {item.category?.name ? ` · ${item.category.name}` : ""}
+            {item.category?.name ? ` · ${localName(item.category)}` : ""}
           </p>
         </div>
 
@@ -350,6 +351,7 @@ export default function Home() {
   const navigate = useNavigate();
   const nav = useAppNavigation();
   const { t } = useTranslation("home");
+  const localName = useLocalizedName();
   const { data, loading, error, month, setMonth } = useHomeOverview();
 
   const chartData = useMemo(() => {
@@ -778,6 +780,7 @@ export default function Home() {
                                   >
                                     <TagChip
                                       name={tag.name}
+                                      nameEn={tag.nameEn}
                                       color={tag.colorHex || "#64748b"}
                                       className="hover:scale-[1.02] transition-transform"
                                     />

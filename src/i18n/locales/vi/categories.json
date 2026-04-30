@@ -98,8 +98,10 @@
     "appearance_section": "Icon & màu sắc",
     "preview_section": "Xem trước",
     "fields": {
-      "name_label": "Tên danh mục",
+      "name_label": "Tên danh mục (Tiếng Việt)",
       "name_placeholder": "VD: Ăn sáng, Mua sắm...",
+      "name_en_label": "Tên danh mục (Tiếng Anh)",
+      "name_en_placeholder": "VD: Breakfast, Shopping...",
       "type_label": "Loại danh mục",
       "parent_label": "Danh mục cha",
       "parent_no_parent": "Không có (danh mục gốc)",

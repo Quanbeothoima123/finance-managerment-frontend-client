@@ -9,6 +9,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { useLocalizedName } from "../utils/localizedName";
 import { Card } from "../components/Card";
 import { Button } from "../components/Button";
 import { ConfirmationModal } from "../components/ConfirmationModals";
@@ -34,6 +35,7 @@ function TagCard({
   onViewTransactions: () => void;
 }) {
   const { t } = useTranslation("tags-rules");
+  const localName = useLocalizedName();
   const color = ensureColor(tag.colorHex || tag.color);
 
   return (
@@ -59,7 +61,7 @@ function TagCard({
 
             <div className="min-w-0">
               <p className="font-medium text-[var(--text-primary)] truncate">
-                {tag.name}
+                {localName(tag)}
               </p>
               <p className="text-xs text-[var(--text-secondary)] mt-0.5">
                 {t("tags.list.card.stats", {
@@ -108,7 +110,7 @@ function TagCard({
               className="w-2 h-2 rounded-full"
               style={{ backgroundColor: color }}
             />
-            {tag.name}
+            {localName(tag)}
           </span>
 
           <div className="flex items-center gap-2">

@@ -29,6 +29,7 @@ import {
 } from "lucide-react";
 import { useParams } from "react-router";
 import { useTranslation } from "react-i18next";
+import { useLocalizedName } from "../utils/localizedName";
 import { Card } from "../components/Card";
 import { Input } from "../components/Input";
 import { Button } from "../components/Button";
@@ -94,6 +95,7 @@ export default function CreateEditCategory({
   mode = "create",
 }: CreateEditCategoryProps) {
   const { t } = useTranslation('categories');
+  const localName = useLocalizedName();
   const { id } = useParams<{ id: string }>();
   const nav = useAppNavigation();
   const toast = useToast();
@@ -140,6 +142,7 @@ export default function CreateEditCategory({
 
   const [formData, setFormData] = useState<{
     name: string;
+    nameEn: string;
     kind: CategoryKind;
     icon: string;
     color: string;
@@ -147,6 +150,7 @@ export default function CreateEditCategory({
     active: boolean;
   }>({
     name: "",
+    nameEn: "",
     kind: "expense",
     icon: "shopping",
     color: "#ef4444",
@@ -164,6 +168,7 @@ export default function CreateEditCategory({
 
     setFormData({
       name: detailData.category.name,
+      nameEn: detailData.category.nameEn || "",
       kind: (detailData.category.categoryType as CategoryKind) || "expense",
       icon: detailData.category.iconKey || "shopping",
       color: detailData.category.colorHex || "#ef4444",
@@ -217,6 +222,7 @@ export default function CreateEditCategory({
 
       const payload = {
         name: formData.name.trim(),
+        nameEn: formData.nameEn.trim() || null,
         categoryType: formData.kind,
         iconKey: formData.icon || null,
         colorHex: normalizeColor(formData.color),
@@ -311,6 +317,15 @@ export default function CreateEditCategory({
                     error={errors.name}
                   />
 
+                  <Input
+                    label={t('form.fields.name_en_label')}
+                    placeholder={t('form.fields.name_en_placeholder')}
+                    value={formData.nameEn}
+                    onChange={(event) =>
+                      handleInputChange("nameEn", event.target.value)
+                    }
+                  />
+
                   <div>
                     <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
                       {t('form.fields.type_label')}
@@ -369,7 +384,7 @@ export default function CreateEditCategory({
                       <option value="">{t('form.fields.parent_no_parent')}</option>
                       {parentCategoryOptions.map((category) => (
                         <option key={category.id} value={category.id}>
-                          {category.name}
+                          {localName(category)}
                         </option>
                       ))}
                     </select>

@@ -2,6 +2,7 @@ import React, { useMemo, useState } from "react";
 import { useParams } from "react-router";
 import { ArrowLeft, Plus, Save } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { useLocalizedName } from "../utils/localizedName";
 import { Card } from "../components/Card";
 import { Button } from "../components/Button";
 import { useAppNavigation } from "../hooks/useAppNavigation";
@@ -29,6 +30,7 @@ export default function AddBudgetItem({
   const nav = useAppNavigation();
   const toast = useToast();
   const { t } = useTranslation("budgets");
+  const localName = useLocalizedName();
 
   const {
     data: metaData,
@@ -183,7 +185,7 @@ export default function AddBudgetItem({
                     </option>
                     {availableCategories.map((category) => (
                       <option key={category.id} value={category.id}>
-                        {category.name}
+                        {localName(category)}
                       </option>
                     ))}
                   </select>

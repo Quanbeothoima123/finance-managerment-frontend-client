@@ -1,5 +1,6 @@
 import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import { useLocalizedName } from "../utils/localizedName";
 import {
   TrendingUp,
   TrendingDown,
@@ -127,6 +128,7 @@ function InsightCard({
 
 export default function InsightsOverview() {
   const { t, i18n } = useTranslation("insights");
+  const localName = useLocalizedName();
   const nav = useAppNavigation();
   const toast = useToast();
 
@@ -835,7 +837,7 @@ export default function InsightsOverview() {
                 <div key={category.name}>
                   <div className="flex items-center justify-between mb-1.5">
                     <span className="text-sm text-[var(--text-primary)]">
-                      {category.name}
+                      {localName(category)}
                     </span>
                     <div className="flex items-center gap-2">
                       <span className="text-sm font-semibold text-[var(--text-primary)] tabular-nums">

@@ -53,8 +53,10 @@
       "color_section": "Color",
       "preview_section": "Preview",
       "fields": {
-        "name_label": "Name",
-        "name_placeholder": "E.g. Work, Essential...",
+        "name_label": "Name (Vietnamese)",
+        "name_placeholder": "VD: Công việc, Cần thiết...",
+        "name_en_label": "Name (English)",
+        "name_en_placeholder": "E.g. Work, Essential...",
         "color_label": "HEX color code",
         "color_placeholder": "#ef4444"
       },

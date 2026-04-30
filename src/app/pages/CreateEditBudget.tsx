@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { useParams } from "react-router";
 import { useTranslation } from "react-i18next";
+import { useLocalizedName } from "../utils/localizedName";
 import { Card } from "../components/Card";
 import { Button } from "../components/Button";
 import { Input } from "../components/Input";
@@ -91,6 +92,7 @@ export default function CreateEditBudget({
   const nav = useAppNavigation();
   const toast = useToast();
   const { t } = useTranslation("budgets");
+  const localName = useLocalizedName();
   const isEditMode = mode === "edit";
 
   const {
@@ -580,7 +582,7 @@ export default function CreateEditBudget({
                   </option>
                   {availableCategories.map((category) => (
                     <option key={category.id} value={category.id}>
-                      {category.name}
+                      {localName(category)}
                     </option>
                   ))}
                 </select>

@@ -53,8 +53,10 @@
       "color_section": "Màu sắc",
       "preview_section": "Xem trước",
       "fields": {
-        "name_label": "Tên",
+        "name_label": "Tên (Tiếng Việt)",
         "name_placeholder": "VD: Công việc, Cần thiết...",
+        "name_en_label": "Tên (Tiếng Anh)",
+        "name_en_placeholder": "VD: Work, Essential...",
         "color_label": "Mã màu HEX",
         "color_placeholder": "#ef4444"
       },

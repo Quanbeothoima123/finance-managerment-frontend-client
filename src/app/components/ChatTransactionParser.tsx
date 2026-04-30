@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useLocalizedName } from "../utils/localizedName";
 import {
   AlertTriangle,
   Check,
@@ -390,6 +391,7 @@ export function ChatTransactionParser({
   onApply,
 }: ChatTransactionParserProps) {
   const { t } = useTranslation("transactions");
+  const localName = useLocalizedName();
   const toast = useToast();
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -683,7 +685,7 @@ export function ChatTransactionParser({
                       </option>
                       {filteredCategories.map((category) => (
                         <option key={category.id} value={category.id}>
-                          {category.name}
+                          {localName(category)}
                         </option>
                       ))}
                     </select>

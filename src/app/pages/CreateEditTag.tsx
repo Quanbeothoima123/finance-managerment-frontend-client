@@ -57,6 +57,7 @@ export default function CreateEditTag({ mode = "create" }: CreateEditTagProps) {
 
   const [formData, setFormData] = useState({
     name: "",
+    nameEn: "",
     color: "#ef4444",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -67,11 +68,12 @@ export default function CreateEditTag({ mode = "create" }: CreateEditTagProps) {
     if (!tag || !isEditMode) return;
     setFormData({
       name: tag.name,
+      nameEn: tag.nameEn || "",
       color: tag.colorHex || tag.color || "#ef4444",
     });
   }, [tag, isEditMode]);
 
-  const handleInputChange = (field: "name" | "color", value: string) => {
+  const handleInputChange = (field: "name" | "nameEn" | "color", value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: "" }));
@@ -102,6 +104,7 @@ export default function CreateEditTag({ mode = "create" }: CreateEditTagProps) {
 
       const payload = {
         name: formData.name.trim(),
+        nameEn: formData.nameEn.trim() || null,
         colorHex: normalizeColor(formData.color),
       };
 
@@ -176,6 +179,15 @@ export default function CreateEditTag({ mode = "create" }: CreateEditTagProps) {
                 handleInputChange("name", event.target.value)
               }
               error={errors.name}
+            />
+
+            <Input
+              label={t("tags.form.fields.name_en_label")}
+              placeholder={t("tags.form.fields.name_en_placeholder")}
+              value={formData.nameEn}
+              onChange={(event) =>
+                handleInputChange("nameEn", event.target.value)
+              }
             />
           </Card>
 

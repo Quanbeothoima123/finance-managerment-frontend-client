@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router";
 import { ArrowLeft, Hash, Play, Save, Store, Tag, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { useLocalizedName } from "../utils/localizedName";
 import { Card } from "../components/Card";
 import { Button } from "../components/Button";
 import { Input } from "../components/Input";
@@ -39,6 +40,7 @@ export default function CreateAutoRule({
   mode = "create",
 }: CreateAutoRuleProps) {
   const { t } = useTranslation("tags-rules");
+  const localName = useLocalizedName();
   const nav = useAppNavigation();
   const toast = useToast();
   const { id } = useParams<{ id: string }>();
@@ -457,7 +459,7 @@ export default function CreateAutoRule({
                 <option value="">{t("auto_rules.form.fields.category_no_change")}</option>
                 {meta.categories.map((category) => (
                   <option key={category.id} value={category.id}>
-                    {category.name}
+                    {localName(category)}
                   </option>
                 ))}
               </select>
@@ -500,7 +502,7 @@ export default function CreateAutoRule({
                   .filter((tag) => !selectedTags.includes(tag.id))
                   .map((tag) => (
                     <option key={tag.id} value={tag.id}>
-                      {tag.name}
+                      {localName(tag)}
                     </option>
                   ))}
               </select>
@@ -513,7 +515,7 @@ export default function CreateAutoRule({
                         key={tag.id}
                         className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[var(--info-light)] text-[var(--info)] rounded-[var(--radius-md)] text-sm"
                       >
-                        {tag.name}
+                        {localName(tag)}
                         <button
                           onClick={() => handleRemoveTag(tag.id)}
                           className="hover:text-[var(--danger)] transition-colors"

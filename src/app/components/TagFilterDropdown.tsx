@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { Tag, ChevronDown, ChevronUp, X } from 'lucide-react';
+import { useLocalizedName } from '../utils/localizedName';
 
 type TagFilterMode = 'AND' | 'OR';
 
 interface TagItem {
   id: string;
   name: string;
+  nameEn?: string | null;
   color: string;
 }
 
@@ -28,6 +30,7 @@ export function TagFilterDropdown({
   compact = false,
 }: TagFilterDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const localName = useLocalizedName();
 
   const toggleTag = (tagId: string) => {
     if (selectedTags.includes(tagId)) {
@@ -109,7 +112,7 @@ export function TagFilterDropdown({
                         className="w-2 h-2 rounded-full flex-shrink-0"
                         style={{ backgroundColor: isActive ? 'rgba(255,255,255,0.5)' : tag.color }}
                       />
-                      {tag.name}
+                      {localName(tag)}
                       {isActive && <X className="w-3 h-3 ml-0.5" />}
                     </button>
                   );

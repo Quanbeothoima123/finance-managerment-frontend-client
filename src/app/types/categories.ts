@@ -4,6 +4,7 @@ export interface CategoryItem {
   id: string;
   ledgerId: string;
   name: string;
+  nameEn: string | null;
   categoryType: CategoryKind | string;
   type: CategoryKind | string;
   parentId: string | null;
@@ -107,6 +108,7 @@ export interface CategoryDetailResponse {
 
 export interface CreateCategoryPayload {
   name: string;
+  nameEn?: string | null;
   categoryType?: CategoryKind;
   type?: CategoryKind;
   kind?: CategoryKind;

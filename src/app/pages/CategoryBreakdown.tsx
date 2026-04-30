@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import { useLocalizedName } from "../utils/localizedName";
 import {
   ArrowLeft,
   PieChart as PieChartIcon,
@@ -57,6 +58,7 @@ interface CategoryItemProps {
 
 function CategoryItem({ category, rank }: CategoryItemProps) {
   const { t, i18n } = useTranslation("insights");
+  const localName = useLocalizedName();
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat(
       i18n.language === "vi" ? "vi-VN" : "en-US",
@@ -75,7 +77,7 @@ function CategoryItem({ category, rank }: CategoryItemProps) {
         />
         <div className="flex-1">
           <p className="text-sm font-medium text-[var(--text-primary)]">
-            {category.name}
+            {localName(category)}
           </p>
           <p className="text-xs text-[var(--text-secondary)]">
             {category.transactions}{" "}

@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useCallback } from "react";
 import { useTranslation } from "react-i18next";
+import { useLocalizedName } from "../utils/localizedName";
 import {
   ArrowLeft,
   Share2,
@@ -194,6 +195,7 @@ function ShareSheet({
 // ═══════════════════════════════════════════════════════════════════════════
 export default function MonthlySummaryReport() {
   const { t, i18n } = useTranslation('reports');
+  const localName = useLocalizedName();
   const locale = i18n.language === 'vi' ? 'vi-VN' : 'en-US';
   const now = new Date();
   const pad = (n: number) => String(n).padStart(2, "0");
@@ -645,7 +647,7 @@ export default function MonthlySummaryReport() {
                       <div key={i}>
                         <div className="flex items-center justify-between mb-1.5">
                           <span className="text-sm text-[var(--text-primary)]">
-                            {cat.name}
+                            {localName(cat)}
                           </span>
                           <div className="flex items-center gap-2">
                             <span className="text-sm font-semibold text-[var(--text-primary)] tabular-nums">

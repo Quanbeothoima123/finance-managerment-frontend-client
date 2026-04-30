@@ -11,6 +11,7 @@ import {
   Save,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { useLocalizedName } from "../utils/localizedName";
 import { Card } from "../components/Card";
 import { Button } from "../components/Button";
 import {
@@ -69,6 +70,7 @@ export default function BudgetDetail() {
   const nav = useAppNavigation();
   const toast = useToast();
   const { t } = useTranslation("budgets");
+  const localName = useLocalizedName();
 
   const { data, loading, error, reload } = useBudgetDetail(id);
 
@@ -517,7 +519,7 @@ export default function BudgetDetail() {
                                 }}
                                 className="text-xs text-[var(--primary)] hover:underline"
                               >
-                                {transaction.category.name}
+                                {localName(transaction.category)}
                               </button>
                             )}
 
@@ -550,6 +552,7 @@ export default function BudgetDetail() {
                                 >
                                   <TagChip
                                     name={tag.name}
+                                    nameEn={tag.nameEn}
                                     color={tag.colorHex || "#64748b"}
                                     className="hover:scale-[1.02] transition-transform"
                                   />

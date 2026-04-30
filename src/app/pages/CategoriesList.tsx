@@ -34,6 +34,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { useLocalizedName } from "../utils/localizedName";
 import { Card } from "../components/Card";
 import { Button } from "../components/Button";
 import { ConfirmationModal } from "../components/ConfirmationModals";
@@ -107,6 +108,7 @@ function CategoryRow({
   onViewTransactions: (category: CategoryTreeNode) => void;
 }) {
   const { t } = useTranslation('categories');
+  const localName = useLocalizedName();
   const Icon = getCategoryIcon(category.iconKey || category.icon);
   const hasChildren = category.children.length > 0;
   const isExpanded = expandedIds.has(category.id);
@@ -156,7 +158,7 @@ function CategoryRow({
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <p className="font-medium text-[var(--text-primary)] truncate">
-                {category.name}
+                {localName(category)}
               </p>
 
               <span className="text-[10px] px-2 py-0.5 rounded-full bg-[var(--surface)] border border-[var(--border)] text-[var(--text-tertiary)]">

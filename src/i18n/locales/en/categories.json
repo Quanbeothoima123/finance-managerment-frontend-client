@@ -98,8 +98,10 @@
     "appearance_section": "Icon & color",
     "preview_section": "Preview",
     "fields": {
-      "name_label": "Category name",
-      "name_placeholder": "E.g. Breakfast, Shopping...",
+      "name_label": "Category name (Vietnamese)",
+      "name_placeholder": "VD: Ăn sáng, Mua sắm...",
+      "name_en_label": "Category name (English)",
+      "name_en_placeholder": "E.g. Breakfast, Shopping...",
       "type_label": "Category type",
       "parent_label": "Parent category",
       "parent_no_parent": "None (root category)",

@@ -22,6 +22,7 @@ import {
   YAxis,
 } from "recharts";
 import { useTranslation } from "react-i18next";
+import { useLocalizedName } from "../utils/localizedName";
 import { Card } from "../components/Card";
 import { Button } from "../components/Button";
 import { TagChip } from "../components/TagChip";
@@ -240,6 +241,7 @@ export default function AccountDetail() {
   const nav = useAppNavigation();
   const toast = useToast();
   const { t } = useTranslation("accounts");
+  const localName = useLocalizedName();
   const { data, loading, error, reload } = useAccountDetail(id);
 
   const [showMenu, setShowMenu] = useState(false);
@@ -640,7 +642,7 @@ export default function AccountDetail() {
                               }}
                               className="text-xs text-[var(--primary)] hover:underline"
                             >
-                              {transaction.category.name}
+                              {localName(transaction.category)}
                             </button>
                           )}
 
@@ -672,6 +674,7 @@ export default function AccountDetail() {
                               >
                                 <TagChip
                                   name={tag.name}
+                                  nameEn={tag.nameEn}
                                   color={tag.colorHex || "#64748b"}
                                   className="hover:scale-[1.02] transition-transform"
                                 />
